@@ -1,0 +1,34 @@
+- clean up menu code from 9wm
+
+- window initial position
+
+- don't map windows if it's within [some time increment] of active typing,
+  this is part of the "calm" goal.  also, it helps if you're mindlessly
+  typing in a password and the keyboard input ends up in some other window,
+  bad...
+
+- integrate everything into /ONE/ event loop.
+  register handlers, with the ability to select, for example,
+  a window, or an event, etc.  (no, maybe not...)
+
+- ignoreq, always lower them.  perhaps implement by lowering the entire 
+  queue on each XLower...
+
+- kbd shortcut for xlock
+
+- search window should try to stay inside of the screen boundaries.
+
+- geographical keyboard navigation (window switching)
+
+- search should ignore the current window. (not add to match list).
+
+- make kbd shortcuts/events more general.  the ability to associate an
+  event with a mode (i.e. prioritize).  gets rid of hacky-ness in
+  groups, etc.
+
+- figure out what's up when alt-tab goes back to the current window
+  once before moving on.
+
+- cache all the atoms somewhere.
+
+- convert globals from G_foo to Foo;
