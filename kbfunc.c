@@ -123,6 +123,12 @@ kbfunc_lock(struct client_ctx *cc, void *arg)
 }
 
 void
+kbfunc_exec(struct client_ctx *scratch, void *arg)
+{
+	grab_exec();
+}
+
+void
 kbfunc_client_label(struct client_ctx *cc, void *arg)
 {
 	grab_label(cc);

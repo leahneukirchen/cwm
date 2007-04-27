@@ -430,6 +430,85 @@ grab_label(struct client_ctx *cc)
 	XUnmapWindow(G_dpy, sc->searchwin);
 }
 
+#define ExecMask (KeyPressMask|ExposureMask)
+
+void
+grab_exec(void)
+{
+	int x, y, dx, dy, fontheight, focusrevert, len;
+	char cmdstr[MAXPATHLEN];
+	char dispstr[MAXPATHLEN + sizeof("exec>") - 1];
+	char chr, str[2];
+	enum ctltype ctl;
+	struct fontdesc *font = DefaultFont;
+	struct screen_ctx *sc = screen_current();
+	XEvent e;
+	Window focuswin;
+
+	cmdstr[0] = '\0';
+
+	xu_ptr_getpos(sc->rootwin, &x, &y);
+
+	dy = fontheight = font_ascent(font) + font_descent(font) + 1;
+	dx = font_width(font, "exec>", 5);
+
+	XMoveResizeWindow(G_dpy, sc->searchwin, x, y, dx, dy);
+	XSelectInput(G_dpy, sc->searchwin, ExecMask);
+	XMapRaised(G_dpy, sc->searchwin);
+
+	XGetInputFocus(G_dpy, &focuswin, &focusrevert);
+	XSetInputFocus(G_dpy, sc->searchwin,
+	    RevertToPointerRoot, CurrentTime);
+
+	for (;;) {
+		XMaskEvent(G_dpy, ExecMask, &e);
+
+		switch (e.type) {
+		case KeyPress:
+			if (input_keycodetrans(e.xkey.keycode, e.xkey.state,
+				&ctl, &chr, 0) < 0)
+				continue;
+
+			switch (ctl) {
+			case CTL_ERASEONE:
+				if ((len = strlen(cmdstr)) > 0)
+					cmdstr[len - 1] = '\0';
+				break;
+			case CTL_RETURN:
+				if (strlen(cmdstr) > 0)
+					u_spawn(cmdstr);
+				goto out;
+				break;
+			case CTL_ABORT:
+				goto out;
+			default:
+				break;
+			}
+
+			if (chr != '\0') {
+				str[0] = chr;
+				str[1] = '\0';
+				strlcat(cmdstr, str, sizeof(cmdstr));
+			}
+		case Expose:
+			snprintf(dispstr, sizeof(dispstr), "exec>%s", cmdstr);
+
+			dx = font_width(font, dispstr, strlen(dispstr));
+			dy = fontheight;
+
+			XClearWindow(G_dpy, sc->searchwin);
+			XResizeWindow(G_dpy, sc->searchwin, dx, dy);
+
+			font_draw(font, dispstr, strlen(dispstr),
+			    sc->searchwin, 0, font_ascent(font) + 1);
+			break;
+		}
+	}
+ out:
+	XSetInputFocus(G_dpy, focuswin, focusrevert, CurrentTime);
+	XUnmapWindow(G_dpy, sc->searchwin);
+}
+
 int
 _sweepcalc(struct client_ctx *cc, int x0, int y0, int motionx, int motiony)
 {

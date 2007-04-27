@@ -378,6 +378,7 @@ int   grab_drag(struct client_ctx *);
 void  grab_menuinit(struct screen_ctx *);
 void *grab_menu(XButtonEvent *, struct menu_q *);
 void  grab_label(struct client_ctx *);
+void  grab_exec(void);
 
 void  xfree(void *);
 void *xmalloc(size_t);
@@ -425,6 +426,7 @@ void kbfunc_client_nogroup(struct client_ctx *, void *);
 void kbfunc_client_maximize(struct client_ctx *, void *);
 void kbfunc_client_vmaximize(struct client_ctx *, void *);
 void kbfunc_menu_search(struct client_ctx *, void *);
+void kbfunc_exec(struct client_ctx *, void *);
 void kbfunc_term(struct client_ctx *cc, void *arg);
 void kbfunc_lock(struct client_ctx *cc, void *arg);
 
