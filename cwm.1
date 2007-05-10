@@ -15,18 +15,18 @@
 .Op Fl f Ar fontname
 .Sh DESCRIPTION
 .Nm
-is a window manager for X11.  It was originally inspired by evilwm,
-but was rewritten from scratch due to limitations in the evilwm
-codebase.  The from-scratch rewrite borrowed some code from 9wm.
+is a window manager for X11.
+It was originally inspired by evilwm, but was rewritten from scratch
+due to limitations in the evilwm codebase.
+The from-scratch rewrite borrowed some code from 9wm.
 .Nm
 contains many new features which all concentrate on the efficiency and
 transparency of window management.  
 .Nm
 also aims to maintain the most simplest and pleasant aesthetic.
-
 .Sh BASIC OPERATION
 We will adopt the following notation:
-
+.Pp
 .Bl -tag -width 10n -offset -indent -compact
 .It Fa C
 Control
@@ -41,12 +41,13 @@ Middle mouse button
 .It Fa M3
 Right mouse button
 .El
-
+.Pp
 .Nm
-is very simple in its use.  Most of the actions are initiated via
-keybindings.  The current keybindings are described below, their
-functionality is described in more detail later.
-
+is very simple in its use.
+Most of the actions are initiated via keybindings.
+The current keybindings are described below, their functionality
+is described in more detail later.
+.Pp
 .Bl -tag -width 10n -offset -indent -compact
 .It Fa C-M-Enter
 Spawn a new terminal.
@@ -85,22 +86,22 @@ Toggle vertical maximization of window.
 .It Fa M-?
 Spawn \&"Exec program\&" dialog.
 .El
-
+.Pp
 The mouse bindings are also important, they are:
-
+.Pp
 .Bl -tag -width 10n -offset -indent -compact
 .It Fa M-M1
 Move a window.
 .It Fa C-M-M1
-Toggle a window's membership in the current group.  A blue highlight
-indicates the window has been added to the group, a red highlight
-indicates it has been removed.
+Toggle a window's membership in the current group.
+A blue highlight indicates the window has been added to the group,
+a red highlight indicates it has been removed.
 .It Fa M-M2
 Resize a window/Select a window.
 .It Fa M-M3
 Lower a window.
 .El
-
+.Pp
 The options for
 .Nm
 are as follows:
@@ -119,28 +120,27 @@ font string
 .Ar fontname
 the default font.
 .El
-
 .Sh SEARCH
 .Nm 
 features the ability to search for windows by their current title, old
-titles and by their label.  The priority for the search results are:
-Label, current title, old titles in reverse order and finally window
-class name.
+titles and by their label.
+The priority for the search results are: Label, current title, old
+titles in reverse order and finally window class name.
 .Nm
 keeps a history of the 5 previous titles of a window.
-
+.Pp
 When searching, the leftmost character of the result list may show a
 flag:
-
+.Pp
 .Bl -tag -width 10n -offset -indent -compact
 .It Fa !
 The window is the currently focused window.
 .It Fa &
 The window is hidden.
 .El
-
+.Pp
 The following keybindings may be used to navigate the result list:
-
+.Pp
 .Bl -tag -width 10n -offset -indent -compact
 .It [Down] or C-s
 Select the next window in the list.
@@ -155,58 +155,56 @@ Quit.
 .It C-a
 Whenever there are no matching windows, list every window.
 .El
-
 .Sh GROUPS
 .Nm
 has the ability to group windows together, and use the groups to
 perform operations on the entire group instead of just one window.
 Currently, the only operation that is supported is to hide and unhide
-the grouped windows.  Together with the
+the grouped windows.
+Together with the
 .Fl s
 option, this can be used to emulate virtual desktops.
-
+.Pp
 To edit groups, enter the group edit mode, and select/unselect the
-groups with the group selection mouse click.  A blue border will be
-shown on the currently selected windows.  The group selection keyboard
-shortcuts can also be used to change which group to edit.
-
+groups with the group selection mouse click.
+A blue border will be shown on the currently selected windows.
+The group selection keyboard shortcuts can also be used to change
+which group to edit.
 .Sh MENUS
 Menus are recalled by clicking the mouse on the root window:
-
+.Pp
 .Bl -tag -width 10n -offset -indent -compact
 .It Fa M1
-Show list of currently hidden windows.  Clicking on an item will
-unhide that window.
+Show list of currently hidden windows.
+Clicking on an item will unhide that window.
 .It Fa M2
-Show list of currently defined groups.  Clicking on an item will
-hide/unhide that group.
+Show list of currently defined groups.
+Clicking on an item will hide/unhide that group.
 .It Fa M3
 Show list of applications as defined in 
 .Fa ~/.calmwm .
 Clicking on an item will spawn that application.  
 .El
-
 .Sh ~/.calmwm
-
-Any directory entries here are shown in the application menu.  When it
-is selected, the image is executed with
+Any directory entries here are shown in the application menu.
+When it is selected, the image is executed with
 .Xr execve 2 .
 One use of this is to create symbolic links for your favorite
 applications in this directory using 
 .Xr ln 1 .
-
+.Pp
 The entries
 .Nm term
 and 
 .Nm lock
-have special meaning.  When they exist they point to the terminal
-program and screen locking programs used by the keybindings specified
-above.  The defaults for these are 
+have special meaning.
+When they exist they point to the terminal program and screen locking
+programs used by the keybindings specified above.
+The defaults for these are 
 .Xr xterm 1
 and 
 .Xr xlock 1 ,
 respectively.
-
 .Sh ENVIRONMENT
 .TP
 DISPLAY
@@ -214,11 +212,9 @@ DISPLAY
 starts on this display unless the
 .Fl d
 option is given.
-
 .Sh ACKNOWLEDGEMENTS
 .Nm
 contains some code from 9wm.
-
 .Sh AUTHORS
 The
 .Nm
