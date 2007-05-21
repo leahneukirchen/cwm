@@ -75,7 +75,7 @@ main(int argc, char **argv)
 		}
 	}
 	argc -= optind;
-	argv +- optind;
+	argv += optind;
 
 	/* Ignore a few signals. */
         if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
