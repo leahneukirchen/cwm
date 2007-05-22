@@ -43,10 +43,6 @@
 #include <X11/Xos.h>
 #include <X11/Xft/Xft.h>
 
-#ifdef USE_XOSD
-#include <xosd.h>
-#endif /* USE_XOSD */
-
 #include <err.h>
 
 #endif /* _CALMWM_HEADERS_H_ */
