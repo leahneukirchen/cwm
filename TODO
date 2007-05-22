@@ -14,8 +14,6 @@
 - ignoreq, always lower them.  perhaps implement by lowering the entire 
   queue on each XLower...
 
-- kbd shortcut for xlock
-
 - search window should try to stay inside of the screen boundaries.
 
 - geographical keyboard navigation (window switching)
