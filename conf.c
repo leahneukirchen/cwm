@@ -229,6 +229,8 @@ conf_setup(struct conf *c)
 		    XK_Right, Mod1Mask, 0, 0);
 		conf_bindkey(c, kbfunc_client_prevgroup,
 		    XK_Left, Mod1Mask, 0, 0);
+                conf_bindkey(c, kbfunc_client_maximize,
+		    XK_f, ControlMask|Mod1Mask, KBFLAG_NEEDCLIENT, 0);
 		conf_bindkey(c, kbfunc_client_vmaximize,
 		    XK_equal, ControlMask|Mod1Mask, KBFLAG_NEEDCLIENT, 0);
         }
@@ -410,7 +412,7 @@ conf_parsekeys(struct conf *c, char *filename)
 
 		substring = strchr(ent->d_name, '-') + 1;
 
-		// if there is no '-' in name, continue as is
+		/* If there is no '-' in name, continue as is */
 		if (strchr(ent->d_name, '-') == NULL)
 			substring = ent->d_name;
 
