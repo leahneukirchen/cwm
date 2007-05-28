@@ -149,6 +149,9 @@ conf_cmd_populate(struct conf *c, char *path)
 		/* Add a dynamic entry to the command menu */
 		conf_cmd_add(c, fullname, filename, 0);
 	}
+
+	closedir(dir);
+
 }
 
 void
@@ -531,4 +534,7 @@ conf_parseautogroups(struct conf *c, char *filename)
 
 		TAILQ_INSERT_TAIL(&c->autogroupq, aw, entry);
 	}
+
+	closedir(dir);
+
 }
