@@ -33,7 +33,7 @@ _visible(struct client_ctx *this_cc)
 	if (cc->flags & CLIENT_HIDDEN)
 		return (0);
 
-	TAILQ_FOREACH(cc, &G_clientq, entry) {
+	TAILQ_FOREACH(cc, &Clientq, entry) {
 		if (cc->flags & CLIENT_HIDDEN)
 			continue;
 

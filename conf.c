@@ -78,9 +78,9 @@ conf_cmd_add(struct conf *c, char *image, char *label, int flags)
 	/* "term" and "lock" have special meanings. */
 
 	if (strcmp(label, "term") == 0) {
-		strlcpy(G_conf.termpath, image, sizeof(G_conf.termpath));
+		strlcpy(Conf.termpath, image, sizeof(Conf.termpath));
 	} else if (strcmp(label, "lock") == 0) {
-		strlcpy(G_conf.lockpath, image, sizeof(G_conf.lockpath));
+		strlcpy(Conf.lockpath, image, sizeof(Conf.lockpath));
 	} else {
 		struct cmd *cmd;
 		XMALLOC(cmd, struct cmd);
@@ -262,8 +262,8 @@ conf_setup(struct conf *c)
 	c->flags = 0;
 
 	/* Default term/lock */
-	strlcpy(G_conf.termpath, "xterm", sizeof(G_conf.termpath));
-	strlcpy(G_conf.lockpath, "xlock", sizeof(G_conf.lockpath));
+	strlcpy(Conf.termpath, "xterm", sizeof(Conf.termpath));
+	strlcpy(Conf.lockpath, "xlock", sizeof(Conf.lockpath));
 }
 
 int
@@ -471,7 +471,7 @@ conf_parsesettings(struct conf *c, char *filename)
 		if (ent->d_name[0] == '.')
 			continue;
 		if (strncmp(ent->d_name, "sticky", 7)==0)
-			G_conf.flags |= CONF_STICKY_GROUPS;
+			Conf.flags |= CONF_STICKY_GROUPS;
 	}
 	closedir(dir);
 }

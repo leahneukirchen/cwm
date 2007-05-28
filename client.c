@@ -21,7 +21,7 @@ struct client_ctx *_curcc = NULL;
 void
 client_setup(void)
 {
-	TAILQ_INIT(&G_clientq);
+	TAILQ_INIT(&Clientq);
 }
 
 struct client_ctx *
@@ -29,7 +29,7 @@ client_find(Window win)
 {
 	struct client_ctx *cc;
 
-	TAILQ_FOREACH(cc, &G_clientq, entry)
+	TAILQ_FOREACH(cc, &Clientq, entry)
 		if (cc->pwin == win || cc->win == win)
 			return (cc);
 
@@ -51,7 +51,7 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 
 	XCALLOC(cc, struct client_ctx);
 
-	XGrabServer(G_dpy);
+	XGrabServer(X_Dpy);
 
 	cc->state = mapped ? NormalState : IconicState;
 	cc->sc = sc;
@@ -70,8 +70,8 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	 */
 	conf_client(cc);
 
-	XGetWMNormalHints(G_dpy, cc->win, cc->size, &tmp);
-	XGetWindowAttributes(G_dpy, cc->win, &wattr);
+	XGetWMNormalHints(X_Dpy, cc->win, cc->size, &tmp);
+	XGetWindowAttributes(X_Dpy, cc->win, &wattr);
 
 	if (cc->size->flags & PBaseSize) {
 		cc->geom.min_dx = cc->size->base_width;
@@ -96,7 +96,7 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 
 	if (wattr.map_state != IsViewable) {
 		client_placecalc(cc);
-		if ((wmhints = XGetWMHints(G_dpy, cc->win)) != NULL) {
+		if ((wmhints = XGetWMHints(X_Dpy, cc->win)) != NULL) {
 			if (wmhints->flags & StateHint)
 				xu_setstate(cc, wmhints->initial_state);
 
@@ -107,7 +107,7 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	if (xu_getstate(cc, &state) < 0)
 		state = NormalState;
 
-	XSelectInput(G_dpy, cc->win,
+	XSelectInput(X_Dpy, cc->win,
 	    ColormapChangeMask|EnterWindowMask|PropertyChangeMask|KeyReleaseMask);
 
 	x = cc->geom.x - cc->bwidth;
@@ -129,24 +129,24 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 /* 	pxattr.background_pixel = sc->whitepix; */
 	
 
-/* 	cc->pwin = XCreateSimpleWindow(G_dpy, sc->rootwin, */
+/* 	cc->pwin = XCreateSimpleWindow(X_Dpy, sc->rootwin, */
 /* 	    x, y, width, height, 1, sc->blackpix, sc->whitepix); */
 
-	cc->pwin = XCreateWindow(G_dpy, sc->rootwin, x, y,
+	cc->pwin = XCreateWindow(X_Dpy, sc->rootwin, x, y,
 	    width, height, 0,	/* XXX */
-	    DefaultDepth(G_dpy, sc->which), CopyFromParent,
-	    DefaultVisual(G_dpy, sc->which),
+	    DefaultDepth(X_Dpy, sc->which), CopyFromParent,
+	    DefaultVisual(X_Dpy, sc->which),
 	    CWOverrideRedirect | CWBackPixel | CWEventMask, &pxattr);
 
-	if (G_doshape) {
+	if (Doshape) {
 		XRectangle *r;
 		int n, tmp;
 
-		XShapeSelectInput(G_dpy, cc->win, ShapeNotifyMask);
+		XShapeSelectInput(X_Dpy, cc->win, ShapeNotifyMask);
 
-		r = XShapeGetRectangles(G_dpy, cc->win, ShapeBounding, &n, &tmp);
+		r = XShapeGetRectangles(X_Dpy, cc->win, ShapeBounding, &n, &tmp);
 		if (n > 1)
-			XShapeCombineShape(G_dpy, cc->pwin, ShapeBounding,
+			XShapeCombineShape(X_Dpy, cc->pwin, ShapeBounding,
 			    0,	0, /* XXX border */
 			    cc->win, ShapeBounding, ShapeSet);
 		XFree(r);
@@ -155,28 +155,28 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	cc->active = 0;
 	client_draw_border(cc);
 
-	XAddToSaveSet(G_dpy, cc->win);
-	XSetWindowBorderWidth(G_dpy, cc->win, 0);
-	XReparentWindow(G_dpy, cc->win, cc->pwin, cc->bwidth, cc->bwidth);
+	XAddToSaveSet(X_Dpy, cc->win);
+	XSetWindowBorderWidth(X_Dpy, cc->win, 0);
+	XReparentWindow(X_Dpy, cc->win, cc->pwin, cc->bwidth, cc->bwidth);
 
 	/* Notify client of its configuration. */
 	xev_reconfig(cc);
 
-	XMapRaised(G_dpy, cc->pwin);
-	XMapWindow(G_dpy, cc->win);
+	XMapRaised(X_Dpy, cc->pwin);
+	XMapWindow(X_Dpy, cc->win);
 	xu_setstate(cc, cc->state);
 
-	XSync(G_dpy, False);
-	XUngrabServer(G_dpy);
+	XSync(X_Dpy, False);
+	XUngrabServer(X_Dpy);
 
 	TAILQ_INSERT_TAIL(&sc->mruq, cc, mru_entry);
-	TAILQ_INSERT_TAIL(&G_clientq, cc, entry);
+	TAILQ_INSERT_TAIL(&Clientq, cc, entry);
 
 	client_gethints(cc);
 	client_update(cc);
 	
 	if (mapped) {
-		if (G_conf.flags & CONF_STICKY_GROUPS)
+		if (Conf.flags & CONF_STICKY_GROUPS)
 			group_sticky(cc);
 		else
 			group_autogroup(cc);
@@ -195,25 +195,25 @@ client_delete(struct client_ctx *cc, int sendevent, int ignorewindow)
 		return (1);
 
 	group_client_delete(cc);
-	XGrabServer(G_dpy);
+	XGrabServer(X_Dpy);
 
 	xu_setstate(cc, WithdrawnState);
-	XRemoveFromSaveSet(G_dpy, cc->win);
+	XRemoveFromSaveSet(X_Dpy, cc->win);
 
 	if (!ignorewindow) {
 		client_gravitate(cc, 0);
-		XSetWindowBorderWidth(G_dpy, cc->win, 1);	/* XXX */
-		XReparentWindow(G_dpy, cc->win,
+		XSetWindowBorderWidth(X_Dpy, cc->win, 1);	/* XXX */
+		XReparentWindow(X_Dpy, cc->win,
 		    sc->rootwin, cc->geom.x, cc->geom.y);
 	}
 	if (cc->pwin)
-		XDestroyWindow(G_dpy, cc->pwin);
+		XDestroyWindow(X_Dpy, cc->pwin);
 
-	XSync(G_dpy, False);
-	XUngrabServer(G_dpy);
+	XSync(X_Dpy, False);
+	XUngrabServer(X_Dpy);
 
 	TAILQ_REMOVE(&sc->mruq, cc, mru_entry);
-	TAILQ_REMOVE(&G_clientq, cc, entry);
+	TAILQ_REMOVE(&Clientq, cc, entry);
 
 	if (_curcc == cc)
 		_curcc = NULL;
@@ -273,8 +273,8 @@ client_setactive(struct client_ctx *cc, int fg)
 	sc = CCTOSC(cc);
 
 	if (fg) {
-		XInstallColormap(G_dpy, cc->cmap);
-		XSetInputFocus(G_dpy, cc->win,
+		XInstallColormap(X_Dpy, cc->cmap);
+		XSetInputFocus(X_Dpy, cc->win,
 		    RevertToPointerRoot, CurrentTime);
 		xu_btn_grab(cc->pwin, Mod1Mask, AnyButton);
 		xu_btn_grab(cc->pwin, ControlMask|Mod1Mask, Button1);
@@ -334,7 +334,7 @@ client_maximize(struct client_ctx *cc)
 		XWindowAttributes rootwin_geom;
 		struct screen_ctx *sc = CCTOSC(cc);
 
-		XGetWindowAttributes(G_dpy, sc->rootwin, &rootwin_geom);
+		XGetWindowAttributes(X_Dpy, sc->rootwin, &rootwin_geom);
 		cc->savegeom = cc->geom;
 		cc->geom.x = 0;
 		cc->geom.y = 0;
@@ -362,10 +362,10 @@ client_restore_geometry(struct client_ctx *cc)
 void
 client_resize(struct client_ctx *cc)
 {
-	XMoveResizeWindow(G_dpy, cc->pwin, cc->geom.x - cc->bwidth,
+	XMoveResizeWindow(X_Dpy, cc->pwin, cc->geom.x - cc->bwidth,
 	    cc->geom.y - cc->bwidth, cc->geom.width + cc->bwidth*2,
 	    cc->geom.height + cc->bwidth*2);
-	XMoveResizeWindow(G_dpy, cc->win, cc->bwidth, cc->bwidth,
+	XMoveResizeWindow(X_Dpy, cc->win, cc->bwidth, cc->bwidth,
 	    cc->geom.width, cc->geom.height);
 	xev_reconfig(cc);
 	client_draw_border(cc);
@@ -374,7 +374,7 @@ client_resize(struct client_ctx *cc)
 void
 client_move(struct client_ctx *cc)
 {
-	XMoveWindow(G_dpy, cc->pwin,
+	XMoveWindow(X_Dpy, cc->pwin,
 	    cc->geom.x - cc->bwidth, cc->geom.y - cc->bwidth);
 	xev_reconfig(cc);
 }
@@ -382,13 +382,13 @@ client_move(struct client_ctx *cc)
 void
 client_lower(struct client_ctx *cc)
 {
-	XLowerWindow(G_dpy, cc->pwin);
+	XLowerWindow(X_Dpy, cc->pwin);
 }
 
 void
 client_raise(struct client_ctx *cc)
 {
-	XRaiseWindow(G_dpy, cc->pwin);
+	XRaiseWindow(X_Dpy, cc->pwin);
 	client_draw_border(cc);
 }
 
@@ -429,8 +429,8 @@ void
 client_hide(struct client_ctx *cc)
 {
 	/* XXX - add wm_state stuff */
-	XUnmapWindow(G_dpy, cc->pwin);
-	XUnmapWindow(G_dpy, cc->win);
+	XUnmapWindow(X_Dpy, cc->pwin);
+	XUnmapWindow(X_Dpy, cc->win);
 
 	cc->active = 0;
 	cc->flags |= CLIENT_HIDDEN;
@@ -443,8 +443,8 @@ client_hide(struct client_ctx *cc)
 void
 client_unhide(struct client_ctx *cc)
 {
-	XMapWindow(G_dpy, cc->win);
-	XMapRaised(G_dpy, cc->pwin);
+	XMapWindow(X_Dpy, cc->win);
+	XMapRaised(X_Dpy, cc->pwin);
 
 	cc->flags &= ~CLIENT_HIDDEN;
 	xu_setstate(cc, NormalState);
@@ -456,21 +456,21 @@ client_draw_border(struct client_ctx *cc)
 	struct screen_ctx *sc = CCTOSC(cc);
 
 	if (cc->active) {
-		XSetWindowBackground(G_dpy, cc->pwin, client_bg_pixel(cc));
-		XClearWindow(G_dpy, cc->pwin);
+		XSetWindowBackground(X_Dpy, cc->pwin, client_bg_pixel(cc));
+		XClearWindow(X_Dpy, cc->pwin);
 
 		if (!cc->highlight && cc->bwidth > 1)
-			XDrawRectangle(G_dpy, cc->pwin, sc->gc, 1, 1,
+			XDrawRectangle(X_Dpy, cc->pwin, sc->gc, 1, 1,
 			    cc->geom.width + cc->bwidth,
 			    cc->geom.height + cc->bwidth);
 	} else {
-		XSetWindowBackgroundPixmap(G_dpy, cc->pwin,
+		XSetWindowBackgroundPixmap(X_Dpy, cc->pwin,
 		    client_bg_pixmap(cc));
 		if (cc->bwidth > 1)
-			XSetWindowBackgroundPixmap(G_dpy,
+			XSetWindowBackgroundPixmap(X_Dpy,
 			    cc->pwin, client_bg_pixmap(cc));
 
-		XClearWindow(G_dpy, cc->pwin);
+		XClearWindow(X_Dpy, cc->pwin);
 	}
 }
 
@@ -524,9 +524,9 @@ client_update(struct client_ctx *cc)
 	long n;
 
 	/* XXX cache these. */
-	wm_delete = XInternAtom(G_dpy, "WM_DELETE_WINDOW", False);
-	wm_protocols = XInternAtom(G_dpy, "WM_PROTOCOLS", False);
-	wm_take_focus = XInternAtom(G_dpy, "WM_TAKE_FOCUS", False);
+	wm_delete = XInternAtom(X_Dpy, "WM_DELETE_WINDOW", False);
+	wm_protocols = XInternAtom(X_Dpy, "WM_PROTOCOLS", False);
+	wm_take_focus = XInternAtom(X_Dpy, "WM_TAKE_FOCUS", False);
 
 	if ((n = xu_getprop(cc, wm_protocols,
 		 XA_ATOM, 20L, (u_char **)&p)) <= 0)
@@ -547,13 +547,13 @@ client_send_delete(struct client_ctx *cc)
 	Atom wm_delete, wm_protocols;
 
 	/* XXX - cache */
-	wm_delete = XInternAtom(G_dpy, "WM_DELETE_WINDOW", False);
-	wm_protocols = XInternAtom(G_dpy, "WM_PROTOCOLS", False);
+	wm_delete = XInternAtom(X_Dpy, "WM_DELETE_WINDOW", False);
+	wm_protocols = XInternAtom(X_Dpy, "WM_PROTOCOLS", False);
 
 	if (cc->xproto & CLIENT_PROTO_DELETE)
 		xu_sendmsg(cc, wm_protocols, wm_delete);
 	else
-		XKillClient(G_dpy, cc->win);
+		XKillClient(X_Dpy, cc->win);
 }
 
 void
@@ -562,7 +562,7 @@ client_setname(struct client_ctx *cc)
 	char *newname;
 	struct winname *wn;
 
-	XFetchName(G_dpy, cc->win, &newname);
+	XFetchName(X_Dpy, cc->win, &newname);
 	if (newname == NULL)
 		newname = emptystring;
 
@@ -689,10 +689,10 @@ client_cycleinfo(struct client_ctx *cc)
 	if ((diff = cc->geom.height - (y + h)) < 0)
 		y += diff;
 
-	XReparentWindow(G_dpy, sc->infowin, cc->win, 0, 0);
-	XMoveResizeWindow(G_dpy, sc->infowin, x, y, w, h);
-	XMapRaised(G_dpy, sc->infowin);
-	XClearWindow(G_dpy, sc->infowin);
+	XReparentWindow(X_Dpy, sc->infowin, cc->win, 0, 0);
+	XMoveResizeWindow(X_Dpy, sc->infowin, x, y, w, h);
+	XMapRaised(X_Dpy, sc->infowin);
+	XClearWindow(X_Dpy, sc->infowin);
 
 	for (i = 0, n = 0; i < sizeof(list)/sizeof(list[0]); i++) {
 		if ((ccc = list[i]) == NULL)
@@ -707,7 +707,7 @@ client_cycleinfo(struct client_ctx *cc)
 	assert(curn != -1);
 
 	/* Highlight the current entry. */
-	XFillRectangle(G_dpy, sc->infowin, sc->hlgc, 0, curn*oneh, w, oneh);
+	XFillRectangle(X_Dpy, sc->infowin, sc->hlgc, 0, curn*oneh, w, oneh);
 }
 
 struct client_ctx *
@@ -754,8 +754,8 @@ client_altrelease()
 		return;
 	sc = CCTOSC(cc);
 
-	XUnmapWindow(G_dpy, sc->infowin);
-	XReparentWindow(G_dpy, sc->infowin, sc->rootwin, 0, 0);
+	XUnmapWindow(X_Dpy, sc->infowin);
+	XReparentWindow(X_Dpy, sc->infowin, sc->rootwin, 0, 0);
 }
 
 void
@@ -771,8 +771,8 @@ client_placecalc(struct client_ctx *cc)
 	height = cc->geom.height;
 	width = cc->geom.width;
 
-	ymax = DisplayHeight(G_dpy, sc->which) - cc->bwidth;
-	xmax = DisplayWidth(G_dpy, sc->which) - cc->bwidth;
+	ymax = DisplayHeight(X_Dpy, sc->which) - cc->bwidth;
+	xmax = DisplayWidth(X_Dpy, sc->which) - cc->bwidth;
 
 	yslack = ymax - cc->geom.height;
 	xslack = xmax - cc->geom.width;
@@ -827,7 +827,7 @@ client_vertmaximize(struct client_ctx *cc)
 		cc->geom = cc->savegeom;
 	} else {
 		struct screen_ctx *sc = CCTOSC(cc);
-		int display_height = DisplayHeight(G_dpy, sc->which) -
+		int display_height = DisplayHeight(X_Dpy, sc->which) -
 		    cc->bwidth*2;
         
 		cc->savegeom = cc->geom;
@@ -876,21 +876,21 @@ client_gethints(struct client_ctx *cc)
 	Atom mha;
 	struct mwm_hints *mwmh;
 
-	if (XGetClassHint(G_dpy, cc->win, &xch)) {
+	if (XGetClassHint(X_Dpy, cc->win, &xch)) {
 		if (xch.res_name != NULL)
 			cc->app_name = xch.res_name;
 		if (xch.res_class != NULL)
 			cc->app_class = xch.res_class;
 	}
 
-	mha = XInternAtom(G_dpy, "_MOTIF_WM_HINTS", False);
+	mha = XInternAtom(X_Dpy, "_MOTIF_WM_HINTS", False);
 	if (xu_getprop(cc, mha, mha, PROP_MWM_HINTS_ELEMENTS,
 		(u_char **)&mwmh) == MWM_NUMHINTS)
 		if (mwmh->flags & MWM_HINTS_DECORATIONS &&
 		    !(mwmh->decorations & MWM_DECOR_ALL) &&
 		    !(mwmh->decorations & MWM_DECOR_BORDER))
 			cc->bwidth = 0;
-	if (XGetCommand(G_dpy, cc->win, &argv, &argc)) {
+	if (XGetCommand(X_Dpy, cc->win, &argv, &argc)) {
 #define MAX_ARGLEN 512
 #define ARG_SEP_ " "
 		int len = MAX_ARGLEN;

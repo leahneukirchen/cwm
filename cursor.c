@@ -48,12 +48,12 @@ _mkcursor(struct cursor_data *c, struct screen_ctx *sc)
 {
 	Pixmap f, m;
 
-	f = XCreatePixmapFromBitmapData(G_dpy, sc->rootwin, (char *)c->fore,
+	f = XCreatePixmapFromBitmapData(X_Dpy, sc->rootwin, (char *)c->fore,
 	    c->width, c->width, 1, 0, 1);
-	m = XCreatePixmapFromBitmapData(G_dpy, sc->rootwin, (char *)c->mask,
+	m = XCreatePixmapFromBitmapData(X_Dpy, sc->rootwin, (char *)c->mask,
 	    c->width, c->width, 1, 0, 1);
 
-	return (XCreatePixmapCursor(G_dpy, f, m,
+	return (XCreatePixmapCursor(X_Dpy, f, m,
 		&sc->blackcolor, &sc->whitecolor, c->hot[0], c->hot[1]));
 }
 

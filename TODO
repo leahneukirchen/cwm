@@ -28,5 +28,3 @@
   once before moving on.
 
 - cache all the atoms somewhere.
-
-- convert globals from G_foo to Foo;

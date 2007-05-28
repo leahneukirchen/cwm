@@ -484,25 +484,25 @@ struct fontdesc *font_getx(struct screen_ctx *sc, const char *name);
 
 /* Externs */
 
-extern Display				*G_dpy;
-extern XFontStruct			*G_font;
+extern Display				*X_Dpy;
+extern XFontStruct			*X_Font;
 
-extern Cursor				 G_cursor_move;
-extern Cursor				 G_cursor_resize;
-extern Cursor				 G_cursor_select;
-extern Cursor				 G_cursor_default;
-extern Cursor				 G_cursor_question;
+extern Cursor				 Cursor_move;
+extern Cursor				 Cursor_resize;
+extern Cursor				 Cursor_select;
+extern Cursor				 Cursor_default;
+extern Cursor				 Cursor_question;
 
-extern struct screen_ctx_q		 G_screenq;
-extern struct screen_ctx		*G_curscreen;
-extern u_int				 G_nscreens;
+extern struct screen_ctx_q		 Screenq;
+extern struct screen_ctx		*curscreen;
+extern u_int				 Nscreens;
 
-extern struct client_ctx_q		 G_clientq;
+extern struct client_ctx_q		 Clientq;
 
-extern int				 G_doshape, G_shape_ev;
-extern struct conf			 G_conf;
+extern int				 Doshape, Shape_ev;
+extern struct conf			 Conf;
 
-extern int G_groupmode;
+extern int Groupmode;
 extern struct fontdesc                  *DefaultFont;
 
 

@@ -17,7 +17,7 @@ static int  _strsubmatch(char *, char *);
 void
 search_init(struct screen_ctx *sc)
 {
-	sc->searchwin = XCreateSimpleWindow(G_dpy, sc->rootwin, 0, 0,
+	sc->searchwin = XCreateSimpleWindow(X_Dpy, sc->rootwin, 0, 0,
 	    1, 1, 1, sc->blackpixl, sc->whitepixl);
 }
 
@@ -63,8 +63,8 @@ search_start(struct menu_q *menuq,
 
 	TAILQ_INIT(&resultq);
 
-	xmax = DisplayWidth(G_dpy, sc->which);
-	ymax = DisplayHeight(G_dpy, sc->which);
+	xmax = DisplayWidth(X_Dpy, sc->which);
+	ymax = DisplayHeight(X_Dpy, sc->which);
 
 	xu_ptr_getpos(sc->rootwin, &x, &y);
 
@@ -75,27 +75,27 @@ search_start(struct menu_q *menuq,
 	snprintf(dispstr, sizeof(dispstr), "%s%c", promptstr, endchar);
 	dx = font_width(font, dispstr, strlen(dispstr));
 
-	XMoveResizeWindow(G_dpy, sc->searchwin, x, y, dx, dy);
-	XSelectInput(G_dpy, sc->searchwin, SearchMask);
-	XMapRaised(G_dpy, sc->searchwin);
+	XMoveResizeWindow(X_Dpy, sc->searchwin, x, y, dx, dy);
+	XSelectInput(X_Dpy, sc->searchwin, SearchMask);
+	XMapRaised(X_Dpy, sc->searchwin);
 
 	/*
 	 * TODO: eventually, the mouse should be able to select
 	 * results as well.  Right now we grab it only to set a fancy
 	 * cursor.
 	 */
-	if (xu_ptr_grab(sc->searchwin, 0, G_cursor_question) < 0) {
-		XUnmapWindow(G_dpy, sc->searchwin);
+	if (xu_ptr_grab(sc->searchwin, 0, Cursor_question) < 0) {
+		XUnmapWindow(X_Dpy, sc->searchwin);
 		return (NULL);
 	}
 
-	XGetInputFocus(G_dpy, &focuswin, &focusrevert);
-	XSetInputFocus(G_dpy, sc->searchwin, RevertToPointerRoot, CurrentTime);
+	XGetInputFocus(X_Dpy, &focuswin, &focusrevert);
+	XSetInputFocus(X_Dpy, sc->searchwin, RevertToPointerRoot, CurrentTime);
 
 	for (;;) {
 		added = mutated = 0;
 
-		XMaskEvent(G_dpy, SearchMask, &e);
+		XMaskEvent(X_Dpy, SearchMask, &e);
 
 		switch (e.type) {
 		case KeyPress:
@@ -239,8 +239,8 @@ search_start(struct menu_q *menuq,
 			if (warp)
 				xu_ptr_setpos(sc->rootwin, x, y);
 
-			XClearWindow(G_dpy, sc->searchwin);
-			XMoveResizeWindow(G_dpy, sc->searchwin, x, y, dx, dy);
+			XClearWindow(X_Dpy, sc->searchwin);
+			XMoveResizeWindow(X_Dpy, sc->searchwin, x, y, dx, dy);
 
 			font_draw(font, dispstr, strlen(dispstr), sc->searchwin,
 			    0, font_ascent(font) + 1);
@@ -258,11 +258,11 @@ search_start(struct menu_q *menuq,
 			}
 
 			if (n > 1)
-				XFillRectangle(G_dpy, sc->searchwin, sc->gc,
+				XFillRectangle(X_Dpy, sc->searchwin, sc->gc,
 				    0, fontheight, dx, fontheight);
 
 			if (beobnoxious)
-				XFillRectangle(G_dpy, sc->searchwin, sc->gc,
+				XFillRectangle(X_Dpy, sc->searchwin, sc->gc,
 				    0, 0, dx, fontheight);
 
 			break;
@@ -272,9 +272,9 @@ search_start(struct menu_q *menuq,
 out:
 	/* (if no match) */
 	xu_ptr_ungrab();
-	XSetInputFocus(G_dpy, focuswin, focusrevert, CurrentTime);
+	XSetInputFocus(X_Dpy, focuswin, focusrevert, CurrentTime);
 found:
-	XUnmapWindow(G_dpy, sc->searchwin);
+	XUnmapWindow(X_Dpy, sc->searchwin);
 
 	return (mi);
 }

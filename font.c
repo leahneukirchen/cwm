@@ -61,12 +61,12 @@ font_init(struct screen_ctx *sc)
 	XColor xcolor, tmp;
 
 	HASH_INIT(&sc->fonthash, fontdesc_hash);
-	sc->xftdraw = XftDrawCreate(G_dpy, sc->rootwin,
-	    DefaultVisual(G_dpy, sc->which), DefaultColormap(G_dpy, sc->which));
+	sc->xftdraw = XftDrawCreate(X_Dpy, sc->rootwin,
+	    DefaultVisual(X_Dpy, sc->which), DefaultColormap(X_Dpy, sc->which));
 	if (sc->xftdraw == NULL)
 		errx(1, "XftDrawCreate");
 
-	if (!XAllocNamedColor(G_dpy, DefaultColormap(G_dpy, sc->which),
+	if (!XAllocNamedColor(X_Dpy, DefaultColormap(X_Dpy, sc->which),
 		"black", &xcolor, &tmp))
 		errx(1, "XAllocNamedColor");
 
@@ -112,7 +112,7 @@ int
 font_width(struct fontdesc *fdp, const char *text, int len)
 {
     XGlyphInfo extents;
-    XftTextExtents8(G_dpy, fdp->fn, (const XftChar8*)text, len, &extents);
+    XftTextExtents8(X_Dpy, fdp->fn, (const XftChar8*)text, len, &extents);
 
     return (extents.xOff);
 }
@@ -149,8 +149,8 @@ _make_font(struct screen_ctx *sc, struct fontdesc *fdp)
 	if ((pat = FcNameParse(fdp->name)) == NULL)
 		return (NULL);
 
-	if ((patx = XftFontMatch(G_dpy, sc->which, pat, &res)) != NULL)
-		fn = XftFontOpenPattern(G_dpy, patx);
+	if ((patx = XftFontMatch(X_Dpy, sc->which, pat, &res)) != NULL)
+		fn = XftFontOpenPattern(X_Dpy, patx);
 
 	FcPatternDestroy(pat);
 

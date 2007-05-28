@@ -10,24 +10,24 @@
 #include "headers.h"
 #include "calmwm.h"
 
-Display				*G_dpy;
-XFontStruct			*G_font;
+Display				*X_Dpy;
+XFontStruct			*X_Font;
 
-Cursor				 G_cursor_move;
-Cursor				 G_cursor_resize;
-Cursor				 G_cursor_select;
-Cursor				 G_cursor_default;
-Cursor				 G_cursor_question;
+Cursor				 Cursor_move;
+Cursor				 Cursor_resize;
+Cursor				 Cursor_select;
+Cursor				 Cursor_default;
+Cursor				 Cursor_question;
 
-struct screen_ctx_q		 G_screenq;
-struct screen_ctx		*G_curscreen;
-u_int				 G_nscreens;
+struct screen_ctx_q		 Screenq;
+struct screen_ctx		*Curscreen;
+u_int				 Nscreens;
 
-struct client_ctx_q		 G_clientq;
+struct client_ctx_q		 Clientq;
 
-int				 G_doshape, G_shape_ev;
-int				 G_starting;
-struct conf			 G_conf;
+int				 Doshape, Shape_ev;
+int				 Starting;
+struct conf			 Conf;
 struct fontdesc                 *DefaultFont;
 char                            *DefaultFontName;
 
@@ -86,12 +86,12 @@ main(int argc, char **argv)
 
 	group_init();
 
-	G_starting = 1;
-	conf_setup(&G_conf);
-	G_conf.flags |= conf_flags;
+	Starting = 1;
+	conf_setup(&Conf);
+	Conf.flags |= conf_flags;
 	client_setup();
 	x_setup(display_name);
-	G_starting = 0;
+	Starting = 0;
 
 	xev_init();
 	XEV_QUICK(NULL, NULL, MapRequest, xev_handle_maprequest, NULL);
@@ -121,39 +121,39 @@ x_setup(char *display_name)
 	struct screen_ctx *sc;
 	char *fontname;
 
-	TAILQ_INIT(&G_screenq);
+	TAILQ_INIT(&Screenq);
 
-	if ((G_dpy = XOpenDisplay(display_name)) == NULL)
+	if ((X_Dpy = XOpenDisplay(display_name)) == NULL)
 		errx(1, "%s:%d XOpenDisplay()", __FILE__, __LINE__);
 
 	XSetErrorHandler(x_errorhandler);
 
-	G_doshape = XShapeQueryExtension(G_dpy, &G_shape_ev, &i);
+	Doshape = XShapeQueryExtension(X_Dpy, &Shape_ev, &i);
 
 	i = 0;
 	while ((fontname = tryfonts[i++]) != NULL) {
-		if ((G_font = XLoadQueryFont(G_dpy, fontname)) != NULL)
+		if ((X_Font = XLoadQueryFont(X_Dpy, fontname)) != NULL)
 			break;
 	}
 
 	if (fontname == NULL)
 		errx(1, "Couldn't load any fonts.");
 
-	G_nscreens = ScreenCount(G_dpy);
-	for (i = 0; i < (int)G_nscreens; i++) {
+	Nscreens = ScreenCount(X_Dpy);
+	for (i = 0; i < (int)Nscreens; i++) {
 		XMALLOC(sc, struct screen_ctx);
 		x_setupscreen(sc, i);
-		TAILQ_INSERT_TAIL(&G_screenq, sc, entry);
+		TAILQ_INSERT_TAIL(&Screenq, sc, entry);
 	}
 
-	G_cursor_move = XCreateFontCursor(G_dpy, XC_fleur);
-	G_cursor_resize = XCreateFontCursor(G_dpy, XC_bottom_right_corner);
-	/* (used to be) XCreateFontCursor(G_dpy, XC_hand1); */
-	G_cursor_select = XCreateFontCursor(G_dpy, XC_hand1);
-/* 	G_cursor_select = cursor_bigarrow(G_curscreen); */
-	G_cursor_default = XCreateFontCursor(G_dpy, XC_X_cursor);
-/* 	G_cursor_default = cursor_bigarrow(G_curscreen); */
-	G_cursor_question = XCreateFontCursor(G_dpy, XC_question_arrow);
+	Cursor_move = XCreateFontCursor(X_Dpy, XC_fleur);
+	Cursor_resize = XCreateFontCursor(X_Dpy, XC_bottom_right_corner);
+	/* (used to be) XCreateFontCursor(X_Dpy, XC_hand1); */
+	Cursor_select = XCreateFontCursor(X_Dpy, XC_hand1);
+/* 	Cursor_select = cursor_bigarrow(Curscreen); */
+	Cursor_default = XCreateFontCursor(X_Dpy, XC_X_cursor);
+/* 	Cursor_default = cursor_bigarrow(Curscreen); */
+	Cursor_question = XCreateFontCursor(X_Dpy, XC_question_arrow);
 }
 
 int
@@ -169,55 +169,55 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 
 	sc->display = x_screenname(which);
 	sc->which = which;
-	sc->rootwin = RootWindow(G_dpy, which);
-	XAllocNamedColor(G_dpy, DefaultColormap(G_dpy, which),
+	sc->rootwin = RootWindow(X_Dpy, which);
+	XAllocNamedColor(X_Dpy, DefaultColormap(X_Dpy, which),
 	    "black", &sc->fgcolor, &tmp);
-	XAllocNamedColor(G_dpy, DefaultColormap(G_dpy, which),
+	XAllocNamedColor(X_Dpy, DefaultColormap(X_Dpy, which),
 	    "#00cc00", &sc->bgcolor, &tmp);
-	XAllocNamedColor(G_dpy,DefaultColormap(G_dpy, which),
+	XAllocNamedColor(X_Dpy,DefaultColormap(X_Dpy, which),
 	    "blue", &sc->fccolor, &tmp);
-	XAllocNamedColor(G_dpy, DefaultColormap(G_dpy, which),
+	XAllocNamedColor(X_Dpy, DefaultColormap(X_Dpy, which),
 	    "red", &sc->redcolor, &tmp);
-	XAllocNamedColor(G_dpy, DefaultColormap(G_dpy, which),
+	XAllocNamedColor(X_Dpy, DefaultColormap(X_Dpy, which),
 	    "#00ccc8", &sc->cyancolor, &tmp);
-	XAllocNamedColor(G_dpy, DefaultColormap(G_dpy, which),
+	XAllocNamedColor(X_Dpy, DefaultColormap(X_Dpy, which),
 	    "white", &sc->whitecolor, &tmp);
-	XAllocNamedColor(G_dpy, DefaultColormap(G_dpy, which),
+	XAllocNamedColor(X_Dpy, DefaultColormap(X_Dpy, which),
 	    "black", &sc->blackcolor, &tmp);
 
-	TAILQ_FOREACH(kb, &G_conf.keybindingq, entry)
+	TAILQ_FOREACH(kb, &Conf.keybindingq, entry)
 		xu_key_grab(sc->rootwin, kb->modmask, kb->keysym);
 
 	/* Special -- for alt state. */
 /* 	xu_key_grab(sc->rootwin, 0, XK_Alt_L); */
 /* 	xu_key_grab(sc->rootwin, 0, XK_Alt_R); */
 
-	sc->blackpixl = BlackPixel(G_dpy, sc->which);
-	sc->whitepixl = WhitePixel(G_dpy, sc->which);
+	sc->blackpixl = BlackPixel(X_Dpy, sc->which);
+	sc->whitepixl = WhitePixel(X_Dpy, sc->which);
 	sc->bluepixl = sc->fccolor.pixel;
 	sc->redpixl = sc->redcolor.pixel;
 	sc->cyanpixl = sc->cyancolor.pixel;
 
-        sc->gray = XCreatePixmapFromBitmapData(G_dpy, sc->rootwin,
+        sc->gray = XCreatePixmapFromBitmapData(X_Dpy, sc->rootwin,
             gray_bits, gray_width, gray_height,
-            sc->blackpixl, sc->whitepixl, DefaultDepth(G_dpy, sc->which));
+            sc->blackpixl, sc->whitepixl, DefaultDepth(X_Dpy, sc->which));
 
-        sc->blue = XCreatePixmapFromBitmapData(G_dpy, sc->rootwin,
+        sc->blue = XCreatePixmapFromBitmapData(X_Dpy, sc->rootwin,
             gray_bits, gray_width, gray_height,
-            sc->bluepixl, sc->whitepixl, DefaultDepth(G_dpy, sc->which));
+            sc->bluepixl, sc->whitepixl, DefaultDepth(X_Dpy, sc->which));
 
-        sc->red = XCreatePixmapFromBitmapData(G_dpy, sc->rootwin,
+        sc->red = XCreatePixmapFromBitmapData(X_Dpy, sc->rootwin,
             gray_bits, gray_width, gray_height,
-	    sc->redpixl, sc->whitepixl, DefaultDepth(G_dpy, sc->which));
+	    sc->redpixl, sc->whitepixl, DefaultDepth(X_Dpy, sc->which));
 
 	gv.foreground = sc->blackpixl^sc->whitepixl;
 	gv.background = sc->whitepixl;
 	gv.function = GXxor;
 	gv.line_width = 1;
 	gv.subwindow_mode = IncludeInferiors;
-	gv.font = G_font->fid;
+	gv.font = X_Font->fid;
 
-	sc->gc = XCreateGC(G_dpy, sc->rootwin,
+	sc->gc = XCreateGC(X_Dpy, sc->rootwin,
 	    GCForeground|GCBackground|GCFunction|
 	    GCLineWidth|GCSubwindowMode|GCFont, &gv);
 
@@ -227,19 +227,19 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	gv2.function = GXxor;
 	gv2.line_width = 1;
 	gv2.subwindow_mode = IncludeInferiors;
-	gv2.font = G_font->fid;
+	gv2.font = X_Font->fid;
 #endif
 
-	sc->hlgc = XCreateGC(G_dpy, sc->rootwin,
+	sc->hlgc = XCreateGC(X_Dpy, sc->rootwin,
 	    GCForeground|GCBackground|GCFunction|
 	    GCLineWidth|GCSubwindowMode|GCFont, &gv);
 
 	gv1.function = GXinvert;
 	gv1.subwindow_mode = IncludeInferiors;
 	gv1.line_width = 1;
-	gv1.font = G_font->fid;
+	gv1.font = X_Font->fid;
 
-	sc->invgc = XCreateGC(G_dpy, sc->rootwin,
+	sc->invgc = XCreateGC(X_Dpy, sc->rootwin,
 	    GCFunction|GCSubwindowMode|GCLineWidth|GCFont, &gv1);
 
 	font_init(sc);
@@ -256,21 +256,21 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	search_init(sc);
 
 	/* Deal with existing clients. */
-	XQueryTree(G_dpy, sc->rootwin, &w0, &w1, &wins, &nwins);	
+	XQueryTree(X_Dpy, sc->rootwin, &w0, &w1, &wins, &nwins);	
 
 	for (i = 0; i < nwins; i++) {
-		XGetWindowAttributes(G_dpy, wins[i], &winattr);
+		XGetWindowAttributes(X_Dpy, wins[i], &winattr);
 		if (winattr.override_redirect ||
 		    winattr.map_state != IsViewable) {
 			char *name;
-			XFetchName(G_dpy, wins[i], &name);
+			XFetchName(X_Dpy, wins[i], &name);
 			continue;
 		}
 		client_new(wins[i], sc, winattr.map_state != IsUnmapped);
 	}
 	XFree(wins);
 
-	G_curscreen = sc;	/* XXX */
+	Curscreen = sc;	/* XXX */
 	screen_init();
 	screen_updatestackingorder();
 
@@ -280,10 +280,10 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	/* Set the root cursor to a nice obnoxious arrow :-) */
 /* 	rootattr.cursor = cursor_bigarrow(sc); */
 
-	XChangeWindowAttributes(G_dpy, sc->rootwin,
+	XChangeWindowAttributes(X_Dpy, sc->rootwin,
 	    /* CWCursor| */CWEventMask, &rootattr);
 
-	XSync(G_dpy, False);
+	XSync(X_Dpy, False);
 
 	return (0);
 }
@@ -298,7 +298,7 @@ x_screenname(int which)
 		errx(1, "Can't handle more than 9 screens.  If you need it, "
 		    "tell <marius@monkey.org>.  It's a trivial fix.");
 
-	dstr = xstrdup(DisplayString(G_dpy));
+	dstr = xstrdup(DisplayString(X_Dpy));
 
 	if ((cp = rindex(dstr, ':')) == NULL)
 		return (NULL);
@@ -321,16 +321,16 @@ x_errorhandler(Display *dpy, XErrorEvent *e)
 	{
 		char msg[80], number[80], req[80];
 
-		XGetErrorText(G_dpy, e->error_code, msg, sizeof(msg));
+		XGetErrorText(X_Dpy, e->error_code, msg, sizeof(msg));
 		snprintf(number, sizeof(number), "%d", e->request_code);
-		XGetErrorDatabaseText(G_dpy, "XRequest", number,
+		XGetErrorDatabaseText(X_Dpy, "XRequest", number,
 		    "<unknown>", req, sizeof(req));
 
 		warnx("%s(0x%x): %s", req, (u_int)e->resourceid, msg);
 	}
 #endif
 
-	if (G_starting && 
+	if (Starting && 
 	    e->error_code == BadAccess &&                                       
 	    e->request_code == X_GrabKey)                        
 		errx(1, "root window unavailable - perhaps another "

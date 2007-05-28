@@ -32,10 +32,10 @@ grab_sweep_draw(struct client_ctx *cc, int dx, int dy)
 	wide = MAX(wide_size, wide_name);
 	height = font_ascent(font) + font_descent(font) + 1;
 
-	XMoveResizeWindow(G_dpy, sc->menuwin, x0, y0, wide, height * 2);
-	XMapWindow(G_dpy, sc->menuwin);
-	XReparentWindow(G_dpy, sc->menuwin, cc->win, 0, 0);
-	XClearWindow(G_dpy, sc->menuwin);
+	XMoveResizeWindow(X_Dpy, sc->menuwin, x0, y0, wide, height * 2);
+	XMapWindow(X_Dpy, sc->menuwin);
+	XReparentWindow(X_Dpy, sc->menuwin, cc->win, 0, 0);
+	XClearWindow(X_Dpy, sc->menuwin);
 	font_draw(font, cc->name, strlen(cc->name), sc->menuwin,
 	    2, font_ascent(font) + 1);
 	font_draw(font, asize, strlen(asize), sc->menuwin,
@@ -56,7 +56,7 @@ grab_sweep(struct client_ctx *cc)
 	client_raise(cc);
 	client_ptrsave(cc);
 
-	if (xu_ptr_grab(sc->rootwin, MouseMask, G_cursor_resize) < 0)
+	if (xu_ptr_grab(sc->rootwin, MouseMask, Cursor_resize) < 0)
 		return (-1);
 
 	xu_ptr_setpos(cc->win, cc->geom.width, cc->geom.height);
@@ -64,7 +64,7 @@ grab_sweep(struct client_ctx *cc)
 
 	for (;;) {
 		/* Look for changes in ptr position. */
-		XMaskEvent(G_dpy, MouseMask, &ev);
+		XMaskEvent(X_Dpy, MouseMask, &ev);
 
 		switch (ev.type) {
 		case MotionNotify:
@@ -72,19 +72,19 @@ grab_sweep(struct client_ctx *cc)
  				/* Recompute window output */
 				grab_sweep_draw(cc, dx, dy);
 
-			XMoveResizeWindow(G_dpy, cc->pwin,
+			XMoveResizeWindow(X_Dpy, cc->pwin,
 			    cc->geom.x - cc->bwidth,
 			    cc->geom.y - cc->bwidth,
 			    cc->geom.width + cc->bwidth*2,
 			    cc->geom.height + cc->bwidth*2);
-			XMoveResizeWindow(G_dpy, cc->win,
+			XMoveResizeWindow(X_Dpy, cc->win,
 			    cc->bwidth, cc->bwidth,
 			    cc->geom.width, cc->geom.height);
 
 			break;
 		case ButtonRelease:
-			XUnmapWindow(G_dpy, sc->menuwin);
-			XReparentWindow(G_dpy, sc->menuwin, sc->rootwin, 0, 0);
+			XUnmapWindow(X_Dpy, sc->menuwin);
+			XReparentWindow(X_Dpy, sc->menuwin, sc->rootwin, 0, 0);
 			xu_ptr_ungrab();
 			client_ptrwarp(cc);
 			return (0);
@@ -102,20 +102,20 @@ grab_drag(struct client_ctx *cc)
 
 	client_raise(cc);
 
-	if (xu_ptr_grab(sc->rootwin, MouseMask, G_cursor_move) < 0)
+	if (xu_ptr_grab(sc->rootwin, MouseMask, Cursor_move) < 0)
 		return (-1);
 
 	xu_ptr_getpos(sc->rootwin, &xm, &ym);
 
 	for (;;) {
-		XMaskEvent(G_dpy, MouseMask, &ev);
+		XMaskEvent(X_Dpy, MouseMask, &ev);
 
 		switch (ev.type) {
 		case MotionNotify:
 			cc->geom.x = x0 + (ev.xmotion.x - xm);
 			cc->geom.y = y0 + (ev.xmotion.y - ym);
 
-			XMoveWindow(G_dpy, cc->pwin,
+			XMoveWindow(X_Dpy, cc->pwin,
 			    cc->geom.x - cc->bwidth, cc->geom.y - cc->bwidth);
 
 			break;
@@ -185,8 +185,8 @@ grab_menu(XButtonEvent *e, struct menu_q *menuq)
 	y = e->y - cur*high - high/2;
 	warp = 0;
 	/* XXX - cache these in sc. */
-	xmax = DisplayWidth(G_dpy, sc->which);
-	ymax = DisplayHeight(G_dpy, sc->which);
+	xmax = DisplayWidth(X_Dpy, sc->which);
+	ymax = DisplayHeight(X_Dpy, sc->which);
 	if (x < 0) {
 		e->x -= x;
 		x = 0;
@@ -210,12 +210,12 @@ grab_menu(XButtonEvent *e, struct menu_q *menuq)
 	if (warp)
 		xu_ptr_setpos(e->root, e->x, e->y);
 
-	XMoveResizeWindow(G_dpy, sc->menuwin, x, y, dx, dy);
-	XSelectInput(G_dpy, sc->menuwin, MenuMask);
-	XMapRaised(G_dpy, sc->menuwin);
-	status = xu_ptr_grab(sc->menuwin, MenuGrabMask, G_cursor_select);
+	XMoveResizeWindow(X_Dpy, sc->menuwin, x, y, dx, dy);
+	XSelectInput(X_Dpy, sc->menuwin, MenuMask);
+	XMapRaised(X_Dpy, sc->menuwin);
+	status = xu_ptr_grab(sc->menuwin, MenuGrabMask, Cursor_select);
 	if (status < 0) {
-		XUnmapWindow(G_dpy, sc->menuwin);
+		XUnmapWindow(X_Dpy, sc->menuwin);
 		return (NULL);
 	}
 	drawn = 0;
@@ -226,13 +226,13 @@ grab_menu(XButtonEvent *e, struct menu_q *menuq)
 		cc = grab_menu_getcc(menuq, cur);
 		if (cc != NULL) {
 			client_unhide(cc);
-			XRaiseWindow(G_dpy, sc->menuwin);
+			XRaiseWindow(X_Dpy, sc->menuwin);
 		}
 	}
 #endif
 
 	for (;;) {
-		XMaskEvent(G_dpy, MenuMask, &ev);
+		XMaskEvent(X_Dpy, MenuMask, &ev);
 		switch (ev.type) {
 		default:
 			warnx("menuhit: unknown ev.type %d\n", ev.type);
@@ -259,7 +259,7 @@ grab_menu(XButtonEvent *e, struct menu_q *menuq)
 			/* XXX */
 			/* 			ungrab(&ev.xbutton); */
 			xu_ptr_ungrab();
-			XUnmapWindow(G_dpy, sc->menuwin);
+			XUnmapWindow(X_Dpy, sc->menuwin);
 			n = 0;
 			TAILQ_FOREACH(mi, menuq, entry)
 				if (i == n++)
@@ -290,7 +290,7 @@ grab_menu(XButtonEvent *e, struct menu_q *menuq)
 						client_hide(cc);
 				}
 #endif
-				XFillRectangle(G_dpy, sc->menuwin,
+				XFillRectangle(X_Dpy, sc->menuwin,
 				    sc->hlgc, 0, old*high, wide, high);
 			}
 			if (cur >= 0 && cur < n) {
@@ -300,19 +300,19 @@ grab_menu(XButtonEvent *e, struct menu_q *menuq)
 					cc = grab_menu_getcc(menuq, cur);
 					if (cc != NULL) {
 						client_unhide(cc);
-						XRaiseWindow(G_dpy,
+						XRaiseWindow(X_Dpy,
 						    sc->menuwin);
 					}
 				}
 #endif
-				xu_ptr_regrab(MenuGrabMask, G_cursor_select);
-				XFillRectangle(G_dpy, sc->menuwin,
+				xu_ptr_regrab(MenuGrabMask, Cursor_select);
+				XFillRectangle(X_Dpy, sc->menuwin,
 				    sc->hlgc, 0, cur*high, wide, high);
 			} else
-				xu_ptr_regrab(MenuGrabMask, G_cursor_default);
+				xu_ptr_regrab(MenuGrabMask, Cursor_default);
 			break;
 		case Expose:
-			XClearWindow(G_dpy, sc->menuwin);
+			XClearWindow(X_Dpy, sc->menuwin);
 			i = 0;
 			TAILQ_FOREACH(mi, menuq, entry) {
 				tx = (wide - font_width(font, mi->text,
@@ -323,7 +323,7 @@ grab_menu(XButtonEvent *e, struct menu_q *menuq)
 				i++;
 			}
 			if (cur >= 0 && cur < n)
-				XFillRectangle(G_dpy, sc->menuwin,
+				XFillRectangle(X_Dpy, sc->menuwin,
 				    sc->hlgc, 0, cur*high, wide, high);
 			drawn = 1;
 		}
@@ -333,7 +333,7 @@ grab_menu(XButtonEvent *e, struct menu_q *menuq)
 void
 grab_menuinit(struct screen_ctx *sc)
 {
-	sc->menuwin = XCreateSimpleWindow(G_dpy, sc->rootwin, 0, 0,
+	sc->menuwin = XCreateSimpleWindow(X_Dpy, sc->rootwin, 0, 0,
 	    1, 1, 1, sc->blackpixl, sc->whitepixl);
 }
 
@@ -364,16 +364,16 @@ grab_label(struct client_ctx *cc)
 	dy = fontheight = font_ascent(font) + font_descent(font) + 1;
 	dx = font_width(font, "label>", 6);
 
-	XMoveResizeWindow(G_dpy, sc->searchwin, x, y, dx, dy);
-	XSelectInput(G_dpy, sc->searchwin, LabelMask);
-	XMapRaised(G_dpy, sc->searchwin);
+	XMoveResizeWindow(X_Dpy, sc->searchwin, x, y, dx, dy);
+	XSelectInput(X_Dpy, sc->searchwin, LabelMask);
+	XMapRaised(X_Dpy, sc->searchwin);
 
-	XGetInputFocus(G_dpy, &focuswin, &focusrevert);
-	XSetInputFocus(G_dpy, sc->searchwin,
+	XGetInputFocus(X_Dpy, &focuswin, &focusrevert);
+	XSetInputFocus(X_Dpy, sc->searchwin,
 	    RevertToPointerRoot, CurrentTime);
 
 	for (;;) {
-		XMaskEvent(G_dpy, LabelMask, &e);
+		XMaskEvent(X_Dpy, LabelMask, &e);
 
 		switch (e.type) {
 		case KeyPress:
@@ -415,8 +415,8 @@ grab_label(struct client_ctx *cc)
 			dx = font_width(font, dispstr, strlen(dispstr));
 			dy = fontheight;
 
-			XClearWindow(G_dpy, sc->searchwin);
-			XResizeWindow(G_dpy, sc->searchwin, dx, dy);
+			XClearWindow(X_Dpy, sc->searchwin);
+			XResizeWindow(X_Dpy, sc->searchwin, dx, dy);
 
 			font_draw(font, dispstr, strlen(dispstr),
 			    sc->searchwin, 0, font_ascent(font) + 1);
@@ -425,9 +425,9 @@ grab_label(struct client_ctx *cc)
 	}
 
  out:
-	XSetInputFocus(G_dpy, focuswin,
+	XSetInputFocus(X_Dpy, focuswin,
 	    focusrevert, CurrentTime);
-	XUnmapWindow(G_dpy, sc->searchwin);
+	XUnmapWindow(X_Dpy, sc->searchwin);
 }
 
 #define ExecMask (KeyPressMask|ExposureMask)
@@ -452,16 +452,16 @@ grab_exec(void)
 	dy = fontheight = font_ascent(font) + font_descent(font) + 1;
 	dx = font_width(font, "exec>", 5);
 
-	XMoveResizeWindow(G_dpy, sc->searchwin, x, y, dx, dy);
-	XSelectInput(G_dpy, sc->searchwin, ExecMask);
-	XMapRaised(G_dpy, sc->searchwin);
+	XMoveResizeWindow(X_Dpy, sc->searchwin, x, y, dx, dy);
+	XSelectInput(X_Dpy, sc->searchwin, ExecMask);
+	XMapRaised(X_Dpy, sc->searchwin);
 
-	XGetInputFocus(G_dpy, &focuswin, &focusrevert);
-	XSetInputFocus(G_dpy, sc->searchwin,
+	XGetInputFocus(X_Dpy, &focuswin, &focusrevert);
+	XSetInputFocus(X_Dpy, sc->searchwin,
 	    RevertToPointerRoot, CurrentTime);
 
 	for (;;) {
-		XMaskEvent(G_dpy, ExecMask, &e);
+		XMaskEvent(X_Dpy, ExecMask, &e);
 
 		switch (e.type) {
 		case KeyPress:
@@ -496,8 +496,8 @@ grab_exec(void)
 			dx = font_width(font, dispstr, strlen(dispstr));
 			dy = fontheight;
 
-			XClearWindow(G_dpy, sc->searchwin);
-			XResizeWindow(G_dpy, sc->searchwin, dx, dy);
+			XClearWindow(X_Dpy, sc->searchwin);
+			XResizeWindow(X_Dpy, sc->searchwin, dx, dy);
 
 			font_draw(font, dispstr, strlen(dispstr),
 			    sc->searchwin, 0, font_ascent(font) + 1);
@@ -505,8 +505,8 @@ grab_exec(void)
 		}
 	}
  out:
-	XSetInputFocus(G_dpy, focuswin, focusrevert, CurrentTime);
-	XUnmapWindow(G_dpy, sc->searchwin);
+	XSetInputFocus(X_Dpy, focuswin, focusrevert, CurrentTime);
+	XUnmapWindow(X_Dpy, sc->searchwin);
 }
 
 int

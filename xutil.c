@@ -13,7 +13,7 @@
 int
 xu_ptr_grab(Window win, int mask, Cursor curs)
 {
-	return (XGrabPointer(G_dpy, win, False, mask,
+	return (XGrabPointer(X_Dpy, win, False, mask,
 		    GrabModeAsync, GrabModeAsync,
 		    None, curs, CurrentTime) == GrabSuccess ? 0 : -1);
 }
@@ -21,20 +21,20 @@ xu_ptr_grab(Window win, int mask, Cursor curs)
 int
 xu_ptr_regrab(int mask, Cursor curs)
 {
-	return (XChangeActivePointerGrab(G_dpy, mask,
+	return (XChangeActivePointerGrab(X_Dpy, mask,
 		curs, CurrentTime) == GrabSuccess ? 0 : -1);
 }
 
 void
 xu_ptr_ungrab(void)
 {
-	XUngrabPointer(G_dpy, CurrentTime);
+	XUngrabPointer(X_Dpy, CurrentTime);
 }
 
 int
 xu_btn_grab(Window win, int mask, u_int btn)
 {
-        return (XGrabButton(G_dpy, btn, mask, win,
+        return (XGrabButton(X_Dpy, btn, mask, win,
 		    False, ButtonMask, GrabModeAsync,
 		    GrabModeSync, None, None) == GrabSuccess ? 0 : -1);
 }
@@ -42,7 +42,7 @@ xu_btn_grab(Window win, int mask, u_int btn)
 void
 xu_btn_ungrab(Window win, int mask, u_int btn)
 {
-	XUngrabButton(G_dpy, btn, mask, win);
+	XUngrabButton(X_Dpy, btn, mask, win);
 }
 
 void
@@ -52,13 +52,13 @@ xu_ptr_getpos(Window rootwin, int *x, int *y)
 	u_int tmp2;
 	Window w0, w1;
 
-        XQueryPointer(G_dpy, rootwin, &w0, &w1, &tmp0, &tmp1, x, y, &tmp2);
+        XQueryPointer(X_Dpy, rootwin, &w0, &w1, &tmp0, &tmp1, x, y, &tmp2);
 }
 
 void
 xu_ptr_setpos(Window win, int x, int y)
 {
-	XWarpPointer(G_dpy, None, win, 0, 0, 0, 0, x, y);
+	XWarpPointer(X_Dpy, None, win, 0, 0, 0, 0, x, y);
 }
 
 void
@@ -66,15 +66,15 @@ xu_key_grab(Window win, int mask, int keysym)
 {
 	KeyCode code;
 
-	code = XKeysymToKeycode(G_dpy, keysym);
-	if ((XKeycodeToKeysym(G_dpy, code, 0) != keysym) &&
-	    (XKeycodeToKeysym(G_dpy, code, 1) == keysym))
+	code = XKeysymToKeycode(X_Dpy, keysym);
+	if ((XKeycodeToKeysym(X_Dpy, code, 0) != keysym) &&
+	    (XKeycodeToKeysym(X_Dpy, code, 1) == keysym))
 		mask |= ShiftMask;
 
-        XGrabKey(G_dpy, XKeysymToKeycode(G_dpy, keysym), mask, win, True,
+        XGrabKey(X_Dpy, XKeysymToKeycode(X_Dpy, keysym), mask, win, True,
 	    GrabModeAsync, GrabModeAsync);
 #if 0
-        XGrabKey(G_dpy, XKeysymToKeycode(G_dpy, keysym), LockMask|mask,
+        XGrabKey(X_Dpy, XKeysymToKeycode(X_Dpy, keysym), LockMask|mask,
 	    win, True, GrabModeAsync, GrabModeAsync);
 #endif
 }
@@ -82,7 +82,7 @@ xu_key_grab(Window win, int mask, int keysym)
 void
 xu_key_grab_keycode(Window win, int mask, int keycode)
 {
-        XGrabKey(G_dpy, keycode, mask, win, True, GrabModeAsync, GrabModeAsync);
+        XGrabKey(X_Dpy, keycode, mask, win, True, GrabModeAsync, GrabModeAsync);
 }
 
 void
@@ -98,7 +98,7 @@ xu_sendmsg(struct client_ctx *cc, Atom atm, long val)
 	e.xclient.data.l[0] = val;
 	e.xclient.data.l[1] = CurrentTime;
 
-	XSendEvent(G_dpy, cc->win, False, 0, &e);
+	XSendEvent(X_Dpy, cc->win, False, 0, &e);
 }
 
 int
@@ -108,7 +108,7 @@ xu_getprop(struct client_ctx *cc, Atom atm, Atom type, long len, u_char **p)
 	u_long n, extra;
 	int format;
 
-	if (XGetWindowProperty(G_dpy, cc->win, atm, 0L, len, False, type,
+	if (XGetWindowProperty(X_Dpy, cc->win, atm, 0L, len, False, type,
 		&realtype, &format, &n, &extra, p) != Success || *p == NULL)
 		return (-1);
 
@@ -121,7 +121,7 @@ xu_getprop(struct client_ctx *cc, Atom atm, Atom type, long len, u_char **p)
 int
 xu_getstate(struct client_ctx *cc, int *state)
 {
-	Atom wm_state = XInternAtom(G_dpy, "WM_STATE", False);
+	Atom wm_state = XInternAtom(X_Dpy, "WM_STATE", False);
 	long *p = NULL;
 
 	if (xu_getprop(cc, wm_state, wm_state, 2L, (u_char **)&p) <= 0)
@@ -151,12 +151,12 @@ xu_setstate(struct client_ctx *cc, int state)
 	Atom wm_state;
 
 	/* XXX cache */
-	wm_state = XInternAtom(G_dpy, "WM_STATE", False);
+	wm_state = XInternAtom(X_Dpy, "WM_STATE", False);
 
 	dat[0] = (long)state;
 	dat[1] = (long)None;
 
 	cc->state = state;
-	XChangeProperty(G_dpy, cc->win, wm_state, wm_state, 32,
+	XChangeProperty(X_Dpy, cc->win, wm_state, wm_state, 32,
 	    PropModeReplace, (unsigned char *)dat, 2);
 }

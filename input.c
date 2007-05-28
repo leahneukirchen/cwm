@@ -20,9 +20,9 @@ input_keycodetrans(KeyCode kc, u_int state,
 	*chr = '\0';
 
 	if (state & ShiftMask)
-		ks = XKeycodeToKeysym(G_dpy, kc, 1);
+		ks = XKeycodeToKeysym(X_Dpy, kc, 1);
 	else
-		ks = XKeycodeToKeysym(G_dpy, kc, 0);
+		ks = XKeycodeToKeysym(X_Dpy, kc, 0);
 
 	/* Look for control characters. */
 	switch (ks) {

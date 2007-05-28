@@ -31,7 +31,7 @@ kbfunc_client_search(struct client_ctx *scratch, void *arg)
 	
 	TAILQ_INIT(&menuq);
 	
-	TAILQ_FOREACH(cc, &G_clientq, entry) {
+	TAILQ_FOREACH(cc, &Clientq, entry) {
 		struct menu *mi;
 		XCALLOC(mi, struct menu);
 		strlcpy(mi->text, cc->name, sizeof(mi->text));
@@ -66,8 +66,8 @@ kbfunc_menu_search(struct client_ctx *scratch, void *arg)
 
 	TAILQ_INIT(&menuq);
 
-	conf_cmd_refresh(&G_conf);
-	TAILQ_FOREACH(cmd, &G_conf.cmdq, entry) {
+	conf_cmd_refresh(&Conf);
+	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
 		XCALLOC(mi, struct menu);
 		strlcpy(mi->text, cmd->label, sizeof(mi->text));
 		mi->ctx = cmd;
@@ -111,15 +111,15 @@ kbfunc_cmdexec(struct client_ctx *cc, void *arg)
 void
 kbfunc_term(struct client_ctx *cc, void *arg)
 {
-	conf_cmd_refresh(&G_conf);
-	u_spawn(G_conf.termpath);
+	conf_cmd_refresh(&Conf);
+	u_spawn(Conf.termpath);
 }
 
 void
 kbfunc_lock(struct client_ctx *cc, void *arg)
 {
-	conf_cmd_refresh(&G_conf);
-	u_spawn(G_conf.lockpath);
+	conf_cmd_refresh(&Conf);
+	u_spawn(Conf.lockpath);
 }
 
 void
@@ -143,7 +143,7 @@ kbfunc_client_delete(struct client_ctx *cc, void *arg)
 void
 kbfunc_client_groupselect(struct client_ctx *cc, void *arg)
 {
-	if (G_groupmode)
+	if (Groupmode)
 		group_done();
 	else
 		group_enter();
@@ -152,7 +152,7 @@ kbfunc_client_groupselect(struct client_ctx *cc, void *arg)
 void
 kbfunc_client_group(struct client_ctx *cc, void *arg)
 {
-	if (G_groupmode)
+	if (Groupmode)
 		group_select(KBTOGROUP((int)arg));
 	else
 		group_hidetoggle(KBTOGROUP((int)arg));
@@ -173,7 +173,7 @@ kbfunc_client_prevgroup(struct client_ctx *cc, void *arg)
 void
 kbfunc_client_nogroup(struct client_ctx *cc, void *arg)
 {
-	if (G_groupmode)
+	if (Groupmode)
 		group_deletecurrent();
 	else
 		group_alltoggle();

@@ -38,7 +38,7 @@ xev_handle_maprequest(struct xevent *xev, XEvent *ee)
 		client_ptrsave(old_cc);
 
 	if ((cc = client_find(e->window)) == NULL) { 
-		XGetWindowAttributes(G_dpy, e->window, &xattr);
+		XGetWindowAttributes(X_Dpy, e->window, &xattr);
 		cc = client_new(e->window, screen_fromroot(xattr.root), 1);
 		sc = CCTOSC(cc);
 	} else {
@@ -113,11 +113,11 @@ xev_handle_configurerequest(struct xevent *xev, XEvent *ee)
 			cc->geom.y = e->y;
 
                 if (cc->geom.x == 0 &&
-		    cc->geom.width >= DisplayWidth(G_dpy, sc->which))
+		    cc->geom.width >= DisplayWidth(X_Dpy, sc->which))
 			cc->geom.x -= cc->bwidth;
 
                 if (cc->geom.y == 0 &&
-		    cc->geom.height >= DisplayHeight(G_dpy, sc->which))
+		    cc->geom.height >= DisplayHeight(X_Dpy, sc->which))
                         cc->geom.y -= cc->bwidth;
 
 		client_gravitate(cc, 1);
@@ -129,7 +129,7 @@ xev_handle_configurerequest(struct xevent *xev, XEvent *ee)
 		wc.border_width = 0;
 
 		/* We need to move the parent window, too. */
-		XConfigureWindow(G_dpy, cc->pwin, e->value_mask, &wc);
+		XConfigureWindow(X_Dpy, cc->pwin, e->value_mask, &wc);
 		xev_reconfig(cc);
 	}
 
@@ -142,7 +142,7 @@ xev_handle_configurerequest(struct xevent *xev, XEvent *ee)
 	e->value_mask &= ~CWStackMode;
 	e->value_mask |= CWBorderWidth;
 
-	XConfigureWindow(G_dpy, e->window, e->value_mask, &wc);
+	XConfigureWindow(X_Dpy, e->window, e->value_mask, &wc);
 
 	xev_register(xev);
 }
@@ -157,7 +157,7 @@ xev_handle_propertynotify(struct xevent *xev, XEvent *ee)
 	if ((cc = client_find(e->window)) != NULL) {
 		switch(e->atom) { 
 		case XA_WM_NORMAL_HINTS:
-			XGetWMNormalHints(G_dpy, cc->win, cc->size, &tmp);
+			XGetWMNormalHints(X_Dpy, cc->win, cc->size, &tmp);
 			break;
 		case XA_WM_NAME:
 			client_setname(cc);
@@ -187,7 +187,7 @@ xev_reconfig(struct client_ctx *cc)
 	ce.above = None;
 	ce.override_redirect = 0;
 
-	XSendEvent(G_dpy, cc->win, False, StructureNotifyMask, (XEvent *)&ce);
+	XSendEvent(X_Dpy, cc->win, False, StructureNotifyMask, (XEvent *)&ce);
 }
 
 void
@@ -246,7 +246,7 @@ xev_handle_buttonpress(struct xevent *xev, XEvent *ee)
 
 		switch (e->button) {
 		case Button1:
-			TAILQ_FOREACH(cc, &G_clientq, entry) {
+			TAILQ_FOREACH(cc, &Clientq, entry) {
 				if (cc->flags & CLIENT_HIDDEN) {
 					if (cc->label != NULL)
 						wname = cc->label;
@@ -266,11 +266,11 @@ xev_handle_buttonpress(struct xevent *xev, XEvent *ee)
 			break;
 		case Button3: {
 			struct cmd *cmd;
-			if (conf_cmd_changed(G_conf.menu_path)) {
-				conf_cmd_clear(&G_conf);
-				conf_cmd_populate(&G_conf, G_conf.menu_path);
+			if (conf_cmd_changed(Conf.menu_path)) {
+				conf_cmd_clear(&Conf);
+				conf_cmd_populate(&Conf, Conf.menu_path);
 			}
-			TAILQ_FOREACH(cmd, &G_conf.cmdq, entry) {
+			TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
 				XCALLOC(mi, struct menu);
 				strlcpy(mi->text, cmd->label, sizeof(mi->text));
 				mi->ctx = cmd;
@@ -321,7 +321,7 @@ xev_handle_buttonpress(struct xevent *xev, XEvent *ee)
 
 	switch (e->button) {
 	case Button1:
-		if (altcontrol && !G_groupmode)
+		if (altcontrol && !Groupmode)
 			group_sticky_toggle_enter(cc);
 		else {
 			grab_drag(cc);
@@ -330,7 +330,7 @@ xev_handle_buttonpress(struct xevent *xev, XEvent *ee)
 		break;
 	case Button2:
 		/* XXXSIGH!!! */
-		if (G_groupmode)
+		if (Groupmode)
 			group_click(cc);
 		else {
 			grab_sweep(cc);
@@ -351,7 +351,7 @@ xev_handle_buttonrelease(struct xevent *xev, XEvent *ee)
 {
 	struct client_ctx *cc = client_current();
 
-	if (cc != NULL && !G_groupmode)
+	if (cc != NULL && !Groupmode)
 		group_sticky_toggle_exit(cc);
 
 	xev_register(xev);
@@ -367,10 +367,10 @@ xev_handle_keypress(struct xevent *xev, XEvent *ee)
 	KeySym keysym, skeysym;
 	int modshift;
 
-	keysym = XKeycodeToKeysym(G_dpy, e->keycode, 0);
-	skeysym = XKeycodeToKeysym(G_dpy, e->keycode, 1);
+	keysym = XKeycodeToKeysym(X_Dpy, e->keycode, 0);
+	skeysym = XKeycodeToKeysym(X_Dpy, e->keycode, 1);
 	
-        TAILQ_FOREACH(kb, &G_conf.keybindingq, entry) {
+        TAILQ_FOREACH(kb, &Conf.keybindingq, entry) {
 		if (keysym != kb->keysym && skeysym == kb->keysym)
 			modshift = ShiftMask;
 		else
@@ -413,7 +413,7 @@ xev_handle_keyrelease(struct xevent *xev, XEvent *ee)
 	struct screen_ctx *sc = screen_fromroot(e->root);
 	int keysym;
 
-	keysym = XKeycodeToKeysym(G_dpy, e->keycode, 0);
+	keysym = XKeycodeToKeysym(X_Dpy, e->keycode, 0);
 	if (keysym != XK_Alt_L && keysym != XK_Alt_R)
 		goto out;
 
@@ -435,7 +435,7 @@ xev_handle_clientmessage(struct xevent *xev, XEvent *ee)
 {
 	XClientMessageEvent *e = &ee->xclient;
 	struct client_ctx *cc = client_find(e->window);
-	Atom xa_wm_change_state = XInternAtom(G_dpy, "WM_CHANGE_STATE", False);
+	Atom xa_wm_change_state = XInternAtom(X_Dpy, "WM_CHANGE_STATE", False);
 
 	if (cc == NULL)
 		goto out;
@@ -536,7 +536,7 @@ xev_loop(void)
 			errx(1, "X event queue empty");
 #endif		
 
-		XNextEvent(G_dpy, &e);
+		XNextEvent(X_Dpy, &e);
 		type = e.type;
 
 		win = root = 0;

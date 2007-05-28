@@ -15,7 +15,7 @@ draw_outline(struct client_ctx *cc)
 {
 	struct screen_ctx *sc = CCTOSC(cc);
 
-        XDrawRectangle(G_dpy, sc->rootwin, sc->invgc,
+        XDrawRectangle(X_Dpy, sc->rootwin, sc->invgc,
 	    cc->geom.x - cc->bwidth, cc->geom.y - cc->bwidth,
 	    cc->geom.width + cc->bwidth, cc->geom.height + cc->bwidth);
 }
