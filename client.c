@@ -409,7 +409,11 @@ client_ptrwarp(struct client_ctx *cc)
 		y = cc->geom.height / 2;
 	}
 
-	client_raise(cc);
+	if (cc->state == IconicState)
+		client_unhide(cc);
+	else
+		client_raise(cc);
+
 	xu_ptr_setpos(cc->pwin, x, y);
 }
 
