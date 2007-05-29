@@ -464,8 +464,6 @@ client_draw_border(struct client_ctx *cc)
 			    cc->geom.width + cc->bwidth,
 			    cc->geom.height + cc->bwidth);
 	} else {
-		XSetWindowBackgroundPixmap(X_Dpy, cc->pwin,
-		    client_bg_pixmap(cc));
 		if (cc->bwidth > 1)
 			XSetWindowBackgroundPixmap(X_Dpy,
 			    cc->pwin, client_bg_pixmap(cc));
