@@ -64,9 +64,12 @@ grab_sweep(struct client_ctx *cc)
 
 	for (;;) {
 		/* Look for changes in ptr position. */
-		XMaskEvent(X_Dpy, MouseMask, &ev);
+		XMaskEvent(X_Dpy, MouseMask|ExposureMask, &ev);
 
 		switch (ev.type) {
+		case Expose:
+			client_draw_border(cc);
+			break;
 		case MotionNotify:
 			if (_sweepcalc(cc, x0, y0, ev.xmotion.x, ev.xmotion.y))
  				/* Recompute window output */
@@ -108,9 +111,12 @@ grab_drag(struct client_ctx *cc)
 	xu_ptr_getpos(sc->rootwin, &xm, &ym);
 
 	for (;;) {
-		XMaskEvent(X_Dpy, MouseMask, &ev);
+		XMaskEvent(X_Dpy, MouseMask|ExposureMask, &ev);
 
 		switch (ev.type) {
+		case Expose:
+			client_draw_border(cc);
+			break;
 		case MotionNotify:
 			cc->geom.x = x0 + (ev.xmotion.x - xm);
 			cc->geom.y = y0 + (ev.xmotion.y - ym);
