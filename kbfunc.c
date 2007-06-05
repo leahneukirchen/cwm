@@ -85,15 +85,15 @@ kbfunc_menu_search(struct client_ctx *scratch, void *arg)
 }
 
 void
-kbfunc_client_cycle(struct client_ctx *cc, void *arg)
+kbfunc_client_cycle(struct client_ctx *scratch, void *arg)
 {
-	client_cyclenext(cc, 0);
+	client_cyclenext(0);
 }
 
 void
-kbfunc_client_rcycle(struct client_ctx *cc, void *arg)
+kbfunc_client_rcycle(struct client_ctx *scratch, void *arg)
 {
-	client_cyclenext(cc, 1);
+	client_cyclenext(1);
 }
 
 void

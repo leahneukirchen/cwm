@@ -199,9 +199,9 @@ conf_setup(struct conf *c)
 		conf_bindkey(c, kbfunc_menu_search,
 		    XK_slash, ControlMask, 0, 0);
 		conf_bindkey(c, kbfunc_client_cycle,
-		    XK_Tab, Mod1Mask, KBFLAG_NEEDCLIENT, 0);
+		    XK_Tab, Mod1Mask, 0, 0);
 		conf_bindkey(c, kbfunc_client_rcycle,
-		    XK_Tab, Mod1Mask|ShiftMask, KBFLAG_NEEDCLIENT, 0);
+		    XK_Tab, Mod1Mask|ShiftMask, 0, 0);
 		conf_bindkey(c, kbfunc_client_label, XK_l,
 		    ControlMask|Mod1Mask, KBFLAG_NEEDCLIENT, 0);
 		conf_bindkey(c, kbfunc_client_delete, XK_x,

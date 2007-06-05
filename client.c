@@ -604,13 +604,22 @@ match:
  */
 
 struct client_ctx *
-client_cyclenext(struct client_ctx *cc, int reverse)
+client_cyclenext(int reverse)
 {
-	struct screen_ctx *sc = CCTOSC(cc);
+	struct screen_ctx *sc;
+	struct client_ctx *cc;
 	struct client_ctx *(*iter)(struct client_ctx *) =
 	    reverse ? &client_mruprev : &client_mrunext;
 
 	/* TODO: maybe this should just be a CIRCLEQ. */
+
+	if (!(cc = _curcc)) {
+		if (TAILQ_EMPTY(&Clientq))
+			return(NULL);
+		cc = TAILQ_FIRST(&Clientq);
+	}
+
+	sc = CCTOSC(cc);
 
 	/* if altheld; then reset the iterator to the beginning */
 	if (!sc->altpersist || sc->cycle_client == NULL)
