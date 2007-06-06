@@ -207,6 +207,25 @@ The defaults for these are
 and 
 .Xr xlock 1 ,
 respectively.
+.Sh ~/.calmwm/.autogroup
+Symlinks in this directory are read upon startup and control the
+automatic grouping feature, which is based on the window name and class
+properties.
+To obtain the name and class of a window, you can use
+.Nm xprop WM_CLASS ,
+then click on the window.
+The first quoted string is the window name, the second one is the
+window class.
+.Pp
+The name of a link can be the window class, or the window class and name
+separated by a comma.
+The link target is a group name (one, two, \&..., nine).
+For example, to make all windows in the
+.Xr xterm 1
+class go to the third group:
+.Bd -literal -offset indent
+ln -s three ~/.calmwm/.autogroup/XTerm
+.Ed
 .Sh ENVIRONMENT
 .TP
 DISPLAY
