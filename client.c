@@ -162,8 +162,13 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	/* Notify client of its configuration. */
 	xev_reconfig(cc);
 
-	XMapRaised(X_Dpy, cc->pwin);
-	XMapWindow(X_Dpy, cc->win);
+	if (state == IconicState)
+		client_hide(cc);
+	else {
+		XMapRaised(X_Dpy, cc->pwin);
+		XMapWindow(X_Dpy, cc->win);
+	}
+
 	xu_setstate(cc, cc->state);
 
 	XSync(X_Dpy, False);
