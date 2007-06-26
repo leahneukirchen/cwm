@@ -12,7 +12,7 @@
 
 #define SearchMask (KeyPressMask|ExposureMask)
 
-static int  _strsubmatch(char *, char *);
+static int  _strsubmatch(char *, char *, int);
 
 void
 search_init(struct screen_ctx *sc)
@@ -37,7 +37,7 @@ search_start(struct menu_q *menuq,
     void (*match)(struct menu_q *, struct menu_q *, char *), 
     void (*rank)(struct menu_q *resultq, char *search), 
     void (*print)(struct menu *mi, int print),
-    char *prompt)
+    char *prompt, int dummy)
 {
 	struct screen_ctx *sc = screen_current();
 	int x, y, dx, dy, fontheight,
@@ -47,7 +47,7 @@ search_start(struct menu_q *menuq,
 	char dispstr[MENU_MAXENTRY*2 + 1];
 	char promptstr[MENU_MAXENTRY + 1];
 	Window focuswin;
-	struct menu *mi = NULL;
+	struct menu *mi = NULL, *dummy_mi = NULL;
 	struct menu_q resultq;
 	char chr;
 	enum ctltype ctl;
@@ -133,16 +133,22 @@ search_start(struct menu_q *menuq,
 			case CTL_RETURN:
 				/* This is just picking the match the
 				 * cursor is over. */
-				if ((mi = TAILQ_FIRST(&resultq)) != NULL)
+				if ((mi = TAILQ_FIRST(&resultq)) != NULL) {
 					goto found;
-				else
-					goto out;
+				} else if (dummy) {
+					dummy_mi = xmalloc(sizeof *dummy_mi);
+					(void) strlcpy(dummy_mi->text,
+					    searchstr, sizeof(dummy_mi->text));
+					dummy_mi->dummy = 1;
+					goto found;
+				}
+				goto out;
 			case CTL_WIPE:
 				searchstr[0] = '\0';
 				mutated = 1;
 				break;
 			case CTL_ALL:
- 				list = !list;
+				list = !list;
 				break;
 			case CTL_ABORT:
 				goto out;
@@ -273,9 +279,12 @@ out:
 	/* (if no match) */
 	xu_ptr_ungrab();
 	XSetInputFocus(X_Dpy, focuswin, focusrevert, CurrentTime);
+
 found:
 	XUnmapWindow(X_Dpy, sc->searchwin);
 
+	if (dummy && dummy_mi != NULL)
+		return (dummy_mi);
 	return (mi);
 }
 
@@ -307,7 +316,7 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 		struct client_ctx *cc = mi->ctx;
 
 		/* First, try to match on labels. */
-		if (cc->label != NULL && _strsubmatch(search, cc->label)) {
+		if (cc->label != NULL && _strsubmatch(search, cc->label, 0)) {
 			cc->matchname = cc->label;
 			tier = 0;
 		} 
@@ -315,7 +324,7 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 		/* Then, on window names. */
 		if (tier < 0) {
 			TAILQ_FOREACH_REVERSE(wn, &cc->nameq, winname_q, entry)
-			    if (_strsubmatch(search, wn->name)) {
+			    if (_strsubmatch(search, wn->name, 0)) {
 				    cc->matchname = wn->name;
 				    tier = 2;
 				    break;
@@ -327,7 +336,7 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 		 * name.
 		 */
 
-		if (tier < 0 && _strsubmatch(search, cc->app_class)) {
+		if (tier < 0 && _strsubmatch(search, cc->app_class, 0)) {
 			cc->matchname = cc->app_class;
 			tier = 3;
 		}
@@ -417,7 +426,19 @@ search_match_text(struct menu_q *menuq, struct menu_q *resultq, char *search)
 	TAILQ_INIT(resultq);
 
 	TAILQ_FOREACH(mi, menuq, entry)
-		if (_strsubmatch(search, mi->text))
+		if (_strsubmatch(search, mi->text, 0))
+			TAILQ_INSERT_TAIL(resultq, mi, resultentry);
+}
+
+void
+search_match_exec(struct menu_q *menuq, struct menu_q *resultq, char *search)
+{
+	struct menu *mi;
+
+	TAILQ_INIT(resultq);
+
+	TAILQ_FOREACH(mi, menuq, entry)
+		if (_strsubmatch(search, mi->text, 1))
 			TAILQ_INSERT_TAIL(resultq, mi, resultentry);
 }
 
@@ -428,10 +449,10 @@ search_rank_text(struct menu_q *resultq, char *search)
 }
 
 static int
-_strsubmatch(char *sub, char *str)
+_strsubmatch(char *sub, char *str, int zeroidx)
 {
 	size_t len, sublen;
-	u_int n;
+	u_int n, flen;
 
 	if (sub == NULL || str == NULL)
 		return (0);
@@ -442,7 +463,11 @@ _strsubmatch(char *sub, char *str)
 	if (sublen > len)
 		return (0);
 
-	for (n = 0; n <= len - sublen; n++)
+	if (!zeroidx)
+		flen = len - sublen;
+	else
+		flen = 0;
+	for (n = 0; n <= flen; n++)
 		if (strncasecmp(sub, str + n, sublen) == 0)
 			return (1);
 

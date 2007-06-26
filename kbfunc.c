@@ -7,8 +7,13 @@
  * $Id$
  */
 
+#include <paths.h>
+
 #include "headers.h"
 #include "calmwm.h"
+
+#define KNOWN_HOSTS ".ssh/known_hosts"
+#define HASH_MARKER "|1|"
 
 void
 kbfunc_client_lower(struct client_ctx *cc, void *arg)
@@ -41,7 +46,7 @@ kbfunc_client_search(struct client_ctx *scratch, void *arg)
 
 	if ((mi = search_start(&menuq,
 		    search_match_client, NULL,
-		    search_print_client, "window")) != NULL) {
+		    search_print_client, "window", 0)) != NULL) {
 		cc = (struct client_ctx *)mi->ctx;
 		if (cc->flags & CLIENT_HIDDEN)
 			client_unhide(cc);
@@ -75,7 +80,7 @@ kbfunc_menu_search(struct client_ctx *scratch, void *arg)
 	}
 
 	if ((mi = search_start(&menuq,
-		    search_match_text, NULL, NULL, "application")) != NULL)
+		    search_match_text, NULL, NULL, "application", 0)) != NULL)
 		u_spawn(((struct cmd *)mi->ctx)->image);
 
 	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
@@ -125,7 +130,150 @@ kbfunc_lock(struct client_ctx *cc, void *arg)
 void
 kbfunc_exec(struct client_ctx *scratch, void *arg)
 {
-	grab_exec();
+	char **ap, *paths[256], *path, tpath[MAXPATHLEN];
+	int l, i, j, ngroups;
+	gid_t mygroups[NGROUPS_MAX];
+	uid_t ruid, euid, suid;
+	DIR *dirp;
+	struct dirent *dp;
+	struct stat sb;
+	struct menu_q menuq;
+	struct menu *mi;
+
+	if (getgroups(0, mygroups) == -1)
+		err(1, "getgroups failure");
+	if ((ngroups = getresuid(&ruid, &euid, &suid)) == -1)
+		err(1, "getresuid failure");
+
+	TAILQ_INIT(&menuq);
+	/* just use default path until we have config to set this */
+	path = xstrdup(_PATH_DEFPATH);
+	for (ap = paths; ap < &paths[sizeof(paths) - 1] &&
+	    (*ap = strsep(&path, ":")) != NULL;) {
+		if (**ap != '\0')
+			ap++;
+	}
+	*ap = NULL;
+	for (i = 0; i < sizeof(paths) && paths[i] != NULL; i++) {
+		if ((dirp = opendir(paths[i])) == NULL)
+			continue;
+
+		while ((dp = readdir(dirp)) != NULL) {
+			/* skip everything but regular files and symlinks */
+			if (dp->d_type != DT_REG && dp->d_type != DT_LNK)
+				continue;
+			memset(tpath, '\0', sizeof(tpath));
+			l = snprintf(tpath, sizeof(tpath), "%s/%s", paths[i],
+			    dp->d_name);
+			/* check for truncation etc */
+			if (l == -1 || l >= (int)sizeof(tpath))
+				continue;
+			/* just ignore on stat failure */
+			if (stat(tpath, &sb) == -1)
+				continue;
+			/* may we execute this file? */
+			if (euid == sb.st_uid)
+					if (sb.st_mode & S_IXUSR)
+						goto executable;
+					else
+						continue;
+			for (j = 0; j < ngroups; j++)
+				if (mygroups[j] == sb.st_gid)
+					if (sb.st_mode & S_IXGRP)
+						goto executable;
+					else
+						continue;
+			if (sb.st_mode & S_IXOTH)
+				goto executable;
+			continue;
+		executable:
+			/* the thing in tpath, we may execute */
+			XCALLOC(mi, struct menu);
+			strlcpy(mi->text, dp->d_name, sizeof(mi->text));
+			TAILQ_INSERT_TAIL(&menuq, mi, entry);
+		}
+		(void) closedir(dirp);
+	}
+
+	if ((mi = search_start(&menuq,
+		    search_match_exec, NULL, NULL, "exec", 1)) != NULL)
+		u_spawn(mi->text);
+
+	if (mi != NULL && mi->dummy)
+		xfree(mi);
+	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
+		TAILQ_REMOVE(&menuq, mi, entry);
+		xfree(mi);
+	}
+	xfree(path);
+}
+
+void
+kbfunc_ssh(struct client_ctx *scratch, void *arg)
+{
+	struct menu_q menuq;
+	struct menu *mi;
+	FILE *fp;
+	size_t len;
+	char *buf, *lbuf, *p, *home;
+	char hostbuf[MAXHOSTNAMELEN], filename[MAXPATHLEN], cmd[256];
+	int l;
+
+	if ((home = getenv("HOME")) == NULL)
+		return;
+
+	l = snprintf(filename, sizeof(filename), "%s/%s", home, KNOWN_HOSTS);
+	if (l == -1 || l >= sizeof(filename))
+		return;
+
+	if ((fp = fopen(filename, "r")) == NULL)
+		return;
+
+	TAILQ_INIT(&menuq);
+	lbuf = NULL;
+	while ((buf = fgetln(fp, &len))) {
+		if (buf[len - 1] == '\n')
+			buf[len - 1] = '\0';
+		else {
+			/* EOF without EOL, copy and add the NUL */
+			lbuf = xmalloc(len + 1);
+			memcpy(lbuf, buf, len);
+			lbuf[len] = '\0';
+			buf = lbuf;
+		}
+		/* skip hashed hosts */
+		if (strncmp(buf, HASH_MARKER, strlen(HASH_MARKER)) == 0)
+			continue;
+		for (p = buf; *p != ',' && *p != ' ' && p != buf + len; p++) {
+			/* do nothing */
+		}
+		/* ignore badness */
+		if (p - buf + 1 > sizeof(hostbuf))
+			continue;
+		(void) strlcpy(hostbuf, buf, p - buf + 1);
+		XCALLOC(mi, struct menu);
+		(void) strlcpy(mi->text, hostbuf, sizeof(mi->text));
+		TAILQ_INSERT_TAIL(&menuq, mi, entry);
+	}
+	xfree(lbuf);
+	fclose(fp);
+
+
+	if ((mi = search_start(&menuq,
+		    search_match_exec, NULL, NULL, "ssh", 1)) != NULL) {
+		conf_cmd_refresh(&Conf);
+		l = snprintf(cmd, sizeof(cmd), "%s -e ssh %s", Conf.termpath,
+		    mi->text);
+		if (l != -1 && l < sizeof(cmd))
+			u_spawn(cmd);
+	}
+
+	if (mi != NULL && mi->dummy)
+		xfree(mi);
+	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
+		TAILQ_REMOVE(&menuq, mi, entry);
+		xfree(mi);
+	}
 }
 
 void

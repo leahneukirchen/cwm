@@ -257,6 +257,7 @@ struct menu {
 	char  print[MENU_MAXENTRY + 1];
 	void *ctx;
 	short lasthit;
+	short dummy;
 };
 
 TAILQ_HEAD(menu_q, menu);
@@ -427,6 +428,7 @@ void kbfunc_client_maximize(struct client_ctx *, void *);
 void kbfunc_client_vmaximize(struct client_ctx *, void *);
 void kbfunc_menu_search(struct client_ctx *, void *);
 void kbfunc_exec(struct client_ctx *, void *);
+void kbfunc_ssh(struct client_ctx *, void *);
 void kbfunc_term(struct client_ctx *cc, void *arg);
 void kbfunc_lock(struct client_ctx *cc, void *arg);
 
@@ -437,10 +439,11 @@ struct menu *search_start(struct menu_q *menuq,
     void (*match)(struct menu_q *, struct menu_q *, char *),
     void (*rank)(struct menu_q *, char *),
     void (*print)(struct menu *mi, int),
-    char *);
+    char *, int);
 void  search_match_client(struct menu_q *, struct menu_q *, char *);
 void  search_print_client(struct menu *mi, int list);
 void  search_match_text(struct menu_q *, struct menu_q *, char *);
+void  search_match_exec(struct menu_q *, struct menu_q *, char *);
 void  search_rank_text(struct menu_q *, char *);
 
 void group_init(void);
