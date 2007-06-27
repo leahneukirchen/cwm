@@ -14,6 +14,7 @@
 
 #define KNOWN_HOSTS ".ssh/known_hosts"
 #define HASH_MARKER "|1|"
+#define MOVE_AMOUNT 10
 
 void
 kbfunc_client_lower(struct client_ctx *cc, void *arg)
@@ -27,6 +28,45 @@ kbfunc_client_raise(struct client_ctx *cc, void *arg)
 	client_raise(cc);
 }
 
+void
+kbfunc_client_move(struct client_ctx *cc, void *arg)
+{
+	int x,y,flags,amt;
+	u_int mx,my;
+
+	mx = my = 0;
+
+	flags = (int)arg;
+	amt = MOVE_AMOUNT;
+
+	if (flags & CWM_BIGMOVE) {
+		flags -= CWM_BIGMOVE;
+		amt = amt*10;
+	}
+
+	switch(flags) {
+	case CWM_UP:
+		my -= amt;
+		break;
+	case CWM_DOWN: 
+		my += amt;
+		break;
+	case CWM_RIGHT:
+		mx += amt;
+		break;
+	case CWM_LEFT:
+		mx -= amt;
+		break;
+	}
+
+	cc->geom.y += my;
+	cc->geom.x += mx;
+	client_move(cc);
+	xu_ptr_getpos(cc->pwin, &x, &y);
+	cc->ptr.y = y + my;
+	cc->ptr.x = x + mx;
+	client_ptrwarp(cc);
+}
 void
 kbfunc_client_search(struct client_ctx *scratch, void *arg)
 {

@@ -204,6 +204,11 @@ enum kbtype {
 	KB__LAST
 };
 
+#define CWM_BIGMOVE	0x1000
+enum directions {
+	CWM_UP=0, CWM_DOWN, CWM_LEFT, CWM_RIGHT,
+};
+
 #define KBFLAG_NEEDCLIENT 0x01
 #define KBFLAG_FINDCLIENT 0x02
 
@@ -426,6 +431,7 @@ void kbfunc_client_prevgroup(struct client_ctx *, void *);
 void kbfunc_client_nogroup(struct client_ctx *, void *);
 void kbfunc_client_maximize(struct client_ctx *, void *);
 void kbfunc_client_vmaximize(struct client_ctx *, void *);
+void kbfunc_client_move(struct client_ctx *, void *);
 void kbfunc_menu_search(struct client_ctx *, void *);
 void kbfunc_exec(struct client_ctx *, void *);
 void kbfunc_ssh(struct client_ctx *, void *);
