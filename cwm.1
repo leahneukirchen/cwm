@@ -1,7 +1,7 @@
 .\"	$OpenBSD$
 .\"
 .\" The following requests are required for all man pages.
-.Dd July 10, 2004
+.Dd June 29, 2007
 .Dt CWM 1
 .Os
 .Sh NAME
@@ -10,8 +10,8 @@
 .Sh SYNOPSIS
 .\" For a program:  program [-abc] file ...
 .Nm cwm
+.Op Fl s
 .Op Fl d Ar display
-.Op Fl s 
 .Op Fl f Ar fontname
 .Sh DESCRIPTION
 .Nm
@@ -21,90 +21,97 @@ due to limitations in the evilwm codebase.
 The from-scratch rewrite borrowed some code from 9wm.
 .Nm
 contains many new features which all concentrate on the efficiency and
-transparency of window management.  
+transparency of window management.
 .Nm
 also aims to maintain the most simplest and pleasant aesthetic.
-.Sh BASIC OPERATION
-We will adopt the following notation:
 .Pp
-.Bl -tag -width 10n -offset -indent -compact
-.It Fa C
+The following notation is used throughout this page:
+.Pp
+.Bl -tag -width Ds -offset indent -compact
+.It Ic C
 Control
-.It Fa M
+.It Ic M
 Meta (Alt on PCs)
-.It Fa S
+.It Ic S
 Shift
-.It Fa M1
+.It Ic M1
 Left mouse button
-.It Fa M2
+.It Ic M2
 Middle mouse button
-.It Fa M3
+.It Ic M3
 Right mouse button
 .El
 .Pp
 .Nm
 is very simple in its use.
 Most of the actions are initiated via keybindings.
-The current keybindings are described below, their functionality
-is described in more detail later.
+The current keybindings are described below;
+their functionality is described in more detail later.
 .Pp
-.Bl -tag -width 10n -offset -indent -compact
-.It Fa C-M-Enter
+.Bl -tag -width "C-M-EscapeXXX" -offset indent -compact
+.It Ic C-M-Enter
 Spawn a new terminal.
-.It Fa C-M-Delete
+.It Ic C-M-Delete
 Lock the screen.
-.It Fa M-Enter
+.It Ic M-Enter
 Hide current window.
-.It Fa M-Down
+.It Ic M-Down
 Lower current window.
-.It Fa M-Up
+.It Ic M-Up
 Raise current window.
-.It Fa M-/
+.It Ic M-/
 Search for windows.
-.It Fa C-/
+.It Ic C-/
 Search for applications.
-.It Fa C-M-l
+.It Ic C-M-l
 Label current window.
-.It Fa M-Tab
+.It Ic M-Tab
 Cycle through currently visible windows.
-.It Fa M-S-Tab
+.It Ic M-S-Tab
 Reverse cycle through currently visible windows.
-.It Fa C-M-x
+.It Ic C-M-x
 Delete current window.
-.It Fa C-M-Escape
+.It Ic C-M-Escape
 Enter group edit mode.
-.It Fa C-M-[n]
+.It Ic C-M-[n]
 Select group n, where n is 1-9.
-.It Fa C-M-0
+.It Ic C-M-0
 Select all groups.
-.It Fa M-Right
+.It Ic M-Right
 Switch to next group.
-.It Fa M-Left
+.It Ic M-Left
 Switch to previous group.
-.It Fa C-M-f
+.It Ic C-M-f
 Toggle full-screen size of window.
-.It Fa C-M-=
+.It Ic C-M-=
 Toggle vertical maximization of window.
-.It Fa M-?
-Spawn \&"Exec program\&" dialog.
-.It Fa M-.
-Spawn \&"Ssh to\&" dialog.
-This parses your $HOME/.ssh/known_hosts file to provide host auto-completion.
-Ssh will be executed via the configured terminal emulator.
+.It Ic M-?
+Spawn
+.Dq Exec program
+dialog.
+.It Ic M-.
+Spawn
+.Dq Ssh to
+dialog.
+This parses
+.Pa $HOME/.ssh/known_hosts
+to provide host auto-completion.
+.Xr ssh 1
+will be executed via the configured terminal emulator.
 .El
 .Pp
 The mouse bindings are also important, they are:
 .Pp
-.Bl -tag -width 10n -offset -indent -compact
-.It Fa M-M1
+.Bl -tag -width Ds -offset indent -compact
+.It M-M1
 Move a window.
-.It Fa C-M-M1
+.It C-M-M1
 Toggle a window's membership in the current group.
-A blue highlight indicates the window has been added to the group,
+A blue highlight indicates the window has been added to the group;
 a red highlight indicates it has been removed.
-.It Fa M-M2
-Resize a window/Select a window.
-.It Fa M-M3
+.It M-M2
+Resize a window/select a window.
+.It M-M3
 Lower a window.
 .El
 .Pp
@@ -114,17 +121,17 @@ are as follows:
 .Bl -tag -width Ds
 .It Fl d Ar display
 Specify the display to use.
+.It Fl f Ar fontname
+Makes the
+.Xr Xft 3
+font string
+.Ar fontname
+the default font.
 .It Fl s
 Set sticky group mode on.
 The default behavior for new windows is to not assign any group.
 This changes the default behavior to assigning the currrently selected
 group to any newly created windows.
-.It Fl f Ar fontname
-Makes the 
-.Xr Xft 3
-font string
-.Ar fontname
-the default font.
 .El
 .Sh WINDOW MOVEMENT
 .Nm
@@ -134,11 +141,11 @@ the current window a larger amount.
 For example, to move the current window to the left a small amount, press M-h.
 To move the current window down by a larger amount, press M-shift-j.
 .Sh SEARCH
-.Nm 
-features the ability to search for windows by their current title, old
-titles and by their label.
-The priority for the search results are: Label, current title, old
-titles in reverse order and finally window class name.
+.Nm
+features the ability to search for windows by their current title,
+old titles, and by their label.
+The priority for the search results are: label, current title,
+old titles in reverse order, and finally window class name.
 .Nm
 keeps a history of the 5 previous titles of a window.
 .Pp
@@ -146,26 +153,26 @@ When searching, the leftmost character of the result list may show a
 flag:
 .Pp
 .Bl -tag -width 10n -offset -indent -compact
-.It Fa !
+.It !
 The window is the currently focused window.
-.It Fa &
+.It &
 The window is hidden.
 .El
 .Pp
 The following keybindings may be used to navigate the result list:
 .Pp
-.Bl -tag -width 10n -offset -indent -compact
-.It [Down] or C-s
+.Bl -tag -width "[Down] or C-sXXX" -offset indent -compact
+.It Ic [Down] No or Ic C-s
 Select the next window in the list.
-.It [Up] or C-r
+.It Ic [Up] No or Ic C-r
 Select the previous window in the list.
-.It C-u
+.It Ic C-u
 Clear the input.
-.It [Enter]
+.It Ic [Enter]
 Focus the selected window.
-.It [Esc]
+.It Ic [Esc]
 Quit.
-.It C-a
+.It Ic C-a
 Whenever there are no matching windows, list every window.
 .El
 .Sh GROUPS
@@ -187,45 +194,55 @@ which group to edit.
 Menus are recalled by clicking the mouse on the root window:
 .Pp
 .Bl -tag -width 10n -offset -indent -compact
-.It Fa M1
+.It M1
 Show list of currently hidden windows.
 Clicking on an item will unhide that window.
-.It Fa M2
+.It M2
 Show list of currently defined groups.
 Clicking on an item will hide/unhide that group.
-.It Fa M3
-Show list of applications as defined in 
-.Fa ~/.calmwm .
-Clicking on an item will spawn that application.  
+.It M3
+Show list of applications as defined in
+.Pa ~/.calmwm .
+Clicking on an item will spawn that application.
 .El
-.Sh ~/.calmwm
+.Sh ENVIRONMENT
+.Bl -tag -width "DISPLAYXXX"
+.It DISPLAY
+.Nm
+starts on this display unless the
+.Fl d
+option is given.
+.El
+.Sh FILES
+.Bl -tag -width Ds
+.It Pa ~/.calmwm
 Any directory entries here are shown in the application menu.
 When it is selected, the image is executed with
 .Xr execve 2 .
 One use of this is to create symbolic links for your favorite
-applications in this directory using 
+applications in this directory using
 .Xr ln 1 .
 .Pp
 The entries
 .Nm term
-and 
+and
 .Nm lock
-have special meaning.
+have a special meaning.
 When they exist they point to the terminal program and screen locking
 programs used by the keybindings specified above.
-The defaults for these are 
+The defaults for these are
 .Xr xterm 1
-and 
+and
 .Xr xlock 1 ,
 respectively.
-.Sh ~/.calmwm/.autogroup
+.It Pa ~/.calmwm/.autogroup
 Symlinks in this directory are read upon startup and control the
 automatic grouping feature, which is based on the window name and class
 properties.
-To obtain the name and class of a window, you can use
-.Nm xprop WM_CLASS ,
+To obtain the name and class of a window, use
+.Ql xprop WM_CLASS ,
 then click on the window.
-The first quoted string is the window name, the second one is the
+The first quoted string is the window name; the second one is the
 window class.
 .Pp
 The name of a link can be the window class, or the window class and name
@@ -235,29 +252,24 @@ For example, to make all windows in the
 .Xr xterm 1
 class go to the third group:
 .Bd -literal -offset indent
-ln -s three ~/.calmwm/.autogroup/XTerm
+$ ln -s three ~/.calmwm/.autogroup/XTerm
 .Ed
-.Sh ENVIRONMENT
-.TP
-DISPLAY
-.Nm
-starts on this display unless the
-.Fl d
-option is given.
-.Sh ACKNOWLEDGEMENTS
+.El
+.Sh AUTHORS
+.An -nosplit
+.Pp
 .Nm
 contains some code from 9wm.
-.Sh AUTHORS
+.Pp
 The
 .Nm
-software has been developed by Marius Aamodt Eriksen
-.Aq marius@monkey.org 
-with contributions from Andy Adamson
-.Aq dros@monkey.org ,
-Niels Provos
-.Aq provos@monkey.org
-and Antti Nykänen
-.Aq aon@iki.fi .
+software has been developed by
+.An Marius Aamodt Eriksen Aq marius@monkey.org
+with contributions from
+.An Andy Adamson Aq dros@monkey.org ,
+.An Niels Provos Aq provos@monkey.org ,
+and
+.An Antti Nykänen Aq aon@iki.fi .
 Ideas, discussion with many others.
 .\" .Sh HISTORY
 .\".Aq marius@monkey.org .
