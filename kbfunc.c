@@ -170,7 +170,8 @@ kbfunc_lock(struct client_ctx *cc, void *arg)
 void
 kbfunc_exec(struct client_ctx *scratch, void *arg)
 {
-	char **ap, *paths[256], *path, tpath[MAXPATHLEN];
+#define NPATHS 256
+	char **ap, *paths[NPATHS], *path, tpath[MAXPATHLEN];
 	int l, i, j, ngroups;
 	gid_t mygroups[NGROUPS_MAX];
 	uid_t ruid, euid, suid;
@@ -188,13 +189,13 @@ kbfunc_exec(struct client_ctx *scratch, void *arg)
 	TAILQ_INIT(&menuq);
 	/* just use default path until we have config to set this */
 	path = xstrdup(_PATH_DEFPATH);
-	for (ap = paths; ap < &paths[sizeof(paths) - 1] &&
+	for (ap = paths; ap < &paths[NPATHS - 1] &&
 	    (*ap = strsep(&path, ":")) != NULL;) {
 		if (**ap != '\0')
 			ap++;
 	}
 	*ap = NULL;
-	for (i = 0; i < sizeof(paths) && paths[i] != NULL; i++) {
+	for (i = 0; i < NPATHS && paths[i] != NULL; i++) {
 		if ((dirp = opendir(paths[i])) == NULL)
 			continue;
 
