@@ -239,6 +239,11 @@ search_start(struct menu_q *menuq,
 			}
 			if (y + dy >= ymax) {
 				y = ymax - dy;
+				/* If the menu is too high, never hide the
+				 * top of the menu.
+				 */
+				if (y < 0)
+					y = 0;
 				warp = 1;
 			}
 

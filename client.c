@@ -705,6 +705,10 @@ client_cycleinfo(struct client_ctx *cc)
 	if ((diff = cc->geom.height - (y + h)) < 0)
 		y += diff;
 
+	/* Don't hide the beginning of the window names */
+	if (x < 0)
+		x = 0;
+
 	XReparentWindow(X_Dpy, sc->infowin, cc->win, 0, 0);
 	XMoveResizeWindow(X_Dpy, sc->infowin, x, y, w, h);
 	XMapRaised(X_Dpy, sc->infowin);
