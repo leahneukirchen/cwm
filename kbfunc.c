@@ -67,6 +67,51 @@ kbfunc_client_move(struct client_ctx *cc, void *arg)
 	cc->ptr.x = x + mx;
 	client_ptrwarp(cc);
 }
+
+void
+kbfunc_client_resize(struct client_ctx *cc, void *arg)
+{
+	int flags,mx,my;
+	u_int amt;
+
+	mx = my = 0;
+
+	flags = (int)arg;
+	amt = MOVE_AMOUNT;
+
+	if (flags & CWM_BIGMOVE) {
+		flags -= CWM_BIGMOVE;
+		amt = amt*10;
+	}
+
+	switch(flags) {
+	case CWM_UP:
+		my -= amt;
+		break;
+	case CWM_DOWN: 
+		my += amt;
+		break;
+	case CWM_RIGHT:
+		mx += amt;
+		break;
+	case CWM_LEFT:
+		mx -= amt;
+		break;
+	}
+
+	cc->geom.height += my;
+	cc->geom.width += mx;
+	client_resize(cc);
+
+	/*
+	 * Moving the cursor while resizing is problematic. Just place
+	 * it in the middle of the window.
+	 */
+	cc->ptr.x = -1;
+	cc->ptr.y = -1;
+	client_ptrwarp(cc);
+}
+
 void
 kbfunc_client_search(struct client_ctx *scratch, void *arg)
 {

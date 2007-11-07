@@ -432,6 +432,7 @@ void kbfunc_client_nogroup(struct client_ctx *, void *);
 void kbfunc_client_maximize(struct client_ctx *, void *);
 void kbfunc_client_vmaximize(struct client_ctx *, void *);
 void kbfunc_client_move(struct client_ctx *, void *);
+void kbfunc_client_resize(struct client_ctx *, void *);
 void kbfunc_menu_search(struct client_ctx *, void *);
 void kbfunc_exec(struct client_ctx *, void *);
 void kbfunc_ssh(struct client_ctx *, void *);

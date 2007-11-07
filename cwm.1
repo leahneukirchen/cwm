@@ -63,7 +63,7 @@ Raise current window.
 Search for windows.
 .It Ic C-/
 Search for applications.
-.It Ic C-M-l
+.It Ic C-M-n
 Label current window.
 .It Ic M-Tab
 Cycle through currently visible windows.
@@ -133,13 +133,17 @@ The default behavior for new windows is to not assign any group.
 This changes the default behavior to assigning the currrently selected
 group to any newly created windows.
 .El
-.Sh WINDOW MOVEMENT
+.Sh WINDOW MOVEMENT AND RESIZING
 .Nm
 windows can be moved with the use of the keyboard through Vi-like bindings.
 M-[hjkl] moves the current window a small amount, while M-shift-[hjkl] moves
 the current window a larger amount.
 For example, to move the current window to the left a small amount, press M-h.
 To move the current window down by a larger amount, press M-shift-j.
+.Pp
+Similarly, windows may be resized with the same keybindings with the addition
+of the Control key. C-M-[hjkl] resizes the window a small amount and C-M-shift-[hjkl]
+resizes by a larger increment.
 .Sh SEARCH
 .Nm
 features the ability to search for windows by their current title,

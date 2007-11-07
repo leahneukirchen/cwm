@@ -204,7 +204,7 @@ conf_setup(struct conf *c)
 		    XK_Tab, Mod1Mask, 0, 0);
 		conf_bindkey(c, kbfunc_client_rcycle,
 		    XK_Tab, Mod1Mask|ShiftMask, 0, 0);
-		conf_bindkey(c, kbfunc_client_label, XK_l,
+		conf_bindkey(c, kbfunc_client_label, XK_n,
 		    ControlMask|Mod1Mask, KBFLAG_NEEDCLIENT, 0);
 		conf_bindkey(c, kbfunc_client_delete, XK_x,
 		    ControlMask|Mod1Mask, KBFLAG_NEEDCLIENT, 0);
@@ -258,7 +258,31 @@ conf_setup(struct conf *c)
 		conf_bindkey(c, kbfunc_client_move,
 		    XK_H, Mod1Mask, KBFLAG_NEEDCLIENT,
 		    (void *)(CWM_LEFT|CWM_BIGMOVE));
-        }
+		conf_bindkey(c, kbfunc_client_resize,
+		    XK_k, ControlMask|Mod1Mask, 
+		    KBFLAG_NEEDCLIENT, (void *)CWM_UP);
+		conf_bindkey(c, kbfunc_client_resize,
+		    XK_j, ControlMask|Mod1Mask, 
+		    KBFLAG_NEEDCLIENT, (void *)CWM_DOWN);
+		conf_bindkey(c, kbfunc_client_resize,
+		    XK_l, ControlMask|Mod1Mask, 
+		    KBFLAG_NEEDCLIENT, (void *)CWM_RIGHT);
+		conf_bindkey(c, kbfunc_client_resize,
+		    XK_h, ControlMask|Mod1Mask, 
+		    KBFLAG_NEEDCLIENT, (void *)CWM_LEFT);
+		conf_bindkey(c, kbfunc_client_resize,
+		    XK_K, ControlMask|Mod1Mask, KBFLAG_NEEDCLIENT,
+		    (void *)(CWM_UP|CWM_BIGMOVE));
+		conf_bindkey(c, kbfunc_client_resize,
+		    XK_J, ControlMask|Mod1Mask, KBFLAG_NEEDCLIENT,
+		    (void *)(CWM_DOWN|CWM_BIGMOVE));
+		conf_bindkey(c, kbfunc_client_resize,
+		    XK_L, ControlMask|Mod1Mask, KBFLAG_NEEDCLIENT,
+		    (void *)(CWM_RIGHT|CWM_BIGMOVE));
+		conf_bindkey(c, kbfunc_client_resize,
+		    XK_H, ControlMask|Mod1Mask, KBFLAG_NEEDCLIENT,
+		    (void *)(CWM_LEFT|CWM_BIGMOVE));
+	}
 
  	snprintf(dir_settings, sizeof(dir_settings),
 	    "%s/.calmwm/.settings", home);
