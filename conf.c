@@ -386,26 +386,47 @@ struct {
 	{ "lower", kbfunc_client_lower, KBFLAG_NEEDCLIENT, 0 },
 	{ "raise", kbfunc_client_raise, KBFLAG_NEEDCLIENT, 0 },
 	{ "search", kbfunc_client_search, KBFLAG_NEEDCLIENT, 0 },
+	{ "menusearch", kbfunc_menu_search, 0, 0 },
 	{ "hide", kbfunc_client_hide, KBFLAG_NEEDCLIENT, 0 },
 	{ "cycle", kbfunc_client_cycle, KBFLAG_NEEDCLIENT, 0 },
 	{ "rcycle", kbfunc_client_rcycle, KBFLAG_NEEDCLIENT, 0 },
 	{ "label", kbfunc_client_label, KBFLAG_NEEDCLIENT, 0 },
 	{ "delete", kbfunc_client_delete, KBFLAG_NEEDCLIENT, 0 },
 	{ "groupselect", kbfunc_client_groupselect, 0, 0 },
-	{ "group1", kbfunc_client_group, 0, (void *) 1 },
-	{ "group2", kbfunc_client_group, 0, (void *) 2 },
-	{ "group3", kbfunc_client_group, 0, (void *) 3 },
-	{ "group4", kbfunc_client_group, 0, (void *) 4 },
-	{ "group5", kbfunc_client_group, 0, (void *) 5 },
-	{ "group6", kbfunc_client_group, 0, (void *) 6 },
-	{ "group7", kbfunc_client_group, 0, (void *) 7 },
-	{ "group8", kbfunc_client_group, 0, (void *) 8 },
-	{ "group9", kbfunc_client_group, 0, (void *) 9 },
-	{ "nogroup", kbfunc_client_nogroup, 0, 0},
-	{ "nextgroup", kbfunc_client_nextgroup, 0, 0},
-	{ "prevgroup", kbfunc_client_prevgroup, 0, 0},
-	{ "maximize", kbfunc_client_maximize, KBFLAG_NEEDCLIENT, 0},
-	{ "vmaximize", kbfunc_client_vmaximize, KBFLAG_NEEDCLIENT, 0},
+	{ "group1", kbfunc_client_group, 0, (void *)1 },
+	{ "group2", kbfunc_client_group, 0, (void *)2 },
+	{ "group3", kbfunc_client_group, 0, (void *)3 },
+	{ "group4", kbfunc_client_group, 0, (void *)4 },
+	{ "group5", kbfunc_client_group, 0, (void *)5 },
+	{ "group6", kbfunc_client_group, 0, (void *)6 },
+	{ "group7", kbfunc_client_group, 0, (void *)7 },
+	{ "group8", kbfunc_client_group, 0, (void *)8 },
+	{ "group9", kbfunc_client_group, 0, (void *)9 },
+	{ "nogroup", kbfunc_client_nogroup, 0, 0 },
+	{ "nextgroup", kbfunc_client_nextgroup, 0, 0 },
+	{ "prevgroup", kbfunc_client_prevgroup, 0, 0 },
+	{ "maximize", kbfunc_client_maximize, KBFLAG_NEEDCLIENT, 0 },
+	{ "vmaximize", kbfunc_client_vmaximize, KBFLAG_NEEDCLIENT, 0 },
+	{ "exec", kbfunc_exec, 0, 0 },
+	{ "ssh", kbfunc_ssh, 0, 0 },
+	{ "terminal", kbfunc_term, 0, 0 },
+	{ "lock", kbfunc_lock, 0, 0 },
+	{ "moveup", kbfunc_client_move, KBFLAG_NEEDCLIENT, (void *)CWM_UP },
+	{ "movedown", kbfunc_client_move, KBFLAG_NEEDCLIENT, (void *)CWM_DOWN },
+	{ "moveright", kbfunc_client_move, KBFLAG_NEEDCLIENT, (void *)CWM_RIGHT },
+	{ "moveleft", kbfunc_client_move, KBFLAG_NEEDCLIENT, (void *)CWM_LEFT },
+	{ "bigmoveup", kbfunc_client_move, KBFLAG_NEEDCLIENT, (void *)(CWM_UP|CWM_BIGMOVE) },
+	{ "bigmovedown", kbfunc_client_move, KBFLAG_NEEDCLIENT, (void *)(CWM_DOWN|CWM_BIGMOVE) },
+	{ "bigmoveright", kbfunc_client_move, KBFLAG_NEEDCLIENT, (void *)(CWM_RIGHT|CWM_BIGMOVE) },
+	{ "bigmoveleft", kbfunc_client_move, KBFLAG_NEEDCLIENT, (void *)(CWM_LEFT|CWM_BIGMOVE) },
+	{ "resizeup", kbfunc_client_resize, KBFLAG_NEEDCLIENT, (void *)(CWM_UP) },
+	{ "resizedown", kbfunc_client_resize, KBFLAG_NEEDCLIENT, (void *)CWM_DOWN },
+	{ "resizeright", kbfunc_client_resize, KBFLAG_NEEDCLIENT, (void *)CWM_RIGHT },
+	{ "resizeleft", kbfunc_client_resize, KBFLAG_NEEDCLIENT, (void *)CWM_LEFT },
+	{ "bigresizeup", kbfunc_client_resize, KBFLAG_NEEDCLIENT, (void *)(CWM_UP|CWM_BIGMOVE) },
+	{ "bigresizedown", kbfunc_client_resize, KBFLAG_NEEDCLIENT, (void *)(CWM_DOWN|CWM_BIGMOVE) },
+	{ "bigresizeright", kbfunc_client_resize, KBFLAG_NEEDCLIENT, (void *)(CWM_RIGHT|CWM_BIGMOVE) },
+	{ "bigresizeleft", kbfunc_client_resize, KBFLAG_NEEDCLIENT, (void *)(CWM_LEFT|CWM_BIGMOVE) },
 	{ NULL, NULL, 0, 0},
 };
 
@@ -458,6 +479,22 @@ conf_parsekeys(struct conf *c, char *filename)
 		if (strchr(ent->d_name, 'M') != NULL &&
 		    strchr(ent->d_name, 'M') < strchr(ent->d_name, '-')) 
 			current_binding->modmask |= Mod1Mask;
+
+		if (strchr(ent->d_name, '2') != NULL &&
+		    strchr(ent->d_name, '2') < strchr(ent->d_name, '-')) 
+			current_binding->modmask |= Mod2Mask;
+
+		if (strchr(ent->d_name, '3') != NULL &&
+		    strchr(ent->d_name, '3') < strchr(ent->d_name, '-')) 
+			current_binding->modmask |= Mod3Mask;
+
+		if (strchr(ent->d_name, '4') != NULL &&
+		    strchr(ent->d_name, '4') < strchr(ent->d_name, '-')) 
+			current_binding->modmask |= Mod4Mask;
+
+		if (strchr(ent->d_name, 'S') != NULL &&
+		    strchr(ent->d_name, 'S') < strchr(ent->d_name, '-')) 
+			current_binding->modmask |= ShiftMask;
 
 		substring = strchr(ent->d_name, '-') + 1;
 

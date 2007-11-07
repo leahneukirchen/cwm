@@ -258,6 +258,64 @@ class go to the third group:
 .Bd -literal -offset indent
 $ ln -s three ~/.calmwm/.autogroup/XTerm
 .Ed
+.It Pa ~/.calmwm/.settings
+Files in this directory cause various configuration options to be
+set or unset.
+Currently the only setting availiable is whether or not sticky groups
+are activated.
+To activate sticky groups create a file in this directory with the name
+``sticky''.
+.It Pa .calmwm/.ignore
+Any files in this directory cause 
+.Nm
+to ignore programs by that name by not drawing borders around them.
+For example the command 
+.Bd -literal -offset indent
+$ ln -s three ~/.calmwm/.ignore/xclock
+.Ed
+will cause any instances of 
+.Xr xclock 1
+to not have borders.
+.It Pa .calmwm/.keys
+Symlinks in this directory cause the creation of keyboard shortcuts.
+If the directory does not exist, then the default shortcuts will be
+created; otherwise only the shortcuts defined will be created.
+The name of a link here is first the modifier keys, followed by a ``-''.
+The following modifiers are recognised:
+.Bl -tag -width Ds
+.It Pa C
+The Control key.
+.It Pa M
+The Meta key.
+.It Pa S
+The Shift key.
+.It Pa 2
+The Mod2 key.
+.It Pa 3
+The Mod3 key.
+.It Pa 4
+The Mod4 key (normally the windows key).
+.El
+The ``-'' should be followed by either a keysym name, taken from
+.Pa /usr/X11R6/include/X11/keysymdef.h ,
+or a numerical keycode value enclosed in ``[]''.
+The target of the link should be either the name of a task from the 
+``name_to_kbfunc''
+structure in 
+.Pa /usr/src/xenocara/app/cwm/conf.c ,
+or, alternatively it should be the commandline that is wished to be executed.
+For example, to cause
+.Ic C-M-r 
+to add a label to a window:
+.Bd -literal -offset indent
+$ ln -s "label" ~/.calmwm/.keys/CM-r
+.Ed
+Launch an xterm running 
+.Xr top 1
+with C-S-Enter:
+.Bd -literal -offset indent
+$ ln -s "/usr/X11R6/bin/xterm -e top" ~/.calmwm/.keys/CS-Return
+.Ed
 .El
 .Sh AUTHORS
 .An -nosplit
