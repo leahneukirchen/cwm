@@ -265,7 +265,7 @@ Currently the only setting availiable is whether or not sticky groups
 are activated.
 To activate sticky groups create a file in this directory with the name
 ``sticky''.
-.It Pa .calmwm/.ignore
+.It Pa ~/.calmwm/.ignore
 Any files in this directory cause 
 .Nm
 to ignore programs by that name by not drawing borders around them.
@@ -276,7 +276,7 @@ $ ln -s three ~/.calmwm/.ignore/xclock
 will cause any instances of 
 .Xr xclock 1
 to not have borders.
-.It Pa .calmwm/.keys
+.It Pa ~/.calmwm/.keys
 Symlinks in this directory cause the creation of keyboard shortcuts.
 If the directory does not exist, then the default shortcuts will be
 created; otherwise only the shortcuts defined will be created.
