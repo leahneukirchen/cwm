@@ -435,6 +435,7 @@ void kbfunc_client_move(struct client_ctx *, void *);
 void kbfunc_client_resize(struct client_ctx *, void *);
 void kbfunc_menu_search(struct client_ctx *, void *);
 void kbfunc_exec(struct client_ctx *, void *);
+void kbfunc_ptrmove(struct client_ctx *, void *);
 void kbfunc_ssh(struct client_ctx *, void *);
 void kbfunc_term(struct client_ctx *cc, void *arg);
 void kbfunc_lock(struct client_ctx *cc, void *arg);

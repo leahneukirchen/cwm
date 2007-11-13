@@ -282,6 +282,26 @@ conf_setup(struct conf *c)
 		conf_bindkey(c, kbfunc_client_resize,
 		    XK_H, ControlMask|Mod1Mask, KBFLAG_NEEDCLIENT,
 		    (void *)(CWM_LEFT|CWM_BIGMOVE));
+		conf_bindkey(c, kbfunc_ptrmove,
+		    XK_Up, ControlMask, 0, (void *)CWM_UP);
+		conf_bindkey(c, kbfunc_ptrmove,
+		    XK_Down, ControlMask, 0, (void *)CWM_DOWN);
+		conf_bindkey(c, kbfunc_ptrmove,
+		    XK_Right, ControlMask, 0, (void *)CWM_RIGHT);
+		conf_bindkey(c, kbfunc_ptrmove,
+		    XK_Left, ControlMask, 0, (void *)CWM_LEFT);
+		conf_bindkey(c, kbfunc_ptrmove,
+		    XK_Up, ControlMask|ShiftMask, 0,
+		    (void *)(CWM_UP|CWM_BIGMOVE));
+		conf_bindkey(c, kbfunc_ptrmove,
+		    XK_Left, ControlMask|ShiftMask, 0,
+		    (void *)(CWM_LEFT|CWM_BIGMOVE));
+		conf_bindkey(c, kbfunc_ptrmove,
+		    XK_Right, ControlMask|ShiftMask, 0,
+		    (void *)(CWM_RIGHT|CWM_BIGMOVE));
+		conf_bindkey(c, kbfunc_ptrmove,
+		    XK_Down, ControlMask|ShiftMask, 0,
+		    (void *)(CWM_DOWN|CWM_BIGMOVE));
 	}
 
  	snprintf(dir_settings, sizeof(dir_settings),
@@ -392,6 +412,14 @@ struct {
 	{ "rcycle", kbfunc_client_rcycle, KBFLAG_NEEDCLIENT, 0 },
 	{ "label", kbfunc_client_label, KBFLAG_NEEDCLIENT, 0 },
 	{ "delete", kbfunc_client_delete, KBFLAG_NEEDCLIENT, 0 },
+	{ "ptru", kbfunc_ptrmove, 0, (void *)CWM_UP },
+	{ "ptrd", kbfunc_ptrmove, 0, (void *)CWM_DOWN },
+	{ "ptrl", kbfunc_ptrmove, 0, (void *)CWM_LEFT },
+	{ "ptrr", kbfunc_ptrmove, 0, (void *)CWM_RIGHT },
+	{ "bigptru", kbfunc_ptrmove, 0, (void *)(CWM_UP|CWM_BIGMOVE) },
+	{ "bigptrd", kbfunc_ptrmove, 0, (void *)(CWM_DOWN|CWM_BIGMOVE) },
+	{ "bigptrl", kbfunc_ptrmove, 0, (void *)(CWM_LEFT|CWM_BIGMOVE) },
+	{ "bigptrr", kbfunc_ptrmove, 0, (void *)(CWM_RIGHT|CWM_BIGMOVE) },
 	{ "groupselect", kbfunc_client_groupselect, 0, 0 },
 	{ "group1", kbfunc_client_group, 0, (void *)1 },
 	{ "group2", kbfunc_client_group, 0, (void *)2 },
