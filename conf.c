@@ -185,123 +185,62 @@ conf_setup(struct conf *c)
         if (dirent_isdir(dir_keydefs)) {
                 conf_parsekeys(c, dir_keydefs);
         } else {
-		conf_bindkey(c, kbfunc_term,
-		    XK_Return, ControlMask|Mod1Mask, 0, NULL);
-		conf_bindkey(c, kbfunc_lock,
-		    XK_Delete, ControlMask|Mod1Mask, 0, NULL);
-		conf_bindkey(c, kbfunc_exec, XK_question, Mod1Mask, 0, NULL);
-		conf_bindkey(c, kbfunc_ssh, XK_period, Mod1Mask, 0, NULL);
-		conf_bindkey(c, kbfunc_client_hide,
-		    XK_Return, Mod1Mask, KBFLAG_NEEDCLIENT, 0);
-		conf_bindkey(c, kbfunc_client_lower,
-		    XK_Down, Mod1Mask, KBFLAG_NEEDCLIENT, 0);
-		conf_bindkey(c, kbfunc_client_raise,
-		    XK_Up, Mod1Mask, KBFLAG_NEEDCLIENT, 0);
-		conf_bindkey(c, kbfunc_client_search, XK_slash, Mod1Mask, 0, 0);
-		conf_bindkey(c, kbfunc_menu_search,
-		    XK_slash, ControlMask, 0, 0);
-		conf_bindkey(c, kbfunc_client_cycle,
-		    XK_Tab, Mod1Mask, 0, 0);
-		conf_bindkey(c, kbfunc_client_rcycle,
-		    XK_Tab, Mod1Mask|ShiftMask, 0, 0);
-		conf_bindkey(c, kbfunc_client_label, XK_n,
-		    ControlMask|Mod1Mask, KBFLAG_NEEDCLIENT, 0);
-		conf_bindkey(c, kbfunc_client_delete, XK_x,
-		    ControlMask|Mod1Mask, KBFLAG_NEEDCLIENT, 0);
-		conf_bindkey(c, kbfunc_client_groupselect,
-		    XK_Escape, ControlMask|Mod1Mask, 0, 0);
-		conf_bindkey(c, kbfunc_client_group,
-		    XK_1, ControlMask|Mod1Mask, 0, (void *) 1);
-		conf_bindkey(c, kbfunc_client_group,
-		    XK_2, ControlMask|Mod1Mask, 0, (void *) 2);
-		conf_bindkey(c, kbfunc_client_group,
-		    XK_3, ControlMask|Mod1Mask, 0, (void *) 3);
-		conf_bindkey(c, kbfunc_client_group,
-		    XK_4, ControlMask|Mod1Mask, 0, (void *) 4);
-		conf_bindkey(c, kbfunc_client_group,
-		    XK_5, ControlMask|Mod1Mask, 0, (void *) 5);
-		conf_bindkey(c, kbfunc_client_group,
-		    XK_6, ControlMask|Mod1Mask, 0, (void *) 6);
-		conf_bindkey(c, kbfunc_client_group,
-		    XK_7, ControlMask|Mod1Mask, 0, (void *) 7);
-		conf_bindkey(c, kbfunc_client_group,
-		    XK_8, ControlMask|Mod1Mask, 0, (void *) 8);
-		conf_bindkey(c, kbfunc_client_group,
-		    XK_9, ControlMask|Mod1Mask, 0, (void *) 9);
-		conf_bindkey(c, kbfunc_client_nogroup,
-		    XK_0, ControlMask|Mod1Mask, 0, 0);
-		conf_bindkey(c, kbfunc_client_nextgroup,
-		    XK_Right, Mod1Mask, 0, 0);
-		conf_bindkey(c, kbfunc_client_prevgroup,
-		    XK_Left, Mod1Mask, 0, 0);
-                conf_bindkey(c, kbfunc_client_maximize,
-		    XK_f, ControlMask|Mod1Mask, KBFLAG_NEEDCLIENT, 0);
-		conf_bindkey(c, kbfunc_client_vmaximize,
-		    XK_equal, ControlMask|Mod1Mask, KBFLAG_NEEDCLIENT, 0);
-		conf_bindkey(c, kbfunc_client_move,
-		    XK_k, Mod1Mask, KBFLAG_NEEDCLIENT, (void *)CWM_UP);
-		conf_bindkey(c, kbfunc_client_move,
-		    XK_j, Mod1Mask, KBFLAG_NEEDCLIENT, (void *)CWM_DOWN);
-		conf_bindkey(c, kbfunc_client_move,
-		    XK_l, Mod1Mask, KBFLAG_NEEDCLIENT, (void *)CWM_RIGHT);
-		conf_bindkey(c, kbfunc_client_move,
-		    XK_h, Mod1Mask, KBFLAG_NEEDCLIENT, (void *)CWM_LEFT);
-		conf_bindkey(c, kbfunc_client_move,
-		    XK_K, Mod1Mask, KBFLAG_NEEDCLIENT,
-		    (void *)(CWM_UP|CWM_BIGMOVE));
-		conf_bindkey(c, kbfunc_client_move,
-		    XK_J, Mod1Mask, KBFLAG_NEEDCLIENT,
-		    (void *)(CWM_DOWN|CWM_BIGMOVE));
-		conf_bindkey(c, kbfunc_client_move,
-		    XK_L, Mod1Mask, KBFLAG_NEEDCLIENT,
-		    (void *)(CWM_RIGHT|CWM_BIGMOVE));
-		conf_bindkey(c, kbfunc_client_move,
-		    XK_H, Mod1Mask, KBFLAG_NEEDCLIENT,
-		    (void *)(CWM_LEFT|CWM_BIGMOVE));
-		conf_bindkey(c, kbfunc_client_resize,
-		    XK_k, ControlMask|Mod1Mask, 
-		    KBFLAG_NEEDCLIENT, (void *)CWM_UP);
-		conf_bindkey(c, kbfunc_client_resize,
-		    XK_j, ControlMask|Mod1Mask, 
-		    KBFLAG_NEEDCLIENT, (void *)CWM_DOWN);
-		conf_bindkey(c, kbfunc_client_resize,
-		    XK_l, ControlMask|Mod1Mask, 
-		    KBFLAG_NEEDCLIENT, (void *)CWM_RIGHT);
-		conf_bindkey(c, kbfunc_client_resize,
-		    XK_h, ControlMask|Mod1Mask, 
-		    KBFLAG_NEEDCLIENT, (void *)CWM_LEFT);
-		conf_bindkey(c, kbfunc_client_resize,
-		    XK_K, ControlMask|Mod1Mask, KBFLAG_NEEDCLIENT,
-		    (void *)(CWM_UP|CWM_BIGMOVE));
-		conf_bindkey(c, kbfunc_client_resize,
-		    XK_J, ControlMask|Mod1Mask, KBFLAG_NEEDCLIENT,
-		    (void *)(CWM_DOWN|CWM_BIGMOVE));
-		conf_bindkey(c, kbfunc_client_resize,
-		    XK_L, ControlMask|Mod1Mask, KBFLAG_NEEDCLIENT,
-		    (void *)(CWM_RIGHT|CWM_BIGMOVE));
-		conf_bindkey(c, kbfunc_client_resize,
-		    XK_H, ControlMask|Mod1Mask, KBFLAG_NEEDCLIENT,
-		    (void *)(CWM_LEFT|CWM_BIGMOVE));
-		conf_bindkey(c, kbfunc_ptrmove,
-		    XK_Up, ControlMask, 0, (void *)CWM_UP);
-		conf_bindkey(c, kbfunc_ptrmove,
-		    XK_Down, ControlMask, 0, (void *)CWM_DOWN);
-		conf_bindkey(c, kbfunc_ptrmove,
-		    XK_Right, ControlMask, 0, (void *)CWM_RIGHT);
-		conf_bindkey(c, kbfunc_ptrmove,
-		    XK_Left, ControlMask, 0, (void *)CWM_LEFT);
-		conf_bindkey(c, kbfunc_ptrmove,
-		    XK_Up, ControlMask|ShiftMask, 0,
-		    (void *)(CWM_UP|CWM_BIGMOVE));
-		conf_bindkey(c, kbfunc_ptrmove,
-		    XK_Left, ControlMask|ShiftMask, 0,
-		    (void *)(CWM_LEFT|CWM_BIGMOVE));
-		conf_bindkey(c, kbfunc_ptrmove,
-		    XK_Right, ControlMask|ShiftMask, 0,
-		    (void *)(CWM_RIGHT|CWM_BIGMOVE));
-		conf_bindkey(c, kbfunc_ptrmove,
-		    XK_Down, ControlMask|ShiftMask, 0,
-		    (void *)(CWM_DOWN|CWM_BIGMOVE));
+		conf_bindname(c, "CM-Return", "terminal");
+		conf_bindname(c, "CM-Delete", "lock");
+		conf_bindname(c, "M-question", "exec");
+		conf_bindname(c, "M-period", "ssh");
+		conf_bindname(c, "M-Return", "hide");
+		conf_bindname(c, "M-Down", "lower");
+		conf_bindname(c, "M-Up", "raise");
+		conf_bindname(c, "M-slash", "search");
+		conf_bindname(c, "C-slash", "menusearch");
+		conf_bindname(c, "M-Tab", "cycle");
+		conf_bindname(c, "MS-Tab", "rcycle");
+		conf_bindname(c, "CM-n", "label");
+		conf_bindname(c, "CM-x", "delete");
+		conf_bindname(c, "CM-Escape", "groupselect");
+		conf_bindname(c, "CM-0", "group0");
+		conf_bindname(c, "CM-1", "group1");
+		conf_bindname(c, "CM-2", "group2");
+		conf_bindname(c, "CM-3", "group3");
+		conf_bindname(c, "CM-4", "group4");
+		conf_bindname(c, "CM-5", "group5");
+		conf_bindname(c, "CM-6", "group6");
+		conf_bindname(c, "CM-7", "group7");
+		conf_bindname(c, "CM-8", "group8");
+		conf_bindname(c, "CM-9", "group9");
+		conf_bindname(c, "M-Right", "nextgroup");
+		conf_bindname(c, "M-Left", "prevgroup");
+		conf_bindname(c, "CM-f", "maximize");
+		conf_bindname(c, "CM-equal", "vmaximize");
+
+		conf_bindname(c, "M-h", "moveleft");
+		conf_bindname(c, "M-j", "movedown");
+		conf_bindname(c, "M-k", "moveup");
+		conf_bindname(c, "M-l", "moveright");
+		conf_bindname(c, "M-H", "bigmoveleft");
+		conf_bindname(c, "M-J", "bigmovedown");
+		conf_bindname(c, "M-K", "bigmoveup");
+		conf_bindname(c, "M-L", "bigmoveright");
+
+		conf_bindname(c, "CM-h", "resizeleft");
+		conf_bindname(c, "CM-j", "resizedown");
+		conf_bindname(c, "CM-k", "resizeup");
+		conf_bindname(c, "CM-l", "resizeright");
+		conf_bindname(c, "CM-H", "bigresizeleft");
+		conf_bindname(c, "CM-J", "bigresizedown");
+		conf_bindname(c, "CM-K", "bigresizeup");
+		conf_bindname(c, "CM-L", "bigresizeright");
+
+		conf_bindname(c, "C-Left", "ptrmoveleft");
+		conf_bindname(c, "C-Down", "ptrmovedown");
+		conf_bindname(c, "C-Up", "ptrmoveup");
+		conf_bindname(c, "C-Right", "ptrmoveright");
+		conf_bindname(c, "CS-Left", "bigptrmoveleft");
+		conf_bindname(c, "CS-Down", "bigptrmovedown");
+		conf_bindname(c, "CS-Up", "bigptrmoveup");
+		conf_bindname(c, "CS-Right", "bigptrmoveright");
+
 	}
 
  	snprintf(dir_settings, sizeof(dir_settings),
@@ -412,14 +351,14 @@ struct {
 	{ "rcycle", kbfunc_client_rcycle, KBFLAG_NEEDCLIENT, 0 },
 	{ "label", kbfunc_client_label, KBFLAG_NEEDCLIENT, 0 },
 	{ "delete", kbfunc_client_delete, KBFLAG_NEEDCLIENT, 0 },
-	{ "ptru", kbfunc_ptrmove, 0, (void *)CWM_UP },
-	{ "ptrd", kbfunc_ptrmove, 0, (void *)CWM_DOWN },
-	{ "ptrl", kbfunc_ptrmove, 0, (void *)CWM_LEFT },
-	{ "ptrr", kbfunc_ptrmove, 0, (void *)CWM_RIGHT },
-	{ "bigptru", kbfunc_ptrmove, 0, (void *)(CWM_UP|CWM_BIGMOVE) },
-	{ "bigptrd", kbfunc_ptrmove, 0, (void *)(CWM_DOWN|CWM_BIGMOVE) },
-	{ "bigptrl", kbfunc_ptrmove, 0, (void *)(CWM_LEFT|CWM_BIGMOVE) },
-	{ "bigptrr", kbfunc_ptrmove, 0, (void *)(CWM_RIGHT|CWM_BIGMOVE) },
+	{ "ptrmoveup", kbfunc_ptrmove, 0, (void *)CWM_UP },
+	{ "ptrmovedown", kbfunc_ptrmove, 0, (void *)CWM_DOWN },
+	{ "ptrmoveleft", kbfunc_ptrmove, 0, (void *)CWM_LEFT },
+	{ "ptrmoveright", kbfunc_ptrmove, 0, (void *)CWM_RIGHT },
+	{ "bigptrmoveup", kbfunc_ptrmove, 0, (void *)(CWM_UP|CWM_BIGMOVE) },
+	{ "bigptrmovedown", kbfunc_ptrmove, 0, (void *)(CWM_DOWN|CWM_BIGMOVE) },
+	{ "bigptrmoveleft", kbfunc_ptrmove, 0, (void *)(CWM_LEFT|CWM_BIGMOVE) },
+	{ "bigptrmoveright", kbfunc_ptrmove, 0, (void *)(CWM_RIGHT|CWM_BIGMOVE) },
 	{ "groupselect", kbfunc_client_groupselect, 0, 0 },
 	{ "group1", kbfunc_client_group, 0, (void *)1 },
 	{ "group2", kbfunc_client_group, 0, (void *)2 },
@@ -480,14 +419,11 @@ conf_parsekeys(struct conf *c, char *filename)
 {
 	DIR *dir;
 	struct dirent *ent;
-	struct keybinding *current_binding;
-	int iter;
 	char buffer[MAXPATHLEN];
 	char current_file[MAXPATHLEN];
 
 	dir = opendir(filename);
 	while ((ent = readdir(dir)) != NULL) {
-		char *substring;
 		if (ent->d_name[0] == '.')
 			continue;
 
@@ -498,80 +434,90 @@ conf_parsekeys(struct conf *c, char *filename)
 		if (!dirent_islink(current_file))
 			continue;
 
-		XCALLOC(current_binding, struct keybinding);
-
-		if (strchr(ent->d_name, 'C') != NULL &&
-		    strchr(ent->d_name, 'C') < strchr(ent->d_name, '-'))
-			current_binding->modmask |= ControlMask;
-
-		if (strchr(ent->d_name, 'M') != NULL &&
-		    strchr(ent->d_name, 'M') < strchr(ent->d_name, '-')) 
-			current_binding->modmask |= Mod1Mask;
-
-		if (strchr(ent->d_name, '2') != NULL &&
-		    strchr(ent->d_name, '2') < strchr(ent->d_name, '-')) 
-			current_binding->modmask |= Mod2Mask;
-
-		if (strchr(ent->d_name, '3') != NULL &&
-		    strchr(ent->d_name, '3') < strchr(ent->d_name, '-')) 
-			current_binding->modmask |= Mod3Mask;
-
-		if (strchr(ent->d_name, '4') != NULL &&
-		    strchr(ent->d_name, '4') < strchr(ent->d_name, '-')) 
-			current_binding->modmask |= Mod4Mask;
-
-		if (strchr(ent->d_name, 'S') != NULL &&
-		    strchr(ent->d_name, 'S') < strchr(ent->d_name, '-')) 
-			current_binding->modmask |= ShiftMask;
-
-		substring = strchr(ent->d_name, '-') + 1;
-
-		/* If there is no '-' in name, continue as is */
-		if (strchr(ent->d_name, '-') == NULL)
-			substring = ent->d_name;
-
-		if (substring[0] == '[' &&
-		    substring[strlen(substring)-1] == ']') {
-			sscanf(substring, "[%d]", &current_binding->keycode);
-			current_binding->keysym = NoSymbol;
-		} else {
-			current_binding->keycode = 0;
-			current_binding->keysym = XStringToKeysym(substring);
-		}
-
-		if (current_binding->keysym == NoSymbol &&
-		    current_binding->keycode == 0 ) {
-			xfree(current_binding);
-			continue;
-		}
 
 		memset(buffer, 0, MAXPATHLEN);
-		if (readlink(current_file, buffer, MAXPATHLEN) < 0) {
-			free(current_binding);
-			continue;
-		}
-
-		for (iter = 0; name_to_kbfunc[iter].tag != NULL; iter++) {
-			if (strcmp(name_to_kbfunc[iter].tag, buffer) != 0)
-				continue;
-
-			current_binding->callback = name_to_kbfunc[iter].handler;
-			current_binding->flags = name_to_kbfunc[iter].flags;
-            current_binding->argument = name_to_kbfunc[iter].argument;
-			TAILQ_INSERT_TAIL(&c->keybindingq, current_binding, entry);
-			break;
-		}
-
-		if (name_to_kbfunc[iter].tag != NULL)
+		if (readlink(current_file, buffer, MAXPATHLEN) < 0)
 			continue;
 
-		current_binding->callback = kbfunc_cmdexec;
-		current_binding->argument = strdup(buffer);
-		current_binding->flags = 0;
-		TAILQ_INSERT_TAIL(&c->keybindingq, current_binding, entry);
+		conf_bindname(c, ent->d_name, buffer);
 	}
 
 	closedir(dir);
+}
+
+void
+conf_bindname(struct conf *c, char *name, char *binding)
+{
+	int iter;
+	struct keybinding *current_binding;
+	char *substring;
+
+	XCALLOC(current_binding, struct keybinding);
+
+	if (strchr(name, 'C') != NULL &&
+	    strchr(name, 'C') < strchr(name, '-'))
+		current_binding->modmask |= ControlMask;
+
+	if (strchr(name, 'M') != NULL &&
+	    strchr(name, 'M') < strchr(name, '-')) 
+		current_binding->modmask |= Mod1Mask;
+
+	if (strchr(name, '2') != NULL &&
+	    strchr(name, '2') < strchr(name, '-')) 
+		current_binding->modmask |= Mod2Mask;
+
+	if (strchr(name, '3') != NULL &&
+	    strchr(name, '3') < strchr(name, '-')) 
+		current_binding->modmask |= Mod3Mask;
+
+	if (strchr(name, '4') != NULL &&
+	    strchr(name, '4') < strchr(name, '-')) 
+		current_binding->modmask |= Mod4Mask;
+
+	if (strchr(name, 'S') != NULL &&
+	    strchr(name, 'S') < strchr(name, '-')) 
+		current_binding->modmask |= ShiftMask;
+
+	substring = strchr(name, '-') + 1;
+
+	/* If there is no '-' in name, continue as is */
+	if (strchr(name, '-') == NULL)
+		substring = name;
+
+	if (substring[0] == '[' &&
+	    substring[strlen(substring)-1] == ']') {
+		sscanf(substring, "[%d]", &current_binding->keycode);
+		current_binding->keysym = NoSymbol;
+	} else {
+		current_binding->keycode = 0;
+		current_binding->keysym = XStringToKeysym(substring);
+	}
+
+	if (current_binding->keysym == NoSymbol &&
+	    current_binding->keycode == 0 ) {
+		xfree(current_binding);
+		return;
+	}
+
+	for (iter = 0; name_to_kbfunc[iter].tag != NULL; iter++) {
+		if (strcmp(name_to_kbfunc[iter].tag, binding) != 0)
+			continue;
+
+		current_binding->callback = name_to_kbfunc[iter].handler;
+		current_binding->flags = name_to_kbfunc[iter].flags;
+		current_binding->argument = name_to_kbfunc[iter].argument;
+		TAILQ_INSERT_TAIL(&c->keybindingq, current_binding, entry);
+		break;
+	}
+
+	if (name_to_kbfunc[iter].tag != NULL)
+		return;
+
+	current_binding->callback = kbfunc_cmdexec;
+	current_binding->argument = strdup(binding);
+	current_binding->flags = 0;
+	TAILQ_INSERT_TAIL(&c->keybindingq, current_binding, entry);
+	return;
 }
 
 void
