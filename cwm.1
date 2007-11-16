@@ -132,15 +132,14 @@ Set sticky group mode on.
 The default behavior for new windows is to not assign any group.
 This changes the default behavior to assigning the currrently selected
 group to any newly created windows.
-.Pp
+.El
 .Sh POINTER MOVEMENT
 The pointer can be moved with the use of the keyboard through bindings.
 C-[UP|DOWN|LEFT|RIGHT] moves the pointer a small amount, while
-C-shift-[UP|DOWN|LEFT|RIGHT] moves the current window a larger amount.
+C-shift-[UP|DOWN|LEFT|RIGHT] moves the pointer a larger amount.
 For example, to move the pointer to the left by a small amount,
 press C-LEFT.
 To move the pointer down by a larger amount, press C-shift-DOWN.
-.El
 .Sh WINDOW MOVEMENT AND RESIZING
 .Nm
 windows can be moved with the use of the keyboard through Vi-like bindings.
@@ -150,7 +149,8 @@ For example, to move the current window to the left a small amount, press M-h.
 To move the current window down by a larger amount, press M-shift-j.
 .Pp
 Similarly, windows may be resized with the same keybindings with the addition
-of the Control key. C-M-[hjkl] resizes the window a small amount and C-M-shift-[hjkl]
+of the Control key.
+C-M-[hjkl] resizes the window a small amount and C-M-shift-[hjkl]
 resizes by a larger increment.
 .Sh SEARCH
 .Nm
@@ -274,14 +274,14 @@ are activated.
 To activate sticky groups create a file in this directory with the name
 ``sticky''.
 .It Pa ~/.calmwm/.ignore
-Any files in this directory cause 
+Any files in this directory cause
 .Nm
 to ignore programs by that name by not drawing borders around them.
-For example the command 
+For example the command
 .Bd -literal -offset indent
 $ ln -s three ~/.calmwm/.ignore/xclock
 .Ed
-will cause any instances of 
+will cause any instances of
 .Xr xclock 1
 to not have borders.
 .It Pa ~/.calmwm/.keys
@@ -307,18 +307,18 @@ The Mod4 key (normally the windows key).
 The ``-'' should be followed by either a keysym name, taken from
 .Pa /usr/X11R6/include/X11/keysymdef.h ,
 or a numerical keycode value enclosed in ``[]''.
-The target of the link should be either the name of a task from the 
+The target of the link should be either the name of a task from the
 ``name_to_kbfunc''
-structure in 
+structure in
 .Pa /usr/src/xenocara/app/cwm/conf.c ,
 or, alternatively it should be the commandline that is wished to be executed.
 For example, to cause
-.Ic C-M-r 
+.Ic C-M-r
 to add a label to a window:
 .Bd -literal -offset indent
 $ ln -s "label" ~/.calmwm/.keys/CM-r
 .Ed
-Launch an xterm running 
+Launch an xterm running
 .Xr top 1
 with C-S-Enter:
 .Bd -literal -offset indent
