@@ -406,6 +406,7 @@ void  conf_client(struct client_ctx *);
 void  conf_bindkey(struct conf *, void (*)(struct client_ctx *, void *),
           int, int, int, void *);
 void  conf_bindname(struct conf *, char *, char *);
+void  conf_unbind(struct conf *, struct keybinding *);
 void  conf_parsekeys(struct conf *, char *);
 void  conf_parsesettings(struct conf *, char *);
 void  conf_parseignores(struct conf *, char *);

@@ -181,67 +181,65 @@ conf_setup(struct conf *c)
 	conf_cmd_init(c);
 
         TAILQ_INIT(&c->keybindingq);
+
+	conf_bindname(c, "CM-Return", "terminal");
+	conf_bindname(c, "CM-Delete", "lock");
+	conf_bindname(c, "M-question", "exec");
+	conf_bindname(c, "M-period", "ssh");
+	conf_bindname(c, "M-Return", "hide");
+	conf_bindname(c, "M-Down", "lower");
+	conf_bindname(c, "M-Up", "raise");
+	conf_bindname(c, "M-slash", "search");
+	conf_bindname(c, "C-slash", "menusearch");
+	conf_bindname(c, "M-Tab", "cycle");
+	conf_bindname(c, "MS-Tab", "rcycle");
+	conf_bindname(c, "CM-n", "label");
+	conf_bindname(c, "CM-x", "delete");
+	conf_bindname(c, "CM-Escape", "groupselect");
+	conf_bindname(c, "CM-0", "group0");
+	conf_bindname(c, "CM-1", "group1");
+	conf_bindname(c, "CM-2", "group2");
+	conf_bindname(c, "CM-3", "group3");
+	conf_bindname(c, "CM-5", "group5");
+	conf_bindname(c, "CM-6", "group6");
+	conf_bindname(c, "CM-7", "group7");
+	conf_bindname(c, "CM-8", "group8");
+	conf_bindname(c, "CM-9", "group9");
+	conf_bindname(c, "M-Right", "nextgroup");
+	conf_bindname(c, "M-Left", "prevgroup");
+	conf_bindname(c, "CM-f", "maximize");
+	conf_bindname(c, "CM-equal", "vmaximize");
+
+	conf_bindname(c, "M-h", "moveleft");
+	conf_bindname(c, "M-j", "movedown");
+	conf_bindname(c, "M-k", "moveup");
+	conf_bindname(c, "M-l", "moveright");
+	conf_bindname(c, "M-H", "bigmoveleft");
+	conf_bindname(c, "M-J", "bigmovedown");
+	conf_bindname(c, "M-K", "bigmoveup");
+	conf_bindname(c, "M-L", "bigmoveright");
+
+	conf_bindname(c, "CM-h", "resizeleft");
+	conf_bindname(c, "CM-j", "resizedown");
+	conf_bindname(c, "CM-k", "resizeup");
+	conf_bindname(c, "CM-l", "resizeright");
+	conf_bindname(c, "CM-H", "bigresizeleft");
+	conf_bindname(c, "CM-J", "bigresizedown");
+	conf_bindname(c, "CM-K", "bigresizeup");
+	conf_bindname(c, "CM-L", "bigresizeright");
+
+	conf_bindname(c, "C-Left", "ptrmoveleft");
+	conf_bindname(c, "C-Down", "ptrmovedown");
+	conf_bindname(c, "C-Up", "ptrmoveup");
+	conf_bindname(c, "C-Right", "ptrmoveright");
+	conf_bindname(c, "CS-Left", "bigptrmoveleft");
+	conf_bindname(c, "CS-Down", "bigptrmovedown");
+	conf_bindname(c, "CS-Up", "bigptrmoveup");
+	conf_bindname(c, "CS-Right", "bigptrmoveright");
+
         snprintf(dir_keydefs, sizeof(dir_keydefs), "%s/.calmwm/.keys", home);
-        if (dirent_isdir(dir_keydefs)) {
+        if (dirent_isdir(dir_keydefs))
                 conf_parsekeys(c, dir_keydefs);
-        } else {
-		conf_bindname(c, "CM-Return", "terminal");
-		conf_bindname(c, "CM-Delete", "lock");
-		conf_bindname(c, "M-question", "exec");
-		conf_bindname(c, "M-period", "ssh");
-		conf_bindname(c, "M-Return", "hide");
-		conf_bindname(c, "M-Down", "lower");
-		conf_bindname(c, "M-Up", "raise");
-		conf_bindname(c, "M-slash", "search");
-		conf_bindname(c, "C-slash", "menusearch");
-		conf_bindname(c, "M-Tab", "cycle");
-		conf_bindname(c, "MS-Tab", "rcycle");
-		conf_bindname(c, "CM-n", "label");
-		conf_bindname(c, "CM-x", "delete");
-		conf_bindname(c, "CM-Escape", "groupselect");
-		conf_bindname(c, "CM-0", "group0");
-		conf_bindname(c, "CM-1", "group1");
-		conf_bindname(c, "CM-2", "group2");
-		conf_bindname(c, "CM-3", "group3");
-		conf_bindname(c, "CM-4", "group4");
-		conf_bindname(c, "CM-5", "group5");
-		conf_bindname(c, "CM-6", "group6");
-		conf_bindname(c, "CM-7", "group7");
-		conf_bindname(c, "CM-8", "group8");
-		conf_bindname(c, "CM-9", "group9");
-		conf_bindname(c, "M-Right", "nextgroup");
-		conf_bindname(c, "M-Left", "prevgroup");
-		conf_bindname(c, "CM-f", "maximize");
-		conf_bindname(c, "CM-equal", "vmaximize");
-
-		conf_bindname(c, "M-h", "moveleft");
-		conf_bindname(c, "M-j", "movedown");
-		conf_bindname(c, "M-k", "moveup");
-		conf_bindname(c, "M-l", "moveright");
-		conf_bindname(c, "M-H", "bigmoveleft");
-		conf_bindname(c, "M-J", "bigmovedown");
-		conf_bindname(c, "M-K", "bigmoveup");
-		conf_bindname(c, "M-L", "bigmoveright");
-
-		conf_bindname(c, "CM-h", "resizeleft");
-		conf_bindname(c, "CM-j", "resizedown");
-		conf_bindname(c, "CM-k", "resizeup");
-		conf_bindname(c, "CM-l", "resizeright");
-		conf_bindname(c, "CM-H", "bigresizeleft");
-		conf_bindname(c, "CM-J", "bigresizedown");
-		conf_bindname(c, "CM-K", "bigresizeup");
-		conf_bindname(c, "CM-L", "bigresizeright");
-
-		conf_bindname(c, "C-Left", "ptrmoveleft");
-		conf_bindname(c, "C-Down", "ptrmovedown");
-		conf_bindname(c, "C-Up", "ptrmoveup");
-		conf_bindname(c, "C-Right", "ptrmoveright");
-		conf_bindname(c, "CS-Left", "bigptrmoveleft");
-		conf_bindname(c, "CS-Down", "bigptrmovedown");
-		conf_bindname(c, "CS-Up", "bigptrmoveup");
-		conf_bindname(c, "CS-Right", "bigptrmoveright");
-
-	}
 
  	snprintf(dir_settings, sizeof(dir_settings),
 	    "%s/.calmwm/.settings", home);
@@ -499,6 +497,12 @@ conf_bindname(struct conf *c, char *name, char *binding)
 		return;
 	}
 
+	/* We now have the correct binding, remove duplicates. */
+	conf_unbind(c, current_binding);	
+
+	if (strcmp("unmap",binding) == 0)
+		return;
+
 	for (iter = 0; name_to_kbfunc[iter].tag != NULL; iter++) {
 		if (strcmp(name_to_kbfunc[iter].tag, binding) != 0)
 			continue;
@@ -518,6 +522,21 @@ conf_bindname(struct conf *c, char *name, char *binding)
 	current_binding->flags = 0;
 	TAILQ_INSERT_TAIL(&c->keybindingq, current_binding, entry);
 	return;
+}
+
+void conf_unbind(struct conf *c, struct keybinding *unbind)
+{
+	struct keybinding *key = NULL;
+
+	TAILQ_FOREACH(key, &c->keybindingq, entry) {
+		if (key->modmask != unbind->modmask)
+			continue;
+
+		if ((key->keycode != 0 && key->keysym == NoSymbol &&
+			key->keycode == unbind->keycode) || 
+			key->keysym == unbind->keysym)
+			TAILQ_REMOVE(&c->keybindingq, key, entry);
+	}
 }
 
 void

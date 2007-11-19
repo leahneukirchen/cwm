@@ -286,8 +286,8 @@ will cause any instances of
 to not have borders.
 .It Pa ~/.calmwm/.keys
 Symlinks in this directory cause the creation of keyboard shortcuts.
-If the directory does not exist, then the default shortcuts will be
-created; otherwise only the shortcuts defined will be created.
+The default shortcuts will always be created. In case of conflict, 
+user-defined shortcuts take precidence.
 The name of a link here is first the modifier keys, followed by a ``-''.
 The following modifiers are recognised:
 .Bl -tag -width Ds
@@ -312,6 +312,9 @@ The target of the link should be either the name of a task from the
 structure in
 .Pa /usr/src/xenocara/app/cwm/conf.c ,
 or, alternatively it should be the commandline that is wished to be executed.
+A special case is the ``unmap'' keyword, which causes any bindings using the 
+named shortcut to be removed. This can be used to remove a binding which conflicts
+with an application.
 For example, to cause
 .Ic C-M-r
 to add a label to a window:
@@ -323,6 +326,10 @@ Launch an xterm running
 with C-S-Enter:
 .Bd -literal -offset indent
 $ ln -s "/usr/X11R6/bin/xterm -e top" ~/.calmwm/.keys/CS-Return
+.Ed
+Remove a keybinding for Mod4-o
+.Bd -literal -offset indent
+$ ln -s "unmap" 4-o
 .Ed
 .El
 .Sh AUTHORS
