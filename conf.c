@@ -200,6 +200,7 @@ conf_setup(struct conf *c)
 	conf_bindname(c, "CM-1", "group1");
 	conf_bindname(c, "CM-2", "group2");
 	conf_bindname(c, "CM-3", "group3");
+	conf_bindname(c, "CM-4", "group4");
 	conf_bindname(c, "CM-5", "group5");
 	conf_bindname(c, "CM-6", "group6");
 	conf_bindname(c, "CM-7", "group7");
