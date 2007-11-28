@@ -196,7 +196,7 @@ conf_setup(struct conf *c)
 	conf_bindname(c, "CM-n", "label");
 	conf_bindname(c, "CM-x", "delete");
 	conf_bindname(c, "CM-Escape", "groupselect");
-	conf_bindname(c, "CM-0", "group0");
+	conf_bindname(c, "CM-0", "nogroup");
 	conf_bindname(c, "CM-1", "group1");
 	conf_bindname(c, "CM-2", "group2");
 	conf_bindname(c, "CM-3", "group3");
