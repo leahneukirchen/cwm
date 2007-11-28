@@ -263,6 +263,20 @@ kbfunc_exec(struct client_ctx *scratch, void *arg)
 	struct stat sb;
 	struct menu_q menuq;
 	struct menu *mi;
+	char *label;
+
+	int cmd = (int)arg;
+	switch(cmd) {
+		case CWM_EXEC_PROGRAM:
+			label = "exec";
+			break;
+		case CWM_EXEC_WM:
+			label = "wm";
+			break;
+		default:
+			err(1, "kbfunc_exec: invalid cmd %d", cmd);
+			/*NOTREACHED*/
+	}
 
 	if (getgroups(0, mygroups) == -1)
 		err(1, "getgroups failure");
@@ -320,8 +334,19 @@ kbfunc_exec(struct client_ctx *scratch, void *arg)
 	}
 
 	if ((mi = search_start(&menuq,
-		    search_match_exec, NULL, NULL, "exec", 1)) != NULL)
-		u_spawn(mi->text);
+		    search_match_exec, NULL, NULL, label, 1)) != NULL) {
+		switch (cmd) {
+			case CWM_EXEC_PROGRAM:
+				u_spawn(mi->text);
+				break;
+			case CWM_EXEC_WM:
+				exec_wm(mi->text);
+				break;
+			default:
+				err(1, "kb_func: egad, cmd changed value!");
+				break;
+		}
+	}
 
 	if (mi != NULL && mi->dummy)
 		xfree(mi);

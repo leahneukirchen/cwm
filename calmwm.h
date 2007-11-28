@@ -209,6 +209,10 @@ enum directions {
 	CWM_UP=0, CWM_DOWN, CWM_LEFT, CWM_RIGHT,
 };
 
+/* for cwm_exec */
+#define	CWM_EXEC_PROGRAM	0x1
+#define	CWM_EXEC_WM		0x2
+
 #define KBFLAG_NEEDCLIENT 0x01
 #define KBFLAG_FINDCLIENT 0x02
 

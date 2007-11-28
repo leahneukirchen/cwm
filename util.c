@@ -39,6 +39,22 @@ u_spawn(char *argstr)
 	return (0);
 }
 
+void
+exec_wm(char *argstr)
+{
+	char *args[MAXARGLEN], **ap = args;
+	char **end = &args[MAXARGLEN - 1];
+
+	while (ap < end && (*ap = strsep(&argstr, " \t")) != NULL)
+		ap++;
+
+	*ap = NULL;
+	setsid();
+	execvp(args[0], args);
+	err(1, args[0]);
+}
+
+
 int dirent_exists(char *filename) {
        struct stat buffer;
 
