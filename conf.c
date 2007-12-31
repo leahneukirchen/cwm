@@ -344,7 +344,7 @@ struct {
 } name_to_kbfunc[] = {
 	{ "lower", kbfunc_client_lower, KBFLAG_NEEDCLIENT, 0 },
 	{ "raise", kbfunc_client_raise, KBFLAG_NEEDCLIENT, 0 },
-	{ "search", kbfunc_client_search, KBFLAG_NEEDCLIENT, 0 },
+	{ "search", kbfunc_client_search, 0, 0 },
 	{ "menusearch", kbfunc_menu_search, 0, 0 },
 	{ "hide", kbfunc_client_hide, KBFLAG_NEEDCLIENT, 0 },
 	{ "cycle", kbfunc_client_cycle, KBFLAG_NEEDCLIENT, 0 },
