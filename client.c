@@ -806,10 +806,12 @@ client_placecalc(struct client_ctx *cc)
 	mousey = MAX(mousey, (int)cc->bwidth);
 
 	if (cc->size->flags & USPosition) {
-		x = cc->size->x;
+		if (cc->size->x > 0)
+			x = cc->size->x;
 		if (x <= 0 || x >= xmax)
 			x = cc->bwidth;
-		y = cc->size->y;
+		if (cc->size->y > 0)
+			y = cc->size->y;
 		if (y <= 0 || y >= ymax)
 			y = cc->bwidth;
 	} else {
