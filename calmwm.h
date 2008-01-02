@@ -484,8 +484,6 @@ void group_autogroup(struct client_ctx *);
 
 void notification_init(struct screen_ctx *);
 
-struct client_ctx *geographic_west(struct client_ctx *);
-
 Cursor cursor_bigarrow();
 
 void font_init(struct screen_ctx *sc);
