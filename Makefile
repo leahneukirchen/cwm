@@ -6,7 +6,7 @@ X11BASE?=	/usr/X11R6
 
 PROG=		cwm
 
-SRCS=		calmwm.c draw.c screen.c xmalloc.c client.c grab.c search.c \
+SRCS=		calmwm.c screen.c xmalloc.c client.c grab.c search.c \
 		util.c xutil.c conf.c input.c xevents.c group.c \
 		kbfunc.c cursor.c font.c
 

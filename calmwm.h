@@ -446,8 +446,6 @@ void kbfunc_ssh(struct client_ctx *, void *);
 void kbfunc_term(struct client_ctx *cc, void *arg);
 void kbfunc_lock(struct client_ctx *cc, void *arg);
 
-void draw_outline(struct client_ctx *);
-
 void  search_init(struct screen_ctx *);
 struct menu *search_start(struct menu_q *menuq,
     void (*match)(struct menu_q *, struct menu_q *, char *),
