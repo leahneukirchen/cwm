@@ -482,8 +482,6 @@ void group_autogroup(struct client_ctx *);
 
 void notification_init(struct screen_ctx *);
 
-Cursor cursor_bigarrow();
-
 void font_init(struct screen_ctx *sc);
 struct fontdesc *font_get(struct screen_ctx *sc, const char *name);
 int font_width(struct fontdesc *fdp, const char *text, int len);
