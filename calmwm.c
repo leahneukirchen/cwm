@@ -50,7 +50,6 @@ static char gray_bits[] = {0x02, 0x01};
 /* List borrowed from 9wm/rio */
 char *tryfonts[] = {
 	"9x15bold",
-	"blit",
 	"*-lucidatypewriter-bold-*-14-*-75-*",
 	"*-lucidatypewriter-medium-*-12-*-75-*",
 	"fixed",
@@ -161,9 +160,7 @@ x_setup(char *display_name)
 	Cursor_resize = XCreateFontCursor(X_Dpy, XC_bottom_right_corner);
 	/* (used to be) XCreateFontCursor(X_Dpy, XC_hand1); */
 	Cursor_select = XCreateFontCursor(X_Dpy, XC_hand1);
-/* 	Cursor_select = cursor_bigarrow(Curscreen); */
 	Cursor_default = XCreateFontCursor(X_Dpy, XC_X_cursor);
-/* 	Cursor_default = cursor_bigarrow(Curscreen); */
 	Cursor_question = XCreateFontCursor(X_Dpy, XC_question_arrow);
 }
 
@@ -287,9 +284,6 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 
 	rootattr.event_mask = ChildMask|PropertyChangeMask|EnterWindowMask|
 	    LeaveWindowMask|ColormapChangeMask|ButtonMask;
-
-	/* Set the root cursor to a nice obnoxious arrow :-) */
-/* 	rootattr.cursor = cursor_bigarrow(sc); */
 
 	XChangeWindowAttributes(X_Dpy, sc->rootwin,
 	    /* CWCursor| */CWEventMask, &rootattr);

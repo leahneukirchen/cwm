@@ -79,6 +79,10 @@ struct screen_ctx {
 
 	int		 altpersist;
 
+	int		 maxinitialised;
+	int		 xmax;
+	int		 ymax;
+
         FILE            *notifier;
 
 	struct cycle_entry_q mruq;
@@ -276,7 +280,6 @@ struct menu {
 	char  text[MENU_MAXENTRY + 1];
 	char  print[MENU_MAXENTRY + 1];
 	void *ctx;
-	short lasthit;
 	short dummy;
 };
 
@@ -399,7 +402,6 @@ int   grab_drag(struct client_ctx *);
 void  grab_menuinit(struct screen_ctx *);
 void *grab_menu(XButtonEvent *, struct menu_q *);
 void  grab_label(struct client_ctx *);
-void  grab_exec(void);
 
 void  xfree(void *);
 void *xmalloc(size_t);

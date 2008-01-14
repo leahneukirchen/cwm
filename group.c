@@ -92,7 +92,7 @@ _group_purge(struct group_ctx *gc)
 	struct client_ctx *cc;
 
 	if (gc == NULL)
-		errx(1, "_group_commit: ctx is null");
+		errx(1, "_group_purge: ctx is null");
 
 	TAILQ_FOREACH(cc, &gc->clients, group_entry)
 		if (cc->groupcommit == 0)
