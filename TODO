@@ -1,5 +1,3 @@
-- clean up menu code from 9wm
-
 - window initial position
 
 - don't map windows if it's within [some time increment] of active typing,

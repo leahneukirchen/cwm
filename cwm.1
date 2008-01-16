@@ -29,13 +29,8 @@
 .Op Fl f Ar fontname
 .Sh DESCRIPTION
 .Nm
-is a window manager for X11.
-It was originally inspired by evilwm, but was rewritten from scratch
-due to limitations in the evilwm codebase.
-The from-scratch rewrite borrowed some code from 9wm.
-.Nm
-contains many new features which all concentrate on the efficiency and
-transparency of window management.
+is a window manager for X11 which contains many features that
+concentrate on the efficiency and transparency of window management.
 .Nm
 also aims to maintain the simplest and most pleasant aesthetic.
 .Pp
@@ -356,11 +351,7 @@ $ ln -s "unmap" 4-o
 .An -nosplit
 .Pp
 .Nm
-contains some code from 9wm.
-.Pp
-The
-.Nm
-software has been developed by
+was developed by
 .An Marius Aamodt Eriksen Aq marius@monkey.org
 with contributions from
 .An Andy Adamson Aq dros@monkey.org ,
@@ -368,6 +359,13 @@ with contributions from
 and
 .An Antti Nykänen Aq aon@iki.fi .
 Ideas, discussion with many others.
-.\" .Sh HISTORY
-.\".Aq marius@monkey.org .
-.\" .Sh CAVEATS
+.Sh HISTORY
+.Nm
+was originally inspired by evilwm, but was rewritten from scratch
+due to limitations in the evilwm codebase.
+The from-scratch rewrite borrowed some code from 9wm, however that code
+has since been removed or rewritten.
+.Pp
+.Nm
+first appeared in
+.Ox 4.2 .
