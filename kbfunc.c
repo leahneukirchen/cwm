@@ -171,7 +171,6 @@ kbfunc_client_search(struct client_ctx *scratch, void *arg)
 	TAILQ_INIT(&menuq);
 	
 	TAILQ_FOREACH(cc, &Clientq, entry) {
-		struct menu *mi;
 		XCALLOC(mi, struct menu);
 		strlcpy(mi->text, cc->name, sizeof(mi->text));
 		mi->ctx = cc;

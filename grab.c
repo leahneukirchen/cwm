@@ -53,7 +53,7 @@ grab_sweep_draw(struct client_ctx *cc, int dx, int dy)
 	    wide/2 - wide_size/2, height + font_ascent(font) + 1);
 }
 
-int
+void
 grab_sweep(struct client_ctx *cc)
 {
 	XEvent ev;
@@ -68,7 +68,7 @@ grab_sweep(struct client_ctx *cc)
 	client_ptrsave(cc);
 
 	if (xu_ptr_grab(sc->rootwin, MouseMask, Cursor_resize) < 0)
-		return (-1);
+		return;
 
 	xu_ptr_setpos(cc->win, cc->geom.width, cc->geom.height);
 	grab_sweep_draw(cc, dx, dy);
@@ -101,13 +101,13 @@ grab_sweep(struct client_ctx *cc)
 			XReparentWindow(X_Dpy, sc->menuwin, sc->rootwin, 0, 0);
 			xu_ptr_ungrab();
 			client_ptrwarp(cc);
-			return (0);
+			return;
 		}
 	}
 	/* NOTREACHED */
 }
 
-int
+void
 grab_drag(struct client_ctx *cc)
 {
 	int x0 = cc->geom.x, y0 = cc->geom.y, xm, ym;
@@ -117,7 +117,7 @@ grab_drag(struct client_ctx *cc)
 	client_raise(cc);
 
 	if (xu_ptr_grab(sc->rootwin, MouseMask, Cursor_move) < 0)
-		return (-1);
+		return;
 
 	xu_ptr_getpos(sc->rootwin, &xm, &ym);
 
@@ -138,7 +138,7 @@ grab_drag(struct client_ctx *cc)
 			break;
 		case ButtonRelease:
 			xu_ptr_ungrab();
-			return (0);
+			return;
 		}
 	}
 	/* NOTREACHED */
@@ -219,9 +219,7 @@ grab_menu(XButtonEvent *e, struct menu_q *menuq)
 				    sc->menuwin, fx, fy);
 				i++;
 			}
-			if (entry != -1)
-				XFillRectangle(X_Dpy, sc->menuwin, sc->hlgc,
-				    0, entry*height, width, height);
+			/* FALLTHROUGH */
 		case MotionNotify:
 			prev = entry;
 			entry = menu_calc_entry(event.xbutton.x,
@@ -320,7 +318,7 @@ grab_label(struct client_ctx *cc)
 					xfree(cc->label);
 
 				cc->label = xstrdup(labelstr);
-
+				/* FALLTHROUGH */
 			case CTL_ABORT:
 				goto out;
 			default:

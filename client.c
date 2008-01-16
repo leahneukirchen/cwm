@@ -267,15 +267,6 @@ client_leave(struct client_ctx *cc)
 }
 
 void
-client_nocurrent(void)
-{
-	if (_curcc != NULL)
-		client_setactive(_curcc, 0);
-
-	_curcc = NULL;
-}
-
-void
 client_setactive(struct client_ctx *cc, int fg)
 {
 	struct screen_ctx* sc;
@@ -362,19 +353,6 @@ client_maximize(struct client_ctx *cc)
 }
 
 void
-client_push_geometry(struct client_ctx *cc)
-{
-       cc->savegeom = cc->geom;
-}
-
-void
-client_restore_geometry(struct client_ctx *cc)
-{
-       cc->geom = cc->savegeom;
-       client_resize(cc);
-}
-
-void
 client_resize(struct client_ctx *cc)
 {
 	XMoveResizeWindow(X_Dpy, cc->pwin, cc->geom.x - cc->bwidth,
@@ -405,13 +383,6 @@ client_raise(struct client_ctx *cc)
 {
 	XRaiseWindow(X_Dpy, cc->pwin);
 	client_draw_border(cc);
-}
-
-void
-client_warp(struct client_ctx *cc)
-{
-	client_raise(cc);
-	xu_ptr_setpos(cc->pwin, 0, 0);
 }
 
 void
@@ -877,13 +848,6 @@ client_vertmaximize(struct client_ctx *cc)
 	}
 
 	client_resize(cc);
-}
-
-void
-client_map(struct client_ctx *cc)
-{
-	/* mtf? */
-	client_ptrwarp(cc);
 }
 
 void

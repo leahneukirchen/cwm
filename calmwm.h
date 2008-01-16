@@ -311,8 +311,7 @@ int input_keycodetrans(KeyCode, u_int, enum ctltype *, char *, int);
 int   x_errorhandler(Display *, XErrorEvent *);
 void  x_setup(char *display_name);
 char *x_screenname(int);
-void  x_loop(void);
-int   x_setupscreen(struct screen_ctx *, u_int);
+void  x_setupscreen(struct screen_ctx *, u_int);
 
 struct client_ctx *client_find(Window);
 void               client_setup(void);
@@ -397,8 +396,8 @@ int dirent_isdir(char *);
 int dirent_islink(char *);
 int u_spawn(char *);
 
-int   grab_sweep(struct client_ctx *);
-int   grab_drag(struct client_ctx *);
+void  grab_sweep(struct client_ctx *);
+void  grab_drag(struct client_ctx *);
 void  grab_menuinit(struct screen_ctx *);
 void *grab_menu(XButtonEvent *, struct menu_q *);
 void  grab_label(struct client_ctx *);
@@ -472,8 +471,7 @@ void  search_match_exec(struct menu_q *, struct menu_q *, char *);
 void  search_rank_text(struct menu_q *, char *);
 
 void group_init(void);
-int  group_new(void);
-int  group_select(int);
+void group_select(int);
 void group_enter(void);
 void group_exit(int);
 void group_click(struct client_ctx *);
@@ -509,7 +507,6 @@ struct fontdesc *font_getx(struct screen_ctx *sc, const char *name);
 /* Externs */
 
 extern Display				*X_Dpy;
-extern XFontStruct			*X_Font;
 
 extern Cursor				 Cursor_move;
 extern Cursor				 Cursor_resize;

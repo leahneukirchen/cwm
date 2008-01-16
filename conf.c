@@ -327,19 +327,6 @@ conf_get_int(struct client_ctx *cc, enum conftype ctype)
 	return (val);
 }
 
-char *
-conf_get_str(struct client_ctx *cc, enum conftype ctype)
-{
-	switch (ctype) {
-	case CONF_NOTIFIER:
-		return xstrdup("./notifier.py"); /* XXX */
-		break;
-	default:
-		break;
-	}
-    return NULL;
-}
-
 void
 conf_client(struct client_ctx *cc)
 {
@@ -408,23 +395,6 @@ struct {
 	{ "bigresizeleft", kbfunc_client_resize, KBFLAG_NEEDCLIENT, (void *)(CWM_LEFT|CWM_BIGMOVE) },
 	{ NULL, NULL, 0, 0},
 };
-
-void
-conf_bindkey(struct conf *c, void (*arg_callback)(struct client_ctx *, void *),
-    int arg_keysym, int arg_modmask, int arg_flags, void * arg_arg)
-{
-	struct keybinding *kb;
-
-	XMALLOC(kb, struct keybinding);
-
-	kb->modmask = arg_modmask;
-	kb->keysym = arg_keysym;
-	kb->keycode = 0;
-	kb->flags = arg_flags;
-	kb->callback = arg_callback;
-	kb->argument = arg_arg;
-	TAILQ_INSERT_TAIL(&c->keybindingq, kb, entry);
-}
 
 void
 conf_parsekeys(struct conf *c, char *filename)

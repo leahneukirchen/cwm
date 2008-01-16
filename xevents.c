@@ -27,8 +27,6 @@
 #include "headers.h"
 #include "calmwm.h"
 
-void _sendxmsg(Window, Atom, long);
-
 /*
  * NOTE: in reality, many of these should move to client.c now that
  * we've got this nice event layer.

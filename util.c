@@ -65,13 +65,6 @@ exec_wm(char *argstr)
 	err(1, args[0]);
 }
 
-
-int dirent_exists(char *filename) {
-       struct stat buffer;
-
-       return stat(filename, &buffer);
-}
-
 int dirent_isdir(char *filename) {
        struct stat buffer;
        int return_value;

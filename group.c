@@ -197,36 +197,15 @@ group_init(void)
  * manipulate the 'current group'
  */
 
-#if 0
-/* set current group to the first empty group
- * returns 0 on success, -1 if there are no empty groups
- */
-int
-group_new(void)
-{
-  	int i;
-
-	for (i=0; i < CALMWM_NGROUPS; i++) {
-		if (TAILQ_EMPTY(&Groups[i].clients)) {
-			Group_current = &Groups[i];			
-
-			return (0);
-		}
-	}
-
-	return (-1);
-}
-#endif
-
 /* change the current group */
-int
+void
 group_select(int idx)
 {
 	struct group_ctx *gc = Group_current;
 	struct client_ctx *cc;
 
 	if (idx < 0 || idx >= CALMWM_NGROUPS)
-		return (-1);
+		return;
 
 	TAILQ_FOREACH(cc, &gc->clients, group_entry) {
 		cc->highlight = 0;
@@ -237,7 +216,7 @@ group_select(int idx)
 	Group_current = &Groups[idx];
 
 	group_display_draw(screen_current());
-	return (0);
+	return;
 }
 
 /* enter group mode */
@@ -353,7 +332,7 @@ void
 group_display_draw(struct screen_ctx *sc)
 {
 	struct group_ctx *gc = Group_current;
-	int x, y, dx, dy, fontheight, titlelen;
+	int x, y, dx, dy, fontheight;
 	struct client_ctx *cc;
 	char titlebuf[1024];
 	struct fontdesc *font = DefaultFont;
@@ -363,7 +342,7 @@ group_display_draw(struct screen_ctx *sc)
 	x = y = 0;
 
 	fontheight = font_ascent(font) + font_descent(font) + 1;
-	dx = titlelen = font_width(font, titlebuf, strlen(titlebuf));
+	dx = font_width(font, titlebuf, strlen(titlebuf));
 	dy = fontheight;
 
 	TAILQ_FOREACH(cc, &gc->clients, group_entry) {

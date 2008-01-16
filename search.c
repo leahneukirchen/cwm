@@ -457,12 +457,6 @@ search_match_exec(struct menu_q *menuq, struct menu_q *resultq, char *search)
 			TAILQ_INSERT_TAIL(resultq, mi, resultentry);
 }
 
-void
-search_rank_text(struct menu_q *resultq, char *search)
-{
-	return;
-}
-
 static int
 _strsubmatch(char *sub, char *str, int zeroidx)
 {

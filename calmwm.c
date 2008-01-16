@@ -22,7 +22,6 @@
 #include "calmwm.h"
 
 Display				*X_Dpy;
-XFontStruct			*X_Font;
 
 Cursor				 Cursor_move;
 Cursor				 Cursor_resize;
@@ -47,15 +46,6 @@ char                            *DefaultFontName;
 #define gray_height 2
 static char gray_bits[] = {0x02, 0x01};
 
-/* List borrowed from 9wm/rio */
-char *tryfonts[] = {
-	"9x15bold",
-	"*-lucidatypewriter-bold-*-14-*-75-*",
-	"*-lucidatypewriter-medium-*-12-*-75-*",
-	"fixed",
-	"*",
-	NULL,
-};
 
 static void _sigchld_cb(int);
 
@@ -140,15 +130,6 @@ x_setup(char *display_name)
 
 	Doshape = XShapeQueryExtension(X_Dpy, &Shape_ev, &i);
 
-	i = 0;
-	while ((fontname = tryfonts[i++]) != NULL) {
-		if ((X_Font = XLoadQueryFont(X_Dpy, fontname)) != NULL)
-			break;
-	}
-
-	if (fontname == NULL)
-		errx(1, "Couldn't load any fonts.");
-
 	Nscreens = ScreenCount(X_Dpy);
 	for (i = 0; i < (int)Nscreens; i++) {
 		XMALLOC(sc, struct screen_ctx);
@@ -158,13 +139,12 @@ x_setup(char *display_name)
 
 	Cursor_move = XCreateFontCursor(X_Dpy, XC_fleur);
 	Cursor_resize = XCreateFontCursor(X_Dpy, XC_bottom_right_corner);
-	/* (used to be) XCreateFontCursor(X_Dpy, XC_hand1); */
 	Cursor_select = XCreateFontCursor(X_Dpy, XC_hand1);
 	Cursor_default = XCreateFontCursor(X_Dpy, XC_X_cursor);
 	Cursor_question = XCreateFontCursor(X_Dpy, XC_question_arrow);
 }
 
-int
+void
 x_setupscreen(struct screen_ctx *sc, u_int which)
 {
 	XColor tmp;
@@ -196,10 +176,6 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	TAILQ_FOREACH(kb, &Conf.keybindingq, entry)
 		xu_key_grab(sc->rootwin, kb->modmask, kb->keysym);
 
-	/* Special -- for alt state. */
-/* 	xu_key_grab(sc->rootwin, 0, XK_Alt_L); */
-/* 	xu_key_grab(sc->rootwin, 0, XK_Alt_R); */
-
 	sc->blackpixl = BlackPixel(X_Dpy, sc->which);
 	sc->whitepixl = WhitePixel(X_Dpy, sc->which);
 	sc->bluepixl = sc->fccolor.pixel;
@@ -223,32 +199,21 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	gv.function = GXxor;
 	gv.line_width = 1;
 	gv.subwindow_mode = IncludeInferiors;
-	gv.font = X_Font->fid;
 
 	sc->gc = XCreateGC(X_Dpy, sc->rootwin,
 	    GCForeground|GCBackground|GCFunction|
-	    GCLineWidth|GCSubwindowMode|GCFont, &gv);
-
-#ifdef notyet
-	gv2.foreground = sc->blackpixl^sc->cyanpixl;
-	gv2.background = sc->cyanpixl;
-	gv2.function = GXxor;
-	gv2.line_width = 1;
-	gv2.subwindow_mode = IncludeInferiors;
-	gv2.font = X_Font->fid;
-#endif
+	    GCLineWidth|GCSubwindowMode, &gv);
 
 	sc->hlgc = XCreateGC(X_Dpy, sc->rootwin,
 	    GCForeground|GCBackground|GCFunction|
-	    GCLineWidth|GCSubwindowMode|GCFont, &gv);
+	    GCLineWidth|GCSubwindowMode, &gv);
 
 	gv1.function = GXinvert;
 	gv1.subwindow_mode = IncludeInferiors;
 	gv1.line_width = 1;
-	gv1.font = X_Font->fid;
 
 	sc->invgc = XCreateGC(X_Dpy, sc->rootwin,
-	    GCFunction|GCSubwindowMode|GCLineWidth|GCFont, &gv1);
+	    GCFunction|GCSubwindowMode|GCLineWidth, &gv1);
 
 	font_init(sc);
 	DefaultFont = font_getx(sc, DefaultFontName);
@@ -290,7 +255,7 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 
 	XSync(X_Dpy, False);
 
-	return (0);
+	return;
 }
 
 char *

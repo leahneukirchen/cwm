@@ -84,16 +84,6 @@ xu_key_grab(Window win, int mask, int keysym)
 
         XGrabKey(X_Dpy, XKeysymToKeycode(X_Dpy, keysym), mask, win, True,
 	    GrabModeAsync, GrabModeAsync);
-#if 0
-        XGrabKey(X_Dpy, XKeysymToKeycode(X_Dpy, keysym), LockMask|mask,
-	    win, True, GrabModeAsync, GrabModeAsync);
-#endif
-}
-
-void
-xu_key_grab_keycode(Window win, int mask, int keycode)
-{
-        XGrabKey(X_Dpy, keycode, mask, win, True, GrabModeAsync, GrabModeAsync);
 }
 
 void
@@ -142,17 +132,6 @@ xu_getstate(struct client_ctx *cc, int *state)
 	XFree((char *)p);
 
 	return (0);
-}
-
-char *
-xu_getstrprop(struct client_ctx *cc, Atom atm)
-{
-	u_char *cp;
-
-	if (xu_getprop(cc, atm, XA_STRING, 100L, &cp) <= 0)
-		return (NULL);
-
-	return ((char *)cp);
 }
 
 void
