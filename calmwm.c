@@ -322,7 +322,7 @@ _sigchld_cb(int which)
 		;
 }
 
-void
+__dead void
 usage(void)
 {
 	extern char *__progname;
