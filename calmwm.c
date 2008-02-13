@@ -124,7 +124,8 @@ x_setup(char *display_name)
 	TAILQ_INIT(&Screenq);
 
 	if ((X_Dpy = XOpenDisplay(display_name)) == NULL)
-		errx(1, "%s:%d XOpenDisplay()", __FILE__, __LINE__);
+		errx(1, "unable to open display \"%s\"",
+		    XDisplayName(display_name));
 
 	XSetErrorHandler(x_errorhandler);
 
