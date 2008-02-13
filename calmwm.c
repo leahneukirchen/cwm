@@ -71,7 +71,7 @@ main(int argc, char **argv)
 			DefaultFontName = xstrdup(optarg);
 			break;
 		default:
-			errx(1, "Unknown option '%c'", ch);
+			usage();
 		}
 	}
 	argc -= optind;
@@ -320,4 +320,13 @@ _sigchld_cb(int which)
         while ((pid = waitpid(-1, &status, WNOHANG)) > 0 ||
             (pid < 0 && errno == EINTR))
 		;
+}
+
+void
+usage(void)
+{
+	extern char *__progname;
+
+	fprintf(stderr, "usage: %s [-s] [-d display] [-f fontname] \n", __progname);
+	exit(1);
 }
