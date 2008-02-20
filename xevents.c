@@ -413,7 +413,7 @@ out:
 }
 
 /*
- * This is only used for the alt supression detection.
+ * This is only used for the alt suppression detection.
  */
 void
 xev_handle_keyrelease(struct xevent *xev, XEvent *ee)
