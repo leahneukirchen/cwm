@@ -62,7 +62,7 @@ exec_wm(char *argstr)
 	*ap = NULL;
 	setsid();
 	execvp(args[0], args);
-	err(1, args[0]);
+	warn(args[0]);
 }
 
 int dirent_isdir(char *filename) {

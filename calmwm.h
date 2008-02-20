@@ -396,6 +396,7 @@ int dirent_exists(char *);
 int dirent_isdir(char *);
 int dirent_islink(char *);
 int u_spawn(char *);
+void exec_wm(char *);
 
 void  grab_sweep(struct client_ctx *);
 void  grab_drag(struct client_ctx *);
