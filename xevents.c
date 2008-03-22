@@ -400,7 +400,7 @@ xev_handle_keypress(struct xevent *xev, XEvent *ee)
 	if (kb == NULL)
 		goto out;
 
-	if ((kb->flags & (KBFLAG_NEEDCLIENT|KBFLAG_FINDCLIENT)) && 
+	if ((kb->flags & (KBFLAG_NEEDCLIENT)) && 
 	    (cc = client_find(e->window)) == NULL &&
 	    (cc = client_current()) == NULL)
 		if (kb->flags & KBFLAG_NEEDCLIENT)

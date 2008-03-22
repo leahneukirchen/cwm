@@ -178,8 +178,8 @@ kbfunc_client_search(struct client_ctx *scratch, void *arg)
 	}
 
 	if ((mi = search_start(&menuq,
-		    search_match_client, NULL,
-		    search_print_client, "window", 0)) != NULL) {
+		    search_match_client, search_print_client,
+		        "window", 0)) != NULL) {
 		cc = (struct client_ctx *)mi->ctx;
 		if (cc->flags & CLIENT_HIDDEN)
 			client_unhide(cc);
@@ -213,7 +213,7 @@ kbfunc_menu_search(struct client_ctx *scratch, void *arg)
 	}
 
 	if ((mi = search_start(&menuq,
-		    search_match_text, NULL, NULL, "application", 0)) != NULL)
+		    search_match_text, NULL, "application", 0)) != NULL)
 		u_spawn(((struct cmd *)mi->ctx)->image);
 
 	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
@@ -344,7 +344,7 @@ kbfunc_exec(struct client_ctx *scratch, void *arg)
 	}
 
 	if ((mi = search_start(&menuq,
-		    search_match_exec, NULL, NULL, label, 1)) != NULL) {
+		    search_match_exec, NULL, label, 1)) != NULL) {
 		switch (cmd) {
 			case CWM_EXEC_PROGRAM:
 				u_spawn(mi->text);
@@ -419,7 +419,7 @@ kbfunc_ssh(struct client_ctx *scratch, void *arg)
 
 
 	if ((mi = search_start(&menuq,
-		    search_match_exec, NULL, NULL, "ssh", 1)) != NULL) {
+		    search_match_exec, NULL, "ssh", 1)) != NULL) {
 		conf_cmd_refresh(&Conf);
 		l = snprintf(cmd, sizeof(cmd), "%s -e ssh %s", Conf.termpath,
 		    mi->text);

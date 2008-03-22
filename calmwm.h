@@ -31,7 +31,7 @@
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
 
 enum conftype {
-	CONF_BWIDTH, CONF_IGNORE, CONF_NOTIFIER,
+	CONF_BWIDTH, CONF_IGNORE,
 };
 
 #define ChildMask	(SubstructureRedirectMask|SubstructureNotifyMask)
@@ -68,12 +68,11 @@ struct screen_ctx {
 	Window		 groupwin;
 	Window		 infowin;
 	Colormap	 colormap;
-	GC		 invcg;
 	XColor		 bgcolor, fgcolor, fccolor, redcolor, cyancolor,
 			 whitecolor, blackcolor;
 	char		*display;
 	unsigned long	 blackpixl, whitepixl, redpixl, bluepixl, cyanpixl;
-	GC		 gc, invgc, hlgc;
+	GC		 gc, hlgc;
 
 	Pixmap		 gray, blue, red;
 
@@ -82,8 +81,6 @@ struct screen_ctx {
 	int		 maxinitialised;
 	int		 xmax;
 	int		 ymax;
-
-        FILE            *notifier;
 
 	struct cycle_entry_q mruq;
 
@@ -203,22 +200,6 @@ struct xevent {
 
 TAILQ_HEAD(xevent_q, xevent);
 
-/* Keybindings */
-enum kbtype {
-	KB_DELETE, KB_NEWTERM0, KB_NEWTERM1, KB_HIDE,
-	KB_LOWER, KB_RAISE, KB_SEARCH, KB_CYCLE, KB_LABEL,
-	KB_GROUPSELECT, KB_VERTMAXIMIZE, KB_MAXIMIZE,
-
-	/* Group numbers need to be in order. */
-	KB_GROUP_1, KB_GROUP_2, KB_GROUP_3, KB_GROUP_4, KB_GROUP_5,
-	KB_GROUP_6, KB_GROUP_7, KB_GROUP_8, KB_GROUP_9, KB_NOGROUP,
-	KB_NEXTGROUP, KB_PREVGROUP,
-
-	KB_MOVE_WEST, KB_MOVE_EAST, KB_MOVE_NORTH, KB_MOVE_SOUTH,
-
-	KB__LAST
-};
-
 #define CWM_BIGMOVE	0x1000
 enum directions {
 	CWM_UP=0, CWM_DOWN, CWM_LEFT, CWM_RIGHT,
@@ -229,7 +210,6 @@ enum directions {
 #define	CWM_EXEC_WM		0x2
 
 #define KBFLAG_NEEDCLIENT 0x01
-#define KBFLAG_FINDCLIENT 0x02
 
 #define KBTOGROUP(X) ((X) - 1)
 
@@ -463,14 +443,12 @@ void kbfunc_lock(struct client_ctx *cc, void *arg);
 void  search_init(struct screen_ctx *);
 struct menu *search_start(struct menu_q *menuq,
     void (*match)(struct menu_q *, struct menu_q *, char *),
-    void (*rank)(struct menu_q *, char *),
     void (*print)(struct menu *mi, int),
     char *, int);
 void  search_match_client(struct menu_q *, struct menu_q *, char *);
 void  search_print_client(struct menu *mi, int list);
 void  search_match_text(struct menu_q *, struct menu_q *, char *);
 void  search_match_exec(struct menu_q *, struct menu_q *, char *);
-void  search_rank_text(struct menu_q *, char *);
 
 void group_init(void);
 void group_select(int);
