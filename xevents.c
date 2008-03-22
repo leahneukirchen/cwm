@@ -330,7 +330,7 @@ xev_handle_buttonpress(struct xevent *xev, XEvent *ee)
 
 	switch (e->button) {
 	case Button1:
-		if (altcontrol && !Groupmode)
+		if (altcontrol)
 			group_sticky_toggle_enter(cc);
 		else {
 			grab_drag(cc);
@@ -338,13 +338,8 @@ xev_handle_buttonpress(struct xevent *xev, XEvent *ee)
 		}
 		break;
 	case Button2:
-		/* XXXSIGH!!! */
-		if (Groupmode)
-			group_click(cc);
-		else {
-			grab_sweep(cc);
-			client_resize(cc);
-		}
+		grab_sweep(cc);
+		client_resize(cc);
 		break;
 	case Button3:
 		client_ptrsave(cc);
@@ -360,7 +355,7 @@ xev_handle_buttonrelease(struct xevent *xev, XEvent *ee)
 {
 	struct client_ctx *cc = client_current();
 
-	if (cc != NULL && !Groupmode)
+	if (cc != NULL)
 		group_sticky_toggle_exit(cc);
 
 	xev_register(xev);
@@ -393,9 +388,6 @@ xev_handle_keypress(struct xevent *xev, XEvent *ee)
 			(modshift == 0 ? keysym : skeysym))
 			break;
         }
-
-	if (kb == NULL && e->window == screen_current()->groupwin)
-		group_display_keypress(e->keycode);
 
 	if (kb == NULL)
 		goto out;
@@ -510,14 +502,10 @@ void
 xev_handle_expose(struct xevent *xev, XEvent *ee)
 {
 	XExposeEvent *e = &ee->xexpose;
-	struct screen_ctx *sc = screen_current();
 	struct client_ctx *cc;
 
 	if ((cc = client_find(e->window)) != NULL)
 		client_draw_border(cc);
-
-	if (sc->groupwin == e->window)
-		group_display_draw(sc);
 
 	xev_register(xev);
 }

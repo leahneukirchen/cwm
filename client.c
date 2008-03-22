@@ -191,10 +191,7 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	client_update(cc);
 	
 	if (mapped) {
-		if (Conf.flags & CONF_STICKY_GROUPS)
-			group_sticky(cc);
-		else
-			group_autogroup(cc);
+		group_autogroup(cc);
 	}
 
 	return (cc);

@@ -119,7 +119,6 @@ x_setup(char *display_name)
 {
 	int i;
 	struct screen_ctx *sc;
-	char *fontname;
 
 	TAILQ_INIT(&Screenq);
 

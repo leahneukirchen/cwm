@@ -24,19 +24,12 @@
 
 #define CALMWM_NGROUPS 9
 
-int                 Groupmode = 0;
 int                 Groupnamemode = 0;
 struct group_ctx   *Group_active = NULL;
-struct group_ctx   *Group_current = NULL;
 struct group_ctx    Groups[CALMWM_NGROUPS];
 char                Group_name[256];
-int                 Groupfocusset = 0;
-Window              Groupfocuswin;
-int                 Groupfocusrevert;
 int                 Grouphideall = 0;
 struct group_ctx_q  Groupq;
-
-#define GroupMask (KeyPressMask|ExposureMask)
 
 static char *shortcut_to_name[] = {
 	"XXX", "one", "two", "three",
@@ -58,7 +51,6 @@ _group_add(struct group_ctx *gc, struct client_ctx *cc)
 
 	TAILQ_INSERT_TAIL(&gc->clients, cc, group_entry);
 	cc->group = gc;
-	cc->groupcommit = 0;
 }
 
 static void
@@ -69,36 +61,9 @@ _group_remove(struct client_ctx *cc)
 
 	TAILQ_REMOVE(&cc->group->clients, cc, group_entry);
 	cc->group = NULL;
-	cc->groupcommit = 0;
 	cc->highlight = 0;
 	client_draw_border(cc);
 }
-
-static void
-_group_commit(struct group_ctx *gc)
-{
-  	struct client_ctx *cc;
-
-	if (gc == NULL)
-		errx(1, "_group_commit: ctx is null");
-
-	TAILQ_FOREACH(cc, &gc->clients, group_entry)
-		cc->groupcommit = 1;
-}
-
-static void
-_group_purge(struct group_ctx *gc)
-{
-	struct client_ctx *cc;
-
-	if (gc == NULL)
-		errx(1, "_group_purge: ctx is null");
-
-	TAILQ_FOREACH(cc, &gc->clients, group_entry)
-		if (cc->groupcommit == 0)
-			_group_remove(cc);
-}
-
 
 static void
 _group_hide(struct group_ctx *gc)
@@ -155,27 +120,6 @@ _group_show(struct group_ctx *gc)
 	Group_active = gc;
 }
 
-
-
-static void
-_group_destroy(struct group_ctx *gc)
-{
-	struct client_ctx *cc;
-
-	if (gc->name != NULL) {
-		xfree(gc->name);
-		gc->name = NULL;
-	}
-
-	while ((cc = TAILQ_FIRST(&gc->clients)) != NULL) {
-		TAILQ_REMOVE(&gc->clients, cc, group_entry);
-		cc->group = NULL;
-		cc->groupcommit = 0;
-		cc->highlight = 0;
-		client_draw_border(cc);
-	}
-}
-
 void
 group_init(void)
 {
@@ -190,110 +134,12 @@ group_init(void)
 		TAILQ_INSERT_TAIL(&Groupq, &Groups[i], entry);
 	}
 
-	Group_current = Group_active = &Groups[0];
+	Group_active = &Groups[0];
 }
 
-/* 
- * manipulate the 'current group'
+/*
+ * Colouring for groups upon add/remove.
  */
-
-/* change the current group */
-void
-group_select(int idx)
-{
-	struct group_ctx *gc = Group_current;
-	struct client_ctx *cc;
-
-	if (idx < 0 || idx >= CALMWM_NGROUPS)
-		return;
-
-	TAILQ_FOREACH(cc, &gc->clients, group_entry) {
-		cc->highlight = 0;
-		client_draw_border(cc);
-	}
-
-	_group_commit(gc);
-	Group_current = &Groups[idx];
-
-	group_display_draw(screen_current());
-	return;
-}
-
-/* enter group mode */
-void
-group_enter(void)
-{
-  	if (Groupmode != 0)
-		errx(1, "group_enter called twice");
-
-	if (Group_current == NULL)
-		Group_current = &Groups[0];
-
-	/* setup input buffer */
-	Group_name[0] = '\0';
-
-  	Groupmode = 1;
-
-	group_display_init(screen_current());
-	group_display_draw(screen_current());
-}
-
-/* exit group mode */
-void
-group_exit(int commit)
-{
-	struct group_ctx *gc = Group_current;
-	struct client_ctx *cc;
-
-  	if (Groupmode != 1)
-		errx(1, "group_exit called twice");
-
-	TAILQ_FOREACH(cc, &gc->clients, group_entry) {
-		cc->highlight = 0;
-		client_draw_border(cc);
-	}
-
-	if (commit) {
-		_group_commit(gc);
-	} else {
-	  	/* abort */
-	  	_group_purge(gc);
-		if (!TAILQ_EMPTY(&gc->clients))
-	  		_group_destroy(gc);
-	}
-
-	XUnmapWindow(X_Dpy, screen_current()->groupwin);
-
-	if (Groupnamemode) {
-		XSetInputFocus(X_Dpy, Groupfocuswin, Groupfocusrevert,
-		    CurrentTime);
-		Groupfocusset = 0;
-	}
-
-  	Groupmode = Groupnamemode = 0;
-}
-
-void
-group_click(struct client_ctx *cc)
-{
-	struct group_ctx *gc = Group_current;
-
-	if (gc == cc->group)
-		_group_remove(cc);
-	else 
-		_group_add(gc, cc);
-	group_display_draw(screen_current());
-}
-
-
-/* Used to add a newly mapped window to the active group */
-
-void
-group_sticky(struct client_ctx *cc)
-{
-	_group_add(Group_active, cc);
-}
-
 void
 group_sticky_toggle_enter(struct client_ctx *cc)
 {
@@ -320,85 +166,6 @@ group_sticky_toggle_exit(struct client_ctx *cc)
 /*
  * selection list display 
  */
-
-void
-group_display_init(struct screen_ctx *sc)
-{
-	sc->groupwin = XCreateSimpleWindow(X_Dpy, sc->rootwin, 0, 0,
-	    1, 1, 1, sc->blackpixl, sc->whitepixl);
-}
-
-void
-group_display_draw(struct screen_ctx *sc)
-{
-	struct group_ctx *gc = Group_current;
-	int x, y, dx, dy, fontheight;
-	struct client_ctx *cc;
-	char titlebuf[1024];
-	struct fontdesc *font = DefaultFont;
-
-	snprintf(titlebuf, sizeof(titlebuf), "Editing group %d", gc->shortcut);
-
-	x = y = 0;
-
-	fontheight = font_ascent(font) + font_descent(font) + 1;
-	dx = font_width(font, titlebuf, strlen(titlebuf));
-	dy = fontheight;
-
-	TAILQ_FOREACH(cc, &gc->clients, group_entry) {
-		cc->highlight = CLIENT_HIGHLIGHT_BLUE;
-		client_draw_border(cc);
-	}
-
-	XMoveResizeWindow(X_Dpy, sc->groupwin, x, y, dx, dy);
-
-	/* XXX */
-	XSelectInput(X_Dpy, sc->groupwin, GroupMask);
-
-	XMapRaised(X_Dpy, sc->groupwin);
-	XClearWindow(X_Dpy, sc->groupwin);
-	font_draw(font, titlebuf, strlen(titlebuf), sc->groupwin,
-	    0, font_ascent(font) + 1);
-}
-
-void 
-group_display_keypress(KeyCode k)
-{
-	struct group_ctx * gc = Group_current;
-	char chr;
-	enum ctltype ctl;
-	int len;
-
-	if (!Groupnamemode)
-		return;
-
-	if (input_keycodetrans(k, 0, &ctl, &chr, 1) < 0)
-		goto out;
-
-	switch (ctl) {
-	case CTL_ERASEONE:
-	  	if ((len = strlen(Group_name)) > 0)
-			Group_name[len - 1] = '\0';
-		break;
-	case CTL_RETURN:
-		if (gc->name != NULL)
-			xfree(gc->name);
-
-		gc->name = xstrdup(Group_name);
-
-		group_exit(1);
-		return;
-	default:
-		break;
-	}
-
-	if (chr != '\0')
-		snprintf(Group_name, sizeof(Group_name), "%s%c", 
-		    Group_name, chr);
-
-out:
-	group_display_draw(screen_current());
-}
 
 /* if group_hidetoggle would produce no effect, toggle the group's hidden state
  */
@@ -495,7 +262,6 @@ group_client_delete(struct client_ctx *cc)
 
 	TAILQ_REMOVE(&cc->group->clients, cc, group_entry);
 	cc->group = NULL; /* he he */
-	cc->groupcommit = 0;
 }
 
 void
@@ -551,14 +317,6 @@ group_menu(XButtonEvent *e)
 }
 
 void
-group_namemode(void)
-{
-	Groupnamemode = 1;
-
-	group_display_draw(screen_current());
-}
-
-void
 group_alltoggle(void)
 {
 	int i;
@@ -577,33 +335,16 @@ group_alltoggle(void)
 }
 
 void
-group_deletecurrent(void)
-{
-	_group_destroy(Group_current);
-	XUnmapWindow(X_Dpy, screen_current()->groupwin);
-
-  	Groupmode = Groupnamemode = 0;
-}
-
-void
-group_done(void)
-{
-	struct group_ctx *gc = Group_current;
-
-	if (gc->name != NULL)
-		xfree(gc->name);
-
-	gc->name = xstrdup(shortcut_to_name[gc->shortcut]);
-
-	group_exit(1);
-}
-
-void
 group_autogroup(struct client_ctx *cc)
 {
 	struct autogroupwin *aw;
 	struct group_ctx *gc;
 	char group[CALMWM_MAXNAMELEN];
+
+	if (Conf.flags & CONF_STICKY_GROUPS) {
+		_group_add(Group_active, cc);
+		return;
+	}
 
 	if (cc->app_class == NULL || cc->app_name == NULL)
 		return;

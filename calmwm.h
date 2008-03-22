@@ -154,7 +154,6 @@ struct client_ctx {
 
 	char			*matchname;
 	struct group_ctx        *group;
-	int                      groupcommit;
 
 	int                      stackingorder;
 
@@ -424,7 +423,6 @@ void kbfunc_client_rcycle(struct client_ctx *cc, void *arg);
 void kbfunc_cmdexec(struct client_ctx *, void *);
 void kbfunc_client_label(struct client_ctx *, void *);
 void kbfunc_client_delete(struct client_ctx *, void *);
-void kbfunc_client_groupselect(struct client_ctx *, void *);
 void kbfunc_client_group(struct client_ctx *, void *);
 void kbfunc_client_nextgroup(struct client_ctx *, void *);
 void kbfunc_client_prevgroup(struct client_ctx *, void *);
@@ -451,22 +449,12 @@ void  search_match_text(struct menu_q *, struct menu_q *, char *);
 void  search_match_exec(struct menu_q *, struct menu_q *, char *);
 
 void group_init(void);
-void group_select(int);
-void group_enter(void);
-void group_exit(int);
-void group_click(struct client_ctx *);
-void group_display_init(struct screen_ctx *);
-void group_display_draw(struct screen_ctx *);
-void group_display_keypress(KeyCode);
 void group_hidetoggle(int);
 void group_slide(int);
 void group_sticky(struct client_ctx *);
 void group_client_delete(struct client_ctx *);
 void group_menu(XButtonEvent *);
-void group_namemode(void);
 void group_alltoggle(void);
-void group_deletecurrent(void);
-void group_done(void);
 void group_sticky_toggle_enter(struct client_ctx *);
 void group_sticky_toggle_exit(struct client_ctx *);
 void group_autogroup(struct client_ctx *);
@@ -503,7 +491,6 @@ extern struct client_ctx_q		 Clientq;
 extern int				 Doshape, Shape_ev;
 extern struct conf			 Conf;
 
-extern int Groupmode;
 extern struct fontdesc                  *DefaultFont;
 
 

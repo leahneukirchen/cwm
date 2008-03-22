@@ -80,8 +80,6 @@ Cycle through currently visible windows.
 Reverse cycle through currently visible windows.
 .It Ic C-M-x
 Delete current window.
-.It Ic C-M-Escape
-Enter group edit mode.
 .It Ic C-M-[n]
 Select group n, where n is 1-9.
 .It Ic C-M-0
@@ -122,8 +120,6 @@ The mouse bindings are also important, they are:
 Move a window.
 .It C-M-M1
 Toggle a window's membership in the current group.
-A blue highlight indicates the window has been added to the group;
-a red highlight indicates it has been removed.
 .It M-M2
 Resize a window/select a window.
 .It M-M3
@@ -212,11 +208,10 @@ Together with the
 .Fl s
 option, this can be used to emulate virtual desktops.
 .Pp
-To edit groups, enter the group edit mode, and select/unselect the
-groups with the group selection mouse click.
-A blue border will be shown on the currently selected windows.
-The group selection keyboard shortcuts can also be used to change
-which group to edit.
+To edit groups, use the group selection commands to toggle membership
+of a group.
+A blue border will be shown briefly on windows added to the current group,
+and a red border will be shown on those just removed.
 .Sh MENUS
 Menus are recalled by clicking the mouse on the root window:
 .Pp
