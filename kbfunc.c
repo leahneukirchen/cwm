@@ -204,7 +204,7 @@ kbfunc_menu_search(struct client_ctx *scratch, void *arg)
 
 	TAILQ_INIT(&menuq);
 
-	conf_cmd_refresh(&Conf);
+	conf_reload(&Conf);
 	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
 		XCALLOC(mi, struct menu);
 		strlcpy(mi->text, cmd->label, sizeof(mi->text));
@@ -249,14 +249,14 @@ kbfunc_cmdexec(struct client_ctx *cc, void *arg)
 void
 kbfunc_term(struct client_ctx *cc, void *arg)
 {
-	conf_cmd_refresh(&Conf);
+	conf_reload(&Conf);
 	u_spawn(Conf.termpath);
 }
 
 void
 kbfunc_lock(struct client_ctx *cc, void *arg)
 {
-	conf_cmd_refresh(&Conf);
+	conf_reload(&Conf);
 	u_spawn(Conf.lockpath);
 }
 
@@ -423,7 +423,7 @@ kbfunc_ssh(struct client_ctx *scratch, void *arg)
 
 	if ((mi = search_start(&menuq,
 		    search_match_exec, NULL, "ssh", 1)) != NULL) {
-		conf_cmd_refresh(&Conf);
+		conf_reload(&Conf);
 		l = snprintf(cmd, sizeof(cmd), "%s -e ssh %s", Conf.termpath,
 		    mi->text);
 		if (l != -1 && l < sizeof(cmd))

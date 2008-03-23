@@ -30,6 +30,8 @@
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
 
+#define	CONFFILE	".cwmrc"
+
 enum conftype {
 	CONF_BWIDTH, CONF_IGNORE,
 };
@@ -164,6 +166,12 @@ struct client_ctx {
 
 TAILQ_HEAD(client_ctx_q, client_ctx);
 
+static char *shortcut_to_name[] = {
+	"XXX", "one", "two", "three",
+	"four", "five", "six", "seven",
+	"eight", "nine"
+};
+
 struct group_ctx {
 	TAILQ_ENTRY(group_ctx) entry;
 	struct client_ctx_q  clients;
@@ -204,6 +212,20 @@ enum directions {
 	CWM_UP=0, CWM_DOWN, CWM_LEFT, CWM_RIGHT,
 };
 
+/*
+ * Match a window.
+ */
+#define CONF_MAX_WINTITLE 256
+#define CONF_IGNORECASE   0x01
+struct winmatch {
+	TAILQ_ENTRY(winmatch) entry;
+
+	char title[CONF_MAX_WINTITLE];
+	int  opts;
+};
+
+TAILQ_HEAD(winmatch_q, winmatch);
+
 /* for cwm_exec */
 #define	CWM_EXEC_PROGRAM	0x1
 #define	CWM_EXEC_WM		0x2
@@ -236,16 +258,20 @@ TAILQ_HEAD(cmd_q, cmd);
 
 /* Global configuration */
 struct conf {
-	struct keybinding_q keybindingq;
-	struct autogroupwin_q autogroupq;
-	char	      menu_path[MAXPATHLEN];
-	struct cmd_q  cmdq;
+	struct keybinding_q	 keybindingq;
+	struct autogroupwin_q	 autogroupq;
+	struct winmatch_q	 ignoreq;
+	char			 conf_path[MAXPATHLEN];
+	struct cmd_q		 cmdq;
 
-	int	      flags;
+	int			 flags;
 #define CONF_STICKY_GROUPS	0x0001
 
-	char          termpath[MAXPATHLEN];
-	char          lockpath[MAXPATHLEN];
+	char			 termpath[MAXPATHLEN];
+	char			 lockpath[MAXPATHLEN];
+
+#define	DEFAULTFONTNAME		"sans-serif:pixelsize=14:bold"
+	char			*DefaultFontName;
 };
 
 /* Menu stuff */
@@ -397,21 +423,15 @@ struct screen_ctx *screen_current(void);
 void               screen_updatestackingorder(void);
 void               screen_infomsg(char *);
 
-void  conf_setup(struct conf *);
+void  conf_setup(struct conf *, const char *);
 int   conf_get_int(struct client_ctx *, enum conftype);
 void  conf_client(struct client_ctx *);
 void  conf_bindkey(struct conf *, void (*)(struct client_ctx *, void *),
           int, int, int, void *);
 void  conf_bindname(struct conf *, char *, char *);
 void  conf_unbind(struct conf *, struct keybinding *);
-void  conf_parsekeys(struct conf *, char *);
-void  conf_parsesettings(struct conf *, char *);
-void  conf_parseignores(struct conf *, char *);
-void  conf_parseautogroups(struct conf *, char *);
-void  conf_cmd_clear(struct conf *);
-int   conf_cmd_changed(char *);
-void  conf_cmd_populate(struct conf *, char *);
-void  conf_cmd_refresh(struct conf *c);
+int   conf_changed(char *);
+void  conf_reload(struct conf *c);
 char *conf_get_str(struct client_ctx *, enum conftype);
 
 void kbfunc_client_lower(struct client_ctx *, void *);

@@ -1,0 +1,28 @@
+# $OpenBSD$
+
+# Makes the Xft(3) font string fontname the default font
+#fontname "sans-serif:pixelsize=14:bold"
+
+# Set sticky group mode on
+#sticky no
+
+# Any entry here is shown in the application menu
+#command firefox	firefox
+#command xmms		xmms
+#command top		"xterm -e top"
+
+# Autogroup definition
+#autogroup 3 "aterm,XTerm"
+#autogroup 3 "xterm,XTerm"
+
+# Cause cwm to ignore programs by that name by not drawing borders around them.
+#ignore XMMS
+#ignore xwi
+#ignore xapm
+#ignore xclock
+
+# Keys
+#bind CM-r	"label"
+#bind CS-Return	"xterm -e top"
+#bind 4-o	"unmap"
+

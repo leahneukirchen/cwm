@@ -275,10 +275,7 @@ xev_handle_buttonpress(struct xevent *xev, XEvent *ee)
 			break;
 		case Button3: {
 			struct cmd *cmd;
-			if (conf_cmd_changed(Conf.menu_path)) {
-				conf_cmd_clear(&Conf);
-				conf_cmd_populate(&Conf, Conf.menu_path);
-			}
+			conf_reload(&Conf);
 			TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
 				XCALLOC(mi, struct menu);
 				strlcpy(mi->text, cmd->label, sizeof(mi->text));

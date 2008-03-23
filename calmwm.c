@@ -38,8 +38,7 @@ struct client_ctx_q		 Clientq;
 int				 Doshape, Shape_ev;
 int				 Starting;
 struct conf			 Conf;
-struct fontdesc                 *DefaultFont;
-char                            *DefaultFontName;
+struct fontdesc                 *DefaultFont = NULL;
 
 /* From TWM */
 #define gray_width 2
@@ -53,22 +52,17 @@ int
 main(int argc, char **argv)
 {
 	int ch;
-	int conf_flags = 0;
+	const char *conffile = NULL;
 
 	char *display_name = NULL;
 
-	DefaultFontName = "sans-serif:pixelsize=14:bold";
-
-	while ((ch = getopt(argc, argv, "d:sf:")) != -1) {
+	while ((ch = getopt(argc, argv, "c:d:")) != -1) {
 		switch (ch) {
+		case 'c':
+			conffile = optarg;
+			break;
 		case 'd':
 			display_name = optarg;
-			break;
-		case 's':
-			conf_flags |= CONF_STICKY_GROUPS;
-			break;
-		case 'f':
-			DefaultFontName = xstrdup(optarg);
 			break;
 		default:
 			usage();
@@ -87,8 +81,7 @@ main(int argc, char **argv)
 	group_init();
 
 	Starting = 1;
-	conf_setup(&Conf);
-	Conf.flags |= conf_flags;
+	conf_setup(&Conf, conffile);
 	client_setup();
 	x_setup(display_name);
 	Starting = 0;
@@ -209,7 +202,7 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	    GCLineWidth|GCSubwindowMode, &gv);
 
 	font_init(sc);
-	DefaultFont = font_getx(sc, DefaultFontName);
+	DefaultFont = font_getx(sc, Conf.DefaultFontName);
 
 	/*
 	 * XXX - this should *really* be in screen_init().  ordering

@@ -31,12 +31,6 @@ char                Group_name[256];
 int                 Grouphideall = 0;
 struct group_ctx_q  Groupq;
 
-static char *shortcut_to_name[] = {
-	"XXX", "one", "two", "three",
-	"four", "five", "six", "seven",
-	"eight", "nine",
-};
-
 static void
 _group_add(struct group_ctx *gc, struct client_ctx *cc)
 {
