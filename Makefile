@@ -1,8 +1,6 @@
 # $OpenBSD$
 
-.include <bsd.own.mk>
-
-X11BASE?=	/usr/X11R6
+.include <bsd.xconf.mk>
 
 PROG=		cwm
 
