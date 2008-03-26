@@ -95,18 +95,20 @@ struct screen_ctx {
 
 TAILQ_HEAD(screen_ctx_q, screen_ctx);
 
-#define CLIENT_PROTO_DELETE     0x01
-#define CLIENT_PROTO_TAKEFOCUS  0x02
+#define CLIENT_PROTO_DELETE	0x01
+#define CLIENT_PROTO_TAKEFOCUS	0x02
 
-#define CLIENT_MAXNAMEQLEN 5
+#define CLIENT_MAXNAMEQLEN	5
 
-#define CLIENT_HIDDEN  0x01
-#define CLIENT_IGNORE  0x02
-#define CLIENT_INQUEUE 0x04	/* tmp used by search code */
-#define CLIENT_MAXIMIZED 0x08
+#define CLIENT_HIDDEN		0x01
+#define CLIENT_IGNORE		0x02
+#define CLIENT_DOMAXIMIZE	0x04
+#define CLIENT_MAXIMIZED	0x08
+#define CLIENT_DOVMAXIMIZE	0x10
+#define CLIENT_VMAXIMIZED	0x20
 
-#define CLIENT_HIGHLIGHT_BLUE 1
-#define CLIENT_HIGHLIGHT_RED 2 
+#define CLIENT_HIGHLIGHT_BLUE	1
+#define CLIENT_HIGHLIGHT_RED	2 
 
 
 struct winname {

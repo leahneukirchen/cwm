@@ -331,19 +331,19 @@ void
 client_maximize(struct client_ctx *cc)
 {
 	if (cc->flags & CLIENT_MAXIMIZED) {
-		cc->flags &= ~CLIENT_MAXIMIZED;
 		cc->geom = cc->savegeom;
 	} else {
 		XWindowAttributes rootwin_geom;
 		struct screen_ctx *sc = CCTOSC(cc);
 
 		XGetWindowAttributes(X_Dpy, sc->rootwin, &rootwin_geom);
-		cc->savegeom = cc->geom;
+		if (!(cc->flags & CLIENT_VMAXIMIZED))
+			cc->savegeom = cc->geom;
 		cc->geom.x = 0;
 		cc->geom.y = 0;
 		cc->geom.height = rootwin_geom.height;
 		cc->geom.width = rootwin_geom.width;
-		cc->flags |= CLIENT_MAXIMIZED;
+		cc->flags |= CLIENT_DOMAXIMIZE;
 	}
 
 	client_resize(cc);
@@ -352,6 +352,17 @@ client_maximize(struct client_ctx *cc)
 void
 client_resize(struct client_ctx *cc)
 {
+	if (cc->flags & (CLIENT_MAXIMIZED | CLIENT_VMAXIMIZED))
+		cc->flags &= ~(CLIENT_MAXIMIZED | CLIENT_VMAXIMIZED);
+
+	if (cc->flags & CLIENT_DOMAXIMIZE) {
+		cc->flags &= ~CLIENT_DOMAXIMIZE;
+		cc->flags |= CLIENT_MAXIMIZED;
+	} else if (cc->flags & CLIENT_DOVMAXIMIZE) {
+		cc->flags &= ~CLIENT_DOVMAXIMIZE;
+		cc->flags |= CLIENT_VMAXIMIZED;
+	}
+
 	XMoveResizeWindow(X_Dpy, cc->pwin, cc->geom.x - cc->bwidth,
 	    cc->geom.y - cc->bwidth, cc->geom.width + cc->bwidth*2,
 	    cc->geom.height + cc->bwidth*2);
@@ -830,22 +841,22 @@ client_placecalc(struct client_ctx *cc)
 void
 client_vertmaximize(struct client_ctx *cc)
 {
-	if (cc->flags & CLIENT_MAXIMIZED) {
-		cc->flags &= ~CLIENT_MAXIMIZED;
+	if (cc->flags & CLIENT_VMAXIMIZED) {
 		cc->geom = cc->savegeom;
 	} else {
 		struct screen_ctx *sc = CCTOSC(cc);
 		int display_height = DisplayHeight(X_Dpy, sc->which) -
 		    cc->bwidth*2;
         
-		cc->savegeom = cc->geom;
+		if (!(cc->flags & CLIENT_MAXIMIZED)) 
+			cc->savegeom = cc->geom;
 		cc->geom.y = cc->bwidth;
 		if (cc->geom.min_dx == 0)
 			cc->geom.height = display_height; 
 		else
 			cc->geom.height = display_height -
 			    (display_height % cc->geom.min_dx);
-		cc->flags |= CLIENT_MAXIMIZED;
+		cc->flags |= CLIENT_DOVMAXIMIZE;
 	}
 
 	client_resize(cc);
