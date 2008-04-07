@@ -451,6 +451,7 @@ out:
 
 static struct xevent_q _xevq, _xevq_putaway;
 static short _xev_q_lock = 0;
+int _xev_quit = 0;
 
 void
 xev_init(void)
@@ -524,7 +525,7 @@ xev_loop(void)
 	XEvent e;
 	struct xevent *xev, *nextxev;
 
-	for (;;) {
+	while (_xev_quit == 0) {
 #ifdef DIAGNOSTIC
 		if (TAILQ_EMPTY(&_xevq))
 			errx(1, "X event queue empty");

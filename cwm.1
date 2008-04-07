@@ -15,7 +15,7 @@
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
 .\" The following requests are required for all man pages.
-.Dd $Mdocdate$
+.Dd $Mdocdate: March 23 2008 $
 .Dt CWM 1
 .Os
 .Sh NAME
@@ -61,6 +61,8 @@ their functionality is described in more detail later.
 Spawn a new terminal.
 .It Ic C-M-Delete
 Lock the screen.
+.It Ic C-M-q
+Quit cwm.
 .It Ic M-Enter
 Hide current window.
 .It Ic M-Down
@@ -104,7 +106,7 @@ This parses
 to provide host auto-completion.
 .Xr ssh 1
 will be executed via the configured terminal emulator.
-.It Ic C-M-q
+.It Ic C-M-w
 Spawn
 .Dq Exec WindowManager
 dialog; allows you to switch from

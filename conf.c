@@ -94,7 +94,7 @@ conf_init(struct conf *c)
 	conf_bindname(c, "CM-Return", "terminal");
 	conf_bindname(c, "CM-Delete", "lock");
 	conf_bindname(c, "M-question", "exec");
-	conf_bindname(c, "CM-q", "exec_wm");
+	conf_bindname(c, "CM-w", "exec_wm");
 	conf_bindname(c, "M-period", "ssh");
 	conf_bindname(c, "M-Return", "hide");
 	conf_bindname(c, "M-Down", "lower");
@@ -119,6 +119,7 @@ conf_init(struct conf *c)
 	conf_bindname(c, "M-Left", "prevgroup");
 	conf_bindname(c, "CM-f", "maximize");
 	conf_bindname(c, "CM-equal", "vmaximize");
+	conf_bindname(c, "CM-q", "quit");
 
 	conf_bindname(c, "M-h", "moveleft");
 	conf_bindname(c, "M-j", "movedown");
@@ -260,6 +261,7 @@ struct {
 	{ "prevgroup", kbfunc_client_prevgroup, 0, 0 },
 	{ "maximize", kbfunc_client_maximize, KBFLAG_NEEDCLIENT, 0 },
 	{ "vmaximize", kbfunc_client_vmaximize, KBFLAG_NEEDCLIENT, 0 },
+	{ "quit", kbfunc_quit_wm, 0, 0 },
 	{ "exec", kbfunc_exec, 0, (void *)CWM_EXEC_PROGRAM },
 	{ "exec_wm", kbfunc_exec, 0, (void *)CWM_EXEC_WM },
 	{ "ssh", kbfunc_ssh, 0, 0 },

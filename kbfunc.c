@@ -27,6 +27,8 @@
 #define HASH_MARKER "|1|"
 #define MOVE_AMOUNT 1
 
+extern int _xev_quit;
+
 void
 kbfunc_client_lower(struct client_ctx *cc, void *arg)
 {
@@ -487,4 +489,10 @@ void
 kbfunc_client_vmaximize(struct client_ctx *cc, void *arg)
 {
 	client_vertmaximize(cc);
+}
+
+void
+kbfunc_quit_wm(struct client_ctx *cc, void *arg)
+{
+	_xev_quit = 1;
 }
