@@ -119,7 +119,7 @@ conf_init(struct conf *c)
 	conf_bindname(c, "M-Left", "prevgroup");
 	conf_bindname(c, "CM-f", "maximize");
 	conf_bindname(c, "CM-equal", "vmaximize");
-	conf_bindname(c, "CM-q", "quit");
+	conf_bindname(c, "CMS-q", "quit");
 
 	conf_bindname(c, "M-h", "moveleft");
 	conf_bindname(c, "M-j", "movedown");
