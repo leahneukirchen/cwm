@@ -307,7 +307,6 @@ kbfunc_exec(struct client_ctx *scratch, void *arg)
 			ap++;
 	}
 	*ap = NULL;
-	xfree(path);
 	for (i = 0; i < NPATHS && paths[i] != NULL; i++) {
 		if ((dirp = opendir(paths[i])) == NULL)
 			continue;
@@ -351,6 +350,7 @@ kbfunc_exec(struct client_ctx *scratch, void *arg)
 		}
 		(void) closedir(dirp);
 	}
+	xfree(path);
 
 	if ((mi = search_start(&menuq,
 		    search_match_exec, NULL, label, 1)) != NULL) {
