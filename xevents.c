@@ -451,7 +451,7 @@ out:
 
 static struct xevent_q _xevq, _xevq_putaway;
 static short _xev_q_lock = 0;
-int _xev_quit = 0;
+volatile sig_atomic_t _xev_quit = 0;
 
 void
 xev_init(void)
