@@ -352,7 +352,6 @@ Pixmap             client_bg_pixmap(struct client_ctx *);
 void               client_map(struct client_ctx *cc);
 void               client_mtf(struct client_ctx *cc);
 struct client_ctx *client_cyclenext(int reverse);
-void               client_cycleinfo(struct client_ctx *cc);
 void               client_altrelease();
 struct client_ctx *client_mrunext(struct client_ctx *cc);
 struct client_ctx *client_mruprev(struct client_ctx *cc);
