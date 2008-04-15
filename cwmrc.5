@@ -15,7 +15,7 @@
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
 .\" The following requests are required for all man pages.
-.Dd $Mdocdate$
+.Dd $Mdocdate: March 23 2008 $
 .Dt CWMRC 1
 .Os
 .Sh NAME
@@ -138,6 +138,16 @@ Remove a keybinding for Mod4-o
 .Bd -literal -offset indent
 bind 4-o "unmap"
 .Ed
+.It Ic gap Ar top bottom left right
+Define "gaps" at the edge of the screen, so that when a window is maximized it will not overlap this area.
+This gap can be used for other applications such as
+.Xr xclock 1 ,
+which the user may wish to remain visible.
+.Pp
+.Pa top bottom left
+and
+.Pa right
+are the sizes of each the gap in pixels.
 .El
 .Sh SEE ALSO
 .Xr cwm 1

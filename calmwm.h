@@ -274,6 +274,7 @@ struct conf {
 
 #define	DEFAULTFONTNAME		"sans-serif:pixelsize=14:bold"
 	char			*DefaultFontName;
+	int			gap_top, gap_bottom, gap_left, gap_right;
 };
 
 /* Menu stuff */
