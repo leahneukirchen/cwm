@@ -1,6 +1,6 @@
 /*
  *  calmwm - the calm window manager
- * 
+ *
  *  Copyright (c) 2004 Martin Murray <mmurray@monkey.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
@@ -23,11 +23,11 @@
 #include "headers.h"
 #include "calmwm.h"
 
-#define KNOWN_HOSTS ".ssh/known_hosts"
-#define HASH_MARKER "|1|"
-#define MOVE_AMOUNT 1
+#define KNOWN_HOSTS	".ssh/known_hosts"
+#define HASH_MARKER	"|1|"
+#define MOVE_AMOUNT	1
 
-extern int _xev_quit;
+extern int		_xev_quit;
 
 void
 kbfunc_client_lower(struct client_ctx *cc, void *arg)
@@ -57,11 +57,11 @@ kbfunc_client_move(struct client_ctx *cc, void *arg)
 		amt = amt*10;
 	}
 
-	switch(flags) {
+	switch (flags) {
 	case CWM_UP:
 		my -= amt;
 		break;
-	case CWM_DOWN: 
+	case CWM_DOWN:
 		my += amt;
 		break;
 	case CWM_RIGHT:
@@ -97,11 +97,11 @@ kbfunc_client_resize(struct client_ctx *cc, void *arg)
 		amt = amt*10;
 	}
 
-	switch(flags) {
+	switch (flags) {
 	case CWM_UP:
 		my -= amt;
 		break;
-	case CWM_DOWN: 
+	case CWM_DOWN:
 		my += amt;
 		break;
 	case CWM_RIGHT:
@@ -139,11 +139,11 @@ kbfunc_ptrmove(struct client_ctx *cc, void *arg)
 		flags -= CWM_BIGMOVE;
 		amt = amt * 10;
 	}
-	switch(flags) {
+	switch (flags) {
 	case CWM_UP:
 		my -= amt;
 		break;
-	case CWM_DOWN: 
+	case CWM_DOWN:
 		my += amt;
 		break;
 	case CWM_RIGHT:
@@ -167,11 +167,11 @@ void
 kbfunc_client_search(struct client_ctx *scratch, void *arg)
 {
 	struct menu_q menuq;
-	struct client_ctx *cc, *old_cc = client_current(); 
+	struct client_ctx *cc, *old_cc = client_current();
 	struct menu *mi;
-	
+
 	TAILQ_INIT(&menuq);
-	
+
 	TAILQ_FOREACH(cc, &Clientq, entry) {
 		XCALLOC(mi, struct menu);
 		strlcpy(mi->text, cc->name, sizeof(mi->text));
@@ -180,8 +180,8 @@ kbfunc_client_search(struct client_ctx *scratch, void *arg)
 	}
 
 	if ((mi = search_start(&menuq,
-		    search_match_client, search_print_client,
-		        "window", 0)) != NULL) {
+	    search_match_client, search_print_client,
+	    "window", 0)) != NULL) {
 		cc = (struct client_ctx *)mi->ctx;
 		if (cc->flags & CLIENT_HIDDEN)
 			client_unhide(cc);
@@ -215,7 +215,7 @@ kbfunc_menu_search(struct client_ctx *scratch, void *arg)
 	}
 
 	if ((mi = search_start(&menuq,
-		    search_match_text, NULL, "application", 0)) != NULL)
+	    search_match_text, NULL, "application", 0)) != NULL)
 		u_spawn(((struct cmd *)mi->ctx)->image);
 
 	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
@@ -278,7 +278,7 @@ kbfunc_exec(struct client_ctx *scratch, void *arg)
 	char *label;
 
 	int cmd = (int)arg;
-	switch(cmd) {
+	switch (cmd) {
 		case CWM_EXEC_PROGRAM:
 			label = "exec";
 			break;
@@ -353,7 +353,7 @@ kbfunc_exec(struct client_ctx *scratch, void *arg)
 	xfree(path);
 
 	if ((mi = search_start(&menuq,
-		    search_match_exec, NULL, label, 1)) != NULL) {
+	    search_match_exec, NULL, label, 1)) != NULL) {
 		switch (cmd) {
 			case CWM_EXEC_PROGRAM:
 				u_spawn(mi->text);
@@ -427,7 +427,7 @@ kbfunc_ssh(struct client_ctx *scratch, void *arg)
 
 
 	if ((mi = search_start(&menuq,
-		    search_match_exec, NULL, "ssh", 1)) != NULL) {
+	    search_match_exec, NULL, "ssh", 1)) != NULL) {
 		conf_reload(&Conf);
 		l = snprintf(cmd, sizeof(cmd), "%s -e ssh %s", Conf.termpath,
 		    mi->text);

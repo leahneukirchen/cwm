@@ -9,7 +9,7 @@
   register handlers, with the ability to select, for example,
   a window, or an event, etc.  (no, maybe not...)
 
-- ignoreq, always lower them.  perhaps implement by lowering the entire 
+- ignoreq, always lower them.  perhaps implement by lowering the entire
   queue on each XLower...
 
 - search window should try to stay inside of the screen boundaries.

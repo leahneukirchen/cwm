@@ -40,16 +40,17 @@ static struct file {
 	int			 lineno;
 	int			 errors;
 } *file;
-struct file	*pushfile(const char *);
-int		 popfile(void);
-int		 yyparse(void);
-int		 yylex(void);
-int		 yyerror(const char *, ...);
-int		 kw_cmp(const void *, const void *);
-int		 lookup(char *);
-int		 lgetc(int);
-int		 lungetc(int);
-int		 findeol(void);
+
+struct file		*pushfile(const char *);
+int			 popfile(void);
+int			 yyparse(void);
+int			 yylex(void);
+int			 yyerror(const char *, ...);
+int			 kw_cmp(const void *, const void *);
+int			 lookup(char *);
+int			 lgetc(int);
+int			 lungetc(int);
+int			 findeol(void);
 
 static struct conf	*conf;
 
@@ -97,7 +98,7 @@ string		: string STRING			{
 yesno		: YES				{ $$ = 1; }
 		| NO				{ $$ = 0; }
 		;
-  
+
 main		: FONTNAME STRING		{
 			if (conf->DefaultFontName != NULL &&
 			    conf->DefaultFontName != DEFAULTFONTNAME)
@@ -178,9 +179,9 @@ struct keywords {
 int
 yyerror(const char *fmt, ...)
 {
-	va_list          ap;
-                         
-	file->errors++;         
+	va_list ap;
+
+	file->errors++;
 	va_start(ap, fmt);
 	fprintf(stderr, "%s:%d: ", file->name, yylval.lineno);
 	vfprintf(stderr, fmt, ap);
@@ -548,36 +549,42 @@ parse_config(const char *filename, struct conf *xconf)
 
 		xconf->flags = conf->flags;
 
-		for (cmd = TAILQ_FIRST(&conf->cmdq); cmd != NULL; cmd = cmdnext) {
+		for (cmd = TAILQ_FIRST(&conf->cmdq); cmd != NULL;
+		    cmd = cmdnext) {
 			cmdnext = TAILQ_NEXT(cmd, entry);
 
 			TAILQ_REMOVE(&conf->cmdq, cmd, entry);
 			TAILQ_INSERT_TAIL(&xconf->cmdq, cmd, entry);
 		}
 
-		for (kb = TAILQ_FIRST(&conf->keybindingq); kb != NULL; kb = kbnext) {
+		for (kb = TAILQ_FIRST(&conf->keybindingq); kb != NULL;
+		    kb = kbnext) {
 			kbnext = TAILQ_NEXT(kb, entry);
 
 			TAILQ_REMOVE(&conf->keybindingq, kb, entry);
 			TAILQ_INSERT_TAIL(&xconf->keybindingq, kb, entry);
 		}
 
-		for (ag = TAILQ_FIRST(&conf->autogroupq); ag != NULL; ag = agnext) {
+		for (ag = TAILQ_FIRST(&conf->autogroupq); ag != NULL;
+		    ag = agnext) {
 			agnext = TAILQ_NEXT(ag, entry);
 
 			TAILQ_REMOVE(&conf->autogroupq, ag, entry);
 			TAILQ_INSERT_TAIL(&xconf->autogroupq, ag, entry);
 		}
 
-		for (wm = TAILQ_FIRST(&conf->ignoreq); wm != NULL; wm = wmnext) {
+		for (wm = TAILQ_FIRST(&conf->ignoreq); wm != NULL;
+		    wm = wmnext) {
 			wmnext = TAILQ_NEXT(wm, entry);
 
 			TAILQ_REMOVE(&conf->ignoreq, wm, entry);
 			TAILQ_INSERT_TAIL(&xconf->ignoreq, wm, entry);
 		}
 
-		strlcpy(xconf->termpath, conf->termpath, sizeof(xconf->termpath));
-		strlcpy(xconf->lockpath, conf->lockpath, sizeof(xconf->lockpath));
+		strlcpy(xconf->termpath, conf->termpath,
+		    sizeof(xconf->termpath));
+		strlcpy(xconf->lockpath, conf->lockpath,
+		    sizeof(xconf->lockpath));
 
 		xconf->DefaultFontName = conf->DefaultFontName;
 

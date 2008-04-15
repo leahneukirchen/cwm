@@ -22,7 +22,7 @@
 
 #define SearchMask (KeyPressMask|ExposureMask)
 
-static int  _strsubmatch(char *, char *, int);
+static int	_strsubmatch(char *, char *, int);
 
 void
 search_init(struct screen_ctx *sc)
@@ -39,7 +39,7 @@ search_init(struct screen_ctx *sc)
 
 struct menu *
 search_start(struct menu_q *menuq,
-    void (*match)(struct menu_q *, struct menu_q *, char *), 
+    void (*match)(struct menu_q *, struct menu_q *, char *),
     void (*print)(struct menu *mi, int print),
     char *prompt, int dummy)
 {
@@ -320,16 +320,16 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 		if (cc->label != NULL && _strsubmatch(search, cc->label, 0)) {
 			cc->matchname = cc->label;
 			tier = 0;
-		} 
+		}
 
 		/* Then, on window names. */
 		if (tier < 0) {
 			TAILQ_FOREACH_REVERSE(wn, &cc->nameq, winname_q, entry)
-			    if (_strsubmatch(search, wn->name, 0)) {
-				    cc->matchname = wn->name;
-				    tier = 2;
-				    break;
-			    }
+				if (_strsubmatch(search, wn->name, 0)) {
+					cc->matchname = wn->name;
+					tier = 2;
+					break;
+				}
 		}
 
 		/*

@@ -21,8 +21,8 @@
 #include "headers.h"
 #include "calmwm.h"
 
-extern struct screen_ctx_q	Screenq;
-extern struct screen_ctx       *Curscreen;
+extern struct screen_ctx_q	 Screenq;
+extern struct screen_ctx	*Curscreen;
 
 static void
 _clearwindow_cb(int sig)
@@ -76,7 +76,6 @@ screen_updatestackingorder(void)
 void
 screen_init(void)
 {
-
 	struct screen_ctx *sc = screen_current();
 
 	sc->cycle_client = NULL;

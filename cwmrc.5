@@ -15,7 +15,7 @@
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
 .\" The following requests are required for all man pages.
-.Dd $Mdocdate: March 23 2008 $
+.Dd $Mdocdate: April 15 2008 $
 .Dt CWMRC 1
 .Os
 .Sh NAME
@@ -90,8 +90,8 @@ will cause any instances of
 to not have borders.
 .It Ic bind Ar keys Ar command
 Cause the creation of keyboard shortcuts.
-The default shortcuts will always be created. In case of conflict, 
-user-defined shortcuts take precidence.
+The default shortcuts will always be created.
+In case of conflict, user-defined shortcuts take precidence.
 The modifier keys come first, followed by a ``-''.
 The following modifiers are recognised:
 .Bl -tag -width Ds
@@ -116,9 +116,9 @@ The command should be either the name of a task from the
 structure in
 .Pa conf.c ,
 or, alternatively it should be the commandline that is wished to be executed.
-A special case is the ``unmap'' keyword, which causes any bindings using the 
-named shortcut to be removed. This can be used to remove a binding which conflicts
-with an application.
+A special case is the ``unmap'' keyword, which causes any bindings using the
+named shortcut to be removed.
+This can be used to remove a binding which conflicts with an application.
 .Pp
 For example, to cause
 .Ic C-M-r

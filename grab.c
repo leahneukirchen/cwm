@@ -83,7 +83,7 @@ grab_sweep(struct client_ctx *cc)
 			break;
 		case MotionNotify:
 			if (_sweepcalc(cc, x0, y0, ev.xmotion.x, ev.xmotion.y))
- 				/* Recompute window output */
+				/* Recompute window output */
 				grab_sweep_draw(cc, dx, dy);
 
 			XMoveResizeWindow(X_Dpy, cc->pwin,
@@ -144,9 +144,9 @@ grab_drag(struct client_ctx *cc)
 	/* NOTREACHED */
 }
 
-#define MenuMask       (ButtonMask|ButtonMotionMask|ExposureMask)
-#define MenuGrabMask   (ButtonMask|ButtonMotionMask|StructureNotifyMask)
-#define AllButtonMask   (Button1Mask|Button2Mask|Button3Mask|Button4Mask|Button5Mask)
+#define MenuMask	(ButtonMask|ButtonMotionMask|ExposureMask)
+#define MenuGrabMask	(ButtonMask|ButtonMotionMask|StructureNotifyMask)
+#define AllButtonMask	(Button1Mask|Button2Mask|Button3Mask|Button4Mask|Button5Mask)
 
 void *
 grab_menu(XButtonEvent *e, struct menu_q *menuq)
@@ -197,7 +197,7 @@ grab_menu(XButtonEvent *e, struct menu_q *menuq)
 	XMoveResizeWindow(X_Dpy, sc->menuwin, x, y, width, tothigh);
 	XSelectInput(X_Dpy, sc->menuwin, MenuMask);
 	XMapRaised(X_Dpy, sc->menuwin);
-		
+
 	if (xu_ptr_grab(sc->menuwin, MenuGrabMask, Cursor_select) < 0) {
 		XUnmapWindow(X_Dpy, sc->menuwin);
 		return (NULL);
@@ -207,7 +207,7 @@ grab_menu(XButtonEvent *e, struct menu_q *menuq)
 
 	for (;;) {
 		XMaskEvent(X_Dpy, MenuMask, &event);
-		switch  (event.type) {
+		switch (event.type) {
 		case Expose:
 			XClearWindow(X_Dpy, sc->menuwin);
 			i = 0;
@@ -237,7 +237,7 @@ grab_menu(XButtonEvent *e, struct menu_q *menuq)
 		case ButtonRelease:
 			if (event.xbutton.button != e->button)
 				break;
-			entry =  menu_calc_entry(event.xbutton.x,
+			entry = menu_calc_entry(event.xbutton.x,
 			    event.xbutton.y, width, height, no);
 			xu_ptr_ungrab();
 			XUnmapWindow(X_Dpy, sc->menuwin);
@@ -247,7 +247,7 @@ grab_menu(XButtonEvent *e, struct menu_q *menuq)
 				if (entry == i++)
 					break;
 			return (mi);
-		default: 
+		default:
 			break;
 		}
 	}
@@ -334,7 +334,8 @@ grab_label(struct client_ctx *cc)
 			}
 
 		case Expose:
-			snprintf(dispstr, sizeof(dispstr), "label>%s", labelstr);
+			snprintf(dispstr, sizeof(dispstr), "label>%s",
+			    labelstr);
 			dx = font_width(font, dispstr, strlen(dispstr));
 			dy = fontheight;
 
@@ -397,5 +398,5 @@ menu_calc_entry(int x, int y, int width, int height, int noentries)
 	    entry < 0 || entry >= noentries)
 		entry = -1;
 
-	return entry;
+	return (entry);
 }

@@ -45,7 +45,7 @@ xu_ptr_ungrab(void)
 int
 xu_btn_grab(Window win, int mask, u_int btn)
 {
-        return (XGrabButton(X_Dpy, btn, mask, win,
+	return (XGrabButton(X_Dpy, btn, mask, win,
 		    False, ButtonMask, GrabModeAsync,
 		    GrabModeSync, None, None) == GrabSuccess ? 0 : -1);
 }
@@ -63,7 +63,7 @@ xu_ptr_getpos(Window rootwin, int *x, int *y)
 	u_int tmp2;
 	Window w0, w1;
 
-        XQueryPointer(X_Dpy, rootwin, &w0, &w1, &tmp0, &tmp1, x, y, &tmp2);
+	XQueryPointer(X_Dpy, rootwin, &w0, &w1, &tmp0, &tmp1, x, y, &tmp2);
 }
 
 void
@@ -82,7 +82,7 @@ xu_key_grab(Window win, int mask, int keysym)
 	    (XKeycodeToKeysym(X_Dpy, code, 1) == keysym))
 		mask |= ShiftMask;
 
-        XGrabKey(X_Dpy, XKeysymToKeycode(X_Dpy, keysym), mask, win, True,
+	XGrabKey(X_Dpy, XKeysymToKeycode(X_Dpy, keysym), mask, win, True,
 	    GrabModeAsync, GrabModeAsync);
 }
 

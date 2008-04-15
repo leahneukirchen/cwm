@@ -38,7 +38,7 @@ struct client_ctx_q		 Clientq;
 int				 Doshape, Shape_ev;
 int				 Starting;
 struct conf			 Conf;
-struct fontdesc                 *DefaultFont = NULL;
+struct fontdesc			*DefaultFont = NULL;
 
 /* From TWM */
 #define gray_width 2
@@ -46,7 +46,7 @@ struct fontdesc                 *DefaultFont = NULL;
 static char gray_bits[] = {0x02, 0x01};
 
 
-static void _sigchld_cb(int);
+static void	_sigchld_cb(int);
 
 int
 main(int argc, char **argv)
@@ -72,11 +72,11 @@ main(int argc, char **argv)
 	argv += optind;
 
 	/* Ignore a few signals. */
-        if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
-                err(1, "signal");
+	if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
+		err(1, "signal");
 
-        if (signal(SIGCHLD, _sigchld_cb) == SIG_ERR)
-                err(1, "signal");
+	if (signal(SIGCHLD, _sigchld_cb) == SIG_ERR)
+		err(1, "signal");
 
 	group_init();
 
@@ -176,16 +176,16 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	sc->redpixl = sc->redcolor.pixel;
 	sc->cyanpixl = sc->cyancolor.pixel;
 
-        sc->gray = XCreatePixmapFromBitmapData(X_Dpy, sc->rootwin,
-            gray_bits, gray_width, gray_height,
-            sc->blackpixl, sc->whitepixl, DefaultDepth(X_Dpy, sc->which));
+	sc->gray = XCreatePixmapFromBitmapData(X_Dpy, sc->rootwin,
+	    gray_bits, gray_width, gray_height,
+	    sc->blackpixl, sc->whitepixl, DefaultDepth(X_Dpy, sc->which));
 
-        sc->blue = XCreatePixmapFromBitmapData(X_Dpy, sc->rootwin,
-            gray_bits, gray_width, gray_height,
-            sc->bluepixl, sc->whitepixl, DefaultDepth(X_Dpy, sc->which));
+	sc->blue = XCreatePixmapFromBitmapData(X_Dpy, sc->rootwin,
+	    gray_bits, gray_width, gray_height,
+	    sc->bluepixl, sc->whitepixl, DefaultDepth(X_Dpy, sc->which));
 
-        sc->red = XCreatePixmapFromBitmapData(X_Dpy, sc->rootwin,
-            gray_bits, gray_width, gray_height,
+	sc->red = XCreatePixmapFromBitmapData(X_Dpy, sc->rootwin,
+	    gray_bits, gray_width, gray_height,
 	    sc->redpixl, sc->whitepixl, DefaultDepth(X_Dpy, sc->which));
 
 	gv.foreground = sc->blackpixl^sc->whitepixl;
@@ -216,7 +216,7 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	search_init(sc);
 
 	/* Deal with existing clients. */
-	XQueryTree(X_Dpy, sc->rootwin, &w0, &w1, &wins, &nwins);	
+	XQueryTree(X_Dpy, sc->rootwin, &w0, &w1, &wins, &nwins);
 
 	for (i = 0; i < nwins; i++) {
 		XGetWindowAttributes(X_Dpy, wins[i], &winattr);
@@ -287,11 +287,11 @@ x_errorhandler(Display *dpy, XErrorEvent *e)
 	}
 #endif
 
-	if (Starting && 
-	    e->error_code == BadAccess &&                                       
-	    e->request_code == X_GrabKey)                        
+	if (Starting &&
+	    e->error_code == BadAccess &&
+	    e->request_code == X_GrabKey)
 		errx(1, "root window unavailable - perhaps another "
-		    "wm is running?");                                      
+		    "wm is running?");
 
 	return (0);
 }
@@ -302,9 +302,9 @@ _sigchld_cb(int which)
 	pid_t pid;
 	int status;
 
-/* 	Collect dead children. */
-        while ((pid = waitpid(-1, &status, WNOHANG)) > 0 ||
-            (pid < 0 && errno == EINTR))
+	/* Collect dead children. */
+	while ((pid = waitpid(-1, &status, WNOHANG)) > 0 ||
+	    (pid < 0 && errno == EINTR))
 		;
 }
 

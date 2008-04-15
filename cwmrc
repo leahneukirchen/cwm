@@ -25,4 +25,3 @@
 #bind CM-r	"label"
 #bind CS-Return	"xterm -e top"
 #bind 4-o	"unmap"
-

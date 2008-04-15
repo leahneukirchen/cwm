@@ -27,7 +27,7 @@ HASH_GENERATE(fonthash, fontdesc, node, fontdesc_cmp);
 int
 fontdesc_cmp(struct fontdesc *a, struct fontdesc *b)
 {
-	return strcmp(a->name, b->name);
+	return (strcmp(a->name, b->name));
 }
 
 /*
@@ -35,24 +35,24 @@ fontdesc_cmp(struct fontdesc *a, struct fontdesc *b)
  *    http://www.isthe.com/chongo/tech/comp/fnv/
  */
 
-#define FNV_P_32 ((unsigned int)0x01000193) /* 16777619 */
-#define FNV_1_32 ((unsigned int)0x811c9dc5) /* 2166136261 */
+#define	FNV_P_32	((unsigned int)0x01000193)	/* 16777619 */
+#define	FNV_1_32	((unsigned int)0x811c9dc5)	/* 2166136261 */
 
 unsigned int
 fontdesc_hash(struct fontdesc *fdp)
 {
-        const unsigned char *p, *end, *start;
-        unsigned int hash = FNV_1_32;
+	const unsigned char *p, *end, *start;
+	unsigned int hash = FNV_1_32;
 
 	start = fdp->name;
 	end = (const unsigned char *)fdp->name + strlen(fdp->name);
 
-        for (p = start; p < end; p++) {
-                hash *= FNV_P_32;
-                hash ^= (unsigned int)*p;
-        }
+	for (p = start; p < end; p++) {
+		hash *= FNV_P_32;
+		hash ^= (unsigned int)*p;
+	}
 
-        return (hash);
+	return (hash);
 }
 
 void
@@ -111,10 +111,10 @@ font_get(struct screen_ctx *sc, const char *name)
 int
 font_width(struct fontdesc *fdp, const char *text, int len)
 {
-    XGlyphInfo extents;
-    XftTextExtents8(X_Dpy, fdp->fn, (const XftChar8*)text, len, &extents);
+	XGlyphInfo extents;
+	XftTextExtents8(X_Dpy, fdp->fn, (const XftChar8*)text, len, &extents);
 
-    return (extents.xOff);
+	return (extents.xOff);
 }
 
 void
@@ -130,13 +130,13 @@ font_draw(struct fontdesc *fdp, const char *text, int len,
 int
 font_ascent(struct fontdesc *fdp)
 {
-	return fdp->fn->ascent;
+	return (fdp->fn->ascent);
 }
 
 int
 font_descent(struct fontdesc *fdp)
 {
-	return fdp->fn->descent;
+	return (fdp->fn->descent);
 }
 
 static XftFont *
@@ -156,4 +156,3 @@ _make_font(struct screen_ctx *sc, struct fontdesc *fdp)
 
 	return (fn);
 }
-

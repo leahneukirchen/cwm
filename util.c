@@ -65,28 +65,30 @@ exec_wm(char *argstr)
 	warn(args[0]);
 }
 
-int dirent_isdir(char *filename) {
-       struct stat buffer;
-       int return_value;
+int
+dirent_isdir(char *filename)
+{
+	struct stat buffer;
+	int return_value;
 
-       return_value = stat(filename, &buffer);
+	return_value = stat(filename, &buffer);
 
-       if(return_value == -1)
-               return 0;
-       else
-               return S_ISDIR(buffer.st_mode);
+	if (return_value == -1)
+		return (0);
+	else
+		return (S_ISDIR(buffer.st_mode));
 }
 
-int dirent_islink(char *filename) {
-       struct stat buffer;
-       int return_value;
+int
+dirent_islink(char *filename)
+{
+	struct stat buffer;
+	int return_value;
 
-       return_value = lstat(filename, &buffer);
+	return_value = lstat(filename, &buffer);
 
-       if(return_value == -1)
-               return 0;
-       else
-               return S_ISLNK(buffer.st_mode);
+	if (return_value == -1)
+		return (0);
+	else
+		return (S_ISLNK(buffer.st_mode));
 }
-
-

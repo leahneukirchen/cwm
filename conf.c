@@ -23,9 +23,9 @@
 
 #ifndef timespeccmp
 #define timespeccmp(tsp, usp, cmp)			\
-        (((tsp)->tv_sec == (usp)->tv_sec) ?		\
-            ((tsp)->tv_nsec cmp (usp)->tv_nsec) :	\
-            ((tsp)->tv_sec cmp (usp)->tv_sec))
+	(((tsp)->tv_sec == (usp)->tv_sec) ?		\
+	    ((tsp)->tv_nsec cmp (usp)->tv_nsec) :	\
+	    ((tsp)->tv_sec cmp (usp)->tv_sec))
 #endif
 
 extern struct screen_ctx	*Curscreen;
@@ -88,7 +88,7 @@ conf_init(struct conf *c)
 
 	TAILQ_INIT(&c->ignoreq);
 	TAILQ_INIT(&c->cmdq);
-        TAILQ_INIT(&c->keybindingq);
+	TAILQ_INIT(&c->keybindingq);
 	TAILQ_INIT(&c->autogroupq);
 
 	conf_bindname(c, "CM-Return", "terminal");
@@ -166,8 +166,7 @@ conf_setup(struct conf *c, const char *conffile)
 
 		snprintf(c->conf_path, sizeof(c->conf_path), "%s/%s", home,
 		    CONFFILE);
-	}
-	else
+	} else
 		snprintf(c->conf_path, sizeof(c->conf_path), "%s", conffile);
 
 	conf_init(c);
@@ -195,7 +194,7 @@ conf_get_int(struct client_ctx *cc, enum conftype ctype)
 				break;
 			}
 		}
-		
+
 	} else
 		ignore = 1;
 
@@ -300,23 +299,23 @@ conf_bindname(struct conf *c, char *name, char *binding)
 		current_binding->modmask |= ControlMask;
 
 	if (strchr(name, 'M') != NULL &&
-	    strchr(name, 'M') < strchr(name, '-')) 
+	    strchr(name, 'M') < strchr(name, '-'))
 		current_binding->modmask |= Mod1Mask;
 
 	if (strchr(name, '2') != NULL &&
-	    strchr(name, '2') < strchr(name, '-')) 
+	    strchr(name, '2') < strchr(name, '-'))
 		current_binding->modmask |= Mod2Mask;
 
 	if (strchr(name, '3') != NULL &&
-	    strchr(name, '3') < strchr(name, '-')) 
+	    strchr(name, '3') < strchr(name, '-'))
 		current_binding->modmask |= Mod3Mask;
 
 	if (strchr(name, '4') != NULL &&
-	    strchr(name, '4') < strchr(name, '-')) 
+	    strchr(name, '4') < strchr(name, '-'))
 		current_binding->modmask |= Mod4Mask;
 
 	if (strchr(name, 'S') != NULL &&
-	    strchr(name, 'S') < strchr(name, '-')) 
+	    strchr(name, 'S') < strchr(name, '-'))
 		current_binding->modmask |= ShiftMask;
 
 	substring = strchr(name, '-') + 1;
@@ -335,13 +334,13 @@ conf_bindname(struct conf *c, char *name, char *binding)
 	}
 
 	if (current_binding->keysym == NoSymbol &&
-	    current_binding->keycode == 0 ) {
+	    current_binding->keycode == 0) {
 		xfree(current_binding);
 		return;
 	}
 
 	/* We now have the correct binding, remove duplicates. */
-	conf_unbind(c, current_binding);	
+	conf_unbind(c, current_binding);
 
 	if (strcmp("unmap",binding) == 0)
 		return;
@@ -376,7 +375,7 @@ void conf_unbind(struct conf *c, struct keybinding *unbind)
 			continue;
 
 		if ((key->keycode != 0 && key->keysym == NoSymbol &&
-			key->keycode == unbind->keycode) || 
+			key->keycode == unbind->keycode) ||
 			key->keysym == unbind->keysym)
 			TAILQ_REMOVE(&c->keybindingq, key, entry);
 	}

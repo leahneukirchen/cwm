@@ -46,13 +46,12 @@ xev_handle_maprequest(struct xevent *xev, XEvent *ee)
 	if (old_cc != NULL)
 		client_ptrsave(old_cc);
 
-	if ((cc = client_find(e->window)) == NULL) { 
+	if ((cc = client_find(e->window)) == NULL) {
 		XGetWindowAttributes(X_Dpy, e->window, &xattr);
 		cc = client_new(e->window, screen_fromroot(xattr.root), 1);
 		sc = CCTOSC(cc);
-	} else {
+	} else
 		cc->beepbeep = 1;
-	}
 
 #ifdef notyet			/* XXX - possibly, we shouldn't map if
 				 * the window is withdrawn. */
@@ -80,7 +79,7 @@ xev_handle_unmapnotify(struct xevent *xev, XEvent *ee)
 #ifdef notyet
 		/* XXX disable the ptrwarp until we handle it
 		 * better. */
-		if (!client_delete(cc, e->send_event, 0) && wascurrent) 
+		if (!client_delete(cc, e->send_event, 0) && wascurrent)
 			;/* 			client_ptrwarp(new_cc); */
 #endif
 	}
@@ -121,13 +120,13 @@ xev_handle_configurerequest(struct xevent *xev, XEvent *ee)
 		if (e->value_mask & CWY)
 			cc->geom.y = e->y;
 
-                if (cc->geom.x == 0 &&
+		if (cc->geom.x == 0 &&
 		    cc->geom.width >= DisplayWidth(X_Dpy, sc->which))
 			cc->geom.x -= cc->bwidth;
 
-                if (cc->geom.y == 0 &&
+		if (cc->geom.y == 0 &&
 		    cc->geom.height >= DisplayHeight(X_Dpy, sc->which))
-                        cc->geom.y -= cc->bwidth;
+			cc->geom.y -= cc->bwidth;
 
 		client_gravitate(cc, 1);
 
@@ -164,7 +163,7 @@ xev_handle_propertynotify(struct xevent *xev, XEvent *ee)
 	long tmp;
 
 	if ((cc = client_find(e->window)) != NULL) {
-		switch(e->atom) { 
+		switch (e->atom) {
 		case XA_WM_NORMAL_HINTS:
 			XGetWMNormalHints(X_Dpy, cc->win, cc->size, &tmp);
 			break;
@@ -260,7 +259,7 @@ xev_handle_buttonpress(struct xevent *xev, XEvent *ee)
 					if (cc->label != NULL)
 						wname = cc->label;
 					else
-				  		wname = cc->name;
+						wname = cc->name;
 
 					if (wname == NULL)
 						continue;
@@ -370,8 +369,8 @@ xev_handle_keypress(struct xevent *xev, XEvent *ee)
 
 	keysym = XKeycodeToKeysym(X_Dpy, e->keycode, 0);
 	skeysym = XKeycodeToKeysym(X_Dpy, e->keycode, 1);
-	
-        TAILQ_FOREACH(kb, &Conf.keybindingq, entry) {
+
+	TAILQ_FOREACH(kb, &Conf.keybindingq, entry) {
 		if (keysym != kb->keysym && skeysym == kb->keysym)
 			modshift = ShiftMask;
 		else
@@ -381,15 +380,15 @@ xev_handle_keypress(struct xevent *xev, XEvent *ee)
 			continue;
 
 		if ((kb->keycode != 0 && kb->keysym == NoSymbol &&
-			kb->keycode == e->keycode) || kb->keysym ==
-			(modshift == 0 ? keysym : skeysym))
+		    kb->keycode == e->keycode) || kb->keysym ==
+		    (modshift == 0 ? keysym : skeysym))
 			break;
-        }
+	}
 
 	if (kb == NULL)
 		goto out;
 
-	if ((kb->flags & (KBFLAG_NEEDCLIENT)) && 
+	if ((kb->flags & (KBFLAG_NEEDCLIENT)) &&
 	    (cc = client_find(e->window)) == NULL &&
 	    (cc = client_current()) == NULL)
 		if (kb->flags & KBFLAG_NEEDCLIENT)
@@ -416,7 +415,7 @@ xev_handle_keyrelease(struct xevent *xev, XEvent *ee)
 		goto out;
 
 	sc->altpersist = 0;
-	
+
 	/*
 	 * XXX - better interface... xevents should not know about
 	 * how/when to mtf.
@@ -449,9 +448,9 @@ out:
  * X Event handling
  */
 
-static struct xevent_q _xevq, _xevq_putaway;
-static short _xev_q_lock = 0;
-volatile sig_atomic_t _xev_quit = 0;
+static struct xevent_q	_xevq, _xevq_putaway;
+static short		_xev_q_lock = 0;
+volatile sig_atomic_t	_xev_quit = 0;
 
 void
 xev_init(void)
@@ -529,7 +528,7 @@ xev_loop(void)
 #ifdef DIAGNOSTIC
 		if (TAILQ_EMPTY(&_xevq))
 			errx(1, "X event queue empty");
-#endif		
+#endif
 
 		XNextEvent(X_Dpy, &e);
 		type = e.type;

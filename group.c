@@ -24,18 +24,18 @@
 
 #define CALMWM_NGROUPS 9
 
-int                 Groupnamemode = 0;
-struct group_ctx   *Group_active = NULL;
-struct group_ctx    Groups[CALMWM_NGROUPS];
-char                Group_name[256];
-int                 Grouphideall = 0;
-struct group_ctx_q  Groupq;
+int			 Groupnamemode = 0;
+struct group_ctx	*Group_active = NULL;
+struct group_ctx	 Groups[CALMWM_NGROUPS];
+char			 Group_name[256];
+int			 Grouphideall = 0;
+struct group_ctx_q	 Groupq;
 
 static void
 _group_add(struct group_ctx *gc, struct client_ctx *cc)
 {
 	if (cc == NULL || gc == NULL)
-	  	errx(1, "_group_add: a ctx is NULL");
+		errx(1, "_group_add: a ctx is NULL");
 
 	if (cc->group == gc)
 		return;
@@ -51,7 +51,7 @@ static void
 _group_remove(struct client_ctx *cc)
 {
 	if (cc == NULL || cc->group == NULL)
-	  	errx(1, "_group_remove: a ctx is NULL");
+		errx(1, "_group_remove: a ctx is NULL");
 
 	TAILQ_REMOVE(&cc->group->clients, cc, group_entry);
 	cc->group = NULL;
@@ -62,7 +62,7 @@ _group_remove(struct client_ctx *cc)
 static void
 _group_hide(struct group_ctx *gc)
 {
-  	struct client_ctx *cc;
+	struct client_ctx *cc;
 
 	screen_updatestackingorder();
 
@@ -117,7 +117,7 @@ _group_show(struct group_ctx *gc)
 void
 group_init(void)
 {
-  	int i;
+	int i;
 
 	TAILQ_INIT(&Groupq);
 
@@ -158,7 +158,7 @@ group_sticky_toggle_exit(struct client_ctx *cc)
 }
 
 /*
- * selection list display 
+ * selection list display
  */
 
 /* if group_hidetoggle would produce no effect, toggle the group's hidden state
@@ -166,7 +166,7 @@ group_sticky_toggle_exit(struct client_ctx *cc)
 void
 _group_fix_hidden_state(struct group_ctx *gc)
 {
-	struct client_ctx *cc;	
+	struct client_ctx *cc;
 	int same = 0;
 
 	TAILQ_FOREACH(cc, &gc->clients, group_entry) {
@@ -252,7 +252,7 @@ void
 group_client_delete(struct client_ctx *cc)
 {
 	if (cc->group == NULL)
-	  	return;
+		return;
 
 	TAILQ_REMOVE(&cc->group->clients, cc, group_entry);
 	cc->group = NULL; /* he he */
@@ -261,10 +261,10 @@ group_client_delete(struct client_ctx *cc)
 void
 group_menu(XButtonEvent *e)
 {
-  	struct menu_q menuq;
-	struct menu  *mi;
-	int i;
-	struct group_ctx *gc;
+	struct menu_q		 menuq;
+	struct menu		*mi;
+	int			 i;
+	struct group_ctx	*gc;
 
 	TAILQ_INIT(&menuq);
 
@@ -280,10 +280,10 @@ group_menu(XButtonEvent *e)
 		XCALLOC(mi, struct menu);
 		if (gc->hidden)
 			snprintf(mi->text, sizeof(mi->text), "%d: [%s]",
-			   gc->shortcut, gc->name); 
+			     gc->shortcut, gc->name);
 		else
 			snprintf(mi->text, sizeof(mi->text), "%d: %s",
-			   gc->shortcut, gc->name); 
+			     gc->shortcut, gc->name);
 		mi->ctx = gc;
 		TAILQ_INSERT_TAIL(&menuq, mi, entry);
 	}
@@ -315,11 +315,11 @@ group_alltoggle(void)
 {
 	int i;
 
-	for (i=0; i < CALMWM_NGROUPS; i++) {
+	for (i = 0; i < CALMWM_NGROUPS; i++) {
 		if (Grouphideall)
 			_group_show(&Groups[i]);
 		else
-		  	_group_hide(&Groups[i]);
+			_group_hide(&Groups[i]);
 	}
 
 	if (Grouphideall)

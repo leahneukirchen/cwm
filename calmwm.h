@@ -44,15 +44,13 @@ struct client_ctx;
 
 TAILQ_HEAD(cycle_entry_q, client_ctx);
 
-/* #define CYCLE_FOREACH_MRU(cy, ctx) TAILQ_FOREACH((ctx),  */
-
 struct screen_ctx;
 
 struct fontdesc {
-	const char           *name;
-	XftFont              *fn;
-	struct screen_ctx    *sc;
-	HASH_ENTRY(fontdesc)  node;
+	const char		*name;
+	XftFont			*fn;
+	struct screen_ctx	*sc;
+	HASH_ENTRY(fontdesc)	 node;
 };
 
 int fontdesc_cmp(struct fontdesc *a, struct fontdesc *b);
@@ -88,9 +86,9 @@ struct screen_ctx {
 
 	struct client_ctx* cycle_client;
 
-	struct fonthash  fonthash;
-	XftDraw         *xftdraw;
-	XftColor         xftcolor;
+	struct fonthash	 fonthash;
+	XftDraw		*xftdraw;
+	XftColor	 xftcolor;
 };
 
 TAILQ_HEAD(screen_ctx_q, screen_ctx);
@@ -108,7 +106,7 @@ TAILQ_HEAD(screen_ctx_q, screen_ctx);
 #define CLIENT_VMAXIMIZED	0x20
 
 #define CLIENT_HIGHLIGHT_BLUE	1
-#define CLIENT_HIGHLIGHT_RED	2 
+#define CLIENT_HIGHLIGHT_RED	2
 
 
 struct winname {
@@ -128,7 +126,7 @@ struct client_ctx {
 	Window			 win;
 	XSizeHints		*size;
 
-	Colormap		 cmap;	
+	Colormap		 cmap;
 
 	Window			 pwin;
 
@@ -157,13 +155,13 @@ struct client_ctx {
 	int			 highlight;
 
 	char			*matchname;
-	struct group_ctx        *group;
+	struct group_ctx	*group;
 
-	int                      stackingorder;
+	int			stackingorder;
 
-	char                    *app_class;
-	char                    *app_name;
-	char                    *app_cliarg;
+	char			*app_class;
+	char			*app_name;
+	char			*app_cliarg;
 };
 
 TAILQ_HEAD(client_ctx_q, client_ctx);
@@ -175,14 +173,14 @@ static char *shortcut_to_name[] = {
 };
 
 struct group_ctx {
-	TAILQ_ENTRY(group_ctx) entry;
-	struct client_ctx_q  clients;
-	char                *name;
-	int                  shortcut;
-	int                  hidden;
-	int                  nhidden;
-	int                  highstack;
-};	
+	TAILQ_ENTRY(group_ctx)	 entry;
+	struct client_ctx_q	 clients;
+	char			*name;
+	int			 shortcut;
+	int			 hidden;
+	int			 nhidden;
+	int			 highstack;
+};
 
 TAILQ_HEAD(group_ctx_q, group_ctx);
 
@@ -199,31 +197,31 @@ TAILQ_HEAD(autogroupwin_q, autogroupwin);
 
 /* NULL/0 values indicate match any. */
 struct xevent {
-	TAILQ_ENTRY(xevent) entry;
-	Window  *xev_win;
-	Window  *xev_root;
-	int     xev_type;
-	void  (*xev_cb)(struct xevent *, XEvent *);
-	void   *xev_arg;
+	TAILQ_ENTRY(xevent)	 entry;
+	Window			*xev_win;
+	Window			*xev_root;
+	int			 xev_type;
+	void			 (*xev_cb)(struct xevent *, XEvent *);
+	void			*xev_arg;
 };
 
 TAILQ_HEAD(xevent_q, xevent);
 
 #define CWM_BIGMOVE	0x1000
 enum directions {
-	CWM_UP=0, CWM_DOWN, CWM_LEFT, CWM_RIGHT,
+	CWM_UP = 0, CWM_DOWN, CWM_LEFT, CWM_RIGHT,
 };
 
 /*
  * Match a window.
  */
-#define CONF_MAX_WINTITLE 256
-#define CONF_IGNORECASE   0x01
+#define CONF_MAX_WINTITLE	256
+#define CONF_IGNORECASE		0x01
 struct winmatch {
-	TAILQ_ENTRY(winmatch) entry;
+	TAILQ_ENTRY(winmatch)	entry;
 
-	char title[CONF_MAX_WINTITLE];
-	int  opts;
+	char	title[CONF_MAX_WINTITLE];
+	int	opts;
 };
 
 TAILQ_HEAD(winmatch_q, winmatch);
@@ -237,21 +235,20 @@ TAILQ_HEAD(winmatch_q, winmatch);
 #define KBTOGROUP(X) ((X) - 1)
 
 struct keybinding {
-	int modmask;
-	int keysym;
-        int keycode;
-	int flags;
-        void (*callback)(struct client_ctx *, void *);
-        void *argument;
-	TAILQ_ENTRY(keybinding) entry;
+	int			 modmask;
+	int			 keysym;
+	int			 keycode;
+	int			 flags;
+	void			 (*callback)(struct client_ctx *, void *);
+	void			*argument;
+	TAILQ_ENTRY(keybinding)	 entry;
 };
 
 struct cmd {
-	TAILQ_ENTRY(cmd) entry;
-	int flags;
-#define CMD_STATIC	0x01		/* static configuration in conf.c */
-	char image[MAXPATHLEN];
-	char label[256];
+	TAILQ_ENTRY(cmd)	entry;
+	int			flags;
+	char			image[MAXPATHLEN];
+	char			label[256];
 	/* (argv) */
 };
 
@@ -266,15 +263,15 @@ struct conf {
 	char			 conf_path[MAXPATHLEN];
 	struct cmd_q		 cmdq;
 
+#define	CONF_STICKY_GROUPS	 0x0001
 	int			 flags;
-#define CONF_STICKY_GROUPS	0x0001
 
 	char			 termpath[MAXPATHLEN];
 	char			 lockpath[MAXPATHLEN];
 
-#define	DEFAULTFONTNAME		"sans-serif:pixelsize=14:bold"
+#define	DEFAULTFONTNAME		 "sans-serif:pixelsize=14:bold"
 	char			*DefaultFontName;
-	int			gap_top, gap_bottom, gap_left, gap_right;
+	int			 gap_top, gap_bottom, gap_left, gap_right;
 };
 
 /* Menu stuff */
@@ -282,13 +279,13 @@ struct conf {
 #define MENU_MAXENTRY 50
 
 struct menu {
-	TAILQ_ENTRY(menu) entry;
-	TAILQ_ENTRY(menu) resultentry;
+	TAILQ_ENTRY(menu)	entry;
+	TAILQ_ENTRY(menu)	resultentry;
 
-	char  text[MENU_MAXENTRY + 1];
-	char  print[MENU_MAXENTRY + 1];
-	void *ctx;
-	short dummy;
+	char			 text[MENU_MAXENTRY + 1];
+	char			 print[MENU_MAXENTRY + 1];
+	void			*ctx;
+	short			 dummy;
 };
 
 TAILQ_HEAD(menu_q, menu);
@@ -302,196 +299,202 @@ enum ctltype {
 /* MWM hints */
 
 struct mwm_hints {
-	u_long  flags;
-	u_long  functions;
-	u_long  decorations;
+	u_long	flags;
+	u_long	functions;
+	u_long	decorations;
 };
 
 #define MWM_NUMHINTS 3
 
-#define PROP_MWM_HINTS_ELEMENTS	3
-#define MWM_HINTS_DECORATIONS	(1 << 1)
-#define MWM_DECOR_ALL		(1 << 0)
-#define MWM_DECOR_BORDER	(1 << 1)
+#define	PROP_MWM_HINTS_ELEMENTS	3
+#define	MWM_HINTS_DECORATIONS	(1 << 1)
+#define	MWM_DECOR_ALL		(1 << 0)
+#define	MWM_DECOR_BORDER	(1 << 1)
 
-int input_keycodetrans(KeyCode, u_int, enum ctltype *, char *, int);
+int			 input_keycodetrans(KeyCode, u_int, enum ctltype *,
+			     char *, int);
 
-int   x_errorhandler(Display *, XErrorEvent *);
-void  x_setup(char *display_name);
-char *x_screenname(int);
-void  x_setupscreen(struct screen_ctx *, u_int);
-__dead void  usage(void);
+int			 x_errorhandler(Display *, XErrorEvent *);
+void			 x_setup(char *display_name);
+char			*x_screenname(int);
+void			 x_setupscreen(struct screen_ctx *, u_int);
+__dead void		 usage(void);
 
-struct client_ctx *client_find(Window);
-void               client_setup(void);
-struct client_ctx *client_new(Window, struct screen_ctx *, int);
-int                client_delete(struct client_ctx *, int, int);
-void               client_setactive(struct client_ctx *, int);
-void               client_gravitate(struct client_ctx *, int);
-void               client_resize(struct client_ctx *);
-void               client_lower(struct client_ctx *);
-void               client_raise(struct client_ctx *);
-void               client_move(struct client_ctx *);
-void               client_leave(struct client_ctx *);
-void               client_send_delete(struct client_ctx *);
-struct client_ctx *client_current(void);
-void               client_hide(struct client_ctx *);
-void               client_unhide(struct client_ctx *);
-void               client_nocurrent(void);
-void               client_setname(struct client_ctx *);
-void               client_warp(struct client_ctx *);
-void               client_ptrwarp(struct client_ctx *);
-void               client_ptrsave(struct client_ctx *);
-void               client_draw_border(struct client_ctx *);
-void               client_update(struct client_ctx *);
-void               client_cycle(struct client_ctx *);
-void               client_placecalc(struct client_ctx *);
-void               client_maximize(struct client_ctx *);
-void               client_vertmaximize(struct client_ctx *);
-u_long             client_bg_pixel(struct client_ctx *);
-Pixmap             client_bg_pixmap(struct client_ctx *);
-void               client_map(struct client_ctx *cc);
-void               client_mtf(struct client_ctx *cc);
-struct client_ctx *client_cyclenext(int reverse);
-void               client_altrelease();
-struct client_ctx *client_mrunext(struct client_ctx *cc);
-struct client_ctx *client_mruprev(struct client_ctx *cc);
-void               client_gethints(struct client_ctx *cc);
-void               client_freehints(struct client_ctx *cc);
+struct client_ctx	*client_find(Window);
+void			 client_setup(void);
+struct client_ctx	*client_new(Window, struct screen_ctx *, int);
+int			 client_delete(struct client_ctx *, int, int);
+void			 client_setactive(struct client_ctx *, int);
+void			 client_gravitate(struct client_ctx *, int);
+void			 client_resize(struct client_ctx *);
+void			 client_lower(struct client_ctx *);
+void			 client_raise(struct client_ctx *);
+void			 client_move(struct client_ctx *);
+void			 client_leave(struct client_ctx *);
+void			 client_send_delete(struct client_ctx *);
+struct client_ctx	*client_current(void);
+void			 client_hide(struct client_ctx *);
+void			 client_unhide(struct client_ctx *);
+void			 client_nocurrent(void);
+void			 client_setname(struct client_ctx *);
+void			 client_warp(struct client_ctx *);
+void			 client_ptrwarp(struct client_ctx *);
+void			 client_ptrsave(struct client_ctx *);
+void			 client_draw_border(struct client_ctx *);
+void			 client_update(struct client_ctx *);
+void			 client_cycle(struct client_ctx *);
+void			 client_placecalc(struct client_ctx *);
+void			 client_maximize(struct client_ctx *);
+void			 client_vertmaximize(struct client_ctx *);
+u_long			 client_bg_pixel(struct client_ctx *);
+Pixmap			 client_bg_pixmap(struct client_ctx *);
+void			 client_map(struct client_ctx *cc);
+void			 client_mtf(struct client_ctx *cc);
+struct client_ctx	*client_cyclenext(int reverse);
+void			 client_altrelease();
+struct client_ctx	*client_mrunext(struct client_ctx *cc);
+struct client_ctx	*client_mruprev(struct client_ctx *cc);
+void			 client_gethints(struct client_ctx *cc);
+void			 client_freehints(struct client_ctx *cc);
 
-void xev_handle_maprequest(struct xevent *, XEvent *);
-void xev_handle_unmapnotify(struct xevent *, XEvent *);
-void xev_handle_destroynotify(struct xevent *, XEvent *);
-void xev_handle_configurerequest(struct xevent *, XEvent *);
-void xev_handle_propertynotify(struct xevent *, XEvent *);
-void xev_handle_enternotify(struct xevent *, XEvent *);
-void xev_handle_leavenotify(struct xevent *, XEvent *);
-void xev_handle_buttonpress(struct xevent *, XEvent *);
-void xev_handle_buttonrelease(struct xevent *, XEvent *);
-void xev_handle_keypress(struct xevent *, XEvent *);
-void xev_handle_keyrelease(struct xevent *, XEvent *);
-void xev_handle_expose(struct xevent *, XEvent *);
-void xev_handle_clientmessage(struct xevent *, XEvent *);
+void			 xev_handle_maprequest(struct xevent *, XEvent *);
+void			 xev_handle_unmapnotify(struct xevent *, XEvent *);
+void			 xev_handle_destroynotify(struct xevent *, XEvent *);
+void			 xev_handle_configurerequest(struct xevent *, XEvent *);
+void			 xev_handle_propertynotify(struct xevent *, XEvent *);
+void			 xev_handle_enternotify(struct xevent *, XEvent *);
+void			 xev_handle_leavenotify(struct xevent *, XEvent *);
+void			 xev_handle_buttonpress(struct xevent *, XEvent *);
+void			 xev_handle_buttonrelease(struct xevent *, XEvent *);
+void			 xev_handle_keypress(struct xevent *, XEvent *);
+void			 xev_handle_keyrelease(struct xevent *, XEvent *);
+void			 xev_handle_expose(struct xevent *, XEvent *);
+void			 xev_handle_clientmessage(struct xevent *, XEvent *);
 
 #define XEV_QUICK(a, b, c, d, e) do {		\
 	xev_register(xev_new(a, b, c, d, e));	\
 } while (0)
 
-void xev_reconfig(struct client_ctx *);	/* XXX should be xu_ */
+/* XXX should be xu_ */
+void			  xev_reconfig(struct client_ctx *);
 
-void           xev_init(void);
-struct xevent *xev_new(Window *, Window *, int, void (*)(struct xevent *, XEvent *), void *);
-void           xev_register(struct xevent *);
-void           xev_loop(void);
+void			 xev_init(void);
+struct xevent		*xev_new(Window *, Window *, int,
+			     void (*)(struct xevent *, XEvent *), void *);
+void			 xev_register(struct xevent *);
+void			 xev_loop(void);
 
-int   xu_ptr_grab(Window, int, Cursor);
-int   xu_btn_grab(Window, int, u_int);
-int   xu_ptr_regrab(int, Cursor);
-void  xu_btn_ungrab(Window, int, u_int);
-void  xu_ptr_ungrab(void);
-void  xu_ptr_setpos(Window, int, int);
-void  xu_ptr_getpos(Window, int *, int *);
-void  xu_key_grab(Window, int, int);
-void  xu_sendmsg(struct client_ctx *, Atom, long);
-int   xu_getprop(struct client_ctx *, Atom, Atom, long, u_char **);
-char *xu_getstrprop(struct client_ctx *, Atom atm);
-void  xu_setstate(struct client_ctx *, int);
-int   xu_getstate(struct client_ctx *, int *);
-void  xu_key_grab_keycode(Window, int, int);
+int			 xu_ptr_grab(Window, int, Cursor);
+int			 xu_btn_grab(Window, int, u_int);
+int			 xu_ptr_regrab(int, Cursor);
+void			 xu_btn_ungrab(Window, int, u_int);
+void			 xu_ptr_ungrab(void);
+void			 xu_ptr_setpos(Window, int, int);
+void			 xu_ptr_getpos(Window, int *, int *);
+void			 xu_key_grab(Window, int, int);
+void			 xu_sendmsg(struct client_ctx *, Atom, long);
+int			 xu_getprop(struct client_ctx *, Atom, Atom, long,
+			     u_char **);
+char			*xu_getstrprop(struct client_ctx *, Atom atm);
+void			 xu_setstate(struct client_ctx *, int);
+int			 xu_getstate(struct client_ctx *, int *);
+void			 xu_key_grab_keycode(Window, int, int);
 
-int dirent_exists(char *);
-int dirent_isdir(char *);
-int dirent_islink(char *);
-int u_spawn(char *);
-void exec_wm(char *);
+int			 dirent_exists(char *);
+int			 dirent_isdir(char *);
+int			 dirent_islink(char *);
+int			 u_spawn(char *);
+void			 exec_wm(char *);
 
-void  grab_sweep(struct client_ctx *);
-void  grab_drag(struct client_ctx *);
-void  grab_menuinit(struct screen_ctx *);
-void *grab_menu(XButtonEvent *, struct menu_q *);
-void  grab_label(struct client_ctx *);
+void			 grab_sweep(struct client_ctx *);
+void			 grab_drag(struct client_ctx *);
+void			 grab_menuinit(struct screen_ctx *);
+void			*grab_menu(XButtonEvent *, struct menu_q *);
+void			 grab_label(struct client_ctx *);
 
-void  xfree(void *);
-void *xmalloc(size_t);
-void *xcalloc(size_t);
-char *xstrdup(const char *);
+void			 xfree(void *);
+void			*xmalloc(size_t);
+void			*xcalloc(size_t);
+char			*xstrdup(const char *);
 
 #define XMALLOC(p, t) ((p) = (t *)xmalloc(sizeof * (p)))
 #define XCALLOC(p, t) ((p) = (t *)xcalloc(sizeof * (p)))
 
-void               screen_init(void);
-struct screen_ctx *screen_fromroot(Window);
-struct screen_ctx *screen_current(void);
-void               screen_updatestackingorder(void);
-void               screen_infomsg(char *);
+void			 screen_init(void);
+struct screen_ctx	*screen_fromroot(Window);
+struct screen_ctx	*screen_current(void);
+void			 screen_updatestackingorder(void);
+void			 screen_infomsg(char *);
 
-void  conf_setup(struct conf *, const char *);
-int   conf_get_int(struct client_ctx *, enum conftype);
-void  conf_client(struct client_ctx *);
-void  conf_bindkey(struct conf *, void (*)(struct client_ctx *, void *),
-          int, int, int, void *);
-void  conf_bindname(struct conf *, char *, char *);
-void  conf_unbind(struct conf *, struct keybinding *);
-int   conf_changed(char *);
-void  conf_reload(struct conf *c);
-char *conf_get_str(struct client_ctx *, enum conftype);
+void			 conf_setup(struct conf *, const char *);
+int			 conf_get_int(struct client_ctx *, enum conftype);
+void			 conf_client(struct client_ctx *);
+void			 conf_bindkey(struct conf *,
+			     void (*)(struct client_ctx *, void *),
+			     int, int, int, void *);
+void			 conf_bindname(struct conf *, char *, char *);
+void			 conf_unbind(struct conf *, struct keybinding *);
+int			 conf_changed(char *);
+void			 conf_reload(struct conf *);
+char			*conf_get_str(struct client_ctx *, enum conftype);
 
-void kbfunc_client_lower(struct client_ctx *, void *);
-void kbfunc_client_raise(struct client_ctx *, void *);
-void kbfunc_client_search(struct client_ctx *, void *);
-void kbfunc_client_hide(struct client_ctx *, void *);
-void kbfunc_client_cycle(struct client_ctx *, void *);
-void kbfunc_client_rcycle(struct client_ctx *cc, void *arg);
-void kbfunc_cmdexec(struct client_ctx *, void *);
-void kbfunc_client_label(struct client_ctx *, void *);
-void kbfunc_client_delete(struct client_ctx *, void *);
-void kbfunc_client_group(struct client_ctx *, void *);
-void kbfunc_client_nextgroup(struct client_ctx *, void *);
-void kbfunc_client_prevgroup(struct client_ctx *, void *);
-void kbfunc_client_nogroup(struct client_ctx *, void *);
-void kbfunc_client_maximize(struct client_ctx *, void *);
-void kbfunc_client_vmaximize(struct client_ctx *, void *);
-void kbfunc_quit_wm(struct client_ctx *, void *);
-void kbfunc_client_move(struct client_ctx *, void *);
-void kbfunc_client_resize(struct client_ctx *, void *);
-void kbfunc_menu_search(struct client_ctx *, void *);
-void kbfunc_exec(struct client_ctx *, void *);
-void kbfunc_ptrmove(struct client_ctx *, void *);
-void kbfunc_ssh(struct client_ctx *, void *);
-void kbfunc_term(struct client_ctx *cc, void *arg);
-void kbfunc_lock(struct client_ctx *cc, void *arg);
+void			 kbfunc_client_lower(struct client_ctx *, void *);
+void			 kbfunc_client_raise(struct client_ctx *, void *);
+void			 kbfunc_client_search(struct client_ctx *, void *);
+void			 kbfunc_client_hide(struct client_ctx *, void *);
+void			 kbfunc_client_cycle(struct client_ctx *, void *);
+void			 kbfunc_client_rcycle(struct client_ctx *, void *);
+void			 kbfunc_cmdexec(struct client_ctx *, void *);
+void			 kbfunc_client_label(struct client_ctx *, void *);
+void			 kbfunc_client_delete(struct client_ctx *, void *);
+void			 kbfunc_client_group(struct client_ctx *, void *);
+void			 kbfunc_client_nextgroup(struct client_ctx *, void *);
+void			 kbfunc_client_prevgroup(struct client_ctx *, void *);
+void			 kbfunc_client_nogroup(struct client_ctx *, void *);
+void			 kbfunc_client_maximize(struct client_ctx *, void *);
+void			 kbfunc_client_vmaximize(struct client_ctx *, void *);
+void			 kbfunc_quit_wm(struct client_ctx *, void *);
+void			 kbfunc_client_move(struct client_ctx *, void *);
+void			 kbfunc_client_resize(struct client_ctx *, void *);
+void			 kbfunc_menu_search(struct client_ctx *, void *);
+void			 kbfunc_exec(struct client_ctx *, void *);
+void			 kbfunc_ptrmove(struct client_ctx *, void *);
+void			 kbfunc_ssh(struct client_ctx *, void *);
+void			 kbfunc_term(struct client_ctx *, void *);
+void			 kbfunc_lock(struct client_ctx *, void *);
 
-void  search_init(struct screen_ctx *);
-struct menu *search_start(struct menu_q *menuq,
-    void (*match)(struct menu_q *, struct menu_q *, char *),
-    void (*print)(struct menu *mi, int),
-    char *, int);
-void  search_match_client(struct menu_q *, struct menu_q *, char *);
-void  search_print_client(struct menu *mi, int list);
-void  search_match_text(struct menu_q *, struct menu_q *, char *);
-void  search_match_exec(struct menu_q *, struct menu_q *, char *);
+void			 search_init(struct screen_ctx *);
+struct menu	*search_start(struct menu_q *menuq,
+		    void (*match)(struct menu_q *, struct menu_q *, char *),
+		    void (*print)(struct menu *mi, int),
+		    char *, int);
+void			 search_match_client(struct menu_q *, struct menu_q *,
+			     char *);
+void			 search_print_client(struct menu *mi, int list);
+void			 search_match_text(struct menu_q *, struct menu_q *,
+			     char *);
+void			 search_match_exec(struct menu_q *, struct menu_q *,
+			     char *);
 
-void group_init(void);
-void group_hidetoggle(int);
-void group_slide(int);
-void group_sticky(struct client_ctx *);
-void group_client_delete(struct client_ctx *);
-void group_menu(XButtonEvent *);
-void group_alltoggle(void);
-void group_sticky_toggle_enter(struct client_ctx *);
-void group_sticky_toggle_exit(struct client_ctx *);
-void group_autogroup(struct client_ctx *);
+void			 group_init(void);
+void			 group_hidetoggle(int);
+void			 group_slide(int);
+void			 group_sticky(struct client_ctx *);
+void			 group_client_delete(struct client_ctx *);
+void			 group_menu(XButtonEvent *);
+void			 group_alltoggle(void);
+void			 group_sticky_toggle_enter(struct client_ctx *);
+void			 group_sticky_toggle_exit(struct client_ctx *);
+void			 group_autogroup(struct client_ctx *);
 
-void notification_init(struct screen_ctx *);
-
-void font_init(struct screen_ctx *sc);
-struct fontdesc *font_get(struct screen_ctx *sc, const char *name);
-int font_width(struct fontdesc *fdp, const char *text, int len);
-void font_draw(struct fontdesc *fdp, const char *text, int len,
-    Drawable d, int x, int y);
-int font_ascent(struct fontdesc *fdp);
-int font_descent(struct fontdesc *fdp);
-struct fontdesc *font_getx(struct screen_ctx *sc, const char *name);
+void			 font_init(struct screen_ctx *);
+struct fontdesc		*font_get(struct screen_ctx *, const char *);
+int			 font_width(struct fontdesc *, const char *, int);
+void			 font_draw(struct fontdesc *, const char *, int,
+			     Drawable, int, int);
+int			 font_ascent(struct fontdesc *);
+int			 font_descent(struct fontdesc *);
+struct fontdesc		*font_getx(struct screen_ctx *, const char *);
 
 #define CCTOSC(cc) (cc->sc)
 
@@ -514,7 +517,7 @@ extern struct client_ctx_q		 Clientq;
 extern int				 Doshape, Shape_ev;
 extern struct conf			 Conf;
 
-extern struct fontdesc                  *DefaultFont;
+extern struct fontdesc			*DefaultFont;
 
 
 #endif /* _CALMWM_H_ */

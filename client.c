@@ -23,11 +23,11 @@
 
 static struct client_ctx *client__cycle(struct client_ctx *cc,
     struct client_ctx *(*iter)(struct client_ctx *));
-int _inwindowbounds(struct client_ctx *, int, int);
+int	_inwindowbounds(struct client_ctx *, int, int);
 
-static char emptystring[] = "";
+static char		 emptystring[] = "";
 
-struct client_ctx *_curcc = NULL;
+struct client_ctx	*_curcc = NULL;
 
 void
 client_setup(void)
@@ -53,7 +53,7 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	struct client_ctx *cc;
 	long tmp;
 	XSetWindowAttributes pxattr;
- 	XWindowAttributes wattr;
+	XWindowAttributes wattr;
 	int x, y, height, width, state;
 	XWMHints *wmhints;
 
@@ -67,7 +67,7 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	cc->state = mapped ? NormalState : IconicState;
 	cc->sc = sc;
 	cc->win = win;
-	cc->size= XAllocSizeHints();
+	cc->size = XAllocSizeHints();
 	if (cc->size->width_inc == 0)
 		cc->size->width_inc = 1;
 	if (cc->size->height_inc == 0)
@@ -137,7 +137,7 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	    ExposureMask|EnterWindowMask;
 /* 	pxattr.border_pixel = sc->blackpix; */
 /* 	pxattr.background_pixel = sc->whitepix; */
-	
+
 
 /* 	cc->pwin = XCreateSimpleWindow(X_Dpy, sc->rootwin, */
 /* 	    x, y, width, height, 1, sc->blackpix, sc->whitepix); */
@@ -154,7 +154,8 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 
 		XShapeSelectInput(X_Dpy, cc->win, ShapeNotifyMask);
 
-		r = XShapeGetRectangles(X_Dpy, cc->win, ShapeBounding, &n, &tmp);
+		r = XShapeGetRectangles(X_Dpy, cc->win, ShapeBounding,
+		    &n, &tmp);
 		if (n > 1)
 			XShapeCombineShape(X_Dpy, cc->pwin, ShapeBounding,
 			    0,	0, /* XXX border */
@@ -189,7 +190,7 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 
 	client_gethints(cc);
 	client_update(cc);
-	
+
 	if (mapped) {
 		group_autogroup(cc);
 	}
@@ -308,11 +309,11 @@ client_current(void)
 void
 client_gravitate(struct client_ctx *cc, int yes)
 {
-        int dx = 0, dy = 0, mult = yes ? 1 : -1;
-        int gravity = (cc->size->flags & PWinGravity) ?
+	int dx = 0, dy = 0, mult = yes ? 1 : -1;
+	int gravity = (cc->size->flags & PWinGravity) ?
 	    cc->size->win_gravity : NorthWestGravity;
 
-        switch (gravity) {
+	switch (gravity) {
 	case NorthWestGravity:
 	case SouthWestGravity:
 	case NorthEastGravity:
@@ -321,10 +322,10 @@ client_gravitate(struct client_ctx *cc, int yes)
 	case NorthGravity:
 		dy = cc->bwidth;
 		break;
-        }
+	}
 
-        cc->geom.x += mult*dx;
-        cc->geom.y += mult*dy;
+	cc->geom.x += mult*dx;
+	cc->geom.y += mult*dy;
 }
 
 void
@@ -419,10 +420,10 @@ client_ptrsave(struct client_ctx *cc)
 	int x, y;
 
 	xu_ptr_getpos(cc->pwin, &x, &y);
-        if (_inwindowbounds(cc, x, y)) {
+	if (_inwindowbounds(cc, x, y)) {
 		cc->ptr.x = x;
 		cc->ptr.y = y;
-        }
+	}
 }
 
 void
@@ -591,7 +592,7 @@ match:
 		cc->nameqlen--;
 	}
 
-	return;	
+	return;
 }
 
 /*
@@ -635,7 +636,7 @@ client_cyclenext(int reverse)
 	/* Do the actual warp. */
 	client_ptrsave(cc);
 	client_ptrwarp(sc->cycle_client);
-	sc->altpersist = 1;   /* This is reset when alt is let go... */
+	sc->altpersist = 1; /* This is reset when alt is let go... */
 
 	return (sc->cycle_client);
 }
@@ -671,7 +672,7 @@ client__cycle(struct client_ctx *cc,
 			break;
 	} while (cc != save);
 
-	return cc != save ? cc : NULL;
+	return (cc != save ? cc : NULL);
 }
 
 void
@@ -764,8 +765,8 @@ client_vertmaximize(struct client_ctx *cc)
 		struct screen_ctx *sc = CCTOSC(cc);
 		int display_height = DisplayHeight(X_Dpy, sc->which) -
 		    cc->bwidth*2;
-        
-		if (!(cc->flags & CLIENT_MAXIMIZED)) 
+
+		if (!(cc->flags & CLIENT_MAXIMIZED))
 			cc->savegeom = cc->geom;
 		cc->geom.y = cc->bwidth + Conf.gap_top;
 		cc->geom.height = display_height -
@@ -831,7 +832,7 @@ client_gethints(struct client_ctx *cc)
 				break;
 			strlcat(buf, argv[i], len);
 			o += strlen(buf);
-			strlcat(buf,  ARG_SEP_, len);
+			strlcat(buf, ARG_SEP_, len);
 			o += strlen(ARG_SEP_);
 		}
 

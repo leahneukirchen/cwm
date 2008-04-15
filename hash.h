@@ -21,9 +21,9 @@
 
 #include <sys/tree.h>
 
-#define HASH_ENTRY SPLAY_ENTRY
+#define HASH_ENTRY	SPLAY_ENTRY
 
-#define HASH_HEAD(name, type, nbuckets) 			\
+#define HASH_HEAD(name, type, nbuckets)				\
 	SPLAY_HEAD(name##_HASH_TREE, type);			\
 	struct name {						\
 		struct name##_HASH_TREE buckets[nbuckets];	\
@@ -52,7 +52,7 @@ struct type *name##_HASH_TREE_FIND(struct name *head, struct type *find) \
 {									\
 	struct name##_HASH_TREE *bucket =				\
 	    &head->buckets[(*head->hashfn)(find) % HASH_NBUCKETS(head)]; \
-	return SPLAY_FIND(name##_HASH_TREE, bucket, find);		\
+	return (SPLAY_FIND(name##_HASH_TREE, bucket, find));		\
 }									\
 void name##_HASH_TREE_INSERT(struct name *head, struct type *insert)	\
 {									\
