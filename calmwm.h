@@ -400,9 +400,6 @@ void			 xu_setstate(struct client_ctx *, int);
 int			 xu_getstate(struct client_ctx *, int *);
 void			 xu_key_grab_keycode(Window, int, int);
 
-int			 dirent_exists(char *);
-int			 dirent_isdir(char *);
-int			 dirent_islink(char *);
 int			 u_spawn(char *);
 void			 exec_wm(char *);
 
