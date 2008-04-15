@@ -81,6 +81,7 @@ main(int argc, char **argv)
 	group_init();
 
 	Starting = 1;
+	bzero(&Conf, sizeof(Conf));
 	conf_setup(&Conf, conffile);
 	client_setup();
 	x_setup(display_name);

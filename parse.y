@@ -513,8 +513,7 @@ parse_config(const char *filename, struct conf *xconf)
 {
 	int			 errors = 0;
 
-	if ((conf = malloc(sizeof(struct conf))) == NULL)
-		return (-1);
+	XCALLOC(conf, struct conf);
 
 	if ((file = pushfile(filename)) == NULL) {
 		free(conf);
