@@ -359,7 +359,8 @@ kbfunc_exec(struct client_ctx *scratch, void *arg)
 				u_spawn(mi->text);
 				break;
 			case CWM_EXEC_WM:
-				exec_wm(mi->text);
+				u_exec(mi->text);
+				warn("%s", mi->text);
 				break;
 			default:
 				err(1, "kb_func: egad, cmd changed value!");

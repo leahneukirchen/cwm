@@ -401,7 +401,7 @@ int			 xu_getstate(struct client_ctx *, int *);
 void			 xu_key_grab_keycode(Window, int, int);
 
 int			 u_spawn(char *);
-void			 exec_wm(char *);
+void			 u_exec(char *);
 
 void			 grab_sweep(struct client_ctx *);
 void			 grab_drag(struct client_ctx *);
