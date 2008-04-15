@@ -15,7 +15,7 @@
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
 .\" The following requests are required for all man pages.
-.Dd $Mdocdate: April 7 2008 $
+.Dd $Mdocdate: April 8 2008 $
 .Dt CWM 1
 .Os
 .Sh NAME
@@ -177,17 +177,19 @@ The window is hidden.
 .Pp
 The following keybindings may be used to navigate the result list:
 .Pp
-.Bl -tag -width "[Down] or C-sXXX" -offset indent -compact
-.It Ic [Down] No or Ic C-s
+.Bl -tag -width "[Down] or C-s or M-j" -offset indent -compact
+.It Ic [Down], C-s No or Ic M-j
 Select the next window in the list.
-.It Ic [Up] No or Ic C-r
+.It Ic [Up], C-r No or Ic M-k
 Select the previous window in the list.
+.It Ic [Backspace] No or Ic C-h
+Backspace.
 .It Ic C-u
 Clear the input.
 .It Ic [Enter]
 Focus the selected window.
 .It Ic [Esc]
-Quit.
+Cancel.
 .It Ic C-a
 Whenever there are no matching windows, list every window.
 .El
