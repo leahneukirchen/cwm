@@ -41,9 +41,12 @@ kbfunc_client_raise(struct client_ctx *cc, void *arg)
 	client_raise(cc);
 }
 
+#define typemask	(CWM_MOVE | CWM_RESIZE | CWM_PTRMOVE)
+#define movemask	(CWM_UP | CWM_DOWN | CWM_LEFT | CWM_RIGHT)
 void
-kbfunc_client_move(struct client_ctx *cc, void *arg)
+kbfunc_moveresize(struct client_ctx *cc, void *arg)
 {
+	struct screen_ctx *sc = screen_current();
 	int x,y,flags,amt;
 	u_int mx,my;
 
@@ -57,7 +60,7 @@ kbfunc_client_move(struct client_ctx *cc, void *arg)
 		amt = amt*10;
 	}
 
-	switch (flags) {
+	switch (flags & movemask) {
 	case CWM_UP:
 		my -= amt;
 		break;
@@ -71,96 +74,42 @@ kbfunc_client_move(struct client_ctx *cc, void *arg)
 		mx -= amt;
 		break;
 	}
+	switch (flags & typemask) {
+	case CWM_MOVE:
+		cc->geom.y += my;
+		cc->geom.x += mx;
+		client_move(cc);
+		xu_ptr_getpos(cc->pwin, &x, &y);
+		cc->ptr.y = y + my;
+		cc->ptr.x = x + mx;
+		client_ptrwarp(cc);
+		break;
+	case CWM_RESIZE:
+		cc->geom.height += my;
+		cc->geom.width += mx;
+		client_resize(cc);
 
-	cc->geom.y += my;
-	cc->geom.x += mx;
-	client_move(cc);
-	xu_ptr_getpos(cc->pwin, &x, &y);
-	cc->ptr.y = y + my;
-	cc->ptr.x = x + mx;
-	client_ptrwarp(cc);
-}
-
-void
-kbfunc_client_resize(struct client_ctx *cc, void *arg)
-{
-	int flags,mx,my;
-	u_int amt;
-
-	mx = my = 0;
-
-	flags = (int)arg;
-	amt = MOVE_AMOUNT;
-
-	if (flags & CWM_BIGMOVE) {
-		flags -= CWM_BIGMOVE;
-		amt = amt*10;
+		/*
+		 * Moving the cursor while resizing is problematic. Just place
+		 * it in the middle of the window.
+		 */
+		cc->ptr.x = -1;
+		cc->ptr.y = -1;
+		client_ptrwarp(cc);
+		break;
+	case CWM_PTRMOVE:
+		if (cc) {
+			xu_ptr_getpos(cc->pwin, &x, &y);
+			xu_ptr_setpos(cc->pwin, x + mx, y + my);
+		} else {
+			xu_ptr_getpos(sc->rootwin, &x, &y);
+			xu_ptr_setpos(sc->rootwin, x + mx, y + my);
+		}
+		break;
+	default:
+		warnx("invalid flags passed to kbfunc_client_moveresize");
 	}
 
-	switch (flags) {
-	case CWM_UP:
-		my -= amt;
-		break;
-	case CWM_DOWN:
-		my += amt;
-		break;
-	case CWM_RIGHT:
-		mx += amt;
-		break;
-	case CWM_LEFT:
-		mx -= amt;
-		break;
-	}
-
-	cc->geom.height += my;
-	cc->geom.width += mx;
-	client_resize(cc);
-
-	/*
-	 * Moving the cursor while resizing is problematic. Just place
-	 * it in the middle of the window.
-	 */
-	cc->ptr.x = -1;
-	cc->ptr.y = -1;
-	client_ptrwarp(cc);
-}
-
-void
-kbfunc_ptrmove(struct client_ctx *cc, void *arg)
-{
-	int px,py,mx,my,flags,amt;
-	struct screen_ctx *sc = screen_current();
-	my = mx = 0;
-
-	flags = (int)arg;
-	amt = MOVE_AMOUNT;
-
-	if (flags & CWM_BIGMOVE) {
-		flags -= CWM_BIGMOVE;
-		amt = amt * 10;
-	}
-	switch (flags) {
-	case CWM_UP:
-		my -= amt;
-		break;
-	case CWM_DOWN:
-		my += amt;
-		break;
-	case CWM_RIGHT:
-		mx += amt;
-		break;
-	case CWM_LEFT:
-		mx -= amt;
-		break;
-	}
-
-	if (cc) {
-		xu_ptr_getpos(cc->pwin, &px, &py);
-		xu_ptr_setpos(cc->pwin, px + mx, py + my);
-	} else {
-		xu_ptr_getpos(sc->rootwin, &px, &py);
-		xu_ptr_setpos(sc->rootwin, px + mx, py + my);
-	}
 }
 
 void
