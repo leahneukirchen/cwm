@@ -360,7 +360,7 @@ conf_bindname(struct conf *c, char *name, char *binding)
 		return;
 
 	current_binding->callback = kbfunc_cmdexec;
-	current_binding->argument = strdup(binding);
+	current_binding->argument = xstrdup(binding);
 	current_binding->flags = 0;
 	TAILQ_INSERT_TAIL(&c->keybindingq, current_binding, entry);
 	return;

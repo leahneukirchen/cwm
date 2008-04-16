@@ -33,11 +33,11 @@ xmalloc(size_t siz)
 }
 
 void *
-xcalloc(size_t siz)
+xcalloc(size_t no, size_t siz)
 {
 	void *p;
 
-	if ((p = calloc(1, siz)) == NULL)
+	if ((p = calloc(no, siz)) == NULL)
 		err(1, "calloc");
 
 	return (p);

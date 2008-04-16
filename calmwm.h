@@ -409,11 +409,11 @@ void			 grab_label(struct client_ctx *);
 
 void			 xfree(void *);
 void			*xmalloc(size_t);
-void			*xcalloc(size_t);
+void			*xcalloc(size_t, size_t);
 char			*xstrdup(const char *);
 
 #define XMALLOC(p, t) ((p) = (t *)xmalloc(sizeof * (p)))
-#define XCALLOC(p, t) ((p) = (t *)xcalloc(sizeof * (p)))
+#define XCALLOC(p, t) ((p) = (t *)xcalloc(1, sizeof * (p)))
 
 void			 screen_init(void);
 struct screen_ctx	*screen_fromroot(Window);

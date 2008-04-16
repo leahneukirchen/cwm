@@ -85,7 +85,7 @@ _group_show(struct group_ctx *gc)
 	u_int i;
 	int lastempty = -1;
 
-	winlist = (Window *) xcalloc(sizeof(*winlist) * (gc->highstack + 1));
+	winlist = (Window *) xcalloc(sizeof(*winlist), (gc->highstack + 1));
 
 	/*
 	 * Invert the stacking order as XRestackWindows() expects them
