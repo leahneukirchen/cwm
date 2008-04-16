@@ -610,7 +610,7 @@ client_cyclenext(int reverse)
 
 	/* TODO: maybe this should just be a CIRCLEQ. */
 
-	if (!(cc = _curcc)) {
+	if ((cc = client_current()) == NULL) {
 		if (TAILQ_EMPTY(&Clientq))
 			return(NULL);
 		cc = TAILQ_FIRST(&Clientq);
@@ -673,20 +673,6 @@ client__cycle(struct client_ctx *cc,
 	} while (cc != save);
 
 	return (cc != save ? cc : NULL);
-}
-
-void
-client_altrelease()
-{
-	struct client_ctx *cc = _curcc;
-	struct screen_ctx *sc;
-
-	if (cc == NULL)
-		return;
-	sc = CCTOSC(cc);
-
-	XUnmapWindow(X_Dpy, sc->infowin);
-	XReparentWindow(X_Dpy, sc->infowin, sc->rootwin, 0, 0);
 }
 
 void

@@ -24,13 +24,6 @@
 extern struct screen_ctx_q	 Screenq;
 extern struct screen_ctx	*Curscreen;
 
-static void
-_clearwindow_cb(int sig)
-{
-	struct screen_ctx *sc = screen_current();
-	XUnmapWindow(X_Dpy, sc->infowin);
-}
-
 struct screen_ctx *
 screen_fromroot(Window rootwin)
 {
@@ -79,35 +72,4 @@ screen_init(void)
 	struct screen_ctx *sc = screen_current();
 
 	sc->cycle_client = NULL;
-
-	sc->infowin = XCreateSimpleWindow(X_Dpy, sc->rootwin, 0, 0,
-	    1, 1, 1, sc->blackpixl, sc->whitepixl);
-
-	/* XXX - marius. */
-	if (signal(SIGALRM, _clearwindow_cb) == SIG_ERR)
-		err(1, "signal");
-}
-
-void
-screen_infomsg(char *msg)
-{
-	struct screen_ctx *sc = screen_current();
-	char buf[1024];
-	int dy, dx;
-	struct fontdesc *font = DefaultFont;
-
-	XUnmapWindow(X_Dpy, sc->infowin);
-	alarm(0);
-
-	snprintf(buf, sizeof(buf), ">%s", msg);
-	dy = font_ascent(font) + font_descent(font) + 1;
-	dx = font_width(font, buf, strlen(buf));
-
-	XMoveResizeWindow(X_Dpy, sc->infowin, 0, 0, dx, dy);
-	XMapRaised(X_Dpy, sc->infowin);
-
-	font_draw(font, buf, strlen(buf), sc->infowin,
-	    0, font_ascent(font) + 1);
-
-	alarm(1);
 }

@@ -421,7 +421,6 @@ xev_handle_keyrelease(struct xevent *xev, XEvent *ee)
 	 * how/when to mtf.
 	 */
 	client_mtf(NULL);
-	client_altrelease();
 
  out:
 	xev_register(xev);
