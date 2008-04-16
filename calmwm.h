@@ -65,7 +65,6 @@ struct screen_ctx {
 	Window		 rootwin;
 	Window		 menuwin;
 	Window		 searchwin;
-	Window		 infowin;
 	Colormap	 colormap;
 	XColor		 bgcolor, fgcolor, fccolor, redcolor, cyancolor,
 			 whitecolor, blackcolor;
