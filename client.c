@@ -21,8 +21,6 @@
 #include "headers.h"
 #include "calmwm.h"
 
-static struct client_ctx *client__cycle(struct client_ctx *cc,
-    struct client_ctx *(*iter)(struct client_ctx *));
 int	_inwindowbounds(struct client_ctx *, int, int);
 
 static char		 emptystring[] = "";
@@ -230,9 +228,6 @@ client_delete(struct client_ctx *cc, int sendevent, int ignorewindow)
 
 	if (_curcc == cc)
 		_curcc = NULL;
-
-	if (sc->cycle_client == cc)
-		sc->cycle_client = NULL;
 
 	XFree(cc->size);
 
@@ -595,50 +590,47 @@ match:
 	return;
 }
 
-/*
- * TODO: seems to have some issues still on the first invocation
- * (globally the first)
- */
-
 struct client_ctx *
 client_cyclenext(int reverse)
 {
-	struct screen_ctx *sc;
-	struct client_ctx *cc;
-	struct client_ctx *(*iter)(struct client_ctx *) =
-	    reverse ? &client_mruprev : &client_mrunext;
+	struct client_ctx	*oldcc = client_current(), *newcc;
+	struct screen_ctx	*sc = screen_current();
+	int			 again = 1;
 
-	/* TODO: maybe this should just be a CIRCLEQ. */
-
-	if ((cc = client_current()) == NULL) {
-		if (TAILQ_EMPTY(&Clientq))
-			return(NULL);
-		cc = TAILQ_FIRST(&Clientq);
-	}
-
-	sc = CCTOSC(cc);
-
-	/* if altheld; then reset the iterator to the beginning */
-	if (!sc->altpersist || sc->cycle_client == NULL)
-		sc->cycle_client = TAILQ_FIRST(&sc->mruq);
-
-	if (sc->cycle_client == NULL)
+	/* If no windows then you cant cycle */
+	if (TAILQ_EMPTY(&sc->mruq))
 		return (NULL);
 
-	/*
-	 * INVARIANT: as long as sc->cycle_client != NULL here, we
-	 * won't exit with sc->cycle_client == NULL
-	 */
+	if (oldcc == NULL)
+		oldcc = (reverse ? TAILQ_LAST(&sc->mruq, cycle_entry_q) :
+		    TAILQ_FIRST(&sc->mruq));
 
-	if ((sc->cycle_client = client__cycle(cc, iter)) == NULL)
-		sc->cycle_client = cc;
+	newcc = oldcc;
+	while (again) {
+		again = 0;
 
-	/* Do the actual warp. */
-	client_ptrsave(cc);
-	client_ptrwarp(sc->cycle_client);
-	sc->altpersist = 1; /* This is reset when alt is let go... */
+		newcc = (reverse ? client_mruprev(newcc) :
+		    client_mrunext(newcc));
 
-	return (sc->cycle_client);
+		/* Only cycle visible windows. */
+		if (newcc->flags & CLIENT_HIDDEN)
+			again = 1;
+
+		/* Is oldcc the only non-hidden window? */
+		if (newcc == oldcc) {
+			if (again)
+				return (NULL);	/* No windows visible. */
+
+			goto done;
+		}
+	}
+done:
+	/* reset when alt is released. XXX I hate this hack */
+	sc->altpersist = 1;
+	client_ptrsave(oldcc);
+	client_ptrwarp(newcc);
+
+	return (newcc);
 }
 
 struct client_ctx *
@@ -659,20 +651,6 @@ client_mruprev(struct client_ctx *cc)
 
 	return ((ccc = TAILQ_PREV(cc, cycle_entry_q, mru_entry)) != NULL ?
 	    ccc : TAILQ_LAST(&sc->mruq, cycle_entry_q));
-}
-
-static struct client_ctx *
-client__cycle(struct client_ctx *cc,
-    struct client_ctx *(*iter)(struct client_ctx *))
-{
-	struct client_ctx *save = cc;
-
-	do {
-		if (!((cc = (*iter)(cc))->flags & CLIENT_HIDDEN))
-			break;
-	} while (cc != save);
-
-	return (cc != save ? cc : NULL);
 }
 
 void

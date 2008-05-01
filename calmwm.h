@@ -82,8 +82,6 @@ struct screen_ctx {
 
 	struct cycle_entry_q mruq;
 
-	struct client_ctx* cycle_client;
-
 	struct fonthash	 fonthash;
 	XftDraw		*xftdraw;
 	XftColor	 xftcolor;

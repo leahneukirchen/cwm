@@ -69,7 +69,4 @@ screen_updatestackingorder(void)
 void
 screen_init(void)
 {
-	struct screen_ctx *sc = screen_current();
-
-	sc->cycle_client = NULL;
 }
