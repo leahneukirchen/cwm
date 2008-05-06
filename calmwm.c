@@ -300,12 +300,15 @@ static void
 _sigchld_cb(int which)
 {
 	pid_t pid;
+	int save_errno = errno;
 	int status;
 
 	/* Collect dead children. */
 	while ((pid = waitpid(-1, &status, WNOHANG)) > 0 ||
 	    (pid < 0 && errno == EINTR))
 		;
+
+	errno = save_errno;
 }
 
 __dead void
