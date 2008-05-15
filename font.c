@@ -67,7 +67,7 @@ font_init(struct screen_ctx *sc)
 		errx(1, "XftDrawCreate");
 
 	if (!XAllocNamedColor(X_Dpy, DefaultColormap(X_Dpy, sc->which),
-		"black", &xcolor, &tmp))
+	    "black", &xcolor, &tmp))
 		errx(1, "XAllocNamedColor");
 
 	sc->xftcolor.color.red = xcolor.red;

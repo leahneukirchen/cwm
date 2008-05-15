@@ -342,7 +342,7 @@ xev_handle_buttonpress(struct xevent *xev, XEvent *ee)
 		client_lower(cc);
 		break;
 	}
- out:
+out:
 	xev_register(xev);
 }
 
@@ -422,7 +422,7 @@ xev_handle_keyrelease(struct xevent *xev, XEvent *ee)
 	 */
 	client_mtf(NULL);
 
- out:
+out:
 	xev_register(xev);
 }
 

@@ -49,9 +49,9 @@ u_exec(char *argstr)
 	char *tmp;
 
 	while (ap < end && (*ap = strsep(&argstr, " \t")) != NULL) {
-		if(**ap == '\0')
+		if (**ap == '\0')
 			continue;
- 		ap++;
+		ap++;
 		if (argstr != NULL) {
 			/* deal with quoted strings */
 			switch(argstr[0]) {

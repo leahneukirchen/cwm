@@ -396,8 +396,8 @@ void conf_unbind(struct conf *c, struct keybinding *unbind)
 			continue;
 
 		if ((key->keycode != 0 && key->keysym == NoSymbol &&
-			key->keycode == unbind->keycode) ||
-			key->keysym == unbind->keysym)
+		    key->keycode == unbind->keycode) ||
+		    key->keysym == unbind->keysym)
 			TAILQ_REMOVE(&c->keybindingq, key, entry);
 	}
 }

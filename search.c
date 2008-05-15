@@ -104,7 +104,7 @@ search_start(struct menu_q *menuq,
 		switch (e.type) {
 		case KeyPress:
 			if (input_keycodetrans(e.xkey.keycode, e.xkey.state,
-				&ctl, &chr, 1) < 0)
+			    &ctl, &chr, 1) < 0)
 				continue;
 
 			switch (ctl) {
@@ -184,8 +184,8 @@ search_start(struct menu_q *menuq,
 				if (TAILQ_EMPTY(&resultq) && list) {
 					/* Copy them all over. */
 					TAILQ_FOREACH(mi, menuq, entry)
-					    TAILQ_INSERT_TAIL(&resultq, mi,
-						resultentry);
+						TAILQ_INSERT_TAIL(&resultq, mi,
+						    resultentry);
 
 					listing = 1;
 				} else if (mutated)
@@ -209,7 +209,7 @@ search_start(struct menu_q *menuq,
 				}
 
 				dx = MAX(dx, font_width(font, text,
-					MIN(strlen(text), MENU_MAXENTRY)));
+				    MIN(strlen(text), MENU_MAXENTRY)));
 				dy += fontheight;
 			}
 

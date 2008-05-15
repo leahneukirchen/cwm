@@ -330,9 +330,9 @@ client_maximize(struct client_ctx *cc)
 		cc->geom.x = Conf.gap_left;
 		cc->geom.y = Conf.gap_top;
 		cc->geom.height = rootwin_geom.height -
-			(Conf.gap_top + Conf.gap_bottom);
+		    (Conf.gap_top + Conf.gap_bottom);
 		cc->geom.width = rootwin_geom.width -
-			(Conf.gap_left + Conf.gap_right);
+		    (Conf.gap_left + Conf.gap_right);
 		cc->flags |= CLIENT_DOMAXIMIZE;
 	}
 
@@ -726,7 +726,7 @@ client_vertmaximize(struct client_ctx *cc)
 			cc->savegeom = cc->geom;
 		cc->geom.y = cc->bwidth + Conf.gap_top;
 		cc->geom.height = display_height -
-			(Conf.gap_top + Conf.gap_bottom); 
+		    (Conf.gap_top + Conf.gap_bottom);
 		cc->flags |= CLIENT_DOVMAXIMIZE;
 	}
 
@@ -768,7 +768,7 @@ client_gethints(struct client_ctx *cc)
 
 	mha = XInternAtom(X_Dpy, "_MOTIF_WM_HINTS", False);
 	if (xu_getprop(cc, mha, mha, PROP_MWM_HINTS_ELEMENTS,
-		(u_char **)&mwmh) == MWM_NUMHINTS)
+	    (u_char **)&mwmh) == MWM_NUMHINTS)
 		if (mwmh->flags & MWM_HINTS_DECORATIONS &&
 		    !(mwmh->decorations & MWM_DECOR_ALL) &&
 		    !(mwmh->decorations & MWM_DECOR_BORDER))
