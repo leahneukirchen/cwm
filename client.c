@@ -115,8 +115,8 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	if (xu_getstate(cc, &state) < 0)
 		state = NormalState;
 
-	XSelectInput(X_Dpy, cc->win,
-	    ColormapChangeMask|EnterWindowMask|PropertyChangeMask|KeyReleaseMask);
+	XSelectInput(X_Dpy, cc->win, ColormapChangeMask | EnterWindowMask |
+	    PropertyChangeMask | KeyReleaseMask);
 
 	x = cc->geom.x - cc->bwidth;
 	y = cc->geom.y - cc->bwidth;
@@ -130,15 +130,8 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 
 	pxattr.override_redirect = True;
 	pxattr.background_pixel = sc->bgcolor.pixel;
-	pxattr.event_mask =
-	    ChildMask|ButtonPressMask|ButtonReleaseMask|
-	    ExposureMask|EnterWindowMask;
-/* 	pxattr.border_pixel = sc->blackpix; */
-/* 	pxattr.background_pixel = sc->whitepix; */
-
-
-/* 	cc->pwin = XCreateSimpleWindow(X_Dpy, sc->rootwin, */
-/* 	    x, y, width, height, 1, sc->blackpix, sc->whitepix); */
+	pxattr.event_mask = ChildMask | ButtonPressMask | ButtonReleaseMask |
+	    ExposureMask | EnterWindowMask;
 
 	cc->pwin = XCreateWindow(X_Dpy, sc->rootwin, x, y,
 	    width, height, 0,	/* XXX */
@@ -189,9 +182,8 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	client_gethints(cc);
 	client_update(cc);
 
-	if (mapped) {
+	if (mapped)
 		group_autogroup(cc);
-	}
 
 	return (cc);
 }
