@@ -355,6 +355,7 @@ struct client_ctx	*client_mrunext(struct client_ctx *cc);
 struct client_ctx	*client_mruprev(struct client_ctx *cc);
 void			 client_gethints(struct client_ctx *cc);
 void			 client_freehints(struct client_ctx *cc);
+void			 client_do_shape(struct client_ctx *);
 
 void			 xev_handle_maprequest(struct xevent *, XEvent *);
 void			 xev_handle_unmapnotify(struct xevent *, XEvent *);

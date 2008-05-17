@@ -101,6 +101,7 @@ grab_sweep(struct client_ctx *cc)
 			XReparentWindow(X_Dpy, sc->menuwin, sc->rootwin, 0, 0);
 			xu_ptr_ungrab();
 			client_ptrwarp(cc);
+			client_do_shape(cc);
 			return;
 		}
 	}
