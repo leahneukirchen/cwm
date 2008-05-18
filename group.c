@@ -53,8 +53,6 @@ _group_remove(struct client_ctx *cc)
 
 	TAILQ_REMOVE(&cc->group->clients, cc, group_entry);
 	cc->group = NULL;
-	cc->highlight = 0;
-	client_draw_border(cc);
 }
 
 static void

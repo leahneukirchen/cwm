@@ -365,7 +365,6 @@ client_resize(struct client_ctx *cc)
 	XMoveResizeWindow(X_Dpy, cc->win, cc->bwidth, cc->bwidth,
 	    cc->geom.width, cc->geom.height);
 	xev_reconfig(cc);
-	client_draw_border(cc);
 }
 
 void
@@ -386,7 +385,6 @@ void
 client_raise(struct client_ctx *cc)
 {
 	XRaiseWindow(X_Dpy, cc->pwin);
-	client_draw_border(cc);
 }
 
 void
