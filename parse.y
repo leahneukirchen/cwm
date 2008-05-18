@@ -152,7 +152,6 @@ main		: FONTNAME STRING		{
 
 			XCALLOC(wm, struct winmatch);
 			strlcpy(wm->title, $2, sizeof(wm->title));
-			wm->opts |= CONF_IGNORECASE;
 			TAILQ_INSERT_TAIL(&conf->ignoreq, wm, entry);
 
 			free($2);

@@ -174,53 +174,27 @@ conf_setup(struct conf *c, const char *conffile)
 	(void)parse_config(c->conf_path, c);
 }
 
-int
-conf_get_int(struct client_ctx *cc, enum conftype ctype)
+void
+conf_client(struct client_ctx *cc)
 {
-	int val = -1, ignore = 0;
-	char *wname;
-	struct winmatch *wm;
-
-	wname = cc->name;
+	struct winmatch	*wm;
+	char		*wname = cc->name;
+	int		 ignore = 0;
 
 	/* Can wname be NULL? */
-
 	if (wname != NULL) {
 		TAILQ_FOREACH(wm, &Conf.ignoreq, entry) {
-			int (*cmpfun)(const char *, const char *, size_t) =
-			    wm->opts & CONF_IGNORECASE ? strncasecmp : strncmp;
-			if ((*cmpfun)(wm->title, wname, strlen(wm->title)) == 0) {
+			if (strncasecmp(wm->title, wname, strlen(wm->title))
+			    == 0) {
 				ignore = 1;
 				break;
 			}
 		}
-
 	} else
 		ignore = 1;
 
-	switch (ctype) {
-	case CONF_BWIDTH:
-		/*
-		 * XXX this will be a list, specified in the
-		 * configuration file.
-		 */
-		val = ignore ? 0 : 3;
-		break;
-	case CONF_IGNORE:
-		val = ignore;
-		break;
-	default:
-		break;
-	}
-
-	return (val);
-}
-
-void
-conf_client(struct client_ctx *cc)
-{
-	cc->bwidth = conf_get_int(cc, CONF_BWIDTH);
-	cc->flags |= conf_get_int(cc, CONF_IGNORE) ? CLIENT_IGNORE : 0;
+	cc->bwidth = ignore ? 0 : 3;
+	cc->flags |= ignore ? CLIENT_IGNORE : 0;
 }
 
 struct {

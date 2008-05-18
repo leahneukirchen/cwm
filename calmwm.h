@@ -32,10 +32,6 @@
 
 #define	CONFFILE	".cwmrc"
 
-enum conftype {
-	CONF_BWIDTH, CONF_IGNORE,
-};
-
 #define ChildMask	(SubstructureRedirectMask|SubstructureNotifyMask)
 #define ButtonMask	(ButtonPressMask|ButtonReleaseMask)
 #define MouseMask	(ButtonMask|PointerMotionMask)
@@ -215,12 +211,9 @@ TAILQ_HEAD(xevent_q, xevent);
  * Match a window.
  */
 #define CONF_MAX_WINTITLE	256
-#define CONF_IGNORECASE		0x01
 struct winmatch {
 	TAILQ_ENTRY(winmatch)	entry;
-
-	char	title[CONF_MAX_WINTITLE];
-	int	opts;
+	char			title[CONF_MAX_WINTITLE];
 };
 
 TAILQ_HEAD(winmatch_q, winmatch);
@@ -422,16 +415,11 @@ struct screen_ctx	*screen_current(void);
 void			 screen_updatestackingorder(void);
 
 void			 conf_setup(struct conf *, const char *);
-int			 conf_get_int(struct client_ctx *, enum conftype);
 void			 conf_client(struct client_ctx *);
-void			 conf_bindkey(struct conf *,
-			     void (*)(struct client_ctx *, void *),
-			     int, int, int, void *);
 void			 conf_bindname(struct conf *, char *, char *);
 void			 conf_unbind(struct conf *, struct keybinding *);
 int			 conf_changed(char *);
 void			 conf_reload(struct conf *);
-char			*conf_get_str(struct client_ctx *, enum conftype);
 
 void			 kbfunc_client_lower(struct client_ctx *, void *);
 void			 kbfunc_client_raise(struct client_ctx *, void *);
