@@ -466,28 +466,22 @@ popfile(void)
 void
 conf_clear(struct conf *c)
 {
-	struct autogroupwin	*ag, *agnext;
-	struct keybinding	*kb, *kbnext;
-	struct winmatch		*wm, *wmnext;
-	struct cmd		*cmd, *cmdnext;
+	struct autogroupwin	*ag;
+	struct keybinding	*kb;
+	struct winmatch		*wm;
+	struct cmd		*cmd;
 
-	for (cmd = TAILQ_FIRST(&c->cmdq); cmd != NULL; cmd = cmdnext) {
-		cmdnext = TAILQ_NEXT(cmd, entry);
-
+	while (cmd = TAILQ_FIRST(&c->cmdq)) {
 		TAILQ_REMOVE(&c->cmdq, cmd, entry);
 		free(cmd);
 	}
 
-	for (kb = TAILQ_FIRST(&c->keybindingq); kb != NULL; kb = kbnext) {
-		kbnext = TAILQ_NEXT(kb, entry);
-
+	while (kb = TAILQ_FIRST(&c->keybindingq)) {
 		TAILQ_REMOVE(&c->keybindingq, kb, entry);
 		free(kb);
 	}
 
-	for (ag = TAILQ_FIRST(&c->autogroupq); ag != NULL; ag = agnext) {
-		agnext = TAILQ_NEXT(ag, entry);
-
+	while (ag = TAILQ_FIRST(&c->autogroupq)) {
 		TAILQ_REMOVE(&c->autogroupq, ag, entry);
 		free(ag->class);
 		if (ag->name)
@@ -496,9 +490,7 @@ conf_clear(struct conf *c)
 		free(ag);
 	}
 
-	for (wm = TAILQ_FIRST(&c->ignoreq); wm != NULL; wm = wmnext) {
-		wmnext = TAILQ_NEXT(wm, entry);
-
+	while (wm = TAILQ_FIRST(&c->ignoreq)) {
 		TAILQ_REMOVE(&c->ignoreq, wm, entry);
 		free(wm);
 	}
@@ -534,43 +526,31 @@ parse_config(const char *filename, struct conf *xconf)
 		conf_clear(conf);
 	}
 	else {
-		struct autogroupwin	*ag, *agnext;
-		struct keybinding	*kb, *kbnext;
-		struct winmatch		*wm, *wmnext;
-		struct cmd		*cmd, *cmdnext;
+		struct autogroupwin	*ag;
+		struct keybinding	*kb;
+		struct winmatch		*wm;
+		struct cmd		*cmd;
 
 		conf_clear(xconf);
 
 		xconf->flags = conf->flags;
 
-		for (cmd = TAILQ_FIRST(&conf->cmdq); cmd != NULL;
-		    cmd = cmdnext) {
-			cmdnext = TAILQ_NEXT(cmd, entry);
-
+		while (cmd = TAILQ_FIRST(&conf->cmdq)) {
 			TAILQ_REMOVE(&conf->cmdq, cmd, entry);
 			TAILQ_INSERT_TAIL(&xconf->cmdq, cmd, entry);
 		}
 
-		for (kb = TAILQ_FIRST(&conf->keybindingq); kb != NULL;
-		    kb = kbnext) {
-			kbnext = TAILQ_NEXT(kb, entry);
-
+		while (kb = TAILQ_FIRST(&conf->keybindingq)) {
 			TAILQ_REMOVE(&conf->keybindingq, kb, entry);
 			TAILQ_INSERT_TAIL(&xconf->keybindingq, kb, entry);
 		}
 
-		for (ag = TAILQ_FIRST(&conf->autogroupq); ag != NULL;
-		    ag = agnext) {
-			agnext = TAILQ_NEXT(ag, entry);
-
+		while (ag = TAILQ_FIRST(&conf->autogroupq)) {
 			TAILQ_REMOVE(&conf->autogroupq, ag, entry);
 			TAILQ_INSERT_TAIL(&xconf->autogroupq, ag, entry);
 		}
 
-		for (wm = TAILQ_FIRST(&conf->ignoreq); wm != NULL;
-		    wm = wmnext) {
-			wmnext = TAILQ_NEXT(wm, entry);
-
+		while (wm = TAILQ_FIRST(&conf->ignoreq)) {
 			TAILQ_REMOVE(&conf->ignoreq, wm, entry);
 			TAILQ_INSERT_TAIL(&xconf->ignoreq, wm, entry);
 		}
