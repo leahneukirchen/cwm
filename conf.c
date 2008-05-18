@@ -348,11 +348,8 @@ conf_bindname(struct conf *c, char *name, char *binding)
 		current_binding->flags = name_to_kbfunc[iter].flags;
 		current_binding->argument = name_to_kbfunc[iter].argument;
 		TAILQ_INSERT_TAIL(&c->keybindingq, current_binding, entry);
-		break;
-	}
-
-	if (name_to_kbfunc[iter].tag != NULL)
 		return;
+	}
 
 	current_binding->callback = kbfunc_cmdexec;
 	current_binding->argument = xstrdup(binding);
@@ -363,15 +360,20 @@ conf_bindname(struct conf *c, char *name, char *binding)
 
 void conf_unbind(struct conf *c, struct keybinding *unbind)
 {
-	struct keybinding *key = NULL;
+	struct keybinding *key = NULL, *keynxt;
 
-	TAILQ_FOREACH(key, &c->keybindingq, entry) {
+	for (key = TAILQ_FIRST(&c->keybindingq);
+	    key != TAILQ_END(&c->keybindingq); key = keynxt) {
+		keynxt = TAILQ_NEXT(key, entry);
+
 		if (key->modmask != unbind->modmask)
 			continue;
 
 		if ((key->keycode != 0 && key->keysym == NoSymbol &&
 		    key->keycode == unbind->keycode) ||
-		    key->keysym == unbind->keysym)
+		    key->keysym == unbind->keysym) {
 			TAILQ_REMOVE(&c->keybindingq, key, entry);
+			xfree(key);
+		}
 	}
 }
