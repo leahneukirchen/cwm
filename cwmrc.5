@@ -15,153 +15,163 @@
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
 .\" The following requests are required for all man pages.
-.Dd $Mdocdate: April 15 2008 $
+.Dd $Mdocdate: April 28 2008 $
 .Dt CWMRC 5
 .Os
 .Sh NAME
 .Nm cwmrc
 .Nd calm window manager configuration file
 .Sh DESCRIPTION
-The
+This manual page describes the
 .Xr cwm 1
-window manager configuration file format.
-.Sh OPTIONS
-There are quite a few settings that affect the operation of
-.Xr cwm 1 .
-.Pp
+configuration file.
 The following options are accepted in the configuration file:
 .Pp
-.Bl -tag -width Ds
-.It Ic fontname Ar font
-Makes the
-.Xr Xft 3
-font string
-.Ar font
-the default font.
-.It Ic sticky Ic yes Ns \&| Ns Ic no
-Set sticky group mode on.
-The default behavior for new windows is to not assign any group.
-This changes the default behavior to assigning the currrently selected
-group to any newly created windows.
+.Bl -tag -width Ds -compact
+.It Ic autogroup Ar group Dq windowclass
+.It Ic autogroup Ar group Dq windowclass,windowname
+Control automatic window grouping, based on the class and/or name
+properties, where
+.Ar group
+is a number between 1 and 9.
+.Pp
+The class and name of a window may be obtained using
+.Xr xprop 1 .
+.Pp
+.It Ic bind Ar keys Ar command
+Cause the creation of a keybinding, or replacement of a default
+keybinding.
+The modifier keys come first, followed by a
+.Sq - .
+.Pp
+The following modifiers are recognised:
+.Pp
+.Bl -tag -width Ds -offset indent -compact
+.It C
+The Control key.
+.It M
+The Meta key.
+.It S
+The Shift key.
+.It 2
+The Mod2 key.
+.It 3
+The Mod3 key.
+.It 4
+The Mod4 key (normally the windows key).
+.El
+.Pp
+The
+.Sq -
+should be followed by either a keysym name, taken from
+.Pa /usr/X11R6/include/X11/keysymdef.h ,
+or a numerical keycode value enclosed in
+.Dq [] .
+The
+.Ar command
+may either be the name of a task from the
+.Dq name_to_kbfunc
+structure in
+.Pa conf.c ,
+or the commandline that is to be executed.
+.Pp
+A special
+.Ar command
+keyword
+.Dq unmap
+can be used to remove the named keybinding.
+This can be used to remove a binding which conflicts with an
+application.
+.Pp
 .It Ic command Ar name Ar path
-Every command entry is shown in the application menu.
-When it is selected, the image is executed with
+Every
+.Ar name
+entry is shown in the application menu.
+When selected, the defined
+.Ar path
+is executed with
 .Xr execve 2 .
 .Pp
-The entries
+The
+.Ar name
+entries
 .Nm term
 and
 .Nm lock
 have a special meaning.
-When they exist they point to the terminal program and screen locking
-programs used by the keybindings specified above.
-The defaults for these are
+They point to the terminal and screen locking programs specified by
+keybindings.
+The defaults are
 .Xr xterm 1
 and
 .Xr xlock 1 ,
 respectively.
-.It Ic autogroup Ar group Dq windowclass
-.It Ic autogroup Ar group Dq windowclass,windowname
-Autogroups are read upon startup and control the
-automatic grouping feature, which is based on the window name and class
-properties.
-The group is a number between 1 and 9.
 .Pp
-To obtain the name and class of a window, use
-.Ql xprop WM_CLASS ,
-then click on the window.
-The first quoted string is the window name; the second one is the
-window class.
+.It Ic fontname Ar font
+Change the default
+.Ar font
+for
+.Xr Xft 3 .
 .Pp
-For example, to make all windows in the
-.Xr xterm 1
-class go to the third group:
-.Bd -literal -offset indent
-autogroup 3 XTerm
-.Ed
-.It Ic ignore Ar program
-Ignore programs by that name by not drawing borders around them.
-For example the command
-.Bd -literal -offset indent
-ignore xclock
-.Ed
-will cause any instances of
-.Xr xclock 1
-to not have borders.
-.It Ic bind Ar keys Ar command
-Cause the creation of keyboard shortcuts.
-The default shortcuts will always be created.
-In case of conflict, user-defined shortcuts take precidence.
-The modifier keys come first, followed by a ``-''.
-The following modifiers are recognised:
-.Bl -tag -width Ds
-.It Pa C
-The Control key.
-.It Pa M
-The Meta key.
-.It Pa S
-The Shift key.
-.It Pa 2
-The Mod2 key.
-.It Pa 3
-The Mod3 key.
-.It Pa 4
-The Mod4 key (normally the windows key).
-.El
-The ``-'' should be followed by either a keysym name, taken from
-.Pa /usr/X11R6/include/X11/keysymdef.h ,
-or a numerical keycode value enclosed in ``[]''.
-The command should be either the name of a task from the
-``name_to_kbfunc''
-structure in
-.Pa conf.c ,
-or, alternatively it should be the commandline that is wished to be executed.
-A special case is the ``unmap'' keyword, which causes any bindings using the
-named shortcut to be removed.
-This can be used to remove a binding which conflicts with an application.
-.Pp
-For example, to cause
-.Ic C-M-r
-to add a label to a window:
-.Bd -literal -offset indent
-bind CM-r "label"
-.Ed
-.Pp
-Launch an xterm running
-.Xr top 1
-with C-S-Enter:
-.Bd -literal -offset indent
-bind CS-Return "/usr/X11R6/bin/xterm -e top"
-.Ed
-.Pp
-Remove a keybinding for Mod4-o
-.Bd -literal -offset indent
-bind 4-o "unmap"
-.Ed
 .It Ic gap Ar top bottom left right
-Define "gaps" at the edge of the screen, so that when a window is maximized it will not overlap this area.
-This gap can be used for other applications such as
+Define a
+.Dq gap
+in pixels at the edge of the screen, so that when a
+window is maximized it will not overlap this area.
+This
+.Dq gap
+can be used for applications such as
 .Xr xclock 1 ,
-which the user may wish to remain visible.
+where the user may wish to remain visible.
 .Pp
-.Pa top bottom left
-and
-.Pa right
-are the sizes of each the gap in pixels.
+.It Ic ignore Ar windowname
+Ignore drawing borders around a window with the name
+.Ar windowname .
+.Pp
+.It Ic sticky Ic yes Ns \&| Ns Ic no
+Toggle sticky group mode.
+The default behavior for new windows is to not assign any group.
+By enabling sticky group mode,
+.Xr cwm 1
+will assign new windows to the currently selected group.
+.El
+.Sh EXAMPLE CONFIGURATION
+.Bd -literal
+# Set default Xft(3) font
+fontname "sans-serif:pixelsize=14:bold"
+
+# Set sticky group mode on
+sticky no
+
+# Any entry here is shown in the application menu
+command firefox		firefox
+command xmms		xmms
+command top		"xterm -e top"
+
+# Autogroup definitions
+autogroup 3 "aterm,XTerm"
+autogroup 3 "xterm,XTerm"
+
+# Ignore programs by that name by not drawing borders around them.
+ignore XMMS
+ignore xwi
+ignore xapm
+ignore xclock
+
+# Keybindings
+bind CM-r	"label"
+bind CS-Return	"xterm -e top"
+bind 4-o	"unmap"
+.Ed
+.Sh FILES
+.Bl -tag -width "~/.cwmrcXXX" -compact
+.It Pa ~/.cwmrc
+default
+.Xr cwm 1
+configuration file
 .El
 .Sh SEE ALSO
 .Xr cwm 1
-.Sh AUTHORS
-.An -nosplit
-.Pp
-.Nm
-was initially written by
-.An Marius Aamodt Eriksen Aq marius@monkey.org
-with contributions from
-.An Andy Adamson Aq dros@monkey.org ,
-.An Niels Provos Aq provos@monkey.org ,
-and
-.An Antti Nykänen Aq aon@iki.fi .
 .Sh HISTORY
 The
 .Nm
