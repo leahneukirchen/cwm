@@ -171,7 +171,6 @@ static char *shortcut_to_name[] = {
 struct group_ctx {
 	TAILQ_ENTRY(group_ctx)	 entry;
 	struct client_ctx_q	 clients;
-	char			*name;
 	int			 shortcut;
 	int			 hidden;
 	int			 nhidden;

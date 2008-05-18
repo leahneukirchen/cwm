@@ -24,10 +24,8 @@
 
 #define CALMWM_NGROUPS 9
 
-int			 Groupnamemode = 0;
 struct group_ctx	*Group_active = NULL;
 struct group_ctx	 Groups[CALMWM_NGROUPS];
-char			 Group_name[256];
 int			 Grouphideall = 0;
 struct group_ctx_q	 Groupq;
 
@@ -266,16 +264,13 @@ group_menu(XButtonEvent *e)
 		if (TAILQ_EMPTY(&gc->clients))
 			continue;
 
-		if (gc->name == NULL)
-			gc->name = xstrdup(shortcut_to_name[gc->shortcut]);
-
 		XCALLOC(mi, struct menu);
 		if (gc->hidden)
 			snprintf(mi->text, sizeof(mi->text), "%d: [%s]",
-			    gc->shortcut, gc->name);
+			    gc->shortcut, shortcut_to_name[gc->shortcut]);
 		else
 			snprintf(mi->text, sizeof(mi->text), "%d: %s",
-			    gc->shortcut, gc->name);
+			    gc->shortcut, shortcut_to_name[gc->shortcut]);
 		mi->ctx = gc;
 		TAILQ_INSERT_TAIL(&menuq, mi, entry);
 	}
