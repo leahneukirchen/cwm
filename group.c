@@ -328,6 +328,9 @@ group_autogroup(struct client_ctx *cc)
 		}
 	}
 
+	if (strncmp("nogroup", group, 7) == 0)
+		return;
+
 	TAILQ_FOREACH(gc, &Groupq, entry) {
 		if (strcmp(shortcut_to_name[gc->shortcut], group) == 0) {
 			_group_add(gc, cc);

@@ -33,7 +33,11 @@ The following options are accepted in the configuration file:
 Control automatic window grouping, based on the class and/or name
 properties, where
 .Ar group
-is a number between 1 and 9.
+is a number between 0 and 9.
+If the group number is 0, then the window will not be grouped; this to
+allow for 
+.Dq sticky
+windows in sticky group mode.
 .Pp
 The class and name of a window may be obtained using
 .Xr xprop 1 .

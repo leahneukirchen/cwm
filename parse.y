@@ -125,7 +125,7 @@ main		: FONTNAME STRING		{
 			struct autogroupwin *aw;
 			char *p;
 
-			if ($2 < 1 || $2 > 9) {
+			if ($2 < 0 || $2 > 9) {
 				free($3);
 				yyerror("autogroup number out of range: %d", $2);
 				YYERROR;
