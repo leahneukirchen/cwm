@@ -590,7 +590,7 @@ match:
 }
 
 struct client_ctx *
-client_cyclenext(int reverse)
+client_cycle(int reverse)
 {
 	struct client_ctx	*oldcc = client_current(), *newcc;
 	struct screen_ctx	*sc = screen_current();

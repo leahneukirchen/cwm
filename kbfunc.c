@@ -182,7 +182,7 @@ kbfunc_client_cycle(struct client_ctx *scratch, void *arg)
 	XGrabKeyboard(X_Dpy, sc->rootwin, True,
 	    GrabModeAsync, GrabModeAsync, CurrentTime);
 
-	client_cyclenext((int)arg);
+	client_cycle((int)arg);
 }
 
 void
