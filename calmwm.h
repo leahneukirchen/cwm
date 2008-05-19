@@ -434,6 +434,7 @@ void			 kbfunc_client_group(struct client_ctx *, void *);
 void			 kbfunc_client_nextgroup(struct client_ctx *, void *);
 void			 kbfunc_client_prevgroup(struct client_ctx *, void *);
 void			 kbfunc_client_nogroup(struct client_ctx *, void *);
+void			 kbfunc_client_grouptoggle(struct client_ctx *, void *);
 void			 kbfunc_client_maximize(struct client_ctx *, void *);
 void			 kbfunc_client_vmaximize(struct client_ctx *, void *);
 void			 kbfunc_quit_wm(struct client_ctx *, void *);

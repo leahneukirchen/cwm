@@ -430,6 +430,16 @@ kbfunc_client_nogroup(struct client_ctx *cc, void *arg)
 }
 
 void
+kbfunc_client_grouptoggle(struct client_ctx *cc, void *arg)
+{
+	/* XXX for stupid X apps like xpdf and gvim */
+	XGrabKeyboard(X_Dpy, cc->pwin, True,
+	    GrabModeAsync, GrabModeAsync, CurrentTime);
+
+	group_sticky_toggle_enter(cc);
+}
+
+void
 kbfunc_client_maximize(struct client_ctx *cc, void *arg)
 {
 	client_maximize(cc);

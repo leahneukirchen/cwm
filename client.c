@@ -438,6 +438,7 @@ client_unhide(struct client_ctx *cc)
 	XMapWindow(X_Dpy, cc->win);
 	XMapRaised(X_Dpy, cc->pwin);
 
+	cc->highlight = 0;
 	cc->flags &= ~CLIENT_HIDDEN;
 	xu_setstate(cc, NormalState);
 }
