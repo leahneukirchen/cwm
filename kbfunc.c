@@ -176,13 +176,13 @@ kbfunc_menu_search(struct client_ctx *scratch, void *arg)
 void
 kbfunc_client_cycle(struct client_ctx *scratch, void *arg)
 {
-	client_cyclenext(0);
-}
+	struct screen_ctx	*sc = screen_current();
 
-void
-kbfunc_client_rcycle(struct client_ctx *scratch, void *arg)
-{
-	client_cyclenext(1);
+	/* XXX for X apps that ignore events */
+	XGrabKeyboard(X_Dpy, sc->rootwin, True,
+	    GrabModeAsync, GrabModeAsync, CurrentTime);
+
+	client_cyclenext((int)arg);
 }
 
 void

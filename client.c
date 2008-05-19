@@ -620,10 +620,10 @@ client_cyclenext(int reverse)
 			if (again)
 				return (NULL);	/* No windows visible. */
 
-			goto done;
+			break;
 		}
 	}
-done:
+
 	/* reset when alt is released. XXX I hate this hack */
 	sc->altpersist = 1;
 	client_ptrsave(oldcc);

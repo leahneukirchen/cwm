@@ -221,6 +221,9 @@ TAILQ_HEAD(winmatch_q, winmatch);
 /* for cwm_exec */
 #define	CWM_EXEC_PROGRAM	0x1
 #define	CWM_EXEC_WM		0x2
+/* For alt-tab */
+#define CWM_CYCLE		0x0
+#define CWM_RCYCLE		0x1
 
 #define KBFLAG_NEEDCLIENT 0x01
 
