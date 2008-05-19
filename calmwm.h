@@ -310,7 +310,7 @@ struct mwm_hints {
 #define	MWM_DECOR_BORDER	(1 << 1)
 
 int			 input_keycodetrans(KeyCode, u_int, enum ctltype *,
-			     char *, int);
+			     char *);
 
 int			 x_errorhandler(Display *, XErrorEvent *);
 void			 x_setup(char *display_name);

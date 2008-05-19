@@ -104,7 +104,7 @@ search_start(struct menu_q *menuq,
 		switch (e.type) {
 		case KeyPress:
 			if (input_keycodetrans(e.xkey.keycode, e.xkey.state,
-			    &ctl, &chr, 1) < 0)
+			    &ctl, &chr) < 0)
 				continue;
 
 			switch (ctl) {

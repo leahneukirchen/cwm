@@ -22,8 +22,7 @@
 #include "calmwm.h"
 
 int
-input_keycodetrans(KeyCode kc, u_int state,
-    enum ctltype *ctl, char *chr, int normalize)
+input_keycodetrans(KeyCode kc, u_int state, enum ctltype *ctl, char *chr)
 {
 	int ks;
 
@@ -107,8 +106,6 @@ input_keycodetrans(KeyCode kc, u_int state,
 		return (-1);
 
 	*chr = (char)ks;
-	if (normalize)
-		*chr = tolower(*chr);
 
 	return (0);
 }
