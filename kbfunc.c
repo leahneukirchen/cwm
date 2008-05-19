@@ -412,15 +412,9 @@ kbfunc_client_group(struct client_ctx *cc, void *arg)
 }
 
 void
-kbfunc_client_nextgroup(struct client_ctx *cc, void *arg)
+kbfunc_client_cyclegroup(struct client_ctx *cc, void *arg)
 {
-	group_slide(1);
-}
-
-void
-kbfunc_client_prevgroup(struct client_ctx *cc, void *arg)
-{
-	group_slide(0);
+	group_cycle((int)arg);
 }
 
 void

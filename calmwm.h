@@ -221,9 +221,12 @@ TAILQ_HEAD(winmatch_q, winmatch);
 /* for cwm_exec */
 #define	CWM_EXEC_PROGRAM	0x1
 #define	CWM_EXEC_WM		0x2
-/* For alt-tab */
+/* for alt-tab */
 #define CWM_CYCLE		0x0
 #define CWM_RCYCLE		0x1
+/* for group cycle */
+#define CWM_CYCLEGROUP		0x0
+#define CWM_RCYCLEGROUP		0x1
 
 #define KBFLAG_NEEDCLIENT 0x01
 
@@ -434,8 +437,7 @@ void			 kbfunc_cmdexec(struct client_ctx *, void *);
 void			 kbfunc_client_label(struct client_ctx *, void *);
 void			 kbfunc_client_delete(struct client_ctx *, void *);
 void			 kbfunc_client_group(struct client_ctx *, void *);
-void			 kbfunc_client_nextgroup(struct client_ctx *, void *);
-void			 kbfunc_client_prevgroup(struct client_ctx *, void *);
+void			 kbfunc_client_cyclegroup(struct client_ctx *, void *);
 void			 kbfunc_client_nogroup(struct client_ctx *, void *);
 void			 kbfunc_client_grouptoggle(struct client_ctx *, void *);
 void			 kbfunc_client_maximize(struct client_ctx *, void *);
@@ -463,7 +465,7 @@ void			 search_match_exec(struct menu_q *, struct menu_q *,
 
 void			 group_init(void);
 void			 group_hidetoggle(int);
-void			 group_slide(int);
+void			 group_cycle(int);
 void			 group_sticky(struct client_ctx *);
 void			 group_client_delete(struct client_ctx *);
 void			 group_menu(XButtonEvent *);
