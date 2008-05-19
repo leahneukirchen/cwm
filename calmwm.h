@@ -345,13 +345,13 @@ void			 client_maximize(struct client_ctx *);
 void			 client_vertmaximize(struct client_ctx *);
 u_long			 client_bg_pixel(struct client_ctx *);
 Pixmap			 client_bg_pixmap(struct client_ctx *);
-void			 client_map(struct client_ctx *cc);
-void			 client_mtf(struct client_ctx *cc);
-struct client_ctx	*client_cycle(int reverse);
-struct client_ctx	*client_mrunext(struct client_ctx *cc);
-struct client_ctx	*client_mruprev(struct client_ctx *cc);
-void			 client_gethints(struct client_ctx *cc);
-void			 client_freehints(struct client_ctx *cc);
+void			 client_map(struct client_ctx *);
+void			 client_mtf(struct client_ctx *);
+struct client_ctx	*client_cycle(int);
+struct client_ctx	*client_mrunext(struct client_ctx *);
+struct client_ctx	*client_mruprev(struct client_ctx *);
+void			 client_gethints(struct client_ctx *);
+void			 client_freehints(struct client_ctx *);
 void			 client_do_shape(struct client_ctx *);
 
 void			 xev_handle_maprequest(struct xevent *, XEvent *);
@@ -450,13 +450,13 @@ void			 kbfunc_term(struct client_ctx *, void *);
 void			 kbfunc_lock(struct client_ctx *, void *);
 
 void			 search_init(struct screen_ctx *);
-struct menu	*search_start(struct menu_q *menuq,
-		    void (*match)(struct menu_q *, struct menu_q *, char *),
-		    void (*print)(struct menu *mi, int),
+struct menu	*search_start(struct menu_q *,
+		    void (*)(struct menu_q *, struct menu_q *, char *),
+		    void (*)(struct menu *, int),
 		    char *, int);
 void			 search_match_client(struct menu_q *, struct menu_q *,
 			     char *);
-void			 search_print_client(struct menu *mi, int list);
+void			 search_print_client(struct menu *, int);
 void			 search_match_text(struct menu_q *, struct menu_q *,
 			     char *);
 void			 search_match_exec(struct menu_q *, struct menu_q *,
