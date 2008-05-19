@@ -52,14 +52,14 @@ int
 main(int argc, char **argv)
 {
 	int ch;
-	const char *conffile = NULL;
+	const char *conf_file = NULL;
 
 	char *display_name = NULL;
 
 	while ((ch = getopt(argc, argv, "c:d:")) != -1) {
 		switch (ch) {
 		case 'c':
-			conffile = optarg;
+			conf_file = optarg;
 			break;
 		case 'd':
 			display_name = optarg;
@@ -82,7 +82,7 @@ main(int argc, char **argv)
 
 	Starting = 1;
 	bzero(&Conf, sizeof(Conf));
-	conf_setup(&Conf, conffile);
+	conf_setup(&Conf, conf_file);
 	client_setup();
 	x_setup(display_name);
 	Starting = 0;
@@ -238,7 +238,7 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	    LeaveWindowMask|ColormapChangeMask|ButtonMask;
 
 	XChangeWindowAttributes(X_Dpy, sc->rootwin,
-	    /* CWCursor| */CWEventMask, &rootattr);
+	    CWEventMask, &rootattr);
 
 	XSync(X_Dpy, False);
 
@@ -257,10 +257,10 @@ x_screenname(int which)
 
 	dstr = xstrdup(DisplayString(X_Dpy));
 
-	if ((cp = rindex(dstr, ':')) == NULL)
+	if ((cp = strrchr(dstr, ':')) == NULL)
 		return (NULL);
 
-	if ((cp = index(cp, '.')) != NULL)
+	if ((cp = strchr(cp, '.')) != NULL)
 		*cp = '\0';
 
 	snlen = strlen(dstr) + 3; /* string, dot, number, null */
