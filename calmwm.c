@@ -152,6 +152,10 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	sc->display = x_screenname(which);
 	sc->which = which;
 	sc->rootwin = RootWindow(X_Dpy, which);
+
+	sc->xmax = DisplayWidth(X_Dpy, sc->which);
+	sc->ymax = DisplayHeight(X_Dpy, sc->which);
+
 	XAllocNamedColor(X_Dpy, DefaultColormap(X_Dpy, which),
 	    "black", &sc->fgcolor, &tmp);
 	XAllocNamedColor(X_Dpy, DefaultColormap(X_Dpy, which),
@@ -204,6 +208,8 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 
 	font_init(sc);
 	DefaultFont = font_getx(sc, Conf.DefaultFontName);
+	sc->fontheight = font_ascent(DefaultFont) +
+	    font_descent(DefaultFont) + 1;
 
 	/*
 	 * XXX - this should *really* be in screen_init().  ordering
@@ -213,7 +219,6 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 
 	/* Initialize menu window. */
 	grab_menuinit(sc);
-	search_init(sc);
 
 	/* Deal with existing clients. */
 	XQueryTree(X_Dpy, sc->rootwin, &w0, &w1, &wins, &nwins);

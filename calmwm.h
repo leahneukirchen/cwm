@@ -60,7 +60,6 @@ struct screen_ctx {
 	u_int		 which;
 	Window		 rootwin;
 	Window		 menuwin;
-	Window		 searchwin;
 	Colormap	 colormap;
 	XColor		 bgcolor, fgcolor, fccolor, redcolor, cyancolor,
 			 whitecolor, blackcolor;
@@ -72,13 +71,13 @@ struct screen_ctx {
 
 	int		 altpersist;
 
-	int		 maxinitialised;
 	int		 xmax;
 	int		 ymax;
 
 	struct cycle_entry_q mruq;
 
 	struct fonthash	 fonthash;
+	u_int		 fontheight;
 	XftDraw		*xftdraw;
 	XftColor	 xftcolor;
 };
@@ -354,6 +353,10 @@ void			 client_gethints(struct client_ctx *);
 void			 client_freehints(struct client_ctx *);
 void			 client_do_shape(struct client_ctx *);
 
+struct menu  		*menu_filter(struct menu_q *, char *, char *, int,
+			     void (*)(struct menu_q *, struct menu_q *, char *),
+			     void (*)(struct menu *, int));
+
 void			 xev_handle_maprequest(struct xevent *, XEvent *);
 void			 xev_handle_unmapnotify(struct xevent *, XEvent *);
 void			 xev_handle_destroynotify(struct xevent *, XEvent *);
@@ -449,11 +452,6 @@ void			 kbfunc_ssh(struct client_ctx *, void *);
 void			 kbfunc_term(struct client_ctx *, void *);
 void			 kbfunc_lock(struct client_ctx *, void *);
 
-void			 search_init(struct screen_ctx *);
-struct menu	*search_start(struct menu_q *,
-		    void (*)(struct menu_q *, struct menu_q *, char *),
-		    void (*)(struct menu *, int),
-		    char *, int);
 void			 search_match_client(struct menu_q *, struct menu_q *,
 			     char *);
 void			 search_print_client(struct menu *, int);

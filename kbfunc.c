@@ -128,9 +128,8 @@ kbfunc_client_search(struct client_ctx *scratch, void *arg)
 		TAILQ_INSERT_TAIL(&menuq, mi, entry);
 	}
 
-	if ((mi = search_start(&menuq,
-	    search_match_client, search_print_client,
-	    "window", 0)) != NULL) {
+	if ((mi = menu_filter(&menuq, "window", NULL, 0,
+	    search_match_client, search_print_client)) != NULL) {
 		cc = (struct client_ctx *)mi->ctx;
 		if (cc->flags & CLIENT_HIDDEN)
 			client_unhide(cc);
@@ -163,8 +162,8 @@ kbfunc_menu_search(struct client_ctx *scratch, void *arg)
 		TAILQ_INSERT_TAIL(&menuq, mi, entry);
 	}
 
-	if ((mi = search_start(&menuq,
-	    search_match_text, NULL, "application", 0)) != NULL)
+	if ((mi = menu_filter(&menuq, "application", NULL, 0,
+	    search_match_text, NULL)) != NULL)
 		u_spawn(((struct cmd *)mi->ctx)->image);
 
 	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
@@ -301,8 +300,8 @@ kbfunc_exec(struct client_ctx *scratch, void *arg)
 	}
 	xfree(path);
 
-	if ((mi = search_start(&menuq,
-	    search_match_exec, NULL, label, 1)) != NULL) {
+	if ((mi = menu_filter(&menuq, label, NULL, 1,
+	    search_match_exec, NULL)) != NULL) {
 		switch (cmd) {
 			case CWM_EXEC_PROGRAM:
 				u_spawn(mi->text);
@@ -376,8 +375,8 @@ kbfunc_ssh(struct client_ctx *scratch, void *arg)
 	fclose(fp);
 
 
-	if ((mi = search_start(&menuq,
-	    search_match_exec, NULL, "ssh", 1)) != NULL) {
+	if ((mi = menu_filter(&menuq, "ssh", NULL, 1,
+	    search_match_exec, NULL)) != NULL) {
 		conf_reload(&Conf);
 		l = snprintf(cmd, sizeof(cmd), "%s -e ssh %s", Conf.termpath,
 		    mi->text);
@@ -396,7 +395,24 @@ kbfunc_ssh(struct client_ctx *scratch, void *arg)
 void
 kbfunc_client_label(struct client_ctx *cc, void *arg)
 {
-	grab_label(cc);
+	struct menu	*mi;
+	char		*current;
+	struct menu_q	 menuq;
+
+	TAILQ_INIT(&menuq);
+	
+	if (cc->label != NULL)
+		current = cc->label;
+	else
+		current = NULL;
+
+	if ((mi = menu_filter(&menuq, "label", current, 1,
+	    search_match_text, NULL)) != NULL) {
+		if (cc->label != NULL)
+			xfree(cc->label);
+		cc->label = xstrdup(mi->text);
+		xfree(mi);
+	}
 }
 
 void

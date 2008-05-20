@@ -171,11 +171,6 @@ grab_menu(XButtonEvent *e, struct menu_q *menuq)
 		no++;
 	}
 
-	if (!sc->maxinitialised) {
-		sc->xmax = DisplayWidth(X_Dpy, sc->which);
-		sc->ymax = DisplayHeight(X_Dpy, sc->which);
-	}
-
 	height = font_ascent(font) + font_descent(font) + 1;
 	tothigh = height * no;
 
@@ -259,98 +254,6 @@ grab_menuinit(struct screen_ctx *sc)
 {
 	sc->menuwin = XCreateSimpleWindow(X_Dpy, sc->rootwin, 0, 0,
 	    1, 1, 1, sc->blackpixl, sc->whitepixl);
-}
-
-#define LABEL_MAXLEN 256
-#define LabelMask (KeyPressMask|ExposureMask)
-
-void
-grab_label(struct client_ctx *cc)
-{
-	struct screen_ctx *sc = screen_current();
-	int x, y, dx, dy, fontheight, focusrevert;
-	XEvent e;
-	char labelstr[LABEL_MAXLEN];
-	char dispstr[LABEL_MAXLEN + sizeof("label>") - 1];
-	Window focuswin;
-	char chr;
-	enum ctltype ctl;
-	size_t len;
-	struct fontdesc *font = DefaultFont;
-
-	if (cc->label != NULL)
-		strlcpy(labelstr, cc->label, sizeof(labelstr));
-	else
-		labelstr[0] = '\0';
-
-	xu_ptr_getpos(sc->rootwin, &x, &y);
-
-	dy = fontheight = font_ascent(font) + font_descent(font) + 1;
-	dx = font_width(font, "label>", 6);
-
-	XMoveResizeWindow(X_Dpy, sc->searchwin, x, y, dx, dy);
-	XSelectInput(X_Dpy, sc->searchwin, LabelMask);
-	XMapRaised(X_Dpy, sc->searchwin);
-
-	XGetInputFocus(X_Dpy, &focuswin, &focusrevert);
-	XSetInputFocus(X_Dpy, sc->searchwin, RevertToPointerRoot, CurrentTime);
-
-	for (;;) {
-		XMaskEvent(X_Dpy, LabelMask, &e);
-
-		switch (e.type) {
-		case KeyPress:
-			if (input_keycodetrans(e.xkey.keycode, e.xkey.state,
-			    &ctl, &chr) < 0)
-				continue;
-
-			switch (ctl) {
-			case CTL_ERASEONE:
-				if ((len = strlen(labelstr)) > 0)
-					labelstr[len - 1] = '\0';
-				break;
-			case CTL_RETURN:
-				/* Done */
-				if (strlen(labelstr) == 0)
-					goto out;
-
-				if (cc->label != NULL)
-					xfree(cc->label);
-
-				cc->label = xstrdup(labelstr);
-				/* FALLTHROUGH */
-			case CTL_ABORT:
-				goto out;
-			default:
-				break;
-			}
-
-			if (chr != '\0') {
-				char str[2];
-
-				str[0] = chr;
-				str[1] = '\0';
-				strlcat(labelstr, str, sizeof(labelstr));
-			}
-
-		case Expose:
-			snprintf(dispstr, sizeof(dispstr), "label>%s",
-			    labelstr);
-			dx = font_width(font, dispstr, strlen(dispstr));
-			dy = fontheight;
-
-			XClearWindow(X_Dpy, sc->searchwin);
-			XResizeWindow(X_Dpy, sc->searchwin, dx, dy);
-
-			font_draw(font, dispstr, strlen(dispstr),
-			    sc->searchwin, 0, font_ascent(font) + 1);
-			break;
-		}
-	}
-
-out:
-	XSetInputFocus(X_Dpy, focuswin, focusrevert, CurrentTime);
-	XUnmapWindow(X_Dpy, sc->searchwin);
 }
 
 static int

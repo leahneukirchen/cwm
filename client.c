@@ -657,7 +657,7 @@ client_placecalc(struct client_ctx *cc)
 {
 	struct screen_ctx *sc = CCTOSC(cc);
 	int yslack, xslack;
-	int x, y, height, width, ymax, xmax, mousex, mousey;
+	int x, y, height, width, mousex, mousey;
 
 	y = cc->geom.y;
 	x = cc->geom.x;
@@ -665,11 +665,9 @@ client_placecalc(struct client_ctx *cc)
 	height = cc->geom.height;
 	width = cc->geom.width;
 
-	ymax = DisplayHeight(X_Dpy, sc->which) - cc->bwidth;
-	xmax = DisplayWidth(X_Dpy, sc->which) - cc->bwidth;
 
-	yslack = ymax - cc->geom.height;
-	xslack = xmax - cc->geom.width;
+	yslack = sc->ymax - cc->geom.height;
+	xslack = sc->xmax - cc->geom.width;
 
 	xu_ptr_getpos(sc->rootwin, &mousex, &mousey);
 
@@ -695,7 +693,7 @@ client_placecalc(struct client_ctx *cc)
 	} else {
 		if (yslack < 0) {
 			y = cc->bwidth;
-			height = ymax;
+			height = sc->ymax;
 		} else {
 			if (y == 0 || y > yslack)
 				y = MIN(mousey, yslack);
@@ -704,7 +702,7 @@ client_placecalc(struct client_ctx *cc)
 
 		if (xslack < 0) {
 			x = cc->bwidth;
-			width = xmax;
+			width = sc->xmax;
 		} else {
 			if (x == 0 || x > xslack)
 				x = MIN(mousex, xslack);
