@@ -273,7 +273,7 @@ group_menu(XButtonEvent *e)
 	if (TAILQ_EMPTY(&menuq))
 		return;
 
-	mi = (struct menu *)grab_menu(e, &menuq);
+	mi = menu_filter(&menuq, NULL, NULL, 0, NULL, NULL);
 
 	if (mi == NULL || mi->ctx == NULL)
 		goto cleanup;

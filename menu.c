@@ -18,25 +18,49 @@
 #include "headers.h"
 #include "calmwm.h"
 
-#define KeyMask (KeyPressMask|ExposureMask)
+#define KeyMask		(KeyPressMask|ExposureMask)
+#define MenuMask 	(ButtonMask|ButtonMotionMask|ExposureMask| \
+			PointerMotionMask)
+#define MenuGrabMask	(ButtonMask|ButtonMotionMask|StructureNotifyMask|\
+			PointerMotionMask)
+#define PROMPT_SCHAR	'»'
+#define PROMPT_ECHAR	'«'
 
 struct menu_ctx {
 	char			 searchstr[MENU_MAXENTRY + 1];
 	char			 dispstr[MENU_MAXENTRY*2 + 1];
 	char			 promptstr[MENU_MAXENTRY + 1];
+	int			 hasprompt;
 	int			 list;
 	int			 listing;
 	int			 changed;
 	int			 noresult;
+	int			 prev;
+	int			 entry;
+	int			 width;
+	int			 num;
 	int			 x;
-	int			 y; /* location */
+	int			 y;
     	void (*match)(struct menu_q *, struct menu_q *, char *);
     	void (*print)(struct menu *, int);
 };
 static struct menu	*menu_handle_key(XEvent *, struct menu_ctx *,
 			     struct menu_q *, struct menu_q *);
+static void		 menu_handle_move(XEvent *, struct menu_ctx *,
+			     struct screen_ctx *);
+struct menu		*menu_handle_release(XEvent *, struct menu_ctx *,
+			     struct screen_ctx *, struct menu_q *);
 static void		 menu_draw(struct screen_ctx *, struct menu_ctx *,
 			     struct menu_q *, struct menu_q *);
+static int		 menu_calc_entry(struct screen_ctx *, struct menu_ctx *,
+			     int, int);
+
+void
+menu_init(struct screen_ctx *sc)
+{
+	sc->menuwin = XCreateSimpleWindow(X_Dpy, sc->rootwin, 0, 0,
+	    1, 1, 1, sc->blackpixl, sc->whitepixl);
+}
 
 struct menu *
 menu_filter(struct menu_q *menuq, char *prompt, char *initial, int dummy,
@@ -49,8 +73,7 @@ menu_filter(struct menu_q *menuq, char *prompt, char *initial, int dummy,
 	struct menu		*mi = NULL;
 	XEvent			 e;
 	Window			 focuswin;
-	int			 dx, dy, focusrevert;
-	char			 endchar = '«';
+	int			 Mask, focusrevert;
 	struct fontdesc		*font = DefaultFont;
 
 	TAILQ_INIT(&resultq);
@@ -59,8 +82,19 @@ menu_filter(struct menu_q *menuq, char *prompt, char *initial, int dummy,
 
 	xu_ptr_getpos(sc->rootwin, &mc.x, &mc.y);
 
-	if (prompt == NULL)
-		prompt = "search";
+	if (prompt == NULL) {
+		Mask = MenuMask;
+		mc.promptstr[0] = '\0';
+		mc.list = 1;
+	} else {
+		Mask = MenuMask | KeyMask; /* only accept keys if prompt */
+		snprintf(mc.promptstr, sizeof(mc.promptstr), "%s%c", prompt,
+		    PROMPT_SCHAR);
+		snprintf(mc.dispstr, sizeof(mc.dispstr), "%s%s%c", mc.promptstr,
+		    mc.searchstr, PROMPT_ECHAR);
+		mc.width = font_width(font, mc.dispstr, strlen(mc.dispstr));
+		mc.hasprompt = 1;
+	}
 
 	if (initial != NULL)
 		strlcpy(mc.searchstr, initial, sizeof(mc.searchstr));
@@ -69,18 +103,14 @@ menu_filter(struct menu_q *menuq, char *prompt, char *initial, int dummy,
 
 	mc.match = match;
 	mc.print = print;
+	mc.entry = mc.prev = -1;
 
-	snprintf(mc.promptstr, sizeof(mc.promptstr), "%s»", prompt);
-	snprintf(mc.dispstr, sizeof(mc.dispstr), "%s%s%c", mc.promptstr,
-	    mc.searchstr, endchar);
-	dx = font_width(font, mc.dispstr, strlen(mc.dispstr));
-	dy = sc->fontheight;
-
-	XMoveResizeWindow(X_Dpy, sc->menuwin, mc.x, mc.y, dx, dy);
-	XSelectInput(X_Dpy, sc->menuwin, KeyMask);
+	XMoveResizeWindow(X_Dpy, sc->menuwin, mc.x, mc.y, mc.width,
+	    sc->fontheight);
+	XSelectInput(X_Dpy, sc->menuwin, Mask);
 	XMapRaised(X_Dpy, sc->menuwin);
 
-	if (xu_ptr_grab(sc->menuwin, 0, Cursor_question) < 0) {
+	if (xu_ptr_grab(sc->menuwin, MenuGrabMask, Cursor_question) < 0) {
 		XUnmapWindow(X_Dpy, sc->menuwin);
 		return (NULL);
 	}
@@ -91,9 +121,11 @@ menu_filter(struct menu_q *menuq, char *prompt, char *initial, int dummy,
 	for (;;) {
 		mc.changed = 0;
 
-		XWindowEvent(X_Dpy, sc->menuwin, KeyMask, &e);
+		XWindowEvent(X_Dpy, sc->menuwin, Mask, &e);
 
 		switch (e.type) {
+		default:
+			break;
 		case KeyPress:
 			if ((mi = menu_handle_key(&e, &mc, menuq, &resultq))
 			    != NULL)
@@ -101,6 +133,14 @@ menu_filter(struct menu_q *menuq, char *prompt, char *initial, int dummy,
 			/* FALLTHROUGH */
 		case Expose:
 			menu_draw(sc, &mc, menuq, &resultq);
+			break;
+		case MotionNotify:
+			menu_handle_move(&e, &mc, sc);
+			break;
+		case ButtonRelease:
+			if ((mi = menu_handle_release(&e, &mc, sc, &resultq))
+			    != NULL)
+				goto out;
 			break;
 		}
 	}
@@ -211,9 +251,8 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
     struct menu_q *resultq)
 {
 	struct menu	*mi;
-	char		 endchar = '«';
 	int		 n = 0;
-	int		 dx, dy;
+	int		 dy;
 	int		 xsave, ysave;
 	int		 warp;
 	struct fontdesc	*font = DefaultFont;
@@ -230,10 +269,16 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 			mc->listing = 0;
 	}
 
-	snprintf(mc->dispstr, sizeof(mc->dispstr), "%s%s%c",
-	    mc->promptstr, mc->searchstr, endchar);
-	dx = font_width(font, mc->dispstr, strlen(mc->dispstr));
-	dy = sc->fontheight;
+	mc->num = 0;
+	mc->width = 0;
+	dy = 0;
+	if (mc->hasprompt) {
+		snprintf(mc->dispstr, sizeof(mc->dispstr), "%s%s%c",
+		    mc->promptstr, mc->searchstr, PROMPT_ECHAR);
+		mc->width = font_width(font, mc->dispstr, strlen(mc->dispstr));
+		dy = sc->fontheight;
+		mc->num = 1;
+	}
 
 	TAILQ_FOREACH(mi, resultq, resultentry) {
 		char *text;
@@ -246,17 +291,18 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 			text = mi->text;
 		}
 
-		dx = MAX(dx, font_width(font, text,
+		mc->width = MAX(mc->width, font_width(font, text,
 		    MIN(strlen(text), MENU_MAXENTRY)));
 		dy += sc->fontheight;
+		mc->num++;
 	}
 
 	xsave = mc->x;
 	ysave = mc->y;
 	if (mc->x < 0)
 		mc->x = 0;
-	else if (mc->x + dx >= sc->xmax)
-		mc->x = sc->xmax - dx;
+	else if (mc->x + mc->width >= sc->xmax)
+		mc->x = sc->xmax - mc->width;
 
 	if (mc->y + dy >= sc->ymax)
 		mc->y = sc->ymax - dy;
@@ -268,12 +314,15 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 		xu_ptr_setpos(sc->rootwin, mc->x, mc->y);
 
 	XClearWindow(X_Dpy, sc->menuwin);
-	XMoveResizeWindow(X_Dpy, sc->menuwin, mc->x, mc->y, dx, dy);
+	XMoveResizeWindow(X_Dpy, sc->menuwin, mc->x, mc->y, mc->width, dy);
 
-	font_draw(font, mc->dispstr, strlen(mc->dispstr), sc->menuwin,
-	    0, font_ascent(font) + 1);
+	if (mc->hasprompt) {
+		font_draw(font, mc->dispstr, strlen(mc->dispstr), sc->menuwin,
+		    0, font_ascent(font) + 1);
+		n = 1;
+	} else
+		n = 0;
 
-	n = 1;
 	TAILQ_FOREACH(mi, resultq, resultentry) {
 		char *text = mi->print[0] != '\0' ?
 		    mi->print : mi->text;
@@ -285,12 +334,68 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 		n++;
 	}
 
-	if (n > 1)
+	if (mc->hasprompt && n > 1)
 		XFillRectangle(X_Dpy, sc->menuwin, sc->gc,
-		    0, sc->fontheight, dx, sc->fontheight);
+		    0, sc->fontheight, mc->width, sc->fontheight);
 
 	if (mc->noresult)
 		XFillRectangle(X_Dpy, sc->menuwin, sc->gc,
-		    0, 0, dx, sc->fontheight);
+		    0, 0, mc->width, sc->fontheight);
+}
 
+void
+menu_handle_move(XEvent *e, struct menu_ctx *mc, struct screen_ctx *sc)
+{
+	mc->prev = mc->entry;
+	mc->entry = menu_calc_entry(sc, mc, e->xbutton.x, e->xbutton.y);
+
+	if (mc->prev != -1)
+		XFillRectangle(X_Dpy, sc->menuwin, sc->gc, 0,
+		    sc->fontheight * mc->prev, mc->width, sc->fontheight);
+	if (mc->entry != -1) {
+		xu_ptr_regrab(MenuGrabMask, Cursor_select);
+		XFillRectangle(X_Dpy, sc->menuwin, sc->gc, 0,
+		    sc->fontheight * mc->entry, mc->width, sc->fontheight);
+	} else
+		xu_ptr_regrab(MenuGrabMask, Cursor_default);
+}
+
+struct menu *
+menu_handle_release(XEvent *e, struct menu_ctx *mc, struct screen_ctx *sc,
+    struct menu_q *resultq)
+{
+	struct menu	*mi;
+	int		 entry, i = 0;
+
+	entry = menu_calc_entry(sc, mc, e->xbutton.x, e->xbutton.y);
+	xu_ptr_ungrab();
+
+	if (mc->hasprompt)
+		i = 1;
+
+	TAILQ_FOREACH(mi, resultq, resultentry)
+		if (entry == i++)
+			break;
+	if (mi == NULL) {
+		XMALLOC(mi, struct menu);
+		mi->text[0] = '\0';
+		mi->dummy = 1;
+	}
+	return (mi);
+}
+
+static int
+menu_calc_entry(struct screen_ctx *sc, struct menu_ctx *mc, int x, int y)
+{
+	int entry = y / sc->fontheight;
+
+	/* in bounds? */
+	if (x < 0 || x > mc->width || y < 0 || y > sc->fontheight*mc->num ||
+	    entry < 0 || entry >= mc->num)
+		entry = -1;
+
+	if (mc->hasprompt && entry == 0)
+		entry = -1;
+
+	return (entry);
 }

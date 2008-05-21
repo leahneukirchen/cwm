@@ -202,10 +202,6 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	    GCForeground|GCBackground|GCFunction|
 	    GCLineWidth|GCSubwindowMode, &gv);
 
-	sc->hlgc = XCreateGC(X_Dpy, sc->rootwin,
-	    GCForeground|GCBackground|GCFunction|
-	    GCLineWidth|GCSubwindowMode, &gv);
-
 	font_init(sc);
 	DefaultFont = font_getx(sc, Conf.DefaultFontName);
 	sc->fontheight = font_ascent(DefaultFont) +
@@ -218,7 +214,7 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	TAILQ_INIT(&sc->mruq);
 
 	/* Initialize menu window. */
-	grab_menuinit(sc);
+	menu_init(sc);
 
 	/* Deal with existing clients. */
 	XQueryTree(X_Dpy, sc->rootwin, &w0, &w1, &wins, &nwins);

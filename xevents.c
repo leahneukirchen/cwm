@@ -290,7 +290,7 @@ xev_handle_buttonpress(struct xevent *xev, XEvent *ee)
 		if (TAILQ_EMPTY(&menuq))
 			goto out;
 
-		mi = (struct menu *)grab_menu(e, &menuq);
+		mi = menu_filter(&menuq, NULL, NULL, 0, NULL, NULL);
 		if (mi == NULL)
 			goto cleanup;
 
