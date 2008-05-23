@@ -118,6 +118,10 @@ menu_filter(struct menu_q *menuq, char *prompt, char *initial, int dummy,
 	XGetInputFocus(X_Dpy, &focuswin, &focusrevert);
 	XSetInputFocus(X_Dpy, sc->menuwin, RevertToPointerRoot, CurrentTime);
 
+	/* make sure keybindings don't remove keys from the menu stream */
+	XGrabKeyboard(X_Dpy, sc->menuwin, True,
+	    GrabModeAsync, GrabModeAsync, CurrentTime);
+
 	for (;;) {
 		mc.changed = 0;
 
@@ -153,6 +157,7 @@ out:
 	}
 
 	XUnmapWindow(X_Dpy, sc->menuwin);
+	XUngrabKeyboard(X_Dpy, CurrentTime);
 
 	return (mi);
 }
