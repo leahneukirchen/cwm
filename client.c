@@ -665,9 +665,8 @@ client_placecalc(struct client_ctx *cc)
 	height = cc->geom.height;
 	width = cc->geom.width;
 
-
-	yslack = sc->ymax - cc->geom.height;
-	xslack = sc->xmax - cc->geom.width;
+	yslack = sc->ymax - cc->geom.height - cc->bwidth;
+	xslack = sc->xmax - cc->geom.width - cc->bwidth;
 
 	xu_ptr_getpos(sc->rootwin, &mousex, &mousey);
 
