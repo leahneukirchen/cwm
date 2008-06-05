@@ -149,7 +149,7 @@ menu_filter(struct menu_q *menuq, char *prompt, char *initial, int dummy,
 		}
 	}
 out:
-	if (dummy == 0 && mi->dummy) { /* no match */
+	if ((dummy == 0 && mi->dummy) || (mi->text[0] == '\0')) { /* no match */
 		xfree (mi);
 		mi = NULL;
 		xu_ptr_ungrab();
