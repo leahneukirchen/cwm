@@ -36,11 +36,11 @@ conf_cmd_add(struct conf *c, char *image, char *label, int flags)
 {
 	/* "term" and "lock" have special meanings. */
 
-	if (strcmp(label, "term") == 0) {
-		strlcpy(Conf.termpath, image, sizeof(Conf.termpath));
-	} else if (strcmp(label, "lock") == 0) {
-		strlcpy(Conf.lockpath, image, sizeof(Conf.lockpath));
-	} else {
+	if (strcmp(label, "term") == 0)
+		strlcpy(c->termpath, image, sizeof(c->termpath));
+	else if (strcmp(label, "lock") == 0)
+		strlcpy(c->lockpath, image, sizeof(c->lockpath));
+	else {
 		struct cmd *cmd;
 		XMALLOC(cmd, struct cmd);
 		cmd->flags = flags;
