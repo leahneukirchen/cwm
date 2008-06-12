@@ -406,7 +406,6 @@ void			 u_exec(char *);
 
 void			 grab_sweep(struct client_ctx *);
 void			 grab_drag(struct client_ctx *);
-void			 grab_label(struct client_ctx *);
 
 void			 xfree(void *);
 void			*xmalloc(size_t);
