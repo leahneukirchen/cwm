@@ -656,64 +656,48 @@ void
 client_placecalc(struct client_ctx *cc)
 {
 	struct screen_ctx *sc = CCTOSC(cc);
-	int yslack, xslack;
-	int x, y, height, width, mousex, mousey;
-
-	y = cc->geom.y;
-	x = cc->geom.x;
-
-	height = cc->geom.height;
-	width = cc->geom.width;
+	int yslack, xslack, xmouse, ymouse;
 
 	yslack = sc->ymax - cc->geom.height - cc->bwidth;
 	xslack = sc->xmax - cc->geom.width - cc->bwidth;
 
-	xu_ptr_getpos(sc->rootwin, &mousex, &mousey);
+	xu_ptr_getpos(sc->rootwin, &xmouse, &ymouse);
 
-	mousex = MAX(mousex, cc->bwidth) - cc->geom.width/2;
-	mousey = MAX(mousey, cc->bwidth) - cc->geom.height/2;
+	xmouse = MAX(xmouse, cc->bwidth) - cc->geom.width/2;
+	ymouse = MAX(ymouse, cc->bwidth) - cc->geom.height/2;
 
-	mousex = MAX(mousex, (int)cc->bwidth);
-	mousey = MAX(mousey, (int)cc->bwidth);
+	xmouse = MAX(xmouse, (int)cc->bwidth);
+	ymouse = MAX(ymouse, (int)cc->bwidth);
 
 	if (cc->size->flags & USPosition) {
-		if (cc->size->x > 0)
-			x = cc->size->x;
-		if (x < cc->bwidth)
-			x = cc->bwidth;
-		else if (x > xslack)
-			x = xslack;
-		if (cc->size->y > 0)
-			y = cc->size->y;
-		if (y < cc->bwidth)
-			y = cc->bwidth;
-		else if (y > yslack)
-			y = yslack;
+		if (cc->size->x >= 0)
+			cc->geom.x = MAX(MIN(cc->size->x, xslack), cc->bwidth);
+		else
+			cc->geom.x = cc->bwidth;
+		if (cc->size->y >= 0)
+			cc->geom.y = MAX(MIN(cc->size->y, yslack), cc->bwidth);
+		else 
+			cc->geom.y = cc->bwidth;
 	} else {
-		if (yslack < 0) {
-			y = cc->bwidth;
-			height = sc->ymax;
+		if (xslack >= 0) {
+			cc->geom.x = MAX(MIN(xmouse, xslack),
+					 Conf.gap_left + cc->bwidth);
+			if (cc->geom.x > (xslack - Conf.gap_right))
+				cc->geom.x -= Conf.gap_right;
 		} else {
-			if (y == 0 || y > yslack)
-				y = MIN(mousey, yslack);
-			height = cc->geom.height;
+			cc->geom.x = cc->bwidth + Conf.gap_left;
+			cc->geom.width = sc->xmax - cc->bwidth - Conf.gap_left;
 		}
-
-		if (xslack < 0) {
-			x = cc->bwidth;
-			width = sc->xmax;
+		if (yslack >= 0) {
+			cc->geom.y = MAX(MIN(ymouse, yslack),
+					 Conf.gap_top + cc->bwidth);
+			if (cc->geom.y > (yslack - Conf.gap_bottom))
+				cc->geom.y -= Conf.gap_bottom;
 		} else {
-			if (x == 0 || x > xslack)
-				x = MIN(mousex, xslack);
-			width = cc->geom.width;
+			cc->geom.y = cc->bwidth + Conf.gap_top;
+			cc->geom.height = sc->ymax - cc->bwidth - Conf.gap_top;
 		}
 	}
-
-	cc->geom.y = y;
-	cc->geom.x = x;
-
-	cc->geom.height = height;
-	cc->geom.width = width;
 }
 
 void
