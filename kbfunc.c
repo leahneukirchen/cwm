@@ -89,12 +89,12 @@ kbfunc_moveresize(struct client_ctx *cc, void *arg)
 		cc->geom.width += mx;
 		client_resize(cc);
 
-		/*
-		 * Moving the cursor while resizing is problematic. Just place
-		 * it in the middle of the window.
-		 */
-		cc->ptr.x = -1;
-		cc->ptr.y = -1;
+		/* Make sure the pointer stays within the window. */
+		xu_ptr_getpos(cc->pwin, &cc->ptr.x, &cc->ptr.y);
+		if (cc->ptr.x > cc->geom.width)
+			cc->ptr.x = cc->geom.width - cc->bwidth;
+		if (cc->ptr.y > cc->geom.height)
+			cc->ptr.y = cc->geom.height - cc->bwidth;
 		client_ptrwarp(cc);
 		break;
 	case CWM_PTRMOVE:

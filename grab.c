@@ -100,9 +100,14 @@ grab_sweep(struct client_ctx *cc)
 			XUnmapWindow(X_Dpy, sc->menuwin);
 			XReparentWindow(X_Dpy, sc->menuwin, sc->rootwin, 0, 0);
 			xu_ptr_ungrab();
-			cc->ptr.x = -1;
-			cc->ptr.y = -1;
+
+			/* Make sure the pointer stays within the window. */
+			if (cc->ptr.x > cc->geom.width)
+				cc->ptr.x = cc->geom.width - cc->bwidth;
+			if (cc->ptr.y > cc->geom.height)
+				cc->ptr.y = cc->geom.height - cc->bwidth;
 			client_ptrwarp(cc);
+
 			client_do_shape(cc);
 			return;
 		}
