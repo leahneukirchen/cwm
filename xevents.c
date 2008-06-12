@@ -506,7 +506,7 @@ xev_handle_expose(struct xevent *xev, XEvent *ee)
 	XExposeEvent *e = &ee->xexpose;
 	struct client_ctx *cc;
 
-	if ((cc = client_find(e->window)) != NULL)
+	if ((cc = client_find(e->window)) != NULL && e->count == 0)
 		client_draw_border(cc);
 
 	xev_register(xev);
