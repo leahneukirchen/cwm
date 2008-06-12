@@ -22,7 +22,6 @@
 #include "calmwm.h"
 
 static int	_sweepcalc(struct client_ctx *, int, int, int, int);
-static int	menu_calc_entry(int, int, int, int, int);
 
 #define ADJUST_HEIGHT(cc, dy)	((cc->geom.height - cc->geom.min_dy)/ dy)
 #define ADJUST_WIDTH(cc, dx)	((cc->geom.width - cc->geom.min_dx)/ dx)
@@ -184,17 +183,4 @@ _sweepcalc(struct client_ctx *cc, int x0, int y0, int motionx, int motiony)
 	cc->geom.y = y0 <= motiony ? y0 : y0 - cc->geom.height;
 
 	return (width != cc->geom.width || height != cc->geom.height);
-}
-
-static int
-menu_calc_entry(int x, int y, int width, int height, int noentries)
-{
-	int entry = y/height;
-
-	/* in bounds? */
-	if (x < 0 || x > width || y < 0 || y > height*noentries ||
-	    entry < 0 || entry >= noentries)
-		entry = -1;
-
-	return (entry);
 }
