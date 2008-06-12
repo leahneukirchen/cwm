@@ -100,6 +100,8 @@ grab_sweep(struct client_ctx *cc)
 			XUnmapWindow(X_Dpy, sc->menuwin);
 			XReparentWindow(X_Dpy, sc->menuwin, sc->rootwin, 0, 0);
 			xu_ptr_ungrab();
+			cc->ptr.x = -1;
+			cc->ptr.y = -1;
 			client_ptrwarp(cc);
 			client_do_shape(cc);
 			return;
