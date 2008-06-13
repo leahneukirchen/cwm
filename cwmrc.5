@@ -15,7 +15,7 @@
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
 .\" The following requests are required for all man pages.
-.Dd $Mdocdate: May 18 2008 $
+.Dd $Mdocdate: May 19 2008 $
 .Dt CWMRC 5
 .Os
 .Sh NAME
@@ -73,11 +73,9 @@ or a numerical keycode value enclosed in
 .Dq [] .
 The
 .Ar command
-may either be the name of a task from the
-.Dq name_to_kbfunc
-structure in
-.Pa conf.c ,
-or the commandline that is to be executed.
+may either be one from the
+.Sx BIND COMMAND LIST
+(see below) or the command line that is to be executed.
 .Pp
 A special
 .Ar command
@@ -167,6 +165,108 @@ bind CM-r	"label"
 bind CS-Return	"xterm -e top"
 bind 4-o	"unmap"
 .Ed
+.Sh BIND COMMAND LIST
+.Bl -tag -width 18n -compact
+.It quit
+quit
+.Xr cwm 1
+.It terminal
+spawn a new terminal
+.It lock
+lock the screen
+.It search
+launch window search menu
+.It menusearch
+launch application search menu
+.It exec
+launch
+.Dq exec program
+menu
+.It exec_wm
+launch
+.Dq exec WindowManager
+menu
+.It ssh
+launch
+.Dq ssh
+menu
+.It group[n]
+select group n, where n is 1-9
+.It nogroup
+select all groups
+.It grouptoggle
+toggle group membership of a window
+.It cyclegroup
+forward cycle through groups
+.It rcyclegroup
+reverse cycle through groups
+.It cycle
+forward cycle through windows
+.It rcycle
+reverse cycle through windows
+.It delete
+delete a window
+.It hide
+hide a window
+.It lower
+lower a window
+.It raise
+raise a window
+.It label
+label a window
+.It maximize
+maximize a window full-screen
+.It vmaximize
+maximize a window vertically
+.It moveup
+move window 1 pixel up
+.It movedown
+move window 1 pixel down
+.It moveright
+move window 1 pixel right
+.It moveleft
+move window 1 pixel left
+.It bigmoveup
+move window 10 pixels up
+.It bigmovedown
+move window 10 pixels down
+.It bigmoveright
+move window 10 pixels right
+.It bigmoveleft
+move window 10 pixels left
+.It resizeup
+resize window 1 pixel up
+.It resizedown
+resize window 1 pixel down
+.It resizeright
+resize window 1 pixel right
+.It resizeleft
+resize window 1 pixel left
+.It bigresizeup
+resize window 10 pixels up
+.It bigresizedown
+resize window 10 pixels down
+.It bigresizeright
+resize window 10 pixels right
+.It bigresizeleft
+resize window 10 pixels left
+.It ptrmoveup
+move pointer 1 pixel up
+.It ptrmovedown
+move pointer 1 pixel down
+.It ptrmoveright
+move pointer 1 pixel right
+.It ptrmoveleft
+move pointer 1 pixel left
+.It bigptrmoveup
+move pointer 10 pixels up
+.It bigptrmovedown
+move pointer 10 pixels down
+.It bigptrmoveright
+move pointer 10 pixels right
+.It bigptrmoveleft
+move pointer 10 pixels left
+.El
 .Sh FILES
 .Bl -tag -width "~/.cwmrcXXX" -compact
 .It Pa ~/.cwmrc
