@@ -434,7 +434,7 @@ conf_mousebind(struct conf *c, char *name, char *binding)
 	if (strchr(name, '-') == NULL)
 		substring = name;
 
-	current_binding->button = strtonum(substring);
+	current_binding->button = strtonum(substring, 1, 3, &errstr);
 	if (errstr)
 		warnx("number of buttons is %s: %s", errstr, substring);
 
