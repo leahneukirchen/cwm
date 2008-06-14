@@ -140,7 +140,6 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	    CWOverrideRedirect | CWBackPixel | CWEventMask, &pxattr);
 
 	cc->active = 0;
-	client_draw_border(cc);
 
 	XAddToSaveSet(X_Dpy, cc->win);
 	XSetWindowBorderWidth(X_Dpy, cc->win, 0);
@@ -463,8 +462,6 @@ client_draw_border(struct client_ctx *cc)
 
 		XClearWindow(X_Dpy, cc->pwin);
 	}
-
-	client_do_shape(cc);
 }
 
 u_long

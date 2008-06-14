@@ -94,6 +94,7 @@ grab_sweep(struct client_ctx *cc)
 			    cc->bwidth, cc->bwidth,
 			    cc->geom.width, cc->geom.height);
 
+			client_do_shape(cc);
 			break;
 		case ButtonRelease:
 			XUnmapWindow(X_Dpy, sc->menuwin);
@@ -107,7 +108,6 @@ grab_sweep(struct client_ctx *cc)
 				cc->ptr.y = cc->geom.height - cc->bwidth;
 			client_ptrwarp(cc);
 
-			client_do_shape(cc);
 			return;
 		}
 	}
