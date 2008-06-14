@@ -6,7 +6,7 @@ PROG=		cwm
 
 SRCS=		calmwm.c screen.c xmalloc.c client.c grab.c menu.c \
 		search.c util.c xutil.c conf.c input.c xevents.c group.c \
-		kbfunc.c font.c parse.y
+		kbfunc.c mousefunc.c font.c parse.y
 
 CPPFLAGS+=	-I${X11BASE}/include -I${X11BASE}/include/freetype2 -I${.CURDIR}
 

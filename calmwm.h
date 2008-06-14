@@ -249,8 +249,20 @@ struct cmd {
 	/* (argv) */
 };
 
+struct mousebinding {
+	int				modmask;
+	int			 	button;
+	int				context;
+	void			 	(*callback)(struct client_ctx *, void *);
+	TAILQ_ENTRY(mousebinding)	entry;
+};
+
+#define MOUSEBIND_CTX_ROOT	1
+#define MOUSEBIND_CTX_WIN	2
+
 TAILQ_HEAD(keybinding_q, keybinding);
 TAILQ_HEAD(cmd_q, cmd);
+TAILQ_HEAD(mousebinding_q, mousebinding);
 
 /* Global configuration */
 struct conf {
@@ -259,6 +271,7 @@ struct conf {
 	struct winmatch_q	 ignoreq;
 	char			 conf_path[MAXPATHLEN];
 	struct cmd_q		 cmdq;
+	struct mousebinding_q	 mousebindingq;
 
 #define	CONF_STICKY_GROUPS	 0x0001
 	int			 flags;
@@ -424,6 +437,8 @@ void			 conf_setup(struct conf *, const char *);
 void			 conf_client(struct client_ctx *);
 void			 conf_bindname(struct conf *, char *, char *);
 void			 conf_unbind(struct conf *, struct keybinding *);
+void			 conf_mousebind(struct conf *, char *, char *);
+void			 conf_mouseunbind(struct conf *, struct mousebinding *);
 int			 conf_changed(char *);
 void			 conf_reload(struct conf *);
 
@@ -449,6 +464,15 @@ void			 kbfunc_exec(struct client_ctx *, void *);
 void			 kbfunc_ssh(struct client_ctx *, void *);
 void			 kbfunc_term(struct client_ctx *, void *);
 void			 kbfunc_lock(struct client_ctx *, void *);
+
+void			 mousefunc_window_resize(struct client_ctx *, void *);
+void			 mousefunc_window_move(struct client_ctx *, void *);
+void			 mousefunc_window_grouptoggle(struct client_ctx *,
+			    void *);
+void			 mousefunc_window_lower(struct client_ctx *, void *);
+void			 mousefunc_menu_group(struct client_ctx *, void *);
+void			 mousefunc_menu_unhide(struct client_ctx *, void *);
+void			 mousefunc_menu_cmd(struct client_ctx *, void *);
 
 void			 search_match_client(struct menu_q *, struct menu_q *,
 			     char *);

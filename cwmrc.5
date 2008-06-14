@@ -15,7 +15,7 @@
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
 .\" The following requests are required for all man pages.
-.Dd $Mdocdate: May 19 2008 $
+.Dd $Mdocdate: June 13 2008 $
 .Dt CWMRC 5
 .Os
 .Sh NAME
@@ -130,6 +130,41 @@ where the user may wish to remain visible.
 Ignore drawing borders around a window with the name
 .Ar windowname .
 .Pp
+.It Ic mousebind Ar buttons Ar command
+Cause the creation of a mouse binding, or replacement of a default
+mouse binding.
+The modifier keys come first, followed by a
+.Sq - .
+.Pb
+The following modifiers are recognised:
+.Pp
+.Bl -tag -width Ds -offset indent -compact
+.It C   
+The Control key.
+.It M
+The Meta key.
+.El
+.Pp
+The
+.Sq -
+should be followed by number:
+.Pb
+.Bl -tag -width Ds -offset indent -compact
+.Pp
+.It 1
+Left mouse button.
+.It 2
+Right mouse button.
+.It 3
+Middle mouse button.
+.El
+.Pp
+The
+.Ar command
+may be taken from the
+.Sx MOUSEBIND COMMAND LIST
+(see below).
+.Pp
 .It Ic sticky Ic yes Ns \&| Ns Ic no
 Toggle sticky group mode.
 The default behavior for new windows is to not assign any group.
@@ -161,9 +196,13 @@ ignore xapm
 ignore xclock
 
 # Keybindings
-bind CM-r	"label"
+bind CM-r	label
 bind CS-Return	"xterm -e top"
-bind 4-o	"unmap"
+bind 4-o	unmap
+
+# Mousebindings
+mousebind M-2	window_lower
+mousebind M-3	window_resize
 .Ed
 .Sh BIND COMMAND LIST
 .Bl -tag -width 18n -compact
@@ -266,6 +305,22 @@ move pointer 10 pixels down
 move pointer 10 pixels right
 .It bigptrmoveleft
 move pointer 10 pixels left
+.El
+.Sh MOUSEBIND COMMAND LIST
+.Bl -tag -width 18n -compact
+.It window_move
+move a window
+.It window_resize
+resize a window
+.It window_lower
+lower a window
+.It window_grouptoggle
+.It menu_group
+launch group list
+.It menu_unhide
+launch group list
+.It menu_cmd
+launch command list
 .El
 .Sh FILES
 .Bl -tag -width "~/.cwmrcXXX" -compact

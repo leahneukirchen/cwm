@@ -221,113 +221,30 @@ void
 xev_handle_buttonpress(struct xevent *xev, XEvent *ee)
 {
 	XButtonEvent *e = &ee->xbutton;
-	struct client_ctx *cc, *old_cc = client_current();
+	struct client_ctx *cc;
 	struct screen_ctx *sc = screen_fromroot(e->root);
 	char *wname;
-	int altcontrol = e->state == (ControlMask|Mod1Mask);
+	struct mousebinding *mb;
 
 	cc = client_find(e->window);
 
-	if (sc->rootwin == e->window && !altcontrol) {
-		struct menu_q menuq;
-		struct menu *mi;
-
-		/* XXXSIGH!!!! */
-		if (e->button == Button2) {
-			group_menu(e);
-			goto out;
+	if (sc->rootwin == e->window)
+		TAILQ_FOREACH(mb, &Conf.mousebindingq, entry) {
+			if(e->button!=mb->button || e->state!=mb->modmask ||
+			    mb->context!=MOUSEBIND_CTX_ROOT)
+				continue;
+			(*mb->callback)(cc, e);
 		}
-
-		TAILQ_INIT(&menuq);
-
-		switch (e->button) {
-		case Button1:
-			TAILQ_FOREACH(cc, &Clientq, entry) {
-				if (cc->flags & CLIENT_HIDDEN) {
-					if (cc->label != NULL)
-						wname = cc->label;
-					else
-						wname = cc->name;
-
-					if (wname == NULL)
-						continue;
-
-					XCALLOC(mi, struct menu);
-					strlcpy(mi->text,
-					    wname, sizeof(mi->text));
-					mi->ctx = cc;
-					TAILQ_INSERT_TAIL(&menuq, mi, entry);
-				}
-			}
-			break;
-		case Button3: {
-			struct cmd *cmd;
-			conf_reload(&Conf);
-			TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
-				XCALLOC(mi, struct menu);
-				strlcpy(mi->text, cmd->label, sizeof(mi->text));
-				mi->ctx = cmd;
-				TAILQ_INSERT_TAIL(&menuq, mi, entry);
-			}
-			break;
-		}
-		default:
-			break;
-		}
-
-		if (TAILQ_EMPTY(&menuq))
-			goto out;
-
-		mi = menu_filter(&menuq, NULL, NULL, 0, NULL, NULL);
-		if (mi == NULL)
-			goto cleanup;
-
-		switch (e->button) {
-		case Button1:
-			cc = (struct client_ctx *)mi->ctx;
-			client_unhide(cc);
-
-			if (old_cc != NULL)
-				client_ptrsave(old_cc);
-			client_ptrwarp(cc);
-			break;
-		case Button3:
-			u_spawn(((struct cmd *)mi->ctx)->image);
-			break;
-		default:
-			break;
-		}
-
-	cleanup:
-		while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
-			TAILQ_REMOVE(&menuq, mi, entry);
-			xfree(mi);
-		}
-
-		goto out;
-	}
 
 	if (cc == NULL || e->state == 0)
 		goto out;
 
-	sc = CCTOSC(cc);
+	TAILQ_FOREACH(mb, &Conf.mousebindingq, entry) {
+		if(e->button!=mb->button || e->state!=mb->modmask ||
+		   mb->context!=MOUSEBIND_CTX_WIN)
+			continue;
 
-	switch (e->button) {
-	case Button1:
-		if (altcontrol)
-			group_sticky_toggle_enter(cc);
-		else {
-			grab_drag(cc);
-			client_move(cc);
-		}
-		break;
-	case Button2:
-		grab_sweep(cc);
-		client_resize(cc);
-		break;
-	case Button3:
-		client_ptrsave(cc);
-		client_lower(cc);
+		(*mb->callback)(cc, NULL);
 		break;
 	}
 out:

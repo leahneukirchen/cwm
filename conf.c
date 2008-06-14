@@ -90,6 +90,7 @@ conf_init(struct conf *c)
 	TAILQ_INIT(&c->cmdq);
 	TAILQ_INIT(&c->keybindingq);
 	TAILQ_INIT(&c->autogroupq);
+	TAILQ_INIT(&c->mousebindingq);
 
 	conf_bindname(c, "CM-Return", "terminal");
 	conf_bindname(c, "CM-Delete", "lock");
@@ -148,6 +149,14 @@ conf_init(struct conf *c)
 	conf_bindname(c, "CS-Down", "bigptrmovedown");
 	conf_bindname(c, "CS-Up", "bigptrmoveup");
 	conf_bindname(c, "CS-Right", "bigptrmoveright");
+
+	conf_mousebind(c, "1", "menu_unhide");
+	conf_mousebind(c, "2", "menu_group");
+	conf_mousebind(c, "3", "menu_cmd");
+	conf_mousebind(c, "M-1", "window_move");
+	conf_mousebind(c, "CM-1", "window_grouptoggle");
+	conf_mousebind(c, "M-2", "window_resize");
+	conf_mousebind(c, "M-3", "window_lower");
 
 	/* Default term/lock */
 	strlcpy(c->termpath, "xterm", sizeof(c->termpath));
@@ -379,3 +388,82 @@ void conf_unbind(struct conf *c, struct keybinding *unbind)
 		}
 	}
 }
+
+struct {
+	char *tag;
+	void (*handler)(struct client_ctx *, void *);
+	int context;
+} name_to_mousefunc[] = {
+	{ "window_move", mousefunc_window_move, MOUSEBIND_CTX_WIN },
+	{ "window_resize", mousefunc_window_resize, MOUSEBIND_CTX_WIN },
+	{ "window_grouptoggle", mousefunc_window_grouptoggle,
+	    MOUSEBIND_CTX_WIN },
+	{ "window_lower", mousefunc_window_lower, MOUSEBIND_CTX_WIN },
+	{ "menu_group", mousefunc_menu_group, MOUSEBIND_CTX_ROOT },
+	{ "menu_unhide", mousefunc_menu_unhide, MOUSEBIND_CTX_ROOT },
+	{ "menu_cmd", mousefunc_menu_cmd, MOUSEBIND_CTX_ROOT },
+	{ NULL, NULL, 0 },
+};
+
+void
+conf_mousebind(struct conf *c, char *name, char *binding)
+{
+	int iter;
+	struct mousebinding *current_binding;
+	char *substring;
+	const char *errstr;
+
+	XCALLOC(current_binding, struct mousebinding);
+
+	if (strchr(name, 'C') != NULL &&
+	    strchr(name, 'C') < strchr(name, '-'))
+		current_binding->modmask |= ControlMask;
+
+	if (strchr(name, 'M') != NULL &&
+	    strchr(name, 'M') < strchr(name, '-'))
+		current_binding->modmask |= Mod1Mask;
+
+	substring = strchr(name, '-') + 1;
+
+	if (strchr(name, '-') == NULL)
+		substring = name;
+
+	current_binding->button = strtonum(substring);
+	if (errstr)
+		warnx("number of buttons is %s: %s", errstr, substring);
+
+	conf_mouseunbind(c, current_binding);
+
+	if (strcmp("unmap", binding) == 0)
+		return;
+
+	for (iter = 0; name_to_mousefunc[iter].tag != NULL; iter++) {
+		if (strcmp(name_to_mousefunc[iter].tag, binding) != 0)
+			continue;
+
+		current_binding->context = name_to_mousefunc[iter].context;
+		current_binding->callback = name_to_mousefunc[iter].handler;
+		TAILQ_INSERT_TAIL(&c->mousebindingq, current_binding, entry);
+		return;
+	}
+}
+
+void
+conf_mouseunbind(struct conf *c, struct mousebinding *unbind)
+{
+	struct mousebinding *mb = NULL, *mbnxt;
+
+	for (mb = TAILQ_FIRST(&c->mousebindingq);
+	    mb != TAILQ_END(&c->mousebindingq); mb = mbnxt) {
+		mbnxt = TAILQ_NEXT(mb, entry);
+
+		if (mb->modmask != unbind->modmask)
+			continue;
+
+		if (mb->button == unbind->button) {
+			TAILQ_REMOVE(&c->mousebindingq, mb, entry);
+			xfree(mb);
+		}
+	}
+}
+

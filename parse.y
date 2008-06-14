@@ -66,7 +66,7 @@ typedef struct {
 
 %}
 
-%token	FONTNAME STICKY GAP
+%token	FONTNAME STICKY GAP MOUSEBIND
 %token	AUTOGROUP BIND COMMAND IGNORE
 %token	YES NO
 %token	ERROR
@@ -167,6 +167,11 @@ main		: FONTNAME STRING		{
 			conf->gap_left = $4;
 			conf->gap_right = $5;
 		}
+		| MOUSEBIND STRING string	{
+			conf_mousebind(conf, $2, $3);
+			free($2);
+			free($3);
+		}
 		;
 %%
 
@@ -206,6 +211,7 @@ lookup(char *s)
 		{ "fontname",		FONTNAME},
 		{ "gap",		GAP},
 		{ "ignore",		IGNORE},
+		{ "mousebind",		MOUSEBIND},
 		{ "no",			NO},
 		{ "sticky",		STICKY},
 		{ "yes",		YES}
@@ -469,6 +475,7 @@ conf_clear(struct conf *c)
 	struct keybinding	*kb;
 	struct winmatch		*wm;
 	struct cmd		*cmd;
+	struct mousebinding	*mb;
 
 	while (cmd = TAILQ_FIRST(&c->cmdq)) {
 		TAILQ_REMOVE(&c->cmdq, cmd, entry);
@@ -492,6 +499,11 @@ conf_clear(struct conf *c)
 	while (wm = TAILQ_FIRST(&c->ignoreq)) {
 		TAILQ_REMOVE(&c->ignoreq, wm, entry);
 		free(wm);
+	}
+
+	while (mb = TAILQ_FIRST(&c->mousebindingq)) {
+		TAILQ_REMOVE(&c->mousebindingq, mb, entry);
+		free(mb);
 	}
 
 	if (c->DefaultFontName != NULL &&
@@ -529,6 +541,7 @@ parse_config(const char *filename, struct conf *xconf)
 		struct keybinding	*kb;
 		struct winmatch		*wm;
 		struct cmd		*cmd;
+		struct mousebinding	*mb;
 
 		conf_clear(xconf);
 
@@ -552,6 +565,11 @@ parse_config(const char *filename, struct conf *xconf)
 		while (wm = TAILQ_FIRST(&conf->ignoreq)) {
 			TAILQ_REMOVE(&conf->ignoreq, wm, entry);
 			TAILQ_INSERT_TAIL(&xconf->ignoreq, wm, entry);
+		}
+
+		while (mb = TAILQ_FIRST(&conf->mousebindingq)) {
+			TAILQ_REMOVE(&conf->mousebindingq, mb, entry);
+			TAILQ_INSERT_TAIL(&xconf->mousebindingq, mb, entry);
 		}
 
 		strlcpy(xconf->termpath, conf->termpath,
