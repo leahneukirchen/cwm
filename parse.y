@@ -441,7 +441,8 @@ pushfile(const char *name)
 	nfile->name = xstrdup(name);
 
 	if ((nfile->stream = fopen(nfile->name, "r")) == NULL) {
-		warn("%s", nfile->name);
+		if (errno != ENOENT)
+			warn("%s", nfile->name);
 		free(nfile->name);
 		free(nfile);
 		return (NULL);
