@@ -23,8 +23,6 @@
 
 #define CALMWM_MAXNAMELEN 256
 
-#include "hash.h"
-
 #undef MIN
 #undef MAX
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
@@ -39,20 +37,6 @@
 struct client_ctx;
 
 TAILQ_HEAD(cycle_entry_q, client_ctx);
-
-struct screen_ctx;
-
-struct fontdesc {
-	const char		*name;
-	XftFont			*fn;
-	struct screen_ctx	*sc;
-	HASH_ENTRY(fontdesc)	 node;
-};
-
-int fontdesc_cmp(struct fontdesc *a, struct fontdesc *b);
-
-HASH_HEAD(fonthash, fontdesc, 16);
-HASH_PROTOTYPE(fonthash, fontdesc, node, fontdesc_cmp);
 
 struct screen_ctx {
 	TAILQ_ENTRY(screen_ctx)	entry;
@@ -76,8 +60,6 @@ struct screen_ctx {
 
 	struct cycle_entry_q mruq;
 
-	struct fonthash	 fonthash;
-	u_int		 fontheight;
 	XftDraw		*xftdraw;
 	XftColor	 xftcolor;
 };
@@ -281,6 +263,8 @@ struct conf {
 
 #define	DEFAULTFONTNAME		 "sans-serif:pixelsize=14:bold"
 	char			*DefaultFontName;
+	XftFont			*DefaultFont;
+	u_int			 FontHeight;
 	int			 gap_top, gap_bottom, gap_left, gap_right;
 };
 
@@ -442,6 +426,7 @@ void			 conf_mousebind(struct conf *, char *, char *);
 void			 conf_mouseunbind(struct conf *, struct mousebinding *);
 int			 conf_changed(char *);
 void			 conf_reload(struct conf *);
+void			 conf_font(struct conf *);
 
 void			 kbfunc_client_lower(struct client_ctx *, void *);
 void			 kbfunc_client_raise(struct client_ctx *, void *);
@@ -495,13 +480,14 @@ void			 group_sticky_toggle_exit(struct client_ctx *);
 void			 group_autogroup(struct client_ctx *);
 
 void			 font_init(struct screen_ctx *);
-struct fontdesc		*font_get(struct screen_ctx *, const char *);
-int			 font_width(struct fontdesc *, const char *, int);
-void			 font_draw(struct fontdesc *, const char *, int,
+int			 font_width(const char *, int);
+void			 font_draw(struct screen_ctx *, const char *, int,
 			     Drawable, int, int);
-int			 font_ascent(struct fontdesc *);
-int			 font_descent(struct fontdesc *);
-struct fontdesc		*font_getx(struct screen_ctx *, const char *);
+XftFont			*font_make(struct screen_ctx *, const char *);
+
+#define font_ascent()	Conf.DefaultFont->ascent
+#define font_descent()	Conf.DefaultFont->descent
+#define	font_height()	Conf.FontHeight
 
 #define CCTOSC(cc) (cc->sc)
 
@@ -523,8 +509,5 @@ extern struct client_ctx_q		 Clientq;
 
 extern int				 Doshape, Shape_ev;
 extern struct conf			 Conf;
-
-extern struct fontdesc			*DefaultFont;
-
 
 #endif /* _CALMWM_H_ */

@@ -38,7 +38,6 @@ struct client_ctx_q		 Clientq;
 int				 Doshape, Shape_ev;
 int				 Starting;
 struct conf			 Conf;
-struct fontdesc			*DefaultFont = NULL;
 
 /* From TWM */
 #define gray_width 2
@@ -149,6 +148,8 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	XSetWindowAttributes rootattr;
 	struct keybinding *kb;
 
+	Curscreen = sc;
+
 	sc->display = x_screenname(which);
 	sc->which = which;
 	sc->rootwin = RootWindow(X_Dpy, which);
@@ -203,9 +204,7 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	    GCLineWidth|GCSubwindowMode, &gv);
 
 	font_init(sc);
-	DefaultFont = font_getx(sc, Conf.DefaultFontName);
-	sc->fontheight = font_ascent(DefaultFont) +
-	    font_descent(DefaultFont) + 1;
+	conf_font(&Conf);
 
 	/*
 	 * XXX - this should *really* be in screen_init().  ordering
@@ -231,7 +230,6 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	}
 	XFree(wins);
 
-	Curscreen = sc;	/* XXX */
 	screen_init();
 	screen_updatestackingorder();
 
