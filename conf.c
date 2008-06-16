@@ -171,7 +171,7 @@ conf_init(struct conf *c)
 	strlcpy(c->termpath, "xterm", sizeof(c->termpath));
 	strlcpy(c->lockpath, "xlock", sizeof(c->lockpath));
 
-	c->DefaultFontName = DEFAULTFONTNAME;
+	c->DefaultFontName = xstrdup(DEFAULTFONTNAME);
 }
 
 void

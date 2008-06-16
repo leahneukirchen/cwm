@@ -100,11 +100,8 @@ yesno		: YES				{ $$ = 1; }
 		;
 
 main		: FONTNAME STRING		{
-			if (conf->DefaultFontName != NULL &&
-			    conf->DefaultFontName != DEFAULTFONTNAME)
-				free(conf->DefaultFontName);
-			conf->DefaultFontName = xstrdup($2);
-			free($2);
+			free(conf->DefaultFontName);
+			conf->DefaultFontName = $2;
 		}
 		| STICKY yesno {
 			if ($2 == 0)
