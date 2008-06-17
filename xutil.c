@@ -21,6 +21,8 @@
 #include "headers.h"
 #include "calmwm.h"
 
+unsigned int ign_mods[] = { 0, LockMask, Mod2Mask, Mod2Mask | LockMask };
+
 int
 xu_ptr_grab(Window win, int mask, Cursor curs)
 {
@@ -42,18 +44,22 @@ xu_ptr_ungrab(void)
 	XUngrabPointer(X_Dpy, CurrentTime);
 }
 
-int
+void
 xu_btn_grab(Window win, int mask, u_int btn)
 {
-	return (XGrabButton(X_Dpy, btn, mask, win,
-	    False, ButtonMask, GrabModeAsync,
-	    GrabModeSync, None, None) == GrabSuccess ? 0 : -1);
+	int	i;
+	for (i = 0; i < sizeof(ign_mods)/sizeof(*ign_mods); i++)
+		XGrabButton(X_Dpy, btn, (mask | ign_mods[i]), win,
+		    False, ButtonMask, GrabModeAsync,
+		    GrabModeSync, None, None);
 }
 
 void
 xu_btn_ungrab(Window win, int mask, u_int btn)
 {
-	XUngrabButton(X_Dpy, btn, mask, win);
+	int	i;
+	for (i = 0; i < sizeof(ign_mods)/sizeof(*ign_mods); i++)
+		XUngrabButton(X_Dpy, btn, (mask | ign_mods[i]), win);
 }
 
 void
@@ -75,15 +81,18 @@ xu_ptr_setpos(Window win, int x, int y)
 void
 xu_key_grab(Window win, int mask, int keysym)
 {
-	KeyCode code;
+	KeyCode	code;
+	int	i;
 
 	code = XKeysymToKeycode(X_Dpy, keysym);
 	if ((XKeycodeToKeysym(X_Dpy, code, 0) != keysym) &&
 	    (XKeycodeToKeysym(X_Dpy, code, 1) == keysym))
 		mask |= ShiftMask;
 
-	XGrabKey(X_Dpy, XKeysymToKeycode(X_Dpy, keysym), mask, win, True,
-	    GrabModeAsync, GrabModeAsync);
+	for (i = 0; i < sizeof(ign_mods)/sizeof(*ign_mods); i++)
+		XGrabKey(X_Dpy, XKeysymToKeycode(X_Dpy, keysym),
+		    (mask | ign_mods[i]), win, True, GrabModeAsync,
+		    GrabModeAsync);
 }
 
 void

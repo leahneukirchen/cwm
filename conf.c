@@ -323,14 +323,6 @@ conf_bindname(struct conf *c, char *name, char *binding)
 	    strchr(name, 'M') < strchr(name, '-'))
 		current_binding->modmask |= Mod1Mask;
 
-	if (strchr(name, '2') != NULL &&
-	    strchr(name, '2') < strchr(name, '-'))
-		current_binding->modmask |= Mod2Mask;
-
-	if (strchr(name, '3') != NULL &&
-	    strchr(name, '3') < strchr(name, '-'))
-		current_binding->modmask |= Mod3Mask;
-
 	if (strchr(name, '4') != NULL &&
 	    strchr(name, '4') < strchr(name, '-'))
 		current_binding->modmask |= Mod4Mask;

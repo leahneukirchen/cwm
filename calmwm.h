@@ -384,7 +384,7 @@ void			 xev_register(struct xevent *);
 void			 xev_loop(void);
 
 int			 xu_ptr_grab(Window, int, Cursor);
-int			 xu_btn_grab(Window, int, u_int);
+void			 xu_btn_grab(Window, int, u_int);
 int			 xu_ptr_regrab(int, Cursor);
 void			 xu_btn_ungrab(Window, int, u_int);
 void			 xu_ptr_ungrab(void);

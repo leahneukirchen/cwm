@@ -228,6 +228,9 @@ xev_handle_buttonpress(struct xevent *xev, XEvent *ee)
 
 	cc = client_find(e->window);
 
+	/* Ignore caps lock and numlock */
+	e->state &= ~(Mod2Mask | LockMask);
+
 	TAILQ_FOREACH(mb, &Conf.mousebindingq, entry) {
 		if (e->button == mb->button && e->state == mb->modmask)
 			break;
@@ -272,6 +275,9 @@ xev_handle_keypress(struct xevent *xev, XEvent *ee)
 
 	keysym = XKeycodeToKeysym(X_Dpy, e->keycode, 0);
 	skeysym = XKeycodeToKeysym(X_Dpy, e->keycode, 1);
+
+	/* we don't care about caps lock and numlock here */
+	e->state &= ~(LockMask | Mod2Mask);
 
 	TAILQ_FOREACH(kb, &Conf.keybindingq, entry) {
 		if (keysym != kb->keysym && skeysym == kb->keysym)
