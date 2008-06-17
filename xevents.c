@@ -228,26 +228,24 @@ xev_handle_buttonpress(struct xevent *xev, XEvent *ee)
 
 	cc = client_find(e->window);
 
-	if (e->window == sc->rootwin) {
-		TAILQ_FOREACH(mb, &Conf.mousebindingq, entry) {
-			if (e->button == mb->button && e->state == mb->modmask
-			    && mb->context == MOUSEBIND_CTX_ROOT) {
-				(*mb->callback)(cc, e);
-				break;
-			}
-		}
+	TAILQ_FOREACH(mb, &Conf.mousebindingq, entry) {
+		if (e->button == mb->button && e->state == mb->modmask)
+			break;
 	}
 
-	if (cc == NULL || e->state == 0)
+	if (mb == NULL)
 		goto out;
 
-	TAILQ_FOREACH(mb, &Conf.mousebindingq, entry) {
-		if (e->button == mb->button && e->state == mb->modmask &&
-		    mb->context == MOUSEBIND_CTX_ROOT) {
-			(*mb->callback)(cc, NULL);
-			break;
-		}
+	if (mb->context == MOUSEBIND_CTX_ROOT) {
+		if (e->window != sc->rootwin)
+			goto out;
+	} else if (mb->context == MOUSEBIND_CTX_WIN) {
+		cc = client_find(e->window);
+		if (cc == NULL)
+			goto out;
 	}
+
+	(*mb->callback)(cc, e);
 out:
 	xev_register(xev);
 }
