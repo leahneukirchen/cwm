@@ -421,7 +421,6 @@ client_hide(struct client_ctx *cc)
 {
 	/* XXX - add wm_state stuff */
 	XUnmapWindow(X_Dpy, cc->pwin);
-	XUnmapWindow(X_Dpy, cc->win);
 
 	cc->active = 0;
 	cc->flags |= CLIENT_HIDDEN;
@@ -434,7 +433,6 @@ client_hide(struct client_ctx *cc)
 void
 client_unhide(struct client_ctx *cc)
 {
-	XMapWindow(X_Dpy, cc->win);
 	XMapRaised(X_Dpy, cc->pwin);
 
 	cc->highlight = 0;
