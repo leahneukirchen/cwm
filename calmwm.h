@@ -424,6 +424,7 @@ void			 conf_bindname(struct conf *, char *, char *);
 void			 conf_unbind(struct conf *, struct keybinding *);
 void			 conf_mousebind(struct conf *, char *, char *);
 void			 conf_mouseunbind(struct conf *, struct mousebinding *);
+void			 conf_grab_mouse(struct client_ctx *);
 int			 conf_changed(char *);
 void			 conf_reload(struct conf *);
 void			 conf_font(struct conf *);

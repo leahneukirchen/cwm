@@ -272,8 +272,7 @@ client_setactive(struct client_ctx *cc, int fg)
 		XInstallColormap(X_Dpy, cc->cmap);
 		XSetInputFocus(X_Dpy, cc->win,
 		    RevertToPointerRoot, CurrentTime);
-		xu_btn_grab(cc->pwin, Mod1Mask, AnyButton);
-		xu_btn_grab(cc->pwin, ControlMask|Mod1Mask, Button1);
+		conf_grab_mouse(cc);
 		/*
 		 * If we're in the middle of alt-tabbing, don't change
 		 * the order please.

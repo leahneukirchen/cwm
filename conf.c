@@ -474,3 +474,33 @@ conf_mouseunbind(struct conf *c, struct mousebinding *unbind)
 	}
 }
 
+/*
+ * Grab the mouse buttons that we need for bindings for this client
+ */
+void
+conf_grab_mouse(struct client_ctx *cc)
+{
+	struct mousebinding	*mb;
+	int			 button;
+	
+
+	TAILQ_FOREACH(mb, &Conf.mousebindingq, entry) {
+		if (mb->context != MOUSEBIND_CTX_WIN)
+ 			continue;
+
+		switch(mb->button) {
+		case 1:
+			button = Button1;
+			break;
+		case 2:
+			button = Button2;
+			break;
+		case 3:
+			button = Button3;
+			break;
+		default:
+			warnx("strange button in mousebinding\n");
+		}
+		xu_btn_grab(cc->pwin, mb->modmask, button);
+	}
+}
