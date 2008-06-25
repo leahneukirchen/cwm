@@ -434,6 +434,10 @@ conf_mousebind(struct conf *c, char *name, char *binding)
 	    strchr(name, 'S') < strchr(name, '-'))
 		current_binding->modmask |= ShiftMask;
 
+	if (strchr(name, '4') != NULL &&
+	    strchr(name, '4') < strchr(name, '-'))
+		current_binding->modmask |= Mod4Mask;
+
 	substring = strchr(name, '-') + 1;
 
 	if (strchr(name, '-') == NULL)
