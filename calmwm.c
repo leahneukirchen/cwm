@@ -315,6 +315,6 @@ usage(void)
 {
 	extern char *__progname;
 
-	fprintf(stderr, "usage: %s [-d display] [-c file]\n", __progname);
+	fprintf(stderr, "usage: %s [-c file] [-d display]\n", __progname);
 	exit(1);
 }

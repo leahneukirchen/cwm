@@ -15,7 +15,7 @@
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
 .\" The following requests are required for all man pages.
-.Dd $Mdocdate: June 3 2008 $
+.Dd $Mdocdate: June 5 2008 $
 .Dt CWM 1
 .Os
 .Sh NAME
@@ -24,8 +24,8 @@
 .Sh SYNOPSIS
 .\" For a program:  program [-abc] file ...
 .Nm cwm
-.Op Fl d Ar display
 .Op Fl c Ar file
+.Op Fl d Ar display
 .Sh DESCRIPTION
 .Nm
 is a window manager for X11 which contains many features that
@@ -133,11 +133,11 @@ The options for
 .Nm
 are as follows:
 .Bl -tag -width Ds
-.It Fl d Ar display
-Specify the display to use.
 .It Fl c Ar file
 Specify the config file to use.  Defaults to
 .Pa ~/.cwmrc .
+.It Fl d Ar display
+Specify the display to use.
 .El
 .Sh POINTER MOVEMENT
 The pointer can be moved with the use of the keyboard through bindings.
