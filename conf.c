@@ -430,6 +430,10 @@ conf_mousebind(struct conf *c, char *name, char *binding)
 	    strchr(name, 'M') < strchr(name, '-'))
 		current_binding->modmask |= Mod1Mask;
 
+	if (strchr(name, 'S') != NULL &&
+	    strchr(name, 'S') < strchr(name, '-'))
+		current_binding->modmask |= ShiftMask;
+
 	substring = strchr(name, '-') + 1;
 
 	if (strchr(name, '-') == NULL)
