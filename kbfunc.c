@@ -77,7 +77,17 @@ kbfunc_moveresize(struct client_ctx *cc, void *arg)
 	switch (flags & typemask) {
 	case CWM_MOVE:
 		cc->geom.y += my;
+		if (cc->geom.y + cc->geom.height < 0)
+			cc->geom.y = -cc->geom.height;
+		if (cc->geom.y > cc->sc->ymax)
+			cc->geom.y = cc->sc->ymax;
+
 		cc->geom.x += mx;
+		if (cc->geom.x + cc->geom.width < 0)
+			cc->geom.x = -cc->geom.width;
+		if (cc->geom.x > cc->sc->xmax)
+			cc->geom.x = cc->sc->xmax;
+
 		client_move(cc);
 		xu_ptr_getpos(cc->pwin, &x, &y);
 		cc->ptr.y = y + my;
@@ -85,8 +95,10 @@ kbfunc_moveresize(struct client_ctx *cc, void *arg)
 		client_ptrwarp(cc);
 		break;
 	case CWM_RESIZE:
-		cc->geom.height += my;
-		cc->geom.width += mx;
+		if ((cc->geom.height += my) < 1)
+			cc->geom.height = 1;
+		if ((cc->geom.width += mx) < 1)
+			cc->geom.width = 1;
 		client_resize(cc);
 
 		/* Make sure the pointer stays within the window. */
