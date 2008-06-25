@@ -457,6 +457,7 @@ void			 mousefunc_window_move(struct client_ctx *, void *);
 void			 mousefunc_window_grouptoggle(struct client_ctx *,
 			    void *);
 void			 mousefunc_window_lower(struct client_ctx *, void *);
+void			 mousefunc_window_hide(struct client_ctx *, void *);
 void			 mousefunc_menu_group(struct client_ctx *, void *);
 void			 mousefunc_menu_unhide(struct client_ctx *, void *);
 void			 mousefunc_menu_cmd(struct client_ctx *, void *);

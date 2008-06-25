@@ -49,6 +49,12 @@ mousefunc_window_lower(struct client_ctx *cc, void *arg)
 }
 
 void
+mousefunc_window_hide(struct client_ctx *cc, void *arg)
+{
+	client_hide(cc);
+}
+
+void
 mousefunc_menu_group(struct client_ctx *cc, void *arg)
 {
 	group_menu(arg);

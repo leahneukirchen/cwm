@@ -166,6 +166,7 @@ conf_init(struct conf *c)
 	conf_mousebind(c, "CM-1", "window_grouptoggle");
 	conf_mousebind(c, "M-2", "window_resize");
 	conf_mousebind(c, "M-3", "window_lower");
+	conf_mousebind(c, "CMS-3", "window_hide");
 
 	/* Default term/lock */
 	strlcpy(c->termpath, "xterm", sizeof(c->termpath));
@@ -406,6 +407,7 @@ struct {
 	{ "window_grouptoggle", mousefunc_window_grouptoggle,
 	    MOUSEBIND_CTX_WIN },
 	{ "window_lower", mousefunc_window_lower, MOUSEBIND_CTX_WIN },
+	{ "window_hide", mousefunc_window_hide, MOUSEBIND_CTX_WIN },
 	{ "menu_group", mousefunc_menu_group, MOUSEBIND_CTX_ROOT },
 	{ "menu_unhide", mousefunc_menu_unhide, MOUSEBIND_CTX_ROOT },
 	{ "menu_cmd", mousefunc_menu_cmd, MOUSEBIND_CTX_ROOT },
