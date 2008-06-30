@@ -605,8 +605,8 @@ client_cycle(int reverse)
 		newcc = (reverse ? client_mruprev(newcc) :
 		    client_mrunext(newcc));
 
-		/* Only cycle visible windows. */
-		if (newcc->flags & CLIENT_HIDDEN)
+		/* Only cycle visible and non-ignored windows. */
+		if (newcc->flags & (CLIENT_HIDDEN|CLIENT_IGNORE))
 			again = 1;
 
 		/* Is oldcc the only non-hidden window? */
