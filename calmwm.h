@@ -425,7 +425,6 @@ void			 conf_unbind(struct conf *, struct keybinding *);
 void			 conf_mousebind(struct conf *, char *, char *);
 void			 conf_mouseunbind(struct conf *, struct mousebinding *);
 void			 conf_grab_mouse(struct client_ctx *);
-int			 conf_changed(char *);
 void			 conf_reload(struct conf *);
 void			 conf_font(struct conf *);
 
@@ -444,6 +443,7 @@ void			 kbfunc_client_nogroup(struct client_ctx *, void *);
 void			 kbfunc_client_grouptoggle(struct client_ctx *, void *);
 void			 kbfunc_client_maximize(struct client_ctx *, void *);
 void			 kbfunc_client_vmaximize(struct client_ctx *, void *);
+void			 kbfunc_reload(struct client_ctx *, void *);
 void			 kbfunc_quit_wm(struct client_ctx *, void *);
 void			 kbfunc_moveresize(struct client_ctx *, void *);
 void			 kbfunc_menu_search(struct client_ctx *, void *);

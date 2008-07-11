@@ -113,8 +113,6 @@ mousefunc_menu_cmd(struct client_ctx *cc, void *arg)
 	struct menu_q	 menuq;
 	struct cmd	*cmd;
 
-	conf_reload(&Conf);
-
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
 		XCALLOC(mi, struct menu);

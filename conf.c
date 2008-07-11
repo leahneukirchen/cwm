@@ -61,29 +61,9 @@ conf_font(struct conf *c)
 	c->FontHeight = font_ascent() + font_descent() + 1;
 }
 
-int
-conf_changed(char *path)
-{
-	static struct timespec	 old_ts;
-	struct stat 		 sb;
-	int 			 changed;
-
-	/* If the file does not exist we pretend that nothing changed */
-	if (stat(path, &sb) == -1 || !(sb.st_mode & S_IFREG))
-		return (0);
-
-	changed = !timespeccmp(&sb.st_mtimespec, &old_ts, ==);
-	old_ts = sb.st_mtimespec;
-
-	return (changed);
-}
-
 void
 conf_reload(struct conf *c)
 {
-	if (!conf_changed(c->conf_path))
-		return;
-
 	if (parse_config(c->conf_path, c) == -1) {
 		warnx("config file %s has errors, not reloading", c->conf_path);
 		return;
@@ -132,6 +112,7 @@ conf_init(struct conf *c)
 	conf_bindname(c, "CM-g", "grouptoggle");
 	conf_bindname(c, "CM-f", "maximize");
 	conf_bindname(c, "CM-equal", "vmaximize");
+	conf_bindname(c, "CMS-r", "reload");
 	conf_bindname(c, "CMS-q", "quit");
 
 	conf_bindname(c, "M-h", "moveleft");
@@ -254,6 +235,7 @@ struct {
 	{ "grouptoggle", kbfunc_client_grouptoggle, KBFLAG_NEEDCLIENT, 0},
 	{ "maximize", kbfunc_client_maximize, KBFLAG_NEEDCLIENT, 0 },
 	{ "vmaximize", kbfunc_client_vmaximize, KBFLAG_NEEDCLIENT, 0 },
+	{ "reload", kbfunc_reload, 0, 0 },
 	{ "quit", kbfunc_quit_wm, 0, 0 },
 	{ "exec", kbfunc_exec, 0, (void *)CWM_EXEC_PROGRAM },
 	{ "exec_wm", kbfunc_exec, 0, (void *)CWM_EXEC_WM },
