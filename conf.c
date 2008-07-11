@@ -53,7 +53,9 @@ conf_cmd_add(struct conf *c, char *image, char *label, int flags)
 void
 conf_font(struct conf *c)
 {
-	struct screen_ctx *sc = screen_current();
+	struct screen_ctx	*sc;
+
+	sc = screen_current();
 
 	c->DefaultFont = font_make(sc, Conf.DefaultFontName);
 	c->FontHeight = font_ascent() + font_descent() + 1;
@@ -62,9 +64,9 @@ conf_font(struct conf *c)
 int
 conf_changed(char *path)
 {
-	static struct timespec old_ts;
-	struct stat sb;
-	int changed;
+	static struct timespec	 old_ts;
+	struct stat 		 sb;
+	int 			 changed;
 
 	/* If the file does not exist we pretend that nothing changed */
 	if (stat(path, &sb) == -1 || !(sb.st_mode & S_IFREG))
@@ -178,7 +180,7 @@ conf_init(struct conf *c)
 void
 conf_setup(struct conf *c, const char *conf_file)
 {
-	struct stat sb;
+	struct stat	 sb;
 
 	if (conf_file == NULL) {
 		char *home = getenv("HOME");
@@ -310,9 +312,9 @@ struct {
 void
 conf_bindname(struct conf *c, char *name, char *binding)
 {
-	int iter;
-	struct keybinding *current_binding;
-	char *substring;
+	struct keybinding	*current_binding;
+	char			*substring;
+	int			 iter;
 
 	XCALLOC(current_binding, struct keybinding);
 
@@ -356,7 +358,7 @@ conf_bindname(struct conf *c, char *name, char *binding)
 	/* We now have the correct binding, remove duplicates. */
 	conf_unbind(c, current_binding);
 
-	if (strcmp("unmap",binding) == 0)
+	if (strcmp("unmap", binding) == 0)
 		return;
 
 	for (iter = 0; name_to_kbfunc[iter].tag != NULL; iter++) {
@@ -379,7 +381,7 @@ conf_bindname(struct conf *c, char *name, char *binding)
 
 void conf_unbind(struct conf *c, struct keybinding *unbind)
 {
-	struct keybinding *key = NULL, *keynxt;
+	struct keybinding	*key = NULL, *keynxt;
 
 	for (key = TAILQ_FIRST(&c->keybindingq);
 	    key != TAILQ_END(&c->keybindingq); key = keynxt) {
@@ -417,10 +419,10 @@ struct {
 void
 conf_mousebind(struct conf *c, char *name, char *binding)
 {
-	int iter;
-	struct mousebinding *current_binding;
-	char *substring;
-	const char *errstr;
+	struct mousebinding	*current_binding;
+	char			*substring;
+	const char		*errstr;
+	int			 iter;
 
 	XCALLOC(current_binding, struct mousebinding);
 
@@ -468,7 +470,7 @@ conf_mousebind(struct conf *c, char *name, char *binding)
 void
 conf_mouseunbind(struct conf *c, struct mousebinding *unbind)
 {
-	struct mousebinding *mb = NULL, *mbnxt;
+	struct mousebinding	*mb = NULL, *mbnxt;
 
 	for (mb = TAILQ_FIRST(&c->mousebindingq);
 	    mb != TAILQ_END(&c->mousebindingq); mb = mbnxt) {
@@ -492,7 +494,6 @@ conf_grab_mouse(struct client_ctx *cc)
 {
 	struct mousebinding	*mb;
 	int			 button;
-	
 
 	TAILQ_FOREACH(mb, &Conf.mousebindingq, entry) {
 		if (mb->context != MOUSEBIND_CTX_WIN)

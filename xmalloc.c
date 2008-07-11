@@ -24,7 +24,7 @@
 void *
 xmalloc(size_t siz)
 {
-	void *p;
+	void	*p;
 
 	if ((p = malloc(siz)) == NULL)
 		err(1, "malloc");
@@ -35,7 +35,7 @@ xmalloc(size_t siz)
 void *
 xcalloc(size_t no, size_t siz)
 {
-	void *p;
+	void	*p;
 
 	if ((p = calloc(no, siz)) == NULL)
 		err(1, "calloc");
@@ -52,7 +52,7 @@ xfree(void *p)
 char *
 xstrdup(const char *str)
 {
-	char *p;
+	char	*p;
 
 	if ((p = strdup(str)) == NULL)
 		err(1, "strdup");

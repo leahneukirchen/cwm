@@ -31,9 +31,11 @@ static int	_strsubmatch(char *, char *, int);
 void
 search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 {
-	struct winname *wn;
-	struct menu *mi, *tierp[4], *before = NULL;
-	int ntiers = sizeof(tierp)/sizeof(tierp[0]);
+	struct winname	*wn;
+	struct menu	*mi, *tierp[4], *before = NULL;
+	int		 ntiers;
+
+	ntiers = sizeof(tierp) / sizeof(tierp[0]);
 
 	TAILQ_INIT(resultq);
 
@@ -119,8 +121,10 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 void
 search_print_client(struct menu *mi, int list)
 {
-	struct client_ctx *cc = mi->ctx;
-	char flag = ' ';
+	struct client_ctx	*cc;
+	char			 flag = ' ';
+
+	cc = mi->ctx;
 
 	if (cc == client_current())
 		flag = '!';
@@ -134,9 +138,11 @@ search_print_client(struct menu *mi, int list)
 
 	if (!list && cc->matchname != cc->name &&
 	    strlen(mi->print) < sizeof(mi->print) - 1) {
-		int diff = sizeof(mi->print) - 1 - strlen(mi->print);
-		const char *marker = "";
-		char buf[MENU_MAXENTRY + 1];
+		const char	*marker = "";
+		char		 buf[MENU_MAXENTRY + 1];
+		int		 diff;
+
+		diff = sizeof(mi->print) - 1 - strlen(mi->print);
 
 		/* One for the ':' */
 		diff -= 1;
@@ -157,7 +163,7 @@ search_print_client(struct menu *mi, int list)
 void
 search_match_text(struct menu_q *menuq, struct menu_q *resultq, char *search)
 {
-	struct menu *mi;
+	struct menu	*mi;
 
 	TAILQ_INIT(resultq);
 
@@ -169,7 +175,7 @@ search_match_text(struct menu_q *menuq, struct menu_q *resultq, char *search)
 void
 search_match_exec(struct menu_q *menuq, struct menu_q *resultq, char *search)
 {
-	struct menu *mi;
+	struct menu	*mi;
 
 	TAILQ_INIT(resultq);
 
@@ -181,8 +187,8 @@ search_match_exec(struct menu_q *menuq, struct menu_q *resultq, char *search)
 static int
 _strsubmatch(char *sub, char *str, int zeroidx)
 {
-	size_t len, sublen;
-	u_int n, flen;
+	size_t	 len, sublen;
+	u_int	 n, flen;
 
 	if (sub == NULL || str == NULL)
 		return (0);
@@ -197,6 +203,7 @@ _strsubmatch(char *sub, char *str, int zeroidx)
 		flen = len - sublen;
 	else
 		flen = 0;
+
 	for (n = 0; n <= flen; n++)
 		if (strncasecmp(sub, str + n, sublen) == 0)
 			return (1);

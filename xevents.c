@@ -35,15 +35,16 @@
 void
 xev_handle_maprequest(struct xevent *xev, XEvent *ee)
 {
-	XMapRequestEvent *e = &ee->xmaprequest;
-	struct client_ctx *cc = NULL, *old_cc = client_current();
-	XWindowAttributes xattr;
-	struct screen_ctx *sc;
+	XMapRequestEvent	*e = &ee->xmaprequest;
+	XWindowAttributes	 xattr;
+	struct client_ctx	*cc = NULL, *old_cc;
+	struct screen_ctx	*sc;
+
 #ifdef notyet
 	int state;
 #endif
 
-	if (old_cc != NULL)
+	if ((old_cc = client_current()) != NULL)
 		client_ptrsave(old_cc);
 
 	if ((cc = client_find(e->window)) == NULL) {
@@ -66,8 +67,8 @@ xev_handle_maprequest(struct xevent *xev, XEvent *ee)
 void
 xev_handle_unmapnotify(struct xevent *xev, XEvent *ee)
 {
-	XUnmapEvent *e = &ee->xunmap;
-	struct client_ctx *cc;
+	XUnmapEvent		*e = &ee->xunmap;
+	struct client_ctx	*cc;
 
 	if ((cc = client_find(e->window)) != NULL)
 		client_delete(cc, e->send_event, 0);
@@ -78,8 +79,8 @@ xev_handle_unmapnotify(struct xevent *xev, XEvent *ee)
 void
 xev_handle_destroynotify(struct xevent *xev, XEvent *ee)
 {
-	XDestroyWindowEvent *e = &ee->xdestroywindow;
-	struct client_ctx *cc;
+	XDestroyWindowEvent	*e = &ee->xdestroywindow;
+	struct client_ctx	*cc;
 
 	if ((cc = client_find(e->window)) != NULL)
 		client_delete(cc, 1, 1);
@@ -90,10 +91,10 @@ xev_handle_destroynotify(struct xevent *xev, XEvent *ee)
 void
 xev_handle_configurerequest(struct xevent *xev, XEvent *ee)
 {
-	XConfigureRequestEvent *e = &ee->xconfigurerequest;
-	struct client_ctx *cc;
-	struct screen_ctx *sc;
-	XWindowChanges wc;
+	XConfigureRequestEvent	*e = &ee->xconfigurerequest;
+	struct client_ctx	*cc;
+	struct screen_ctx	*sc;
+	XWindowChanges		 wc;
 
 	if ((cc = client_find(e->window)) != NULL) {
 		sc = CCTOSC(cc);
@@ -146,9 +147,9 @@ xev_handle_configurerequest(struct xevent *xev, XEvent *ee)
 void
 xev_handle_propertynotify(struct xevent *xev, XEvent *ee)
 {
-	XPropertyEvent *e = &ee->xproperty;
-	struct client_ctx *cc;
-	long tmp;
+	XPropertyEvent		*e = &ee->xproperty;
+	struct client_ctx	*cc;
+	long			 tmp;
 
 	if ((cc = client_find(e->window)) != NULL) {
 		switch (e->atom) {
@@ -170,7 +171,7 @@ xev_handle_propertynotify(struct xevent *xev, XEvent *ee)
 void
 xev_reconfig(struct client_ctx *cc)
 {
-	XConfigureEvent ce;
+	XConfigureEvent	 ce;
 
 	ce.type = ConfigureNotify;
 	ce.event = cc->win;
@@ -189,8 +190,8 @@ xev_reconfig(struct client_ctx *cc)
 void
 xev_handle_enternotify(struct xevent *xev, XEvent *ee)
 {
-	XCrossingEvent *e = &ee->xcrossing;
-	struct client_ctx *cc;
+	XCrossingEvent		*e = &ee->xcrossing;
+	struct client_ctx	*cc;
 
 	if ((cc = client_find(e->window)) == NULL) {
 		/*
@@ -222,10 +223,11 @@ xev_handle_buttonpress(struct xevent *xev, XEvent *ee)
 {
 	XButtonEvent		*e = &ee->xbutton;
 	struct client_ctx	*cc;
-	struct screen_ctx	*sc = screen_fromroot(e->root);
+	struct screen_ctx	*sc;
 	struct mousebinding	*mb;
 	char			*wname;
 
+	sc = screen_fromroot(e->root);
 	cc = client_find(e->window);
 
 	/* Ignore caps lock and numlock */
@@ -256,9 +258,9 @@ out:
 void
 xev_handle_buttonrelease(struct xevent *xev, XEvent *ee)
 {
-	struct client_ctx *cc = client_current();
+	struct client_ctx *cc;
 
-	if (cc != NULL)
+	if ((cc = client_current()) != NULL)
 		group_sticky_toggle_exit(cc);
 
 	xev_register(xev);
@@ -267,11 +269,11 @@ xev_handle_buttonrelease(struct xevent *xev, XEvent *ee)
 void
 xev_handle_keypress(struct xevent *xev, XEvent *ee)
 {
-	XKeyEvent *e = &ee->xkey;
-	struct client_ctx *cc = NULL; /* Make gcc happy. */
-	struct keybinding *kb;
-	KeySym keysym, skeysym;
-	int modshift;
+	XKeyEvent		*e = &ee->xkey;
+	struct client_ctx	*cc = NULL;
+	struct keybinding	*kb;
+	KeySym			 keysym, skeysym;
+	int			 modshift;
 
 	keysym = XKeycodeToKeysym(X_Dpy, e->keycode, 0);
 	skeysym = XKeycodeToKeysym(X_Dpy, e->keycode, 1);
@@ -315,10 +317,13 @@ out:
 void
 xev_handle_keyrelease(struct xevent *xev, XEvent *ee)
 {
-	XKeyEvent *e = &ee->xkey;
-	struct screen_ctx *sc = screen_fromroot(e->root);
-	struct client_ctx *cc = client_current();
-	int keysym;
+	XKeyEvent		*e = &ee->xkey;
+	struct screen_ctx	*sc;
+	struct client_ctx	*cc;
+	int			 keysym;
+
+	sc = screen_fromroot(e->root);
+	cc = client_current();
 
 	keysym = XKeycodeToKeysym(X_Dpy, e->keycode, 0);
 	if (keysym != XK_Alt_L && keysym != XK_Alt_R)
@@ -344,11 +349,13 @@ out:
 void
 xev_handle_clientmessage(struct xevent *xev, XEvent *ee)
 {
-	XClientMessageEvent *e = &ee->xclient;
-	struct client_ctx *cc = client_find(e->window);
-	Atom xa_wm_change_state = XInternAtom(X_Dpy, "WM_CHANGE_STATE", False);
+	XClientMessageEvent	*e = &ee->xclient;
+	Atom			 xa_wm_change_state;
+	struct client_ctx	*cc;
 
-	if (cc == NULL)
+	xa_wm_change_state = XInternAtom(X_Dpy, "WM_CHANGE_STATE", False);
+
+	if ((cc = client_find(e->window)) == NULL)
 		goto out;
 
 	if (e->message_type == xa_wm_change_state && e->format == 32 &&
@@ -361,8 +368,8 @@ out:
 void
 xev_handle_shape(struct xevent *xev, XEvent *ee)
 {
-	XShapeEvent *sev = (XShapeEvent *) ee;
-	struct client_ctx *cc;
+	XShapeEvent		*sev = (XShapeEvent *) ee;
+	struct client_ctx	*cc;
 
 	if ((cc = client_find(sev->window)) != NULL)
 		client_do_shape(cc);
@@ -387,7 +394,7 @@ struct xevent *
 xev_new(Window *win, Window *root,
     int type, void (*cb)(struct xevent *, XEvent *), void *arg)
 {
-	struct xevent *xev;
+	struct xevent	*xev;
 
 	XMALLOC(xev, struct xevent);
 	xev->xev_win = win;
@@ -402,7 +409,7 @@ xev_new(Window *win, Window *root,
 void
 xev_register(struct xevent *xev)
 {
-	struct xevent_q *xq;
+	struct xevent_q	*xq;
 
 	xq = _xev_q_lock ? &_xevq_putaway : &_xevq;
 	TAILQ_INSERT_TAIL(xq, xev, entry);
@@ -411,7 +418,7 @@ xev_register(struct xevent *xev)
 void
 _xev_reincorporate(void)
 {
-	struct xevent *xev;
+	struct xevent	*xev;
 
 	while ((xev = TAILQ_FIRST(&_xevq_putaway)) != NULL) {
 		TAILQ_REMOVE(&_xevq_putaway, xev, entry);
@@ -422,8 +429,8 @@ _xev_reincorporate(void)
 void
 xev_handle_expose(struct xevent *xev, XEvent *ee)
 {
-	XExposeEvent *e = &ee->xexpose;
-	struct client_ctx *cc;
+	XExposeEvent		*e = &ee->xexpose;
+	struct client_ctx	*cc;
 
 	if ((cc = client_find(e->window)) != NULL && e->count == 0) {
 		client_draw_border(cc);
@@ -445,10 +452,10 @@ xev_handle_expose(struct xevent *xev, XEvent *ee)
 void
 xev_loop(void)
 {
-	Window win, root;
+	Window		 win, root;
+	XEvent		 e;
+	struct xevent	*xev = NULL, *nextxev;
 	int type;
-	XEvent e;
-	struct xevent *xev, *nextxev;
 
 	while (_xev_quit == 0) {
 #ifdef DIAGNOSTIC

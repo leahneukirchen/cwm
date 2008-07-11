@@ -65,9 +65,9 @@ xu_btn_ungrab(Window win, int mask, u_int btn)
 void
 xu_ptr_getpos(Window rootwin, int *x, int *y)
 {
-	int tmp0, tmp1;
-	u_int tmp2;
-	Window w0, w1;
+	Window	 w0, w1;
+	int	 tmp0, tmp1;
+	u_int	 tmp2;
 
 	XQueryPointer(X_Dpy, rootwin, &w0, &w1, &tmp0, &tmp1, x, y, &tmp2);
 }
@@ -81,8 +81,8 @@ xu_ptr_setpos(Window win, int x, int y)
 void
 xu_key_grab(Window win, int mask, int keysym)
 {
-	KeyCode	code;
-	int	i;
+	KeyCode	 code;
+	int	 i;
 
 	code = XKeysymToKeycode(X_Dpy, keysym);
 	if ((XKeycodeToKeysym(X_Dpy, code, 0) != keysym) &&
@@ -98,7 +98,7 @@ xu_key_grab(Window win, int mask, int keysym)
 void
 xu_sendmsg(struct client_ctx *cc, Atom atm, long val)
 {
-	XEvent e;
+	XEvent	 e;
 
 	memset(&e, 0, sizeof(e));
 	e.xclient.type = ClientMessage;
@@ -114,9 +114,9 @@ xu_sendmsg(struct client_ctx *cc, Atom atm, long val)
 int
 xu_getprop(struct client_ctx *cc, Atom atm, Atom type, long len, u_char **p)
 {
-	Atom realtype;
-	u_long n, extra;
-	int format;
+	Atom	 realtype;
+	u_long	 n, extra;
+	int	 format;
 
 	if (XGetWindowProperty(X_Dpy, cc->win, atm, 0L, len, False, type,
 	    &realtype, &format, &n, &extra, p) != Success || *p == NULL)
@@ -131,8 +131,10 @@ xu_getprop(struct client_ctx *cc, Atom atm, Atom type, long len, u_char **p)
 int
 xu_getstate(struct client_ctx *cc, int *state)
 {
-	Atom wm_state = XInternAtom(X_Dpy, "WM_STATE", False);
-	long *p = NULL;
+	Atom	 wm_state;
+	long	*p = NULL;
+
+	wm_state = XInternAtom(X_Dpy, "WM_STATE", False);
 
 	if (xu_getprop(cc, wm_state, wm_state, 2L, (u_char **)&p) <= 0)
 		return (-1);
@@ -146,8 +148,8 @@ xu_getstate(struct client_ctx *cc, int *state)
 void
 xu_setstate(struct client_ctx *cc, int state)
 {
-	long dat[2];
-	Atom wm_state;
+	Atom	 wm_state;
+	long	 dat[2];
 
 	/* XXX cache */
 	wm_state = XInternAtom(X_Dpy, "WM_STATE", False);

@@ -22,7 +22,7 @@
 void
 font_init(struct screen_ctx *sc)
 {
-	XColor xcolor, tmp;
+	XColor	 xcolor, tmp;
 
 	sc->xftdraw = XftDrawCreate(X_Dpy, sc->rootwin,
 	    DefaultVisual(X_Dpy, sc->which), DefaultColormap(X_Dpy, sc->which));
@@ -43,7 +43,8 @@ font_init(struct screen_ctx *sc)
 int
 font_width(const char *text, int len)
 {
-	XGlyphInfo extents;
+	XGlyphInfo	 extents;
+
 	XftTextExtents8(X_Dpy, Conf.DefaultFont, (const XftChar8*)text,
 	    len, &extents);
 
@@ -63,9 +64,9 @@ font_draw(struct screen_ctx *sc, const char *text, int len,
 XftFont *
 font_make(struct screen_ctx *sc, const char *name)
 {
-	XftFont *fn = NULL;
-	FcPattern *pat, *patx;
-	XftResult res;
+	XftFont		*fn = NULL;
+	FcPattern	*pat, *patx;
+	XftResult	 res;
 
 	if ((pat = FcNameParse(name)) == NULL)
 		return (NULL);

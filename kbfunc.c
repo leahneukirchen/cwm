@@ -46,10 +46,11 @@ kbfunc_client_raise(struct client_ctx *cc, void *arg)
 void
 kbfunc_moveresize(struct client_ctx *cc, void *arg)
 {
-	struct screen_ctx	*sc = screen_current();
+	struct screen_ctx	*sc;
 	int			 x, y, flags, amt;
 	u_int			 mx, my;
 
+	sc = screen_current();
 	mx = my = 0;
 
 	flags = (int)arg;
@@ -121,15 +122,16 @@ kbfunc_moveresize(struct client_ctx *cc, void *arg)
 	default:
 		warnx("invalid flags passed to kbfunc_client_moveresize");
 	}
-
 }
 
 void
 kbfunc_client_search(struct client_ctx *scratch, void *arg)
 {
-	struct menu_q		 menuq;
-	struct client_ctx	*cc, *old_cc = client_current();
+	struct client_ctx	*cc, *old_cc;
 	struct menu		*mi;
+	struct menu_q		 menuq;
+
+	old_cc = client_current();
 
 	TAILQ_INIT(&menuq);
 
@@ -160,9 +162,9 @@ kbfunc_client_search(struct client_ctx *scratch, void *arg)
 void
 kbfunc_menu_search(struct client_ctx *scratch, void *arg)
 {
-	struct menu_q	 menuq;
-	struct menu	*mi;
 	struct cmd	*cmd;
+	struct menu	*mi;
+	struct menu_q	 menuq;
 
 	TAILQ_INIT(&menuq);
 
@@ -187,7 +189,9 @@ kbfunc_menu_search(struct client_ctx *scratch, void *arg)
 void
 kbfunc_client_cycle(struct client_ctx *scratch, void *arg)
 {
-	struct screen_ctx	*sc = screen_current();
+	struct screen_ctx	*sc;
+
+	sc = screen_current();
 
 	/* XXX for X apps that ignore events */
 	XGrabKeyboard(X_Dpy, sc->rootwin, True,
@@ -226,16 +230,16 @@ void
 kbfunc_exec(struct client_ctx *scratch, void *arg)
 {
 #define NPATHS 256
-	char **ap, *paths[NPATHS], *path, *pathcpy, tpath[MAXPATHLEN];
-	int l, i, j, ngroups;
-	gid_t mygroups[NGROUPS_MAX];
-	uid_t ruid, euid, suid;
-	DIR *dirp;
-	struct dirent *dp;
-	struct stat sb;
-	struct menu_q menuq;
-	struct menu *mi;
-	char *label;
+	char		**ap, *paths[NPATHS], *path, *pathcpy, *label;
+	char		 tpath[MAXPATHLEN];
+	int		 l, i, j, ngroups;
+	gid_t		 mygroups[NGROUPS_MAX];
+	uid_t		 ruid, euid, suid;
+	DIR		*dirp;
+	struct dirent	*dp;
+	struct menu	*mi;
+	struct menu_q	 menuq;
+	struct stat	 sb;
 
 	int cmd = (int)arg;
 	switch (cmd) {
@@ -308,7 +312,7 @@ kbfunc_exec(struct client_ctx *scratch, void *arg)
 			strlcpy(mi->text, dp->d_name, sizeof(mi->text));
 			TAILQ_INSERT_TAIL(&menuq, mi, entry);
 		}
-		(void) closedir(dirp);
+		(void)closedir(dirp);
 	}
 	xfree(path);
 
@@ -339,13 +343,14 @@ kbfunc_exec(struct client_ctx *scratch, void *arg)
 void
 kbfunc_ssh(struct client_ctx *scratch, void *arg)
 {
-	struct menu_q menuq;
-	struct menu *mi;
-	FILE *fp;
-	size_t len;
-	char *buf, *lbuf, *p, *home;
-	char hostbuf[MAXHOSTNAMELEN], filename[MAXPATHLEN], cmd[256];
-	int l;
+	struct menu	*mi;
+	struct menu_q	 menuq;
+	FILE		*fp;
+	char		*buf, *lbuf, *p, *home;
+	char		 hostbuf[MAXHOSTNAMELEN], filename[MAXPATHLEN];
+	char		 cmd[256];
+	int		 l;
+	size_t		 len;
 
 	if ((home = getenv("HOME")) == NULL)
 		return;
@@ -386,7 +391,6 @@ kbfunc_ssh(struct client_ctx *scratch, void *arg)
 	xfree(lbuf);
 	fclose(fp);
 
-
 	if ((mi = menu_filter(&menuq, "ssh", NULL, 1,
 	    search_match_exec, NULL)) != NULL) {
 		conf_reload(&Conf);
@@ -408,8 +412,8 @@ void
 kbfunc_client_label(struct client_ctx *cc, void *arg)
 {
 	struct menu	*mi;
-	char		*current;
 	struct menu_q	 menuq;
+	char		*current;
 
 	TAILQ_INIT(&menuq);
 	

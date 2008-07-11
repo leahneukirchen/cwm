@@ -36,7 +36,7 @@ client_setup(void)
 struct client_ctx *
 client_find(Window win)
 {
-	struct client_ctx *cc;
+	struct client_ctx	*cc;
 
 	TAILQ_FOREACH(cc, &Clientq, entry)
 		if (cc->pwin == win || cc->win == win)
@@ -48,12 +48,12 @@ client_find(Window win)
 struct client_ctx *
 client_new(Window win, struct screen_ctx *sc, int mapped)
 {
-	struct client_ctx *cc;
-	long tmp;
-	XSetWindowAttributes pxattr;
-	XWindowAttributes wattr;
-	int x, y, height, width, state;
-	XWMHints *wmhints;
+	struct client_ctx	*cc;
+	XSetWindowAttributes	 pxattr;
+	XWindowAttributes	 wattr;
+	XWMHints		*wmhints;
+	long			 tmp;
+	int			 x, y, height, width, state;
 
 	if (win == None)
 		return (NULL);
@@ -127,7 +127,6 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 		width += (cc->bwidth)*2;
 		height += (cc->bwidth)*2;
 	}
-
 	pxattr.override_redirect = True;
 	pxattr.background_pixel = sc->bgcolor.pixel;
 	pxattr.event_mask = ChildMask | ButtonPressMask | ButtonReleaseMask |
@@ -176,8 +175,8 @@ void
 client_do_shape(struct client_ctx *cc)
 {
 	/* Windows not rectangular require more effort */
-	XRectangle *r;
-	int n, tmp;
+	XRectangle	*r;
+	int		 n, tmp;
 
 	if (Doshape) {
 		XShapeSelectInput(X_Dpy, cc->win, ShapeNotifyMask);
@@ -196,15 +195,15 @@ client_do_shape(struct client_ctx *cc)
 int
 client_delete(struct client_ctx *cc, int sendevent, int ignorewindow)
 {
-	struct screen_ctx *sc = CCTOSC(cc);
-	struct winname *wn;
+	struct screen_ctx	*sc = CCTOSC(cc);
+	struct winname		*wn;
 
 	if (cc->state == IconicState && !sendevent)
 		return (1);
 
 	group_client_delete(cc);
-	XGrabServer(X_Dpy);
 
+	XGrabServer(X_Dpy);
 	xu_setstate(cc, WithdrawnState);
 	XRemoveFromSaveSet(X_Dpy, cc->win);
 
@@ -245,21 +244,21 @@ client_delete(struct client_ctx *cc, int sendevent, int ignorewindow)
 void
 client_leave(struct client_ctx *cc)
 {
-	struct screen_ctx *sc;
+	struct screen_ctx	*sc;
 
 	if (cc == NULL)
 		cc = _curcc;
 	if (cc == NULL)
 		return;
-	sc = CCTOSC(cc);
 
+	sc = CCTOSC(cc);
 	xu_btn_ungrab(sc->rootwin, AnyModifier, Button1);
 }
 
 void
 client_setactive(struct client_ctx *cc, int fg)
 {
-	struct screen_ctx* sc;
+	struct screen_ctx	*sc;
 
 	if (cc == NULL)
 		cc = _curcc;
@@ -300,9 +299,9 @@ client_current(void)
 void
 client_gravitate(struct client_ctx *cc, int yes)
 {
-	int dx = 0, dy = 0, mult = yes ? 1 : -1;
-	int gravity = (cc->size->flags & PWinGravity) ?
-	    cc->size->win_gravity : NorthWestGravity;
+	int	 dx = 0, dy = 0, mult = yes ? 1 : -1;
+	int	 gravity = (cc->size->flags & PWinGravity) ?
+		     cc->size->win_gravity : NorthWestGravity;
 
 	switch (gravity) {
 	case NorthWestGravity:
@@ -315,8 +314,8 @@ client_gravitate(struct client_ctx *cc, int yes)
 		break;
 	}
 
-	cc->geom.x += mult*dx;
-	cc->geom.y += mult*dy;
+	cc->geom.x += mult * dx;
+	cc->geom.y += mult * dy;
 }
 
 void
@@ -388,7 +387,7 @@ client_raise(struct client_ctx *cc)
 void
 client_ptrwarp(struct client_ctx *cc)
 {
-	int x = cc->ptr.x, y = cc->ptr.y;
+	int	 x = cc->ptr.x, y = cc->ptr.y;
 
 	if (x == -1 || y == -1) {
 		x = cc->geom.width / 2;
@@ -406,7 +405,7 @@ client_ptrwarp(struct client_ctx *cc)
 void
 client_ptrsave(struct client_ctx *cc)
 {
-	int x, y;
+	int	 x, y;
 
 	xu_ptr_getpos(cc->pwin, &x, &y);
 	if (_inwindowbounds(cc, x, y)) {
@@ -442,7 +441,7 @@ client_unhide(struct client_ctx *cc)
 void
 client_draw_border(struct client_ctx *cc)
 {
-	struct screen_ctx *sc = CCTOSC(cc);
+	struct screen_ctx	*sc = CCTOSC(cc);
 
 	if (cc->active) {
 		XSetWindowBackground(X_Dpy, cc->pwin, client_bg_pixel(cc));
@@ -464,8 +463,8 @@ client_draw_border(struct client_ctx *cc)
 u_long
 client_bg_pixel(struct client_ctx *cc)
 {
-	struct screen_ctx *sc = CCTOSC(cc);
-	u_long pixl;
+	struct screen_ctx	*sc = CCTOSC(cc);
+	u_long			 pixl;
 
 	switch (cc->highlight) {
 	case CLIENT_HIGHLIGHT_BLUE:
@@ -485,8 +484,8 @@ client_bg_pixel(struct client_ctx *cc)
 Pixmap
 client_bg_pixmap(struct client_ctx *cc)
 {
-	struct screen_ctx *sc = CCTOSC(cc);
-	Pixmap pix;
+	struct screen_ctx	*sc = CCTOSC(cc);
+	Pixmap			 pix;
 
 	switch (cc->highlight) {
 	case CLIENT_HIGHLIGHT_BLUE:
@@ -506,9 +505,9 @@ client_bg_pixmap(struct client_ctx *cc)
 void
 client_update(struct client_ctx *cc)
 {
-	Atom *p, wm_delete, wm_protocols, wm_take_focus;
-	int i;
-	long n;
+	Atom	*p, wm_delete, wm_protocols, wm_take_focus;
+	int	 i;
+	long	 n;
 
 	/* XXX cache these. */
 	wm_delete = XInternAtom(X_Dpy, "WM_DELETE_WINDOW", False);
@@ -531,7 +530,7 @@ client_update(struct client_ctx *cc)
 void
 client_send_delete(struct client_ctx *cc)
 {
-	Atom wm_delete, wm_protocols;
+	Atom	 wm_delete, wm_protocols;
 
 	/* XXX - cache */
 	wm_delete = XInternAtom(X_Dpy, "WM_DELETE_WINDOW", False);
@@ -546,8 +545,8 @@ client_send_delete(struct client_ctx *cc)
 void
 client_setname(struct client_ctx *cc)
 {
-	char *newname;
-	struct winname *wn;
+	struct winname	*wn;
+	char		*newname;
 
 	XFetchName(X_Dpy, cc->win, &newname);
 	if (newname == NULL)
@@ -586,9 +585,12 @@ match:
 struct client_ctx *
 client_cycle(int reverse)
 {
-	struct client_ctx	*oldcc = client_current(), *newcc;
-	struct screen_ctx	*sc = screen_current();
+	struct client_ctx	*oldcc, *newcc;
+	struct screen_ctx	*sc;
 	int			 again = 1;
+
+	oldcc = client_current();
+	sc = screen_current();
 
 	/* If no windows then you cant cycle */
 	if (TAILQ_EMPTY(&sc->mruq))
@@ -629,8 +631,8 @@ client_cycle(int reverse)
 struct client_ctx *
 client_mrunext(struct client_ctx *cc)
 {
-	struct screen_ctx *sc = CCTOSC(cc);
-	struct client_ctx *ccc;
+	struct screen_ctx	*sc = CCTOSC(cc);
+	struct client_ctx	*ccc;
 
 	return ((ccc = TAILQ_NEXT(cc, mru_entry)) != NULL ?
 	    ccc : TAILQ_FIRST(&sc->mruq));
@@ -639,8 +641,8 @@ client_mrunext(struct client_ctx *cc)
 struct client_ctx *
 client_mruprev(struct client_ctx *cc)
 {
-	struct screen_ctx *sc = CCTOSC(cc);
-	struct client_ctx *ccc;
+	struct screen_ctx	*sc = CCTOSC(cc);
+	struct client_ctx	*ccc;
 
 	return ((ccc = TAILQ_PREV(cc, cycle_entry_q, mru_entry)) != NULL ?
 	    ccc : TAILQ_LAST(&sc->mruq, cycle_entry_q));
@@ -649,16 +651,16 @@ client_mruprev(struct client_ctx *cc)
 void
 client_placecalc(struct client_ctx *cc)
 {
-	struct screen_ctx *sc = CCTOSC(cc);
-	int yslack, xslack, xmouse, ymouse;
+	struct screen_ctx	*sc = CCTOSC(cc);
+	int			 yslack, xslack, xmouse, ymouse;
 
 	yslack = sc->ymax - cc->geom.height - cc->bwidth;
 	xslack = sc->xmax - cc->geom.width - cc->bwidth;
 
 	xu_ptr_getpos(sc->rootwin, &xmouse, &ymouse);
 
-	xmouse = MAX(xmouse, cc->bwidth) - cc->geom.width/2;
-	ymouse = MAX(ymouse, cc->bwidth) - cc->geom.height/2;
+	xmouse = MAX(xmouse, cc->bwidth) - cc->geom.width / 2;
+	ymouse = MAX(ymouse, cc->bwidth) - cc->geom.height / 2;
 
 	xmouse = MAX(xmouse, (int)cc->bwidth);
 	ymouse = MAX(ymouse, (int)cc->bwidth);
@@ -700,9 +702,11 @@ client_vertmaximize(struct client_ctx *cc)
 	if (cc->flags & CLIENT_VMAXIMIZED) {
 		cc->geom = cc->savegeom;
 	} else {
-		struct screen_ctx *sc = CCTOSC(cc);
-		int display_height = DisplayHeight(X_Dpy, sc->which) -
-		    cc->bwidth*2;
+		struct screen_ctx	*sc = CCTOSC(cc);
+		int			 display_height;
+
+		display_height = DisplayHeight(X_Dpy, sc->which) -
+		    cc->bwidth * 2;
 
 		if (!(cc->flags & CLIENT_MAXIMIZED))
 			cc->savegeom = cc->geom;
@@ -718,7 +722,7 @@ client_vertmaximize(struct client_ctx *cc)
 void
 client_mtf(struct client_ctx *cc)
 {
-	struct screen_ctx *sc;
+	struct screen_ctx	*sc;
 
 	if (cc == NULL)
 		cc = _curcc;
@@ -735,11 +739,11 @@ client_mtf(struct client_ctx *cc)
 void
 client_gethints(struct client_ctx *cc)
 {
-	XClassHint xch;
-	int argc;
-	char **argv;
-	Atom mha;
-	struct mwm_hints *mwmh;
+	XClassHint		 xch;
+	int			 argc;
+	char			**argv;
+	Atom			 mha;
+	struct mwm_hints	*mwmh;
 
 	if (XGetClassHint(X_Dpy, cc->win, &xch)) {
 		if (xch.res_name != NULL)
@@ -758,9 +762,8 @@ client_gethints(struct client_ctx *cc)
 	if (XGetCommand(X_Dpy, cc->win, &argv, &argc)) {
 #define MAX_ARGLEN 512
 #define ARG_SEP_ " "
-		int len = MAX_ARGLEN;
-		int i, o;
-		char *buf;
+		int	 i, o, len = MAX_ARGLEN;
+		char	*buf;
 
 		buf = xmalloc(len);
 		buf[0] = '\0';

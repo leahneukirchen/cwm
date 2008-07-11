@@ -27,7 +27,7 @@ extern struct screen_ctx	*Curscreen;
 struct screen_ctx *
 screen_fromroot(Window rootwin)
 {
-	struct screen_ctx *sc;
+	struct screen_ctx	*sc;
 
 	TAILQ_FOREACH(sc, &Screenq, entry)
 		if (sc->rootwin == rootwin)
@@ -46,10 +46,12 @@ screen_current(void)
 void
 screen_updatestackingorder(void)
 {
-	Window *wins, w0, w1;
-	struct screen_ctx *sc = screen_current();
-	u_int nwins, i, s;
-	struct client_ctx *cc;
+	Window			*wins, w0, w1;
+	struct screen_ctx	*sc;
+	struct client_ctx	*cc;
+	u_int			 nwins, i, s;
+
+	sc = screen_current();
 
 	if (!XQueryTree(X_Dpy, sc->rootwin, &w0, &w1, &wins, &nwins))
 		return;

@@ -44,9 +44,8 @@ u_spawn(char *argstr)
 void
 u_exec(char *argstr)
 {
-	char *args[MAXARGLEN], **ap = args;
-	char **end = &args[MAXARGLEN - 1];
-	char *tmp;
+	char	*args[MAXARGLEN], **ap = args;
+	char	**end = &args[MAXARGLEN - 1], *tmp;
 
 	while (ap < end && (*ap = strsep(&argstr, " \t")) != NULL) {
 		if (**ap == '\0')

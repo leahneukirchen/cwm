@@ -67,13 +67,15 @@ menu_filter(struct menu_q *menuq, char *prompt, char *initial, int dummy,
     void (*match)(struct menu_q *, struct menu_q *, char *),
     void (*print)(struct menu *, int))
 {
-	struct screen_ctx	*sc = screen_current();
+	struct screen_ctx	*sc;
 	struct menu_ctx		 mc;
 	struct menu_q		 resultq;
 	struct menu		*mi = NULL;
 	XEvent			 e;
 	Window			 focuswin;
 	int			 Mask, focusrevert;
+
+	sc = screen_current();
 
 	TAILQ_INIT(&resultq);
 
@@ -255,10 +257,7 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
     struct menu_q *resultq)
 {
 	struct menu	*mi;
-	int		 n = 0;
-	int		 dy;
-	int		 xsave, ysave;
-	int		 warp;
+	int		 n, dy, xsave, ysave;
 
 	if (mc->list) {
 		if (TAILQ_EMPTY(resultq) && mc->list) {
@@ -388,10 +387,12 @@ menu_handle_release(XEvent *e, struct menu_ctx *mc, struct screen_ctx *sc,
 static int
 menu_calc_entry(struct screen_ctx *sc, struct menu_ctx *mc, int x, int y)
 {
-	int entry = y / font_height();
+	int	 entry;
+
+	entry = y / font_height();
 
 	/* in bounds? */
-	if (x < 0 || x > mc->width || y < 0 || y > font_height()*mc->num ||
+	if (x < 0 || x > mc->width || y < 0 || y > font_height() * mc->num ||
 	    entry < 0 || entry >= mc->num)
 		entry = -1;
 

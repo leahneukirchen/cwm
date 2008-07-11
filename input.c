@@ -24,7 +24,7 @@
 int
 input_keycodetrans(KeyCode kc, u_int state, enum ctltype *ctl, char *chr)
 {
-	int ks;
+	int	 ks;
 
 	*ctl = CTL_NONE;
 	*chr = '\0';

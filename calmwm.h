@@ -83,8 +83,8 @@ TAILQ_HEAD(screen_ctx_q, screen_ctx);
 
 
 struct winname {
-	TAILQ_ENTRY(winname) entry;
-	char *name;
+	TAILQ_ENTRY(winname)	 entry;
+	char			*name;
 };
 
 TAILQ_HEAD(winname_q, winname);

@@ -44,16 +44,14 @@ struct conf			 Conf;
 #define gray_height 2
 static char gray_bits[] = {0x02, 0x01};
 
-
 static void	_sigchld_cb(int);
 
 int
 main(int argc, char **argv)
 {
-	int ch;
-	const char *conf_file = NULL;
-
-	char *display_name = NULL;
+	const char	*conf_file = NULL;
+	char		*display_name = NULL;
+	int		 ch;
 
 	while ((ch = getopt(argc, argv, "c:d:")) != -1) {
 		switch (ch) {
@@ -110,8 +108,8 @@ main(int argc, char **argv)
 void
 x_setup(char *display_name)
 {
-	int i;
-	struct screen_ctx *sc;
+	struct screen_ctx	*sc;
+	int			 i;
 
 	TAILQ_INIT(&Screenq);
 
@@ -140,13 +138,13 @@ x_setup(char *display_name)
 void
 x_setupscreen(struct screen_ctx *sc, u_int which)
 {
-	XColor tmp;
-	XGCValues gv;
-	Window *wins, w0, w1;
-	u_int nwins, i = 0;
-	XWindowAttributes winattr;
-	XSetWindowAttributes rootattr;
-	struct keybinding *kb;
+	XColor			 tmp;
+	XGCValues		 gv;
+	Window			*wins, w0, w1;
+	XWindowAttributes	 winattr;
+	XSetWindowAttributes	 rootattr;
+	struct keybinding	*kb;
+	u_int			 nwins, i;
 
 	Curscreen = sc;
 
@@ -247,8 +245,8 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 char *
 x_screenname(int which)
 {
-	char *cp, *dstr, *sn;
-	size_t snlen;
+	char	*cp, *dstr, *sn;
+	size_t	 snlen;
 
 	if (which > 9)
 		errx(1, "Can't handle more than 9 screens.  If you need it, "
@@ -298,9 +296,9 @@ x_errorhandler(Display *dpy, XErrorEvent *e)
 static void
 _sigchld_cb(int which)
 {
-	pid_t pid;
-	int save_errno = errno;
-	int status;
+	pid_t	 pid;
+	int	 save_errno = errno;
+	int	 status;
 
 	/* Collect dead children. */
 	while ((pid = waitpid(-1, &status, WNOHANG)) > 0 ||
@@ -313,7 +311,7 @@ _sigchld_cb(int which)
 __dead void
 usage(void)
 {
-	extern char *__progname;
+	extern char	*__progname;
 
 	fprintf(stderr, "usage: %s [-c file] [-d display]\n", __progname);
 	exit(1);

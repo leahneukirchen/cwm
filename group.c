@@ -58,7 +58,7 @@ _group_remove(struct client_ctx *cc)
 static void
 _group_hide(struct group_ctx *gc)
 {
-	struct client_ctx *cc;
+	struct client_ctx	*cc;
 
 	screen_updatestackingorder();
 
@@ -76,10 +76,10 @@ _group_hide(struct group_ctx *gc)
 static void
 _group_show(struct group_ctx *gc)
 {
-	struct client_ctx *cc;
-	Window *winlist;
-	u_int i;
-	int lastempty = -1;
+	struct client_ctx	*cc;
+	Window			*winlist;
+	u_int			 i;
+	int			 lastempty = -1;
 
 	winlist = (Window *) xcalloc(sizeof(*winlist), (gc->highstack + 1));
 
@@ -113,7 +113,7 @@ _group_show(struct group_ctx *gc)
 void
 group_init(void)
 {
-	int i;
+	int	 i;
 
 	TAILQ_INIT(&Groupq);
 
@@ -133,7 +133,9 @@ group_init(void)
 void
 group_sticky_toggle_enter(struct client_ctx *cc)
 {
-	struct group_ctx *gc = Group_active;
+	struct group_ctx	*gc;
+
+	gc = Group_active;
 
 	if (gc == cc->group) {
 		_group_remove(cc);
@@ -162,8 +164,8 @@ group_sticky_toggle_exit(struct client_ctx *cc)
 void
 _group_fix_hidden_state(struct group_ctx *gc)
 {
-	struct client_ctx *cc;
-	int same = 0;
+	struct client_ctx	*cc;
+	int			 same = 0;
 
 	TAILQ_FOREACH(cc, &gc->clients, group_entry) {
 		if (gc->hidden == ((cc->flags & CLIENT_HIDDEN) ? 1 : 0))
@@ -177,7 +179,7 @@ _group_fix_hidden_state(struct group_ctx *gc)
 void
 group_hidetoggle(int idx)
 {
-	struct group_ctx *gc;
+	struct group_ctx	*gc;
 
 	if (idx < 0 || idx >= CALMWM_NGROUPS)
 		err(1, "group_hidetoggle: index out of range (%d)", idx);
@@ -201,11 +203,10 @@ group_hidetoggle(int idx)
 void
 group_cycle(int reverse)
 {
-	struct group_ctx *gc, *showgroup = NULL;
+	struct group_ctx	*gc, *showgroup = NULL;
 
 	assert(Group_active != NULL);
 
-	gc = Group_active;
 	for (;;) {
 		gc = reverse ? TAILQ_PREV(gc, group_ctx_q, entry) :
 		    TAILQ_NEXT(gc, entry);
@@ -246,10 +247,10 @@ group_client_delete(struct client_ctx *cc)
 void
 group_menu(XButtonEvent *e)
 {
-	struct menu_q		 menuq;
-	struct menu		*mi;
-	int			 i;
 	struct group_ctx	*gc;
+	struct menu		*mi;
+	struct menu_q		 menuq;
+	int			 i;
 
 	TAILQ_INIT(&menuq);
 
@@ -295,7 +296,7 @@ cleanup:
 void
 group_alltoggle(void)
 {
-	int i;
+	int	 i;
 
 	for (i = 0; i < CALMWM_NGROUPS; i++) {
 		if (Grouphideall)
@@ -313,9 +314,9 @@ group_alltoggle(void)
 void
 group_autogroup(struct client_ctx *cc)
 {
-	struct autogroupwin *aw;
-	struct group_ctx *gc;
-	char group[CALMWM_MAXNAMELEN];
+	struct autogroupwin	*aw;
+	struct group_ctx	*gc;
+	char			 group[CALMWM_MAXNAMELEN];
 
 	if (cc->app_class == NULL || cc->app_name == NULL)
 		return;

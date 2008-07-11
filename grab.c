@@ -29,10 +29,10 @@ static int	_sweepcalc(struct client_ctx *, int, int, int, int);
 void
 grab_sweep_draw(struct client_ctx *cc, int dx, int dy)
 {
-	struct screen_ctx *sc = CCTOSC(cc);
-	int x0 = cc->geom.x, y0 = cc->geom.y;
-	char asize[10];	/* fits "nnnnxnnnn\0" */
-	int wide, height, wide_size, wide_name;
+	struct screen_ctx	*sc = CCTOSC(cc);
+	char			 asize[10]; /* fits "nnnnxnnnn\0" */
+	int			 wide, height, wide_size, wide_name;
+	int			 x = cc->geom.x, y = cc->geom.y;
 
 	snprintf(asize, sizeof(asize), "%dx%d",
 	    ADJUST_WIDTH(cc, dx), ADJUST_HEIGHT(cc, dy));
@@ -41,23 +41,22 @@ grab_sweep_draw(struct client_ctx *cc, int dx, int dy)
 	wide = MAX(wide_size, wide_name);
 	height = font_ascent() + font_descent() + 1;
 
-	XMoveResizeWindow(X_Dpy, sc->menuwin, x0, y0, wide, height * 2);
+	XMoveResizeWindow(X_Dpy, sc->menuwin, x, y, wide, height * 2);
 	XMapWindow(X_Dpy, sc->menuwin);
 	XReparentWindow(X_Dpy, sc->menuwin, cc->win, 0, 0);
 	XClearWindow(X_Dpy, sc->menuwin);
 	font_draw(sc, cc->name, strlen(cc->name), sc->menuwin,
 	    2, font_ascent() + 1);
 	font_draw(sc, asize, strlen(asize), sc->menuwin,
-	    wide/2 - wide_size/2, height + font_ascent() + 1);
+	    wide / 2 - wide_size / 2, height + font_ascent() + 1);
 }
 
 void
 grab_sweep(struct client_ctx *cc)
 {
-	XEvent ev;
-	struct screen_ctx *sc = CCTOSC(cc);
-	int x0 = cc->geom.x, y0 = cc->geom.y;
-	int dx, dy;
+	XEvent			 ev;
+	struct screen_ctx	*sc = CCTOSC(cc);
+	int			 x = cc->geom.x, y = cc->geom.y, dx, dy;
 
 	dx = MAX(1, cc->size->width_inc);
 	dy = MAX(1, cc->size->height_inc);
@@ -80,7 +79,7 @@ grab_sweep(struct client_ctx *cc)
 			client_draw_border(cc);
 			break;
 		case MotionNotify:
-			if (_sweepcalc(cc, x0, y0, ev.xmotion.x, ev.xmotion.y))
+			if (_sweepcalc(cc, x, y, ev.xmotion.x, ev.xmotion.y))
 				/* Recompute window output */
 				grab_sweep_draw(cc, dx, dy);
 
@@ -116,9 +115,9 @@ grab_sweep(struct client_ctx *cc)
 void
 grab_drag(struct client_ctx *cc)
 {
-	int x0 = cc->geom.x, y0 = cc->geom.y, xm, ym;
-	struct screen_ctx *sc = CCTOSC(cc);
-	XEvent ev;
+	XEvent			 ev;
+	struct screen_ctx	*sc = CCTOSC(cc);
+	int			 x = cc->geom.x, y = cc->geom.y, xm, ym;
 
 	client_raise(cc);
 
@@ -135,8 +134,8 @@ grab_drag(struct client_ctx *cc)
 			client_draw_border(cc);
 			break;
 		case MotionNotify:
-			cc->geom.x = x0 + (ev.xmotion.x - xm);
-			cc->geom.y = y0 + (ev.xmotion.y - ym);
+			cc->geom.x = x + (ev.xmotion.x - xm);
+			cc->geom.y = y + (ev.xmotion.y - ym);
 
 			XMoveWindow(X_Dpy, cc->pwin,
 			    cc->geom.x - cc->bwidth, cc->geom.y - cc->bwidth);
@@ -151,15 +150,15 @@ grab_drag(struct client_ctx *cc)
 }
 
 static int
-_sweepcalc(struct client_ctx *cc, int x0, int y0, int motionx, int motiony)
+_sweepcalc(struct client_ctx *cc, int x, int y, int motionx, int motiony)
 {
-	int width, height;
+	int	 width, height;
 
 	width = cc->geom.width;
 	height = cc->geom.height;
 
-	cc->geom.width = abs(x0 - motionx);
-	cc->geom.height = abs(y0 - motiony);
+	cc->geom.width = abs(x - motionx);
+	cc->geom.height = abs(y - motiony);
 
 	if (cc->size->flags & PResizeInc) {
 		cc->geom.width -=
@@ -178,8 +177,8 @@ _sweepcalc(struct client_ctx *cc, int x0, int y0, int motionx, int motiony)
 		cc->geom.height = MIN(cc->geom.height, cc->size->max_height);
 	}
 
-	cc->geom.x = x0 <= motionx ? x0 : x0 - cc->geom.width;
-	cc->geom.y = y0 <= motiony ? y0 : y0 - cc->geom.height;
+	cc->geom.x = x <= motionx ? x : x - cc->geom.width;
+	cc->geom.y = y <= motiony ? y : y - cc->geom.height;
 
 	return (width != cc->geom.width || height != cc->geom.height);
 }
