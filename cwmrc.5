@@ -15,7 +15,7 @@
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
 .\" The following requests are required for all man pages.
-.Dd $Mdocdate: June 25 2008 $
+.Dd $Mdocdate: July 11 2008 $
 .Dt CWMRC 5
 .Os
 .Sh NAME
@@ -207,125 +207,125 @@ mousebind M-3	window_resize
 .Sh BIND COMMAND LIST
 .Bl -tag -width 18n -compact
 .It reload
-reload configuration
+Reload configuration.
 .It quit
-quit
-.Xr cwm 1
+Quit
+.Xr cwm 1 .
 .It terminal
-spawn a new terminal
+Spawn a new terminal.
 .It lock
-lock the screen
+Lock the screen.
 .It search
-launch window search menu
+Launch window search menu.
 .It menusearch
-launch application search menu
+Launch application search menu.
 .It exec
-launch
+Launch
 .Dq exec program
-menu
+menu.
 .It exec_wm
-launch
+Launch
 .Dq exec WindowManager
-menu
+menu.
 .It ssh
-launch
+Launch
 .Dq ssh
-menu
+menu.
 .It group[n]
-select group n, where n is 1-9
+Select group n, where n is 1-9.
 .It nogroup
-select all groups
+Select all groups.
 .It grouptoggle
-toggle group membership of a window
+Toggle group membership of current window.
 .It cyclegroup
-forward cycle through groups
+Forward cycle through groups.
 .It rcyclegroup
-reverse cycle through groups
+Reverse cycle through groups.
 .It cycle
-forward cycle through windows
+Forward cycle through windows.
 .It rcycle
-reverse cycle through windows
+Reverse cycle through windows.
 .It delete
-delete a window
+Delete current window.
 .It hide
-hide a window
+Hide current window.
 .It lower
-lower a window
+Lower current window.
 .It raise
-raise a window
+Raise current window.
 .It label
-label a window
+Label current window.
 .It maximize
-maximize a window full-screen
+Maximize current window full-screen.
 .It vmaximize
-maximize a window vertically
+Maximize current window vertically.
 .It moveup
-move window 1 pixel up
+Move window 1 pixel up.
 .It movedown
-move window 1 pixel down
+Move window 1 pixel down.
 .It moveright
-move window 1 pixel right
+Move window 1 pixel right.
 .It moveleft
-move window 1 pixel left
+Move window 1 pixel left.
 .It bigmoveup
-move window 10 pixels up
+Move window 10 pixels up.
 .It bigmovedown
-move window 10 pixels down
+Move window 10 pixels down.
 .It bigmoveright
-move window 10 pixels right
+Move window 10 pixels right.
 .It bigmoveleft
-move window 10 pixels left
+Move window 10 pixels left.
 .It resizeup
-resize window 1 pixel up
+Resize window 1 pixel up.
 .It resizedown
-resize window 1 pixel down
+Resize window 1 pixel down.
 .It resizeright
-resize window 1 pixel right
+Resize window 1 pixel right.
 .It resizeleft
-resize window 1 pixel left
+Resize window 1 pixel left.
 .It bigresizeup
-resize window 10 pixels up
+Resize window 10 pixels up.
 .It bigresizedown
-resize window 10 pixels down
+Resize window 10 pixels down.
 .It bigresizeright
-resize window 10 pixels right
+Resize window 10 pixels right.
 .It bigresizeleft
-resize window 10 pixels left
+Resize window 10 pixels left.
 .It ptrmoveup
-move pointer 1 pixel up
+Move pointer 1 pixel up.
 .It ptrmovedown
-move pointer 1 pixel down
+Move pointer 1 pixel down.
 .It ptrmoveright
-move pointer 1 pixel right
+Move pointer 1 pixel right.
 .It ptrmoveleft
-move pointer 1 pixel left
+Move pointer 1 pixel left.
 .It bigptrmoveup
-move pointer 10 pixels up
+Move pointer 10 pixels up.
 .It bigptrmovedown
-move pointer 10 pixels down
+Move pointer 10 pixels down.
 .It bigptrmoveright
-move pointer 10 pixels right
+Move pointer 10 pixels right.
 .It bigptrmoveleft
-move pointer 10 pixels left
+Move pointer 10 pixels left.
 .El
 .Sh MOUSEBIND COMMAND LIST
 .Bl -tag -width 18n -compact
 .It window_move
-move a window
+Move current window.
 .It window_resize
-resize a window
+Resize current window.
 .It window_lower
-lower a window
+Lower current window.
 .It window_hide
-hide a window
+Hide current window.
 .It window_grouptoggle
-toggle group membership of a window
+Toggle group membership of current window.
 .It menu_group
-launch group list
+Launch group list.
 .It menu_unhide
-launch group list
+Launch group list.
 .It menu_cmd
-launch command list
+Launch command list.
 .El
 .Sh FILES
 .Bl -tag -width "~/.cwmrcXXX" -compact
