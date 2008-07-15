@@ -321,21 +321,17 @@ client_gravitate(struct client_ctx *cc, int yes)
 void
 client_maximize(struct client_ctx *cc)
 {
+	struct screen_ctx	*sc = CCTOSC(cc);
+
 	if (cc->flags & CLIENT_MAXIMIZED) {
 		cc->geom = cc->savegeom;
 	} else {
-		XWindowAttributes rootwin_geom;
-		struct screen_ctx *sc = CCTOSC(cc);
-
-		XGetWindowAttributes(X_Dpy, sc->rootwin, &rootwin_geom);
 		if (!(cc->flags & CLIENT_VMAXIMIZED))
 			cc->savegeom = cc->geom;
 		cc->geom.x = Conf.gap_left;
 		cc->geom.y = Conf.gap_top;
-		cc->geom.height = rootwin_geom.height -
-		    (Conf.gap_top + Conf.gap_bottom);
-		cc->geom.width = rootwin_geom.width -
-		    (Conf.gap_left + Conf.gap_right);
+		cc->geom.height = sc->ymax - (Conf.gap_top + Conf.gap_bottom);
+		cc->geom.width = sc->xmax - (Conf.gap_left + Conf.gap_right);
 		cc->flags |= CLIENT_DOMAXIMIZE;
 	}
 
