@@ -207,6 +207,7 @@ group_cycle(int reverse)
 
 	assert(Group_active != NULL);
 
+	gc = Group_active;
 	for (;;) {
 		gc = reverse ? TAILQ_PREV(gc, group_ctx_q, entry) :
 		    TAILQ_NEXT(gc, entry);
