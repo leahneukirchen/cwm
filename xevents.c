@@ -375,6 +375,27 @@ xev_handle_shape(struct xevent *xev, XEvent *ee)
 		client_do_shape(cc);
 }
 
+/* 
+ * Called when the keymap has changed.
+ * Ungrab all keys, reload keymap and then regrab
+ */
+void
+xev_handle_mapping(struct xevent *xev, XEvent *ee)
+{
+	XMappingEvent		*e = &ee->xmapping;
+	struct keybinding	*kb;
+
+	TAILQ_FOREACH(kb, &Conf.keybindingq, entry)
+		conf_ungrab(&Conf, kb);
+
+	XRefreshKeyboardMapping(e);
+
+	TAILQ_FOREACH(kb, &Conf.keybindingq, entry)
+		conf_grab(&Conf, kb);
+
+	xev_register(xev);
+}
+
 /*
  * X Event handling
  */

@@ -369,6 +369,7 @@ void			 xev_handle_keyrelease(struct xevent *, XEvent *);
 void			 xev_handle_expose(struct xevent *, XEvent *);
 void			 xev_handle_clientmessage(struct xevent *, XEvent *);
 void			 xev_handle_shape(struct xevent *, XEvent *);
+void			 xev_handle_mapping(struct xevent *, XEvent *);
 
 #define XEV_QUICK(a, b, c, d, e) do {		\
 	xev_register(xev_new(a, b, c, d, e));	\

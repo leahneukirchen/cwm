@@ -101,6 +101,7 @@ main(int argc, char **argv)
 	XEV_QUICK(NULL, NULL, Expose, xev_handle_expose, NULL);
 	XEV_QUICK(NULL, NULL, DestroyNotify, xev_handle_destroynotify, NULL);
 	XEV_QUICK(NULL, NULL, ClientMessage, xev_handle_clientmessage, NULL);
+	XEV_QUICK(NULL, NULL, MappingNotify, xev_handle_mapping, NULL);
 
 	xev_loop();
 
