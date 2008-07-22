@@ -290,6 +290,38 @@ struct {
 	{ NULL, NULL, 0, 0},
 };
 
+/*
+ * The following two functions are used when grabbing and ungrabbing keys for
+ * bindings
+ */
+
+/*
+ * Grab key combination on all screens and add to the global queue
+ */
+void
+conf_grab(struct conf *c, struct keybinding *kb)
+{
+	extern struct screen_ctx_q	 Screenq;
+	struct screen_ctx		*sc;
+
+	TAILQ_FOREACH(sc, &Screenq, entry)
+		xu_key_grab(sc->rootwin, kb->modmask, kb->keysym);
+
+}
+
+/*
+ * Ungrab key combination from all screens and remove from global queue
+ */
+void
+conf_ungrab(struct conf *c, struct keybinding *kb)
+{
+	extern struct screen_ctx_q	 Screenq;
+	struct screen_ctx		*sc;
+
+	TAILQ_FOREACH(sc, &Screenq, entry)
+		xu_key_ungrab(sc->rootwin, kb->modmask, kb->keysym);
+}
+
 void
 conf_bindname(struct conf *c, char *name, char *binding)
 {
@@ -349,6 +381,7 @@ conf_bindname(struct conf *c, char *name, char *binding)
 		current_binding->callback = name_to_kbfunc[iter].handler;
 		current_binding->flags = name_to_kbfunc[iter].flags;
 		current_binding->argument = name_to_kbfunc[iter].argument;
+		conf_grab(c, current_binding);
 		TAILQ_INSERT_TAIL(&c->keybindingq, current_binding, entry);
 		return;
 	}
@@ -356,11 +389,13 @@ conf_bindname(struct conf *c, char *name, char *binding)
 	current_binding->callback = kbfunc_cmdexec;
 	current_binding->argument = xstrdup(binding);
 	current_binding->flags = 0;
+	conf_grab(c, current_binding);
 	TAILQ_INSERT_TAIL(&c->keybindingq, current_binding, entry);
 	return;
 }
 
-void conf_unbind(struct conf *c, struct keybinding *unbind)
+void
+conf_unbind(struct conf *c, struct keybinding *unbind)
 {
 	struct keybinding	*key = NULL, *keynxt;
 
@@ -374,6 +409,7 @@ void conf_unbind(struct conf *c, struct keybinding *unbind)
 		if ((key->keycode != 0 && key->keysym == NoSymbol &&
 		    key->keycode == unbind->keycode) ||
 		    key->keysym == unbind->keysym) {
+			conf_ungrab(c, key);
 			TAILQ_REMOVE(&c->keybindingq, key, entry);
 			xfree(key);
 		}

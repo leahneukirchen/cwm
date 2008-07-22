@@ -127,6 +127,7 @@ void
 x_setup(void)
 {
 	struct screen_ctx	*sc;
+	struct keybinding	*kb;
 	int			 i;
 
 	Nscreens = ScreenCount(X_Dpy);
@@ -135,6 +136,14 @@ x_setup(void)
 		x_setupscreen(sc, i);
 		TAILQ_INSERT_TAIL(&Screenq, sc, entry);
 	}
+
+	/*
+	 * XXX key grabs weren't done before, since Screenq was empty,
+	 * do them here for now (this needs changing).
+	 */
+	TAILQ_FOREACH(kb, &Conf.keybindingq, entry)
+		conf_grab(&Conf, kb);
+
 
 	Cursor_move = XCreateFontCursor(X_Dpy, XC_fleur);
 	Cursor_resize = XCreateFontCursor(X_Dpy, XC_bottom_right_corner);
@@ -151,7 +160,6 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	Window			*wins, w0, w1;
 	XWindowAttributes	 winattr;
 	XSetWindowAttributes	 rootattr;
-	struct keybinding	*kb;
 	u_int			 nwins, i;
 
 	Curscreen = sc;
@@ -177,9 +185,6 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	    "white", &sc->whitecolor, &tmp);
 	XAllocNamedColor(X_Dpy, DefaultColormap(X_Dpy, which),
 	    "black", &sc->blackcolor, &tmp);
-
-	TAILQ_FOREACH(kb, &Conf.keybindingq, entry)
-		xu_key_grab(sc->rootwin, kb->modmask, kb->keysym);
 
 	sc->blackpixl = BlackPixel(X_Dpy, sc->which);
 	sc->whitepixl = WhitePixel(X_Dpy, sc->which);
