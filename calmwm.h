@@ -412,7 +412,6 @@ char			*xstrdup(const char *);
 #define XMALLOC(p, t) ((p) = (t *)xmalloc(sizeof * (p)))
 #define XCALLOC(p, t) ((p) = (t *)xcalloc(1, sizeof * (p)))
 
-void			 screen_init(void);
 struct screen_ctx	*screen_fromroot(Window);
 struct screen_ctx	*screen_current(void);
 void			 screen_updatestackingorder(void);

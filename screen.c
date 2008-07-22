@@ -67,8 +67,3 @@ screen_updatestackingorder(void)
 
 	XFree(wins);
 }
-
-void
-screen_init(void)
-{
-}

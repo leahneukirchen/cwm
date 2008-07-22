@@ -204,10 +204,6 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	font_init(sc);
 	conf_font(&Conf);
 
-	/*
-	 * XXX - this should *really* be in screen_init().  ordering
-	 * problem.
-	 */
 	TAILQ_INIT(&sc->mruq);
 
 	/* Initialize menu window. */
@@ -228,7 +224,6 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	}
 	XFree(wins);
 
-	screen_init();
 	screen_updatestackingorder();
 
 	rootattr.event_mask = ChildMask|PropertyChangeMask|EnterWindowMask|
