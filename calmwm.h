@@ -391,6 +391,7 @@ void			 xu_ptr_ungrab(void);
 void			 xu_ptr_setpos(Window, int, int);
 void			 xu_ptr_getpos(Window, int *, int *);
 void			 xu_key_grab(Window, int, int);
+void			 xu_key_ungrab(Window, int, int);
 void			 xu_sendmsg(struct client_ctx *, Atom, long);
 int			 xu_getprop(struct client_ctx *, Atom, Atom, long,
 			     u_char **);
