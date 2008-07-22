@@ -397,7 +397,6 @@ int			 xu_getprop(struct client_ctx *, Atom, Atom, long,
 char			*xu_getstrprop(struct client_ctx *, Atom atm);
 void			 xu_setstate(struct client_ctx *, int);
 int			 xu_getstate(struct client_ctx *, int *);
-void			 xu_key_grab_keycode(Window, int, int);
 
 int			 u_spawn(char *);
 void			 u_exec(char *);
