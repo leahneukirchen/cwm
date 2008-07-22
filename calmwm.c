@@ -45,6 +45,7 @@ struct conf			 Conf;
 static char gray_bits[] = {0x02, 0x01};
 
 static void	_sigchld_cb(int);
+static void	dpy_init(const char *);
 
 int
 main(int argc, char **argv)
@@ -78,10 +79,11 @@ main(int argc, char **argv)
 	group_init();
 
 	Starting = 1;
+	dpy_init(display_name);
 	bzero(&Conf, sizeof(Conf));
 	conf_setup(&Conf, conf_file);
 	client_setup();
-	x_setup(display_name);
+	x_setup();
 	Starting = 0;
 
 	xev_init();
@@ -106,20 +108,26 @@ main(int argc, char **argv)
 }
 
 void
-x_setup(char *display_name)
+dpy_init(const char *dpyname)
 {
-	struct screen_ctx	*sc;
-	int			 i;
+	int	i;
 
-	TAILQ_INIT(&Screenq);
-
-	if ((X_Dpy = XOpenDisplay(display_name)) == NULL)
+	if ((X_Dpy = XOpenDisplay(dpyname)) == NULL)
 		errx(1, "unable to open display \"%s\"",
-		    XDisplayName(display_name));
+		    XDisplayName(dpyname));
 
 	XSetErrorHandler(x_errorhandler);
 
 	Doshape = XShapeQueryExtension(X_Dpy, &Shape_ev, &i);
+
+	TAILQ_INIT(&Screenq);
+}
+
+void
+x_setup(void)
+{
+	struct screen_ctx	*sc;
+	int			 i;
 
 	Nscreens = ScreenCount(X_Dpy);
 	for (i = 0; i < (int)Nscreens; i++) {

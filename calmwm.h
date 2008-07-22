@@ -309,7 +309,7 @@ int			 input_keycodetrans(KeyCode, u_int, enum ctltype *,
 			     char *);
 
 int			 x_errorhandler(Display *, XErrorEvent *);
-void			 x_setup(char *display_name);
+void			 x_setup(void);
 char			*x_screenname(int);
 void			 x_setupscreen(struct screen_ctx *, u_int);
 __dead void		 usage(void);
