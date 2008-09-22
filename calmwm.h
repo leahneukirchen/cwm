@@ -62,6 +62,9 @@ struct screen_ctx {
 
 	XftDraw		*xftdraw;
 	XftColor	 xftcolor;
+
+	int		 xinerama_no;
+	XineramaScreenInfo *xinerama;
 };
 
 TAILQ_HEAD(screen_ctx_q, screen_ctx);
@@ -369,6 +372,7 @@ void			 xev_handle_keyrelease(struct xevent *, XEvent *);
 void			 xev_handle_expose(struct xevent *, XEvent *);
 void			 xev_handle_clientmessage(struct xevent *, XEvent *);
 void			 xev_handle_shape(struct xevent *, XEvent *);
+void			 xev_handle_randr(struct xevent *, XEvent *);
 void			 xev_handle_mapping(struct xevent *, XEvent *);
 
 #define XEV_QUICK(a, b, c, d, e) do {		\
@@ -417,6 +421,7 @@ char			*xstrdup(const char *);
 struct screen_ctx	*screen_fromroot(Window);
 struct screen_ctx	*screen_current(void);
 void			 screen_updatestackingorder(void);
+void			 screen_init_xinerama(struct screen_ctx *);
 
 void			 conf_setup(struct conf *, const char *);
 void			 conf_client(struct client_ctx *);
@@ -512,6 +517,8 @@ extern u_int				 Nscreens;
 extern struct client_ctx_q		 Clientq;
 
 extern int				 Doshape, Shape_ev;
+extern int				 Doshape, Shape_ev;
+extern int				 HasXinerama, HasRandr, Randr_ev;
 extern struct conf			 Conf;
 
 #endif /* _CALMWM_H_ */

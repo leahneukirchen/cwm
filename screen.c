@@ -67,3 +67,28 @@ screen_updatestackingorder(void)
 
 	XFree(wins);
 }
+
+void
+screen_init_xinerama(struct screen_ctx *sc)
+{
+	XineramaScreenInfo *info;
+	int no, fake;
+
+	if (HasXinerama == 0 || XineramaIsActive(X_Dpy) == 0) {
+		HasXinerama = 0;
+		sc->xinerama_no = 0;
+	}
+		
+	info = XineramaQueryScreens(X_Dpy, &no);
+	if (info == NULL) {
+		/*is xinerama is actually off, instead of a malloc failure? */
+		if (sc->xinerama == NULL)
+			HasXinerama = NULL;
+		return;
+	}
+
+	if (sc->xinerama != NULL)
+		XFree(sc->xinerama);
+	sc->xinerama = info;
+	sc->xinerama_no = no;
+}

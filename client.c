@@ -22,6 +22,12 @@
 #include "calmwm.h"
 
 int	_inwindowbounds(struct client_ctx *, int, int);
+static void	client_fullmaximize(struct client_ctx *);
+static void	client_xinerama_maximize(struct client_ctx *);
+static void	client_xinerama_vmax(struct client_ctx *);
+static void	client_full_vmax(struct client_ctx *);
+XineramaScreenInfo	*client_find_xinerama_screen(int , int ,
+			     struct screen_ctx *);
 
 static char		 emptystring[] = "";
 
@@ -328,14 +334,40 @@ client_maximize(struct client_ctx *cc)
 	} else {
 		if (!(cc->flags & CLIENT_VMAXIMIZED))
 			cc->savegeom = cc->geom;
-		cc->geom.x = Conf.gap_left;
-		cc->geom.y = Conf.gap_top;
-		cc->geom.height = sc->ymax - (Conf.gap_top + Conf.gap_bottom);
-		cc->geom.width = sc->xmax - (Conf.gap_left + Conf.gap_right);
-		cc->flags |= CLIENT_DOMAXIMIZE;
+		if (HasXinerama)
+			client_xinerama_maximize(cc);
+		else
+			client_fullmaximize(cc);
 	}
 
 	client_resize(cc);
+}
+
+static void
+client_xinerama_maximize(struct client_ctx *cc)
+{
+	XineramaScreenInfo *xine;
+
+	xine = client_find_xinerama_screen(cc->geom.x, cc->geom.y, CCTOSC(cc));
+	if (xine == NULL)
+		return;
+	cc->geom.x = xine->x_org + Conf.gap_left;
+	cc->geom.y = xine->y_org + Conf.gap_top;
+	cc->geom.height = xine->height - (Conf.gap_top + Conf.gap_bottom);
+	cc->geom.width = xine->width - (Conf.gap_left + Conf.gap_right);
+	cc->flags |= CLIENT_DOMAXIMIZE;
+}
+
+static void
+client_fullmaximize(struct client_ctx *cc)
+{
+	struct screen_ctx	*sc = CCTOSC(cc);
+
+	cc->geom.x = Conf.gap_left;
+	cc->geom.y = Conf.gap_top;
+	cc->geom.height = sc->ymax - (Conf.gap_top + Conf.gap_bottom);
+	cc->geom.width = sc->xmax - (Conf.gap_left + Conf.gap_right);
+	cc->flags |= CLIENT_DOMAXIMIZE;
 }
 
 void
@@ -348,13 +380,38 @@ client_vertmaximize(struct client_ctx *cc)
 	} else {
 		if (!(cc->flags & CLIENT_MAXIMIZED))
 			cc->savegeom = cc->geom;
-		cc->geom.y = cc->bwidth + Conf.gap_top;
-		cc->geom.height = (sc->ymax - cc->bwidth * 2) -
-		    (Conf.gap_top + Conf.gap_bottom);
-		cc->flags |= CLIENT_DOVMAXIMIZE;
+		if (HasXinerama)
+			client_xinerama_vmax(cc);
+		else
+			client_full_vmax(cc);
 	}
 
 	client_resize(cc);
+}
+
+static void
+client_xinerama_vmax(struct client_ctx *cc)
+{
+	XineramaScreenInfo *xine;
+
+	xine = client_find_xinerama_screen(cc->geom.x, cc->geom.y, CCTOSC(cc));
+	if (xine == NULL)
+		return;
+	cc->geom.y = xine->y_org + cc->bwidth + Conf.gap_top;
+	cc->geom.height = xine->height - (cc->bwidth * 2) - (Conf.gap_top +
+	    Conf.gap_bottom);
+	cc->flags |= CLIENT_DOVMAXIMIZE;
+}
+
+static void
+client_full_vmax(struct client_ctx *cc)
+{
+	struct screen_ctx	*sc = CCTOSC(cc);
+
+	cc->geom.y = cc->bwidth + Conf.gap_top;
+	cc->geom.height = (sc->ymax - cc->bwidth * 2) -
+	    (Conf.gap_top + Conf.gap_bottom);
+	cc->flags |= CLIENT_DOVMAXIMIZE;
 }
 
 void
@@ -668,11 +725,32 @@ client_placecalc(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = CCTOSC(cc);
 	int			 yslack, xslack, xmouse, ymouse;
+	int			 xorig, yorig, xmax, ymax;
+	XineramaScreenInfo	*info;
 
-	yslack = sc->ymax - cc->geom.height - cc->bwidth;
-	xslack = sc->xmax - cc->geom.width - cc->bwidth;
 
 	xu_ptr_getpos(sc->rootwin, &xmouse, &ymouse);
+	if (HasXinerama) {
+		info = client_find_xinerama_screen(xmouse, ymouse, sc);
+		if (info == NULL)
+			goto noxine;
+		yslack = info->y_org + info->height - cc->geom.height -
+		    cc->bwidth;
+		xslack = info->x_org + info->width - cc->geom.width -
+		    cc->bwidth;
+		xorig = info->x_org;
+		yorig = info->y_org;
+		xmax = xorig + info->width;
+		ymax = yorig + info->height;
+	} else {
+noxine:
+		yslack = sc->ymax - cc->geom.height - cc->bwidth;
+		xslack = sc->xmax - cc->geom.width - cc->bwidth;
+		xorig = yorig = 0;
+		xmax = sc->xmax;
+		ymax = sc->ymax;
+	}
+
 
 	xmouse = MAX(xmouse, cc->bwidth) - cc->geom.width / 2;
 	ymouse = MAX(ymouse, cc->bwidth) - cc->geom.height / 2;
@@ -681,32 +759,32 @@ client_placecalc(struct client_ctx *cc)
 	ymouse = MAX(ymouse, (int)cc->bwidth);
 
 	if (cc->size->flags & USPosition) {
-		if (cc->size->x >= 0)
+		if (cc->size->x >= xorig)
 			cc->geom.x = MAX(MIN(cc->size->x, xslack), cc->bwidth);
 		else
-			cc->geom.x = cc->bwidth;
-		if (cc->size->y >= 0)
+			cc->geom.x = xorig + cc->bwidth;
+		if (cc->size->y >= yorig)
 			cc->geom.y = MAX(MIN(cc->size->y, yslack), cc->bwidth);
 		else 
-			cc->geom.y = cc->bwidth;
+			cc->geom.y =  yorig + cc->bwidth;
 	} else {
-		if (xslack >= 0) {
+		if (xslack >= xorig) {
 			cc->geom.x = MAX(MIN(xmouse, xslack),
-					 Conf.gap_left + cc->bwidth);
+					 xorig + Conf.gap_left + cc->bwidth);
 			if (cc->geom.x > (xslack - Conf.gap_right))
 				cc->geom.x -= Conf.gap_right;
 		} else {
-			cc->geom.x = cc->bwidth + Conf.gap_left;
-			cc->geom.width = sc->xmax - Conf.gap_left;
+			cc->geom.x = xorig + cc->bwidth + Conf.gap_left;
+			cc->geom.width = xmax - Conf.gap_left;
 		}
-		if (yslack >= 0) {
+		if (yslack >= yorig) {
 			cc->geom.y = MAX(MIN(ymouse, yslack),
-					 Conf.gap_top + cc->bwidth);
+					 yorig + Conf.gap_top + cc->bwidth);
 			if (cc->geom.y > (yslack - Conf.gap_bottom))
 				cc->geom.y -= Conf.gap_bottom;
 		} else {
-			cc->geom.y = cc->bwidth + Conf.gap_top;
-			cc->geom.height = sc->ymax - Conf.gap_top;
+			cc->geom.y = yorig + cc->bwidth + Conf.gap_top;
+			cc->geom.height = ymax - Conf.gap_top;
 		}
 	}
 }
@@ -792,4 +870,19 @@ _inwindowbounds(struct client_ctx *cc, int x, int y)
 {
 	return (x < cc->geom.width && x >= 0 &&
 	    y < cc->geom.height && y >= 0);
+}
+
+XineramaScreenInfo *
+client_find_xinerama_screen(int x, int y, struct screen_ctx *sc)
+{
+	XineramaScreenInfo	*info;
+	int			 i;
+
+	for (i = 0; i < sc->xinerama_no; i++) {
+		info = &sc->xinerama[i];
+		if (x > info->x_org && x < info->x_org + info->width &&
+		    y > info->y_org && y < info->y_org + info->height)
+			return (info);
+	}
+	return (NULL);
 }

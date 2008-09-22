@@ -132,7 +132,7 @@ search_print_client(struct menu *mi, int list)
 		flag = '&';
 
 	if (list)
-		cc->matchname = TAILQ_FIRST(&cc->nameq)->name;
+		cc->matchname = cc->name;
 
 	snprintf(mi->print, sizeof(mi->print), "%c%s", flag, cc->matchname);
 

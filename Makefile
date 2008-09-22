@@ -11,7 +11,7 @@ SRCS=		calmwm.c screen.c xmalloc.c client.c grab.c menu.c \
 CPPFLAGS+=	-I${X11BASE}/include -I${X11BASE}/include/freetype2 -I${.CURDIR}
 
 LDADD+=		-L${X11BASE}/lib -lXft -lXrender -lX11 -lXau -lXdmcp -lXext \
-		-lfontconfig -lexpat -lfreetype -lz 
+		-lfontconfig -lexpat -lfreetype -lz -lXinerama -lXrandr
 
 MANDIR=		${X11BASE}/man/cat
 MAN=		cwm.1 cwmrc.5
