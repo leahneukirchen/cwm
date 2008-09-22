@@ -36,7 +36,6 @@ u_int				 Nscreens;
 struct client_ctx_q		 Clientq;
 
 int				 Doshape, Shape_ev;
-int				 HasXinerama, HasRandr, Randr_ev;
 int				 Starting;
 struct conf			 Conf;
 
@@ -122,8 +121,6 @@ dpy_init(const char *dpyname)
 
 	Doshape = XShapeQueryExtension(X_Dpy, &Shape_ev, &i);
 
-	HasRandr = XRRQueryExtension(X_Dpy, &Randr_ev, &i);
-
 	TAILQ_INIT(&Screenq);
 }
 
@@ -136,7 +133,7 @@ x_setup(void)
 
 	Nscreens = ScreenCount(X_Dpy);
 	for (i = 0; i < (int)Nscreens; i++) {
-		XCALLOC(sc, struct screen_ctx);
+		XMALLOC(sc, struct screen_ctx);
 		x_setupscreen(sc, i);
 		TAILQ_INSERT_TAIL(&Screenq, sc, entry);
 	}
@@ -164,7 +161,6 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	Window			*wins, w0, w1;
 	XWindowAttributes	 winattr;
 	XSetWindowAttributes	 rootattr;
-	int			 fake;
 	u_int			 nwins, i;
 
 	Curscreen = sc;
@@ -249,18 +245,6 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 
 	XChangeWindowAttributes(X_Dpy, sc->rootwin,
 	    CWEventMask, &rootattr);
-
-	if (XineramaQueryExtension(X_Dpy, &fake, &fake) == 1 &&
-	    ((HasXinerama = XineramaIsActive(X_Dpy)) == 1))
-		HasXinerama = 1;
-	if (HasRandr)
-		XRRSelectInput(X_Dpy, sc->rootwin, RRScreenChangeNotifyMask);
-	/*
-	 * initial setup of xinerama screens, if we're using RandR then we'll
-	 * redo this whenever the screen changes since a CTRC may have been
-	 * added or removed
-	 */
-	screen_init_xinerama(sc);
 
 	XSync(X_Dpy, False);
 
