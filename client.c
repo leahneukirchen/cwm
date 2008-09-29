@@ -22,6 +22,8 @@
 #include "calmwm.h"
 
 int	_inwindowbounds(struct client_ctx *, int, int);
+XineramaScreenInfo	*client_find_xinerama_screen(int , int ,
+			     struct screen_ctx *);
 
 static char		 emptystring[] = "";
 
@@ -322,16 +324,36 @@ void
 client_maximize(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = CCTOSC(cc);
+	int			 xmax = sc->xmax, ymax = sc->ymax;
+	int			 x_org = 0, y_org = 0;
 
 	if (cc->flags & CLIENT_MAXIMIZED) {
 		cc->geom = cc->savegeom;
 	} else {
 		if (!(cc->flags & CLIENT_VMAXIMIZED))
 			cc->savegeom = cc->geom;
-		cc->geom.x = Conf.gap_left;
-		cc->geom.y = Conf.gap_top;
-		cc->geom.height = sc->ymax - (Conf.gap_top + Conf.gap_bottom);
-		cc->geom.width = sc->xmax - (Conf.gap_left + Conf.gap_right);
+		if (HasXinerama) {
+			XineramaScreenInfo *xine;
+			/*
+			 * pick screen that the middle of the window is on.
+			 * that's probably more fair than if just the origin of
+			 * a window is poking over a boundary
+			 */
+			xine = client_find_xinerama_screen(cc->geom.x + 
+			    cc->geom.width / 2, cc->geom.y +
+			    cc->geom.height / 2, CCTOSC(cc));
+			if (xine == NULL)
+				goto calc;
+			x_org = xine->x_org;
+			y_org = xine->y_org;
+			xmax = xine->width;
+			ymax = xine->height;
+		}
+calc:
+		cc->geom.x = x_org + Conf.gap_left;
+		cc->geom.y = y_org + Conf.gap_top;
+		cc->geom.height = ymax - (Conf.gap_top + Conf.gap_bottom);
+		cc->geom.width = xmax - (Conf.gap_left + Conf.gap_right);
 		cc->flags |= CLIENT_DOMAXIMIZE;
 	}
 
@@ -342,15 +364,27 @@ void
 client_vertmaximize(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = CCTOSC(cc);
+	int			 y_org = 0, ymax = sc->ymax;
 
 	if (cc->flags & CLIENT_VMAXIMIZED) {
 		cc->geom = cc->savegeom;
 	} else {
 		if (!(cc->flags & CLIENT_MAXIMIZED))
 			cc->savegeom = cc->geom;
-		cc->geom.y = cc->bwidth + Conf.gap_top;
-		cc->geom.height = (sc->ymax - cc->bwidth * 2) -
-		    (Conf.gap_top + Conf.gap_bottom);
+		if (HasXinerama) {
+			XineramaScreenInfo *xine;
+			xine = client_find_xinerama_screen(cc->geom.x + 
+			    cc->geom.width / 2, cc->geom.y +
+			    cc->geom.height / 2, CCTOSC(cc));
+			if (xine == NULL)
+				goto calc;
+			y_org = xine->y_org;
+			ymax = xine->height;
+		}
+calc:
+		cc->geom.y = y_org + cc->bwidth + Conf.gap_top;
+		cc->geom.height = ymax - (cc->bwidth * 2) - (Conf.gap_top +
+		    Conf.gap_bottom);
 		cc->flags |= CLIENT_DOVMAXIMIZE;
 	}
 
@@ -667,20 +701,18 @@ void
 client_placecalc(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = CCTOSC(cc);
-	int			 yslack, xslack, xmouse, ymouse;
-
-	yslack = sc->ymax - cc->geom.height - cc->bwidth;
-	xslack = sc->xmax - cc->geom.width - cc->bwidth;
-
-	xu_ptr_getpos(sc->rootwin, &xmouse, &ymouse);
-
-	xmouse = MAX(xmouse, cc->bwidth) - cc->geom.width / 2;
-	ymouse = MAX(ymouse, cc->bwidth) - cc->geom.height / 2;
-
-	xmouse = MAX(xmouse, (int)cc->bwidth);
-	ymouse = MAX(ymouse, (int)cc->bwidth);
+	int			 yslack, xslack;
 
 	if (cc->size->flags & USPosition) {
+		/*
+		 * Ignore XINERAMA screens, just make sure it's somewhere
+		 * in the virtual desktop. else it stops people putting xterms
+		 * at startup in the screen the mouse doesn't start in *sigh*.
+		 * XRandR bits mean that {x,y}max shouldn't be outside what's
+		 * currently there.
+		 */
+		yslack = sc->ymax - cc->geom.height - cc->bwidth;
+		xslack = sc->xmax - cc->geom.width - cc->bwidth;
 		if (cc->size->x >= 0)
 			cc->geom.x = MAX(MIN(cc->size->x, xslack), cc->bwidth);
 		else
@@ -690,23 +722,50 @@ client_placecalc(struct client_ctx *cc)
 		else 
 			cc->geom.y = cc->bwidth;
 	} else {
-		if (xslack >= 0) {
+		XineramaScreenInfo	*info;
+		int			 xmouse, ymouse, xorig, yorig;
+		int			 xmax, ymax;
+
+		xu_ptr_getpos(sc->rootwin, &xmouse, &ymouse);
+		if (HasXinerama) {
+			info = client_find_xinerama_screen(xmouse, ymouse, sc);
+			if (info == NULL)
+				goto noxine;
+			xorig = info->x_org;
+			yorig = info->y_org;
+			xmax = xorig + info->width;
+			ymax = yorig + info->height;
+		} else {
+noxine:
+			xorig = yorig = 0;
+			xmax = sc->xmax;
+			ymax = sc->ymax;
+		}
+		xmouse = MAX(xmouse, xorig + cc->bwidth) - cc->geom.width / 2;
+		ymouse = MAX(ymouse, yorig + cc->bwidth) - cc->geom.height / 2;
+
+		xmouse = MAX(xmouse, xorig + (int)cc->bwidth);
+		ymouse = MAX(ymouse, yorig + (int)cc->bwidth);
+
+		xslack = xmax - cc->geom.width - cc->bwidth;
+		yslack = ymax - cc->geom.height - cc->bwidth;
+		if (xslack >= xorig) {
 			cc->geom.x = MAX(MIN(xmouse, xslack),
-					 Conf.gap_left + cc->bwidth);
+			    xorig + Conf.gap_left + cc->bwidth);
 			if (cc->geom.x > (xslack - Conf.gap_right))
 				cc->geom.x -= Conf.gap_right;
 		} else {
-			cc->geom.x = cc->bwidth + Conf.gap_left;
-			cc->geom.width = sc->xmax - Conf.gap_left;
+			cc->geom.x = xorig + cc->bwidth + Conf.gap_left;
+			cc->geom.width = xmax - Conf.gap_left;
 		}
-		if (yslack >= 0) {
+		if (yslack >= yorig) {
 			cc->geom.y = MAX(MIN(ymouse, yslack),
-					 Conf.gap_top + cc->bwidth);
+			    yorig + Conf.gap_top + cc->bwidth);
 			if (cc->geom.y > (yslack - Conf.gap_bottom))
 				cc->geom.y -= Conf.gap_bottom;
 		} else {
-			cc->geom.y = cc->bwidth + Conf.gap_top;
-			cc->geom.height = sc->ymax - Conf.gap_top;
+			cc->geom.y = yorig + cc->bwidth + Conf.gap_top;
+			cc->geom.height = ymax - Conf.gap_top;
 		}
 	}
 }
@@ -792,4 +851,22 @@ _inwindowbounds(struct client_ctx *cc, int x, int y)
 {
 	return (x < cc->geom.width && x >= 0 &&
 	    y < cc->geom.height && y >= 0);
+}
+
+/*
+ * Find which xinerama screen the coordinates (x,y) is on.
+ */
+XineramaScreenInfo *
+client_find_xinerama_screen(int x, int y, struct screen_ctx *sc)
+{
+	XineramaScreenInfo	*info;
+	int			 i;
+
+	for (i = 0; i < sc->xinerama_no; i++) {
+		info = &sc->xinerama[i];
+		if (x > info->x_org && x < info->x_org + info->width &&
+		    y > info->y_org && y < info->y_org + info->height)
+			return (info);
+	}
+	return (NULL);
 }

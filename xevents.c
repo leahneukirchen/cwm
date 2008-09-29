@@ -375,6 +375,22 @@ xev_handle_shape(struct xevent *xev, XEvent *ee)
 		client_do_shape(cc);
 }
 
+void
+xev_handle_randr(struct xevent *xev, XEvent *ee)
+{
+	XRRScreenChangeNotifyEvent	*rev = (XRRScreenChangeNotifyEvent *)ee;
+	struct client_ctx		*cc;
+	struct screen_ctx		*sc;
+
+	if ((cc = client_find(rev->window)) != NULL) {
+		XRRUpdateConfiguration(ee);
+		sc = CCTOSC(cc);
+		sc->xmax = rev->width;
+		sc->ymax = rev->height;
+		screen_init_xinerama(sc);
+	}
+}
+
 /* 
  * Called when the keymap has changed.
  * Ungrab all keys, reload keymap and then regrab
@@ -525,6 +541,8 @@ xev_loop(void)
 		default:
 			if (e.type == Shape_ev)
 				xev_handle_shape(xev, &e);
+			else if (e.type == Randr_ev)
+				xev_handle_randr(xev, &e);
 			break;
 		}
 
