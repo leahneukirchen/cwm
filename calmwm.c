@@ -70,10 +70,6 @@ main(int argc, char **argv)
 	argc -= optind;
 	argv += optind;
 
-	/* Ignore a few signals. */
-	if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
-		err(1, "signal");
-
 	if (signal(SIGCHLD, _sigchld_cb) == SIG_ERR)
 		err(1, "signal");
 
