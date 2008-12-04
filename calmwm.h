@@ -116,8 +116,6 @@ struct client_ctx {
 		int		 x,y;
 	} ptr;
 
-	int			 beepbeep;
-
 	int			 xproto;
 
 	int			 flags;

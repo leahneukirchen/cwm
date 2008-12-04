@@ -51,8 +51,7 @@ xev_handle_maprequest(struct xevent *xev, XEvent *ee)
 		XGetWindowAttributes(X_Dpy, e->window, &xattr);
 		cc = client_new(e->window, screen_fromroot(xattr.root), 1);
 		sc = CCTOSC(cc);
-	} else
-		cc->beepbeep = 1;
+	}
 
 #ifdef notyet			/* XXX - possibly, we shouldn't map if
 				 * the window is withdrawn. */
