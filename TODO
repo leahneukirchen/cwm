@@ -16,8 +16,6 @@
 
 - geographical keyboard navigation (window switching)
 
-- search should ignore the current window. (not add to match list).
-
 - make kbd shortcuts/events more general.  the ability to associate an
   event with a mode (i.e. prioritize).  gets rid of hacky-ness in
   groups, etc.
