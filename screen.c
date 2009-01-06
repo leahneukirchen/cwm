@@ -83,7 +83,7 @@ screen_init_xinerama(struct screen_ctx *sc)
 	if (info == NULL) {
 		/*is xinerama is actually off, instead of a malloc failure? */
 		if (sc->xinerama == NULL)
-			HasXinerama = NULL;
+			HasXinerama = 0;
 		return;
 	}
 
