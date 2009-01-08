@@ -528,6 +528,7 @@ conf_grab_mouse(struct client_ctx *cc)
 			break;
 		default:
 			warnx("strange button in mousebinding\n");
+			continue;
 		}
 		xu_btn_grab(cc->pwin, mb->modmask, button);
 	}
