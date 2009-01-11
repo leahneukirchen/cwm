@@ -429,6 +429,10 @@ void			 conf_mouseunbind(struct conf *, struct mousebinding *);
 void			 conf_grab_mouse(struct client_ctx *);
 void			 conf_reload(struct conf *);
 void			 conf_font(struct conf *);
+void			 conf_init(struct conf *);
+void			 conf_cmd_add(struct conf *, char *, char *, int);
+
+int			 parse_config(const char *, struct conf *);
 
 void			 kbfunc_client_lower(struct client_ctx *, void *);
 void			 kbfunc_client_raise(struct client_ctx *, void *);
