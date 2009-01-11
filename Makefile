@@ -4,7 +4,7 @@
 
 PROG=		cwm
 
-SRCS=		calmwm.c screen.c xmalloc.c client.c grab.c menu.c \
+SRCS=		calmwm.c screen.c xmalloc.c client.c menu.c \
 		search.c util.c xutil.c conf.c input.c xevents.c group.c \
 		kbfunc.c mousefunc.c font.c parse.y
 

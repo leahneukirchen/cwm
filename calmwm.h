@@ -405,9 +405,6 @@ int			 xu_getstate(struct client_ctx *, int *);
 int			 u_spawn(char *);
 void			 u_exec(char *);
 
-void			 grab_sweep(struct client_ctx *);
-void			 grab_drag(struct client_ctx *);
-
 void			 xfree(void *);
 void			*xmalloc(size_t);
 void			*xcalloc(size_t, size_t);
