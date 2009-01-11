@@ -140,11 +140,7 @@ struct client_ctx {
 
 TAILQ_HEAD(client_ctx_q, client_ctx);
 
-static char *shortcut_to_name[] = {
-	"nogroup", "one", "two", "three",
-	"four", "five", "six", "seven",
-	"eight", "nine"
-};
+extern const char *shortcut_to_name[];
 
 struct group_ctx {
 	TAILQ_ENTRY(group_ctx)	 entry;

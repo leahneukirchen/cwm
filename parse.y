@@ -54,8 +54,6 @@ int			 findeol(void);
 
 static struct conf	*conf;
 
-extern char		*shortcut_to_name[];
-
 typedef struct {
 	union {
 		int64_t			 number;
