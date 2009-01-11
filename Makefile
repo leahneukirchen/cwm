@@ -10,6 +10,8 @@ SRCS=		calmwm.c screen.c xmalloc.c client.c menu.c \
 
 CPPFLAGS+=	-I${X11BASE}/include -I${X11BASE}/include/freetype2 -I${.CURDIR}
 
+CFLAGS+=	-Wall
+
 LDADD+=		-L${X11BASE}/lib -lXft -lXrender -lX11 -lXau -lXdmcp -lXext \
 		-lfontconfig -lexpat -lfreetype -lz -lXinerama -lXrandr
 
