@@ -222,7 +222,6 @@ xev_handle_buttonpress(struct xevent *xev, XEvent *ee)
 	struct client_ctx	*cc;
 	struct screen_ctx	*sc;
 	struct mousebinding	*mb;
-	char			*wname;
 
 	sc = screen_fromroot(e->root);
 	cc = client_find(e->window);

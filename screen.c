@@ -71,8 +71,8 @@ screen_updatestackingorder(void)
 void
 screen_init_xinerama(struct screen_ctx *sc)
 {
-	XineramaScreenInfo *info;
-	int no, fake;
+	XineramaScreenInfo	*info;
+	int			 no;
 
 	if (HasXinerama == 0 || XineramaIsActive(X_Dpy) == 0) {
 		HasXinerama = 0;
