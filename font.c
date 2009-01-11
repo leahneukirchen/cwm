@@ -68,7 +68,7 @@ font_make(struct screen_ctx *sc, const char *name)
 	FcPattern	*pat, *patx;
 	XftResult	 res;
 
-	if ((pat = FcNameParse(name)) == NULL)
+	if ((pat = FcNameParse((FcChar8*)name)) == NULL)
 		return (NULL);
 
 	if ((patx = XftFontMatch(X_Dpy, sc->which, pat, &res)) != NULL)
