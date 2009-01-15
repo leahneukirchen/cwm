@@ -229,11 +229,8 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	for (i = 0; i < nwins; i++) {
 		XGetWindowAttributes(X_Dpy, wins[i], &winattr);
 		if (winattr.override_redirect ||
-		    winattr.map_state != IsViewable) {
-			char *name;
-			XFetchName(X_Dpy, wins[i], &name);
+		    winattr.map_state != IsViewable)
 			continue;
-		}
 		client_new(wins[i], sc, winattr.map_state != IsUnmapped);
 	}
 	XFree(wins);
