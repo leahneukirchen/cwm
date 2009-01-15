@@ -92,3 +92,21 @@ screen_init_xinerama(struct screen_ctx *sc)
 	sc->xinerama = info;
 	sc->xinerama_no = no;
 }
+
+/*
+ * Find which xinerama screen the coordinates (x,y) is on.
+ */
+XineramaScreenInfo *
+screen_find_xinerama(struct screen_ctx *sc, int x, int y)
+{
+	XineramaScreenInfo	*info;
+	int			 i;
+
+	for (i = 0; i < sc->xinerama_no; i++) {
+		info = &sc->xinerama[i];
+		if (x > info->x_org && x < info->x_org + info->width &&
+		    y > info->y_org && y < info->y_org + info->height)
+			return (info);
+	}
+	return (NULL);
+}

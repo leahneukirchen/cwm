@@ -413,6 +413,7 @@ struct screen_ctx	*screen_fromroot(Window);
 struct screen_ctx	*screen_current(void);
 void			 screen_updatestackingorder(void);
 void			 screen_init_xinerama(struct screen_ctx *);
+XineramaScreenInfo	*screen_find_xinerama(struct screen_ctx *, int, int);
 
 void			 conf_setup(struct conf *, const char *);
 void			 conf_client(struct client_ctx *);

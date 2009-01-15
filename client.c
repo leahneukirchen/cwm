@@ -21,12 +21,9 @@
 #include "headers.h"
 #include "calmwm.h"
 
-int	_inwindowbounds(struct client_ctx *, int, int);
-XineramaScreenInfo	*client_find_xinerama_screen(int , int ,
-			     struct screen_ctx *);
+static int		 _client_inbound(struct client_ctx *, int, int);
 
 static char		 emptystring[] = "";
-
 struct client_ctx	*_curcc = NULL;
 
 void
@@ -339,9 +336,9 @@ client_maximize(struct client_ctx *cc)
 			 * that's probably more fair than if just the origin of
 			 * a window is poking over a boundary
 			 */
-			xine = client_find_xinerama_screen(cc->geom.x + 
-			    cc->geom.width / 2, cc->geom.y +
-			    cc->geom.height / 2, CCTOSC(cc));
+			xine = screen_find_xinerama(CCTOSC(cc),
+			    cc->geom.x + cc->geom.width / 2,
+			    cc->geom.y + cc->geom.height / 2);
 			if (xine == NULL)
 				goto calc;
 			x_org = xine->x_org;
@@ -373,9 +370,9 @@ client_vertmaximize(struct client_ctx *cc)
 			cc->savegeom = cc->geom;
 		if (HasXinerama) {
 			XineramaScreenInfo *xine;
-			xine = client_find_xinerama_screen(cc->geom.x + 
-			    cc->geom.width / 2, cc->geom.y +
-			    cc->geom.height / 2, CCTOSC(cc));
+			xine = screen_find_xinerama(CCTOSC(cc),
+			    cc->geom.x + cc->geom.width / 2,
+			    cc->geom.y + cc->geom.height / 2);
 			if (xine == NULL)
 				goto calc;
 			y_org = xine->y_org;
@@ -457,7 +454,7 @@ client_ptrsave(struct client_ctx *cc)
 	int	 x, y;
 
 	xu_ptr_getpos(cc->pwin, &x, &y);
-	if (_inwindowbounds(cc, x, y)) {
+	if (_client_inbound(cc, x, y)) {
 		cc->ptr.x = x;
 		cc->ptr.y = y;
 	}
@@ -728,7 +725,7 @@ client_placecalc(struct client_ctx *cc)
 
 		xu_ptr_getpos(sc->rootwin, &xmouse, &ymouse);
 		if (HasXinerama) {
-			info = client_find_xinerama_screen(xmouse, ymouse, sc);
+			info = screen_find_xinerama(sc, xmouse, ymouse);
 			if (info == NULL)
 				goto noxine;
 			xorig = info->x_org;
@@ -846,27 +843,9 @@ client_freehints(struct client_ctx *cc)
 		xfree(cc->app_cliarg);
 }
 
-int
-_inwindowbounds(struct client_ctx *cc, int x, int y)
+static int
+_client_inbound(struct client_ctx *cc, int x, int y)
 {
 	return (x < cc->geom.width && x >= 0 &&
 	    y < cc->geom.height && y >= 0);
-}
-
-/*
- * Find which xinerama screen the coordinates (x,y) is on.
- */
-XineramaScreenInfo *
-client_find_xinerama_screen(int x, int y, struct screen_ctx *sc)
-{
-	XineramaScreenInfo	*info;
-	int			 i;
-
-	for (i = 0; i < sc->xinerama_no; i++) {
-		info = &sc->xinerama[i];
-		if (x > info->x_org && x < info->x_org + info->width &&
-		    y > info->y_org && y < info->y_org + info->height)
-			return (info);
-	}
-	return (NULL);
 }
