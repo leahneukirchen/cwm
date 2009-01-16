@@ -68,7 +68,7 @@ xev_handle_unmapnotify(struct xevent *xev, XEvent *ee)
 	struct client_ctx	*cc;
 
 	if ((cc = client_find(e->window)) != NULL)
-		client_hide(cc);
+		client_delete(cc, e->send_event, 0);
 
 	xev_register(xev);
 }
