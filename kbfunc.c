@@ -90,7 +90,7 @@ kbfunc_moveresize(struct client_ctx *cc, void *arg)
 			cc->geom.x = cc->sc->xmax;
 
 		client_move(cc);
-		xu_ptr_getpos(cc->pwin, &x, &y);
+		xu_ptr_getpos(cc->win, &x, &y);
 		cc->ptr.y = y + my;
 		cc->ptr.x = x + mx;
 		client_ptrwarp(cc);
@@ -103,7 +103,7 @@ kbfunc_moveresize(struct client_ctx *cc, void *arg)
 		client_resize(cc);
 
 		/* Make sure the pointer stays within the window. */
-		xu_ptr_getpos(cc->pwin, &cc->ptr.x, &cc->ptr.y);
+		xu_ptr_getpos(cc->win, &cc->ptr.x, &cc->ptr.y);
 		if (cc->ptr.x > cc->geom.width)
 			cc->ptr.x = cc->geom.width - cc->bwidth;
 		if (cc->ptr.y > cc->geom.height)
@@ -112,8 +112,8 @@ kbfunc_moveresize(struct client_ctx *cc, void *arg)
 		break;
 	case CWM_PTRMOVE:
 		if (cc) {
-			xu_ptr_getpos(cc->pwin, &x, &y);
-			xu_ptr_setpos(cc->pwin, x + mx, y + my);
+			xu_ptr_getpos(cc->win, &x, &y);
+			xu_ptr_setpos(cc->win, x + mx, y + my);
 		} else {
 			xu_ptr_getpos(sc->rootwin, &x, &y);
 			xu_ptr_setpos(sc->rootwin, x + mx, y + my);
@@ -455,7 +455,7 @@ void
 kbfunc_client_grouptoggle(struct client_ctx *cc, void *arg)
 {
 	/* XXX for stupid X apps like xpdf and gvim */
-	XGrabKeyboard(X_Dpy, cc->pwin, True,
+	XGrabKeyboard(X_Dpy, cc->win, True,
 	    GrabModeAsync, GrabModeAsync, CurrentTime);
 
 	group_sticky_toggle_enter(cc);

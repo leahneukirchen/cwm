@@ -40,7 +40,6 @@
 #include <ctype.h>
 
 #include <X11/cursorfont.h>
-#include <X11/extensions/shape.h>
 #include <X11/extensions/Xinerama.h>
 #include <X11/extensions/Xrandr.h>
 #include <X11/Xlib.h>

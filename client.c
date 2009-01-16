@@ -38,7 +38,7 @@ client_find(Window win)
 	struct client_ctx	*cc;
 
 	TAILQ_FOREACH(cc, &Clientq, entry)
-		if (cc->pwin == win || cc->win == win)
+		if (cc->win == win)
 			return (cc);
 
 	return (NULL);
@@ -48,11 +48,10 @@ struct client_ctx *
 client_new(Window win, struct screen_ctx *sc, int mapped)
 {
 	struct client_ctx	*cc;
-	XSetWindowAttributes	 pxattr;
 	XWindowAttributes	 wattr;
 	XWMHints		*wmhints;
 	long			 tmp;
-	int			 x, y, height, width, state;
+	int			 state;
 
 	if (win == None)
 		return (NULL);
@@ -65,6 +64,7 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	cc->sc = sc;
 	cc->win = win;
 	cc->size = XAllocSizeHints();
+	XGetWMNormalHints(X_Dpy, cc->win, cc->size, &tmp);
 	if (cc->size->width_inc == 0)
 		cc->size->width_inc = 1;
 	if (cc->size->height_inc == 0)
@@ -78,7 +78,6 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	 */
 	conf_client(cc);
 
-	XGetWMNormalHints(X_Dpy, cc->win, cc->size, &tmp);
 	XGetWindowAttributes(X_Dpy, cc->win, &wattr);
 
 	if (cc->size->flags & PBaseSize) {
@@ -93,8 +92,6 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	cc->ptr.x = -1;
 	cc->ptr.y = -1;
 
-	client_gravitate(cc, 1);
-
 	cc->geom.x = wattr.x;
 	cc->geom.y = wattr.y;
 	cc->geom.width = wattr.width;
@@ -106,10 +103,12 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 		if ((wmhints = XGetWMHints(X_Dpy, cc->win)) != NULL) {
 			if (wmhints->flags & StateHint)
 				xu_setstate(cc, wmhints->initial_state);
-
+		
 			XFree(wmhints);
 		}
+		client_move(cc);
 	}
+	client_draw_border(cc);
 
 	if (xu_getstate(cc, &state) < 0)
 		state = NormalState;
@@ -117,41 +116,15 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	XSelectInput(X_Dpy, cc->win, ColormapChangeMask | EnterWindowMask |
 	    PropertyChangeMask | KeyReleaseMask);
 
-	x = cc->geom.x - cc->bwidth;
-	y = cc->geom.y - cc->bwidth;
-
-	width = cc->geom.width;
-	height = cc->geom.height;
-	if (cc->bwidth > 1) {
-		width += (cc->bwidth)*2;
-		height += (cc->bwidth)*2;
-	}
-	pxattr.override_redirect = True;
-	pxattr.background_pixel = sc->bgcolor.pixel;
-	pxattr.event_mask = ChildMask | ButtonPressMask | ButtonReleaseMask |
-	    ExposureMask | EnterWindowMask;
-
-	cc->pwin = XCreateWindow(X_Dpy, sc->rootwin, x, y,
-	    width, height, 0,	/* XXX */
-	    DefaultDepth(X_Dpy, sc->which), CopyFromParent,
-	    DefaultVisual(X_Dpy, sc->which),
-	    CWOverrideRedirect | CWBackPixel | CWEventMask, &pxattr);
-
-	cc->active = 0;
-
 	XAddToSaveSet(X_Dpy, cc->win);
-	XSetWindowBorderWidth(X_Dpy, cc->win, 0);
-	XReparentWindow(X_Dpy, cc->win, cc->pwin, cc->bwidth, cc->bwidth);
 
 	/* Notify client of its configuration. */
 	xev_reconfig(cc);
 
 	if (state == IconicState)
 		client_hide(cc);
-	else {
-		XMapRaised(X_Dpy, cc->pwin);
-		XMapWindow(X_Dpy, cc->win);
-	}
+	else
+		client_unhide(cc);
 
 	xu_setstate(cc, cc->state);
 
@@ -170,27 +143,6 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	return (cc);
 }
 
-void
-client_do_shape(struct client_ctx *cc)
-{
-	/* Windows not rectangular require more effort */
-	XRectangle	*r;
-	int		 n, tmp;
-
-	if (Doshape) {
-		XShapeSelectInput(X_Dpy, cc->win, ShapeNotifyMask);
-
-		r = XShapeGetRectangles(X_Dpy, cc->win, ShapeBounding,
-		    &n, &tmp);
-
-		if (n > 1)
-			XShapeCombineShape(X_Dpy, cc->pwin, ShapeBounding,
-			    cc->bwidth,	cc->bwidth, cc->win, ShapeBounding,
-			    ShapeSet);
-		XFree(r);
-	}
-}
-
 int
 client_delete(struct client_ctx *cc, int sendevent, int ignorewindow)
 {
@@ -205,15 +157,6 @@ client_delete(struct client_ctx *cc, int sendevent, int ignorewindow)
 	XGrabServer(X_Dpy);
 	xu_setstate(cc, WithdrawnState);
 	XRemoveFromSaveSet(X_Dpy, cc->win);
-
-	if (!ignorewindow) {
-		client_gravitate(cc, 0);
-		XSetWindowBorderWidth(X_Dpy, cc->win, 1);	/* XXX */
-		XReparentWindow(X_Dpy, cc->win,
-		    sc->rootwin, cc->geom.x, cc->geom.y);
-	}
-	if (cc->pwin)
-		XDestroyWindow(X_Dpy, cc->pwin);
 
 	XSync(X_Dpy, False);
 	XUngrabServer(X_Dpy);
@@ -293,28 +236,6 @@ struct client_ctx *
 client_current(void)
 {
 	return (_curcc);
-}
-
-void
-client_gravitate(struct client_ctx *cc, int yes)
-{
-	int	 dx = 0, dy = 0, mult = yes ? 1 : -1;
-	int	 gravity = (cc->size->flags & PWinGravity) ?
-		     cc->size->win_gravity : NorthWestGravity;
-
-	switch (gravity) {
-	case NorthWestGravity:
-	case SouthWestGravity:
-	case NorthEastGravity:
-	case StaticGravity:
-		dx = cc->bwidth;
-	case NorthGravity:
-		dy = cc->bwidth;
-		break;
-	}
-
-	cc->geom.x += mult * dx;
-	cc->geom.y += mult * dy;
 }
 
 void
@@ -402,18 +323,15 @@ client_resize(struct client_ctx *cc)
 		cc->flags |= CLIENT_VMAXIMIZED;
 	}
 
-	XMoveResizeWindow(X_Dpy, cc->pwin, cc->geom.x - cc->bwidth,
-	    cc->geom.y - cc->bwidth, cc->geom.width + cc->bwidth*2,
-	    cc->geom.height + cc->bwidth*2);
-	XMoveResizeWindow(X_Dpy, cc->win, cc->bwidth, cc->bwidth,
-	    cc->geom.width, cc->geom.height);
+	XMoveResizeWindow(X_Dpy, cc->win, cc->geom.x - cc->bwidth,
+	    cc->geom.y - cc->bwidth, cc->geom.width, cc->geom.height);
 	xev_reconfig(cc);
 }
 
 void
 client_move(struct client_ctx *cc)
 {
-	XMoveWindow(X_Dpy, cc->pwin,
+	XMoveWindow(X_Dpy, cc->win,
 	    cc->geom.x - cc->bwidth, cc->geom.y - cc->bwidth);
 	xev_reconfig(cc);
 }
@@ -421,13 +339,13 @@ client_move(struct client_ctx *cc)
 void
 client_lower(struct client_ctx *cc)
 {
-	XLowerWindow(X_Dpy, cc->pwin);
+	XLowerWindow(X_Dpy, cc->win);
 }
 
 void
 client_raise(struct client_ctx *cc)
 {
-	XRaiseWindow(X_Dpy, cc->pwin);
+	XRaiseWindow(X_Dpy, cc->win);
 }
 
 void
@@ -445,7 +363,7 @@ client_ptrwarp(struct client_ctx *cc)
 	else
 		client_raise(cc);
 
-	xu_ptr_setpos(cc->pwin, x, y);
+	xu_ptr_setpos(cc->win, x, y);
 }
 
 void
@@ -453,7 +371,7 @@ client_ptrsave(struct client_ctx *cc)
 {
 	int	 x, y;
 
-	xu_ptr_getpos(cc->pwin, &x, &y);
+	xu_ptr_getpos(cc->win, &x, &y);
 	if (_client_inbound(cc, x, y)) {
 		cc->ptr.x = x;
 		cc->ptr.y = y;
@@ -464,7 +382,7 @@ void
 client_hide(struct client_ctx *cc)
 {
 	/* XXX - add wm_state stuff */
-	XUnmapWindow(X_Dpy, cc->pwin);
+	XUnmapWindow(X_Dpy, cc->win);
 
 	cc->active = 0;
 	cc->flags |= CLIENT_HIDDEN;
@@ -477,7 +395,7 @@ client_hide(struct client_ctx *cc)
 void
 client_unhide(struct client_ctx *cc)
 {
-	XMapRaised(X_Dpy, cc->pwin);
+	XMapRaised(X_Dpy, cc->win);
 
 	cc->highlight = 0;
 	cc->flags &= ~CLIENT_HIDDEN;
@@ -488,64 +406,24 @@ void
 client_draw_border(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = CCTOSC(cc);
-
-	if (cc->active) {
-		XSetWindowBackground(X_Dpy, cc->pwin, client_bg_pixel(cc));
-		XClearWindow(X_Dpy, cc->pwin);
-
-		if (!cc->highlight && cc->bwidth > 1)
-			XDrawRectangle(X_Dpy, cc->pwin, sc->gc, 1, 1,
-			    cc->geom.width + cc->bwidth,
-			    cc->geom.height + cc->bwidth);
-	} else {
-		if (cc->bwidth > 1)
-			XSetWindowBackgroundPixmap(X_Dpy,
-			    cc->pwin, client_bg_pixmap(cc));
-
-		XClearWindow(X_Dpy, cc->pwin);
-	}
-}
-
-u_long
-client_bg_pixel(struct client_ctx *cc)
-{
-	struct screen_ctx	*sc = CCTOSC(cc);
 	u_long			 pixl;
 
-	switch (cc->highlight) {
-	case CLIENT_HIGHLIGHT_BLUE:
-		pixl = sc->bluepixl;
-		break;
-	case CLIENT_HIGHLIGHT_RED:
-		pixl = sc->redpixl;
-		break;
-	default:
-		pixl = sc->blackpixl;
-		break;
-	}
-
-	return (pixl);
-}
-
-Pixmap
-client_bg_pixmap(struct client_ctx *cc)
-{
-	struct screen_ctx	*sc = CCTOSC(cc);
-	Pixmap			 pix;
-
-	switch (cc->highlight) {
-	case CLIENT_HIGHLIGHT_BLUE:
-		pix = sc->blue;
-		break;
-	case CLIENT_HIGHLIGHT_RED:
-		pix = sc->red;
-		break;
-	default:
-		pix = sc->gray;
-		break;
-	}
-
-	return (pix);
+	if (cc->active)
+		switch (cc->highlight) {
+		case CLIENT_HIGHLIGHT_BLUE:
+			pixl = sc->bluepixl;
+			break;
+		case CLIENT_HIGHLIGHT_RED:
+			pixl = sc->redpixl;
+			break;
+		default:
+			pixl = sc->whitepixl;
+			break;
+		}
+	else
+		pixl = sc->graypixl;
+	XSetWindowBorderWidth(X_Dpy, cc->win, cc->bwidth);
+	XSetWindowBorder(X_Dpy, cc->win, pixl);
 }
 
 void

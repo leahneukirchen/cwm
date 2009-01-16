@@ -99,7 +99,7 @@ _group_show(struct group_ctx *gc)
 	 * top-to-bottom.
 	 */
 	TAILQ_FOREACH(cc, &gc->clients, group_entry) {
-		winlist[gc->highstack - cc->stackingorder] = cc->pwin;
+		winlist[gc->highstack - cc->stackingorder] = cc->win;
 		client_unhide(cc);
 	}
 

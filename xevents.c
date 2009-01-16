@@ -68,7 +68,7 @@ xev_handle_unmapnotify(struct xevent *xev, XEvent *ee)
 	struct client_ctx	*cc;
 
 	if ((cc = client_find(e->window)) != NULL)
-		client_delete(cc, e->send_event, 0);
+		client_hide(cc);
 
 	xev_register(xev);
 }
@@ -96,7 +96,6 @@ xev_handle_configurerequest(struct xevent *xev, XEvent *ee)
 	if ((cc = client_find(e->window)) != NULL) {
 		sc = CCTOSC(cc);
 
-		client_gravitate(cc, 0);
 		if (e->value_mask & CWWidth)
 			cc->geom.width = e->width;
 		if (e->value_mask & CWHeight)
@@ -114,29 +113,25 @@ xev_handle_configurerequest(struct xevent *xev, XEvent *ee)
 		    cc->geom.height >= DisplayHeight(X_Dpy, sc->which))
 			cc->geom.y -= cc->bwidth;
 
-		client_gravitate(cc, 1);
-
 		wc.x = cc->geom.x - cc->bwidth;
 		wc.y = cc->geom.y - cc->bwidth;
 		wc.width = cc->geom.width + cc->bwidth*2;
 		wc.height = cc->geom.height + cc->bwidth*2;
-		wc.border_width = 0;
+		wc.border_width = cc->bwidth;
 
-		/* We need to move the parent window, too. */
-		XConfigureWindow(X_Dpy, cc->pwin, e->value_mask, &wc);
+		XConfigureWindow(X_Dpy, cc->win, e->value_mask, &wc);
 		xev_reconfig(cc);
+	} else {
+		/* let it do what it wants, it'll be ours when we map it. */
+		wc.x = e->x;
+		wc.y = e->y;
+		wc.width = e->width;
+		wc.height = e->height;
+		wc.stack_mode = Above;
+		e->value_mask &= ~CWStackMode;
+
+		XConfigureWindow(X_Dpy, e->window, e->value_mask, &wc);
 	}
-
-	wc.x = cc != NULL ? cc->bwidth : e->x;
-	wc.y = cc != NULL ? cc->bwidth : e->y;
-	wc.width = e->width;
-	wc.height = e->height;
-	wc.stack_mode = Above;
-	wc.border_width = 0;
-	e->value_mask &= ~CWStackMode;
-	e->value_mask |= CWBorderWidth;
-
-	XConfigureWindow(X_Dpy, e->window, e->value_mask, &wc);
 
 	xev_register(xev);
 }
@@ -177,7 +172,7 @@ xev_reconfig(struct client_ctx *cc)
 	ce.y = cc->geom.y;
 	ce.width = cc->geom.width;
 	ce.height = cc->geom.height;
-	ce.border_width = 0;
+	ce.border_width = cc->bwidth;
 	ce.above = None;
 	ce.override_redirect = 0;
 
@@ -362,16 +357,6 @@ out:
 }
 
 void
-xev_handle_shape(struct xevent *xev, XEvent *ee)
-{
-	XShapeEvent		*sev = (XShapeEvent *) ee;
-	struct client_ctx	*cc;
-
-	if ((cc = client_find(sev->window)) != NULL)
-		client_do_shape(cc);
-}
-
-void
 xev_handle_randr(struct xevent *xev, XEvent *ee)
 {
 	XRRScreenChangeNotifyEvent	*rev = (XRRScreenChangeNotifyEvent *)ee;
@@ -465,10 +450,8 @@ xev_handle_expose(struct xevent *xev, XEvent *ee)
 	XExposeEvent		*e = &ee->xexpose;
 	struct client_ctx	*cc;
 
-	if ((cc = client_find(e->window)) != NULL && e->count == 0) {
+	if ((cc = client_find(e->window)) != NULL && e->count == 0)
 		client_draw_border(cc);
-		client_do_shape(cc);
-	}
 
 	xev_register(xev);
 }
@@ -535,9 +518,7 @@ xev_loop(void)
 			ASSIGN1(xclient);
 			break;
 		default:
-			if (e.type == Shape_ev)
-				xev_handle_shape(xev, &e);
-			else if (e.type == Randr_ev)
+			if (e.type == Randr_ev)
 				xev_handle_randr(xev, &e);
 			break;
 		}

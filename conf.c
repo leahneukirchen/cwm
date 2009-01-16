@@ -201,7 +201,7 @@ conf_client(struct client_ctx *cc)
 	} else
 		ignore = 1;
 
-	cc->bwidth = ignore ? 0 : 3;
+	cc->bwidth = ignore ? 0 : CLIENT_BWIDTH;
 	cc->flags |= ignore ? CLIENT_IGNORE : 0;
 }
 
@@ -530,6 +530,6 @@ conf_grab_mouse(struct client_ctx *cc)
 			warnx("strange button in mousebinding\n");
 			continue;
 		}
-		xu_btn_grab(cc->pwin, mb->modmask, button);
+		xu_btn_grab(cc->win, mb->modmask, button);
 	}
 }

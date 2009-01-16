@@ -35,15 +35,9 @@ u_int				 Nscreens;
 
 struct client_ctx_q		 Clientq;
 
-int				 Doshape, Shape_ev;
 int				 HasXinerama, HasRandr, Randr_ev;
 int				 Starting;
 struct conf			 Conf;
-
-/* From TWM */
-#define gray_width 2
-#define gray_height 2
-static char gray_bits[] = {0x02, 0x01};
 
 static void	_sigchld_cb(int);
 static void	dpy_init(const char *);
@@ -116,8 +110,6 @@ dpy_init(const char *dpyname)
 
 	XSetErrorHandler(x_errorhandler);
 
-	Doshape = XShapeQueryExtension(X_Dpy, &Shape_ev, &i);
-
 	HasRandr = XRRQueryExtension(X_Dpy, &Randr_ev, &i);
 
 	TAILQ_INIT(&Screenq);
@@ -181,7 +173,7 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	XAllocNamedColor(X_Dpy, DefaultColormap(X_Dpy, which),
 	    "red", &sc->redcolor, &tmp);
 	XAllocNamedColor(X_Dpy, DefaultColormap(X_Dpy, which),
-	    "#00ccc8", &sc->cyancolor, &tmp);
+	    "#666666", &sc->graycolor, &tmp);
 	XAllocNamedColor(X_Dpy, DefaultColormap(X_Dpy, which),
 	    "white", &sc->whitecolor, &tmp);
 	XAllocNamedColor(X_Dpy, DefaultColormap(X_Dpy, which),
@@ -191,19 +183,7 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	sc->whitepixl = WhitePixel(X_Dpy, sc->which);
 	sc->bluepixl = sc->fccolor.pixel;
 	sc->redpixl = sc->redcolor.pixel;
-	sc->cyanpixl = sc->cyancolor.pixel;
-
-	sc->gray = XCreatePixmapFromBitmapData(X_Dpy, sc->rootwin,
-	    gray_bits, gray_width, gray_height,
-	    sc->blackpixl, sc->whitepixl, DefaultDepth(X_Dpy, sc->which));
-
-	sc->blue = XCreatePixmapFromBitmapData(X_Dpy, sc->rootwin,
-	    gray_bits, gray_width, gray_height,
-	    sc->bluepixl, sc->whitepixl, DefaultDepth(X_Dpy, sc->which));
-
-	sc->red = XCreatePixmapFromBitmapData(X_Dpy, sc->rootwin,
-	    gray_bits, gray_width, gray_height,
-	    sc->redpixl, sc->whitepixl, DefaultDepth(X_Dpy, sc->which));
+	sc->graypixl = sc->graycolor.pixel;
 
 	gv.foreground = sc->blackpixl^sc->whitepixl;
 	gv.background = sc->whitepixl;

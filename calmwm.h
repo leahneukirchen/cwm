@@ -45,13 +45,11 @@ struct screen_ctx {
 	Window		 rootwin;
 	Window		 menuwin;
 	Colormap	 colormap;
-	XColor		 bgcolor, fgcolor, fccolor, redcolor, cyancolor,
+	XColor		 bgcolor, fgcolor, fccolor, redcolor, graycolor,
 			 whitecolor, blackcolor;
 	char		*display;
-	unsigned long	 blackpixl, whitepixl, redpixl, bluepixl, cyanpixl;
+	unsigned long	 blackpixl, whitepixl, redpixl, bluepixl, graypixl;
 	GC		 gc;
-
-	Pixmap		 gray, blue, red;
 
 	int		 altpersist;
 
@@ -81,9 +79,9 @@ TAILQ_HEAD(screen_ctx_q, screen_ctx);
 #define CLIENT_DOVMAXIMIZE	0x10
 #define CLIENT_VMAXIMIZED	0x20
 
+#define CLIENT_BWIDTH		1
 #define CLIENT_HIGHLIGHT_BLUE	1
 #define CLIENT_HIGHLIGHT_RED	2
-
 
 struct winname {
 	TAILQ_ENTRY(winname)	 entry;
@@ -103,8 +101,6 @@ struct client_ctx {
 	XSizeHints		*size;
 
 	Colormap		 cmap;
-
-	Window			 pwin;
 
 	u_int			 bwidth;
 	struct {
@@ -316,7 +312,6 @@ void			 client_setup(void);
 struct client_ctx	*client_new(Window, struct screen_ctx *, int);
 int			 client_delete(struct client_ctx *, int, int);
 void			 client_setactive(struct client_ctx *, int);
-void			 client_gravitate(struct client_ctx *, int);
 void			 client_resize(struct client_ctx *);
 void			 client_lower(struct client_ctx *);
 void			 client_raise(struct client_ctx *);
@@ -336,8 +331,6 @@ void			 client_update(struct client_ctx *);
 void			 client_placecalc(struct client_ctx *);
 void			 client_maximize(struct client_ctx *);
 void			 client_vertmaximize(struct client_ctx *);
-u_long			 client_bg_pixel(struct client_ctx *);
-Pixmap			 client_bg_pixmap(struct client_ctx *);
 void			 client_map(struct client_ctx *);
 void			 client_mtf(struct client_ctx *);
 struct client_ctx	*client_cycle(int);
@@ -345,7 +338,6 @@ struct client_ctx	*client_mrunext(struct client_ctx *);
 struct client_ctx	*client_mruprev(struct client_ctx *);
 void			 client_gethints(struct client_ctx *);
 void			 client_freehints(struct client_ctx *);
-void			 client_do_shape(struct client_ctx *);
 
 struct menu  		*menu_filter(struct menu_q *, char *, char *, int,
 			     void (*)(struct menu_q *, struct menu_q *, char *),
@@ -365,7 +357,6 @@ void			 xev_handle_keypress(struct xevent *, XEvent *);
 void			 xev_handle_keyrelease(struct xevent *, XEvent *);
 void			 xev_handle_expose(struct xevent *, XEvent *);
 void			 xev_handle_clientmessage(struct xevent *, XEvent *);
-void			 xev_handle_shape(struct xevent *, XEvent *);
 void			 xev_handle_randr(struct xevent *, XEvent *);
 void			 xev_handle_mapping(struct xevent *, XEvent *);
 
@@ -512,8 +503,6 @@ extern u_int				 Nscreens;
 
 extern struct client_ctx_q		 Clientq;
 
-extern int				 Doshape, Shape_ev;
-extern int				 Doshape, Shape_ev;
 extern int				 HasXinerama, HasRandr, Randr_ev;
 extern struct conf			 Conf;
 
