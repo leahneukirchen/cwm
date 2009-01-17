@@ -144,13 +144,10 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 }
 
 int
-client_delete(struct client_ctx *cc, int sendevent, int ignorewindow)
+client_delete(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = CCTOSC(cc);
 	struct winname		*wn;
-
-	if (cc->state == IconicState && !sendevent)
-		return (1);
 
 	group_client_delete(cc);
 

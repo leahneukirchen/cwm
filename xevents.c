@@ -36,12 +36,8 @@ void
 xev_handle_maprequest(struct xevent *xev, XEvent *ee)
 {
 	XMapRequestEvent	*e = &ee->xmaprequest;
-	XWindowAttributes	 xattr;
 	struct client_ctx	*cc = NULL, *old_cc;
-
-#ifdef notyet
-	int state;
-#endif
+	XWindowAttributes	 xattr;
 
 	if ((old_cc = client_current()) != NULL)
 		client_ptrsave(old_cc);
@@ -51,12 +47,6 @@ xev_handle_maprequest(struct xevent *xev, XEvent *ee)
 		cc = client_new(e->window, screen_fromroot(xattr.root), 1);
 	}
 
-#ifdef notyet			/* XXX - possibly, we shouldn't map if
-				 * the window is withdrawn. */
-	if (xu_getstate(cc, &state) == 0 && state == WithdrawnState)
-		warnx("WITHDRAWNSTATE for %s", cc->name);
-#endif
-
 	client_ptrwarp(cc);
 	xev_register(xev);
 }
@@ -65,10 +55,27 @@ void
 xev_handle_unmapnotify(struct xevent *xev, XEvent *ee)
 {
 	XUnmapEvent		*e = &ee->xunmap;
+	XEvent			ev;
 	struct client_ctx	*cc;
 
-	if ((cc = client_find(e->window)) != NULL)
-		client_delete(cc, e->send_event, 0);
+	/* XXX, we need a recursive locking wrapper around grab server */
+	XGrabServer(X_Dpy);
+	if ((cc = client_find(e->window)) != NULL) {
+		/*
+		 * If it's going to die anyway, nuke it.
+		 *
+		 * Else, if it's a synthetic event delete state, since they
+		 * want it to be withdrawn. ICCM recommends you withdraw on
+		 * this even if we haven't alredy been told to iconify, to
+		 * deal with legacy clients.
+		 */
+		if (XCheckTypedWindowEvent(X_Dpy, cc->win,
+		    DestroyNotify, &ev) || e->send_event != 0) {
+			client_delete(cc);
+		} else
+			client_hide(cc);
+	}
+	XUngrabServer(X_Dpy);
 
 	xev_register(xev);
 }
@@ -80,7 +87,7 @@ xev_handle_destroynotify(struct xevent *xev, XEvent *ee)
 	struct client_ctx	*cc;
 
 	if ((cc = client_find(e->window)) != NULL)
-		client_delete(cc, 1, 1);
+		client_delete(cc);
 
 	xev_register(xev);
 }

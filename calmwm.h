@@ -310,7 +310,7 @@ __dead void		 usage(void);
 struct client_ctx	*client_find(Window);
 void			 client_setup(void);
 struct client_ctx	*client_new(Window, struct screen_ctx *, int);
-int			 client_delete(struct client_ctx *, int, int);
+int			 client_delete(struct client_ctx *);
 void			 client_setactive(struct client_ctx *, int);
 void			 client_resize(struct client_ctx *);
 void			 client_lower(struct client_ctx *);
