@@ -321,7 +321,6 @@ void			 client_send_delete(struct client_ctx *);
 struct client_ctx	*client_current(void);
 void			 client_hide(struct client_ctx *);
 void			 client_unhide(struct client_ctx *);
-void			 client_nocurrent(void);
 void			 client_setname(struct client_ctx *);
 void			 client_warp(struct client_ctx *);
 void			 client_ptrwarp(struct client_ctx *);

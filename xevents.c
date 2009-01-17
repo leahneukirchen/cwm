@@ -192,17 +192,7 @@ xev_handle_enternotify(struct xevent *xev, XEvent *ee)
 	XCrossingEvent		*e = &ee->xcrossing;
 	struct client_ctx	*cc;
 
-	if ((cc = client_find(e->window)) == NULL) {
-		/*
-		 * XXX - later.  messes up unclutter.  but may be
-		 * needed when we introduce menu windows and such into
-		 * the main event loop.
-		 */
-#ifdef notyet
-		if (e->window != e->root)
-			client_nocurrent();
-#endif
-	} else
+	if ((cc = client_find(e->window)) != NULL)
 		client_setactive(cc, 1);
 
 	xev_register(xev);
