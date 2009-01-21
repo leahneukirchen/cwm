@@ -76,6 +76,7 @@ void
 conf_init(struct conf *c)
 {
 	c->flags = 0;
+	c->bwidth = CONF_BWIDTH;
 
 	TAILQ_INIT(&c->ignoreq);
 	TAILQ_INIT(&c->cmdq);
@@ -201,7 +202,7 @@ conf_client(struct client_ctx *cc)
 	} else
 		ignore = 1;
 
-	cc->bwidth = ignore ? 0 : CLIENT_BWIDTH;
+	cc->bwidth = ignore ? 0 : Conf.bwidth;
 	cc->flags |= ignore ? CLIENT_IGNORE : 0;
 }
 
