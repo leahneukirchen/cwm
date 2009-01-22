@@ -33,8 +33,8 @@ _mousefunc_sweep_calc(struct client_ctx *cc, int x, int y, int mx, int my)
 {
 	int	 width = cc->geom.width, height = cc->geom.height;
 
-	cc->geom.width = abs(x - mx);
-	cc->geom.height = abs(y - my);
+	cc->geom.width = abs(x - mx) - cc->bwidth;
+	cc->geom.height = abs(y - my) - cc->bwidth;
 
 	if (cc->size->flags & PResizeInc) {
 		cc->geom.width -=
@@ -116,12 +116,7 @@ mousefunc_window_resize(struct client_ctx *cc, void *arg)
 			    ev.xmotion.x, ev.xmotion.y))
 				/* Recompute window output */
 				_mousefunc_sweep_draw(cc, dx, dy);
-
-			XMoveResizeWindow(X_Dpy, cc->win,
-			    cc->geom.x - cc->bwidth,
-			    cc->geom.y - cc->bwidth,
-			    cc->geom.width + cc->bwidth * 2,
-			    cc->geom.height + cc->bwidth * 2);
+			client_resize(cc);
 			break;
 		case ButtonRelease:
 			XUnmapWindow(X_Dpy, sc->menuwin);
@@ -166,10 +161,7 @@ mousefunc_window_move(struct client_ctx *cc, void *arg)
 		case MotionNotify:
 			cc->geom.x = x + (ev.xmotion.x - mx);
 			cc->geom.y = y + (ev.xmotion.y - my);
-
-			XMoveWindow(X_Dpy, cc->win,
-			    cc->geom.x - cc->bwidth, cc->geom.y - cc->bwidth);
-
+			client_move(cc);
 			break;
 		case ButtonRelease:
 			xu_ptr_ungrab();

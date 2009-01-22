@@ -111,19 +111,19 @@ xev_handle_configurerequest(struct xevent *xev, XEvent *ee)
 			cc->geom.x = e->x;
 		if (e->value_mask & CWY)
 			cc->geom.y = e->y;
+		if (e->value_mask & CWBorderWidth)
+			wc.border_width = e->border_width;
 
-		if (cc->geom.x == 0 &&
-		    cc->geom.width >= DisplayWidth(X_Dpy, sc->which))
+		if (cc->geom.x == 0 && cc->geom.width >= sc->xmax)
 			cc->geom.x -= cc->bwidth;
 
-		if (cc->geom.y == 0 &&
-		    cc->geom.height >= DisplayHeight(X_Dpy, sc->which))
+		if (cc->geom.y == 0 && cc->geom.height >= sc->ymax)
 			cc->geom.y -= cc->bwidth;
 
-		wc.x = cc->geom.x - cc->bwidth;
-		wc.y = cc->geom.y - cc->bwidth;
-		wc.width = cc->geom.width + cc->bwidth*2;
-		wc.height = cc->geom.height + cc->bwidth*2;
+		wc.x = cc->geom.x;
+		wc.y = cc->geom.y;
+		wc.width = cc->geom.width;
+		wc.height = cc->geom.height;
 		wc.border_width = cc->bwidth;
 
 		XConfigureWindow(X_Dpy, cc->win, e->value_mask, &wc);
@@ -134,6 +134,7 @@ xev_handle_configurerequest(struct xevent *xev, XEvent *ee)
 		wc.y = e->y;
 		wc.width = e->width;
 		wc.height = e->height;
+		wc.border_width = e->border_width;
 		wc.stack_mode = Above;
 		e->value_mask &= ~CWStackMode;
 

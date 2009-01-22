@@ -103,7 +103,7 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 		if ((wmhints = XGetWMHints(X_Dpy, cc->win)) != NULL) {
 			if (wmhints->flags & StateHint)
 				xu_setstate(cc, wmhints->initial_state);
-		
+
 			XFree(wmhints);
 		}
 		client_move(cc);
@@ -265,8 +265,8 @@ client_maximize(struct client_ctx *cc)
 			ymax = xine->height;
 		}
 calc:
-		cc->geom.x = x_org + Conf.gap_left;
-		cc->geom.y = y_org + Conf.gap_top;
+		cc->geom.x = x_org - cc->bwidth + Conf.gap_left;
+		cc->geom.y = y_org - cc->bwidth + Conf.gap_top;
 		cc->geom.height = ymax - (Conf.gap_top + Conf.gap_bottom);
 		cc->geom.width = xmax - (Conf.gap_left + Conf.gap_right);
 		cc->flags |= CLIENT_DOMAXIMIZE;
@@ -297,7 +297,7 @@ client_vertmaximize(struct client_ctx *cc)
 			ymax = xine->height;
 		}
 calc:
-		cc->geom.y = y_org + cc->bwidth + Conf.gap_top;
+		cc->geom.y = y_org + Conf.gap_top;
 		cc->geom.height = ymax - (cc->bwidth * 2) - (Conf.gap_top +
 		    Conf.gap_bottom);
 		cc->flags |= CLIENT_DOVMAXIMIZE;
@@ -320,16 +320,15 @@ client_resize(struct client_ctx *cc)
 		cc->flags |= CLIENT_VMAXIMIZED;
 	}
 
-	XMoveResizeWindow(X_Dpy, cc->win, cc->geom.x - cc->bwidth,
-	    cc->geom.y - cc->bwidth, cc->geom.width, cc->geom.height);
+	XMoveResizeWindow(X_Dpy, cc->win, cc->geom.x,
+	    cc->geom.y, cc->geom.width, cc->geom.height);
 	xev_reconfig(cc);
 }
 
 void
 client_move(struct client_ctx *cc)
 {
-	XMoveWindow(X_Dpy, cc->win,
-	    cc->geom.x - cc->bwidth, cc->geom.y - cc->bwidth);
+	XMoveWindow(X_Dpy, cc->win, cc->geom.x, cc->geom.y);
 	xev_reconfig(cc);
 }
 
@@ -419,6 +418,7 @@ client_draw_border(struct client_ctx *cc)
 		}
 	else
 		pixl = sc->graypixl;
+
 	XSetWindowBorderWidth(X_Dpy, cc->win, cc->bwidth);
 	XSetWindowBorder(X_Dpy, cc->win, pixl);
 }
@@ -563,7 +563,7 @@ void
 client_placecalc(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = CCTOSC(cc);
-	int			 yslack, xslack;
+	int			 xslack, yslack;
 
 	if (cc->size->flags & USPosition) {
 		/*
@@ -573,16 +573,12 @@ client_placecalc(struct client_ctx *cc)
 		 * XRandR bits mean that {x,y}max shouldn't be outside what's
 		 * currently there.
 		 */
-		yslack = sc->ymax - cc->geom.height - cc->bwidth;
-		xslack = sc->xmax - cc->geom.width - cc->bwidth;
-		if (cc->size->x >= 0)
-			cc->geom.x = MAX(MIN(cc->size->x, xslack), cc->bwidth);
-		else
-			cc->geom.x = cc->bwidth;
-		if (cc->size->y >= 0)
-			cc->geom.y = MAX(MIN(cc->size->y, yslack), cc->bwidth);
-		else 
-			cc->geom.y = cc->bwidth;
+		xslack = sc->xmax - cc->geom.width - cc->bwidth * 2;
+		yslack = sc->ymax - cc->geom.height - cc->bwidth * 2;
+		if (cc->size->x > 0)
+			cc->geom.x = MIN(cc->size->x, xslack);
+		if (cc->size->y > 0)
+			cc->geom.y = MIN(cc->size->y, yslack);
 	} else {
 		XineramaScreenInfo	*info;
 		int			 xmouse, ymouse, xorig, yorig;
@@ -603,30 +599,31 @@ noxine:
 			xmax = sc->xmax;
 			ymax = sc->ymax;
 		}
-		xmouse = MAX(xmouse, xorig + cc->bwidth) - cc->geom.width / 2;
-		ymouse = MAX(ymouse, yorig + cc->bwidth) - cc->geom.height / 2;
+		xmouse = MAX(xmouse, xorig) - cc->geom.width / 2;
+		ymouse = MAX(ymouse, yorig) - cc->geom.height / 2;
 
-		xmouse = MAX(xmouse, xorig + (int)cc->bwidth);
-		ymouse = MAX(ymouse, yorig + (int)cc->bwidth);
+		xmouse = MAX(xmouse, xorig);
+		ymouse = MAX(ymouse, yorig);
 
-		xslack = xmax - cc->geom.width - cc->bwidth;
-		yslack = ymax - cc->geom.height - cc->bwidth;
+		xslack = xmax - cc->geom.width - cc->bwidth * 2;
+		yslack = ymax - cc->geom.height - cc->bwidth * 2;
+
 		if (xslack >= xorig) {
 			cc->geom.x = MAX(MIN(xmouse, xslack),
-			    xorig + Conf.gap_left + cc->bwidth);
+			    xorig + Conf.gap_left);
 			if (cc->geom.x > (xslack - Conf.gap_right))
 				cc->geom.x -= Conf.gap_right;
 		} else {
-			cc->geom.x = xorig + cc->bwidth + Conf.gap_left;
+			cc->geom.x = xorig + Conf.gap_left;
 			cc->geom.width = xmax - Conf.gap_left;
 		}
 		if (yslack >= yorig) {
 			cc->geom.y = MAX(MIN(ymouse, yslack),
-			    yorig + Conf.gap_top + cc->bwidth);
+			    yorig + Conf.gap_top);
 			if (cc->geom.y > (yslack - Conf.gap_bottom))
 				cc->geom.y -= Conf.gap_bottom;
 		} else {
-			cc->geom.y = yorig + cc->bwidth + Conf.gap_top;
+			cc->geom.y = yorig + Conf.gap_top;
 			cc->geom.height = ymax - Conf.gap_top;
 		}
 	}
