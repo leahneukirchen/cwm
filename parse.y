@@ -502,8 +502,7 @@ conf_clear(struct conf *c)
 		free(mb);
 	}
 
-	if (c->DefaultFontName != NULL &&
-	    c->DefaultFontName != DEFAULTFONTNAME)
+	if (c->DefaultFontName != NULL)
 		free(c->DefaultFontName);
 }
 
