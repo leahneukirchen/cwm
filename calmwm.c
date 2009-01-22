@@ -74,10 +74,12 @@ main(int argc, char **argv)
 	bzero(&Conf, sizeof(Conf));
 	conf_setup(&Conf, conf_file);
 	client_setup();
+	xu_getatoms();
 	x_setup();
 	Starting = 0;
 
 	xev_init();
+
 	XEV_QUICK(NULL, NULL, MapRequest, xev_handle_maprequest, NULL);
 	XEV_QUICK(NULL, NULL, UnmapNotify, xev_handle_unmapnotify, NULL);
 	XEV_QUICK(NULL, NULL, ConfigureRequest,

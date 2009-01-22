@@ -373,6 +373,7 @@ struct xevent		*xev_new(Window *, Window *, int,
 void			 xev_register(struct xevent *);
 void			 xev_loop(void);
 
+void			 xu_getatoms(void);
 int			 xu_ptr_grab(Window, int, Cursor);
 void			 xu_btn_grab(Window, int, u_int);
 int			 xu_ptr_regrab(int, Cursor);
@@ -505,5 +506,14 @@ extern struct client_ctx_q		 Clientq;
 
 extern int				 HasXinerama, HasRandr, Randr_ev;
 extern struct conf			 Conf;
+
+#define	WM_STATE			 cwm_atoms[0]
+#define WM_DELETE_WINDOW		 cwm_atoms[1]
+#define WM_TAKE_FOCUS			 cwm_atoms[2]
+#define WM_PROTOCOLS			 cwm_atoms[3]
+#define _MOTIF_WM_HINTS			 cwm_atoms[4]
+#define CWM_NO_ATOMS			 5
+
+extern Atom				 cwm_atoms[CWM_NO_ATOMS];
 
 #endif /* _CALMWM_H_ */

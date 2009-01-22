@@ -426,23 +426,18 @@ client_draw_border(struct client_ctx *cc)
 void
 client_update(struct client_ctx *cc)
 {
-	Atom	*p, wm_delete, wm_protocols, wm_take_focus;
+	Atom	*p; 
 	int	 i;
 	long	 n;
 
-	/* XXX cache these. */
-	wm_delete = XInternAtom(X_Dpy, "WM_DELETE_WINDOW", False);
-	wm_protocols = XInternAtom(X_Dpy, "WM_PROTOCOLS", False);
-	wm_take_focus = XInternAtom(X_Dpy, "WM_TAKE_FOCUS", False);
-
-	if ((n = xu_getprop(cc, wm_protocols,
+	if ((n = xu_getprop(cc, WM_PROTOCOLS,
 		 XA_ATOM, 20L, (u_char **)&p)) <= 0)
 		return;
 
 	for (i = 0; i < n; i++)
-		if (p[i] == wm_delete)
+		if (p[i] == WM_DELETE_WINDOW)
 			cc->xproto |= CLIENT_PROTO_DELETE;
-		else if (p[i] == wm_take_focus)
+		else if (p[i] == WM_TAKE_FOCUS)
 			cc->xproto |= CLIENT_PROTO_TAKEFOCUS;
 
 	XFree(p);
@@ -451,14 +446,9 @@ client_update(struct client_ctx *cc)
 void
 client_send_delete(struct client_ctx *cc)
 {
-	Atom	 wm_delete, wm_protocols;
-
-	/* XXX - cache */
-	wm_delete = XInternAtom(X_Dpy, "WM_DELETE_WINDOW", False);
-	wm_protocols = XInternAtom(X_Dpy, "WM_PROTOCOLS", False);
 
 	if (cc->xproto & CLIENT_PROTO_DELETE)
-		xu_sendmsg(cc, wm_protocols, wm_delete);
+		xu_sendmsg(cc, WM_PROTOCOLS, WM_DELETE_WINDOW);
 	else
 		XKillClient(X_Dpy, cc->win);
 }
@@ -665,7 +655,6 @@ client_gethints(struct client_ctx *cc)
 	XClassHint		 xch;
 	int			 argc;
 	char			**argv;
-	Atom			 mha;
 	struct mwm_hints	*mwmh;
 
 	if (XGetClassHint(X_Dpy, cc->win, &xch)) {
@@ -675,9 +664,8 @@ client_gethints(struct client_ctx *cc)
 			cc->app_class = xch.res_class;
 	}
 
-	mha = XInternAtom(X_Dpy, "_MOTIF_WM_HINTS", False);
-	if (xu_getprop(cc, mha, mha, PROP_MWM_HINTS_ELEMENTS,
-	    (u_char **)&mwmh) == MWM_NUMHINTS)
+	if (xu_getprop(cc, _MOTIF_WM_HINTS, _MOTIF_WM_HINTS,
+	    PROP_MWM_HINTS_ELEMENTS, (u_char **)&mwmh) == MWM_NUMHINTS)
 		if (mwmh->flags & MWM_HINTS_DECORATIONS &&
 		    !(mwmh->decorations & MWM_DECOR_ALL) &&
 		    !(mwmh->decorations & MWM_DECOR_BORDER))

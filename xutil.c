@@ -145,12 +145,9 @@ xu_getprop(struct client_ctx *cc, Atom atm, Atom type, long len, u_char **p)
 int
 xu_getstate(struct client_ctx *cc, int *state)
 {
-	Atom	 wm_state;
 	long	*p = NULL;
 
-	wm_state = XInternAtom(X_Dpy, "WM_STATE", False);
-
-	if (xu_getprop(cc, wm_state, wm_state, 2L, (u_char **)&p) <= 0)
+	if (xu_getprop(cc, WM_STATE, WM_STATE, 2L, (u_char **)&p) <= 0)
 		return (-1);
 
 	*state = (int)*p;
@@ -162,16 +159,23 @@ xu_getstate(struct client_ctx *cc, int *state)
 void
 xu_setstate(struct client_ctx *cc, int state)
 {
-	Atom	 wm_state;
 	long	 dat[2];
-
-	/* XXX cache */
-	wm_state = XInternAtom(X_Dpy, "WM_STATE", False);
 
 	dat[0] = (long)state;
 	dat[1] = (long)None;
 
 	cc->state = state;
-	XChangeProperty(X_Dpy, cc->win, wm_state, wm_state, 32,
+	XChangeProperty(X_Dpy, cc->win, WM_STATE, WM_STATE, 32,
 	    PropModeReplace, (unsigned char *)dat, 2);
+}
+
+Atom		cwm_atoms[CWM_NO_ATOMS];
+
+void
+xu_getatoms(void)
+{
+	WM_STATE = XInternAtom(X_Dpy, "WM_STATE", False);	
+	WM_DELETE_WINDOW = XInternAtom(X_Dpy, "WM_DELETE_WINDOW", False);	
+	WM_TAKE_FOCUS = XInternAtom(X_Dpy, "WM_TAKE_FOCUS", False);
+	WM_PROTOCOLS = XInternAtom(X_Dpy, "WM_PROTOCOLS", False);
 }
