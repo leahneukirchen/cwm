@@ -178,4 +178,5 @@ xu_getatoms(void)
 	WM_DELETE_WINDOW = XInternAtom(X_Dpy, "WM_DELETE_WINDOW", False);	
 	WM_TAKE_FOCUS = XInternAtom(X_Dpy, "WM_TAKE_FOCUS", False);
 	WM_PROTOCOLS = XInternAtom(X_Dpy, "WM_PROTOCOLS", False);
+	_MOTIF_WM_HINTS = XInternAtom(X_Dpy, "_MOTIF_WM_HINTS", False);
 }
