@@ -464,49 +464,6 @@ popfile(void)
 	return (EOF);
 }
 
-void
-conf_clear(struct conf *c)
-{
-	struct autogroupwin	*ag;
-	struct keybinding	*kb;
-	struct winmatch		*wm;
-	struct cmd		*cmd;
-	struct mousebinding	*mb;
-
-	while ((cmd = TAILQ_FIRST(&c->cmdq)) != NULL) {
-		TAILQ_REMOVE(&c->cmdq, cmd, entry);
-		free(cmd);
-	}
-
-	while ((kb = TAILQ_FIRST(&c->keybindingq)) != NULL) {
-		TAILQ_REMOVE(&c->keybindingq, kb, entry);
-		free(kb);
-	}
-
-	while ((ag = TAILQ_FIRST(&c->autogroupq)) != NULL) {
-		TAILQ_REMOVE(&c->autogroupq, ag, entry);
-		free(ag->class);
-		if (ag->name)
-			free(ag->name);
-		free(ag->group);
-		free(ag);
-	}
-
-	while ((wm = TAILQ_FIRST(&c->ignoreq)) != NULL) {
-		TAILQ_REMOVE(&c->ignoreq, wm, entry);
-		free(wm);
-	}
-
-	while ((mb = TAILQ_FIRST(&c->mousebindingq)) != NULL) {
-		TAILQ_REMOVE(&c->mousebindingq, mb, entry);
-		free(mb);
-	}
-
-	if (c->DefaultFontName != NULL)
-		free(c->DefaultFontName);
-}
-
-
 int
 parse_config(const char *filename, struct conf *xconf)
 {
