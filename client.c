@@ -699,8 +699,7 @@ client_freehints(struct client_ctx *cc)
 		XFree(cc->app_name);
 	if (cc->app_class != NULL)
 		XFree(cc->app_class);
-	if (cc->app_cliarg != NULL)
-		xfree(cc->app_cliarg);
+	xfree(cc->app_cliarg);
 }
 
 static int

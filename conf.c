@@ -170,35 +170,34 @@ conf_clear(struct conf *c)
 
 	while ((cmd = TAILQ_FIRST(&c->cmdq)) != NULL) {
 		TAILQ_REMOVE(&c->cmdq, cmd, entry);
-		free(cmd);
+		xfree(cmd);
 	}
 
 	while ((kb = TAILQ_FIRST(&c->keybindingq)) != NULL) {
 		TAILQ_REMOVE(&c->keybindingq, kb, entry);
-		free(kb);
+		xfree(kb);
 	}
 
 	while ((ag = TAILQ_FIRST(&c->autogroupq)) != NULL) {
 		TAILQ_REMOVE(&c->autogroupq, ag, entry);
-		free(ag->class);
+		xfree(ag->class);
 		if (ag->name)
-			free(ag->name);
-		free(ag->group);
-		free(ag);
+			xfree(ag->name);
+		xfree(ag->group);
+		xfree(ag);
 	}
 
 	while ((wm = TAILQ_FIRST(&c->ignoreq)) != NULL) {
 		TAILQ_REMOVE(&c->ignoreq, wm, entry);
-		free(wm);
+		xfree(wm);
 	}
 
 	while ((mb = TAILQ_FIRST(&c->mousebindingq)) != NULL) {
 		TAILQ_REMOVE(&c->mousebindingq, mb, entry);
-		free(mb);
+		xfree(mb);
 	}
 
-	if (c->DefaultFontName != NULL)
-		free(c->DefaultFontName);
+	xfree(c->DefaultFontName);
 }
 
 void
