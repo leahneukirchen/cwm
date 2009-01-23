@@ -30,13 +30,13 @@
 extern int		_xev_quit;
 
 void
-kbfunc_client_lower(struct client_ctx *cc, void *arg)
+kbfunc_client_lower(struct client_ctx *cc, union arg *arg)
 {
 	client_lower(cc);
 }
 
 void
-kbfunc_client_raise(struct client_ctx *cc, void *arg)
+kbfunc_client_raise(struct client_ctx *cc, union arg *arg)
 {
 	client_raise(cc);
 }
@@ -44,7 +44,7 @@ kbfunc_client_raise(struct client_ctx *cc, void *arg)
 #define typemask	(CWM_MOVE | CWM_RESIZE | CWM_PTRMOVE)
 #define movemask	(CWM_UP | CWM_DOWN | CWM_LEFT | CWM_RIGHT)
 void
-kbfunc_moveresize(struct client_ctx *cc, void *arg)
+kbfunc_moveresize(struct client_ctx *cc, union arg *arg)
 {
 	struct screen_ctx	*sc;
 	int			 x, y, flags, amt;
@@ -53,7 +53,7 @@ kbfunc_moveresize(struct client_ctx *cc, void *arg)
 	sc = screen_current();
 	mx = my = 0;
 
-	flags = (int)arg;
+	flags = arg->i;
 	amt = MOVE_AMOUNT;
 
 	if (flags & CWM_BIGMOVE) {
@@ -125,7 +125,7 @@ kbfunc_moveresize(struct client_ctx *cc, void *arg)
 }
 
 void
-kbfunc_client_search(struct client_ctx *scratch, void *arg)
+kbfunc_client_search(struct client_ctx *scratch, union arg *arg)
 {
 	struct client_ctx	*cc, *old_cc;
 	struct menu		*mi;
@@ -160,7 +160,7 @@ kbfunc_client_search(struct client_ctx *scratch, void *arg)
 }
 
 void
-kbfunc_menu_search(struct client_ctx *scratch, void *arg)
+kbfunc_menu_search(struct client_ctx *scratch, union arg *arg)
 {
 	struct cmd	*cmd;
 	struct menu	*mi;
@@ -186,7 +186,7 @@ kbfunc_menu_search(struct client_ctx *scratch, void *arg)
 }
 
 void
-kbfunc_client_cycle(struct client_ctx *scratch, void *arg)
+kbfunc_client_cycle(struct client_ctx *scratch, union arg *arg)
 {
 	struct screen_ctx	*sc;
 
@@ -196,35 +196,35 @@ kbfunc_client_cycle(struct client_ctx *scratch, void *arg)
 	XGrabKeyboard(X_Dpy, sc->rootwin, True,
 	    GrabModeAsync, GrabModeAsync, CurrentTime);
 
-	client_cycle((int)arg);
+	client_cycle(arg->i);
 }
 
 void
-kbfunc_client_hide(struct client_ctx *cc, void *arg)
+kbfunc_client_hide(struct client_ctx *cc, union arg *arg)
 {
 	client_hide(cc);
 }
 
 void
-kbfunc_cmdexec(struct client_ctx *cc, void *arg)
+kbfunc_cmdexec(struct client_ctx *cc, union arg *arg)
 {
-	u_spawn((char *)arg);
+	u_spawn(arg->c);
 }
 
 void
-kbfunc_term(struct client_ctx *cc, void *arg)
+kbfunc_term(struct client_ctx *cc, union arg *arg)
 {
 	u_spawn(Conf.termpath);
 }
 
 void
-kbfunc_lock(struct client_ctx *cc, void *arg)
+kbfunc_lock(struct client_ctx *cc, union arg *arg)
 {
 	u_spawn(Conf.lockpath);
 }
 
 void
-kbfunc_exec(struct client_ctx *scratch, void *arg)
+kbfunc_exec(struct client_ctx *scratch, union arg *arg)
 {
 #define NPATHS 256
 	char		**ap, *paths[NPATHS], *path, *pathcpy, *label;
@@ -238,7 +238,7 @@ kbfunc_exec(struct client_ctx *scratch, void *arg)
 	struct menu_q	 menuq;
 	struct stat	 sb;
 
-	int cmd = (int)arg;
+	int cmd = arg->i;
 	switch (cmd) {
 		case CWM_EXEC_PROGRAM:
 			label = "exec";
@@ -338,7 +338,7 @@ kbfunc_exec(struct client_ctx *scratch, void *arg)
 }
 
 void
-kbfunc_ssh(struct client_ctx *scratch, void *arg)
+kbfunc_ssh(struct client_ctx *scratch, union arg *arg)
 {
 	struct menu	*mi;
 	struct menu_q	 menuq;
@@ -405,7 +405,7 @@ kbfunc_ssh(struct client_ctx *scratch, void *arg)
 }
 
 void
-kbfunc_client_label(struct client_ctx *cc, void *arg)
+kbfunc_client_label(struct client_ctx *cc, union arg *arg)
 {
 	struct menu	*mi;
 	struct menu_q	 menuq;
@@ -428,31 +428,31 @@ kbfunc_client_label(struct client_ctx *cc, void *arg)
 }
 
 void
-kbfunc_client_delete(struct client_ctx *cc, void *arg)
+kbfunc_client_delete(struct client_ctx *cc, union arg *arg)
 {
 	client_send_delete(cc);
 }
 
 void
-kbfunc_client_group(struct client_ctx *cc, void *arg)
+kbfunc_client_group(struct client_ctx *cc, union arg *arg)
 {
-	group_hidetoggle(KBTOGROUP((int)arg));
+	group_hidetoggle(KBTOGROUP(arg->i));
 }
 
 void
-kbfunc_client_cyclegroup(struct client_ctx *cc, void *arg)
+kbfunc_client_cyclegroup(struct client_ctx *cc, union arg *arg)
 {
-	group_cycle((int)arg);
+	group_cycle(arg->i);
 }
 
 void
-kbfunc_client_nogroup(struct client_ctx *cc, void *arg)
+kbfunc_client_nogroup(struct client_ctx *cc, union arg *arg)
 {
 	group_alltoggle();
 }
 
 void
-kbfunc_client_grouptoggle(struct client_ctx *cc, void *arg)
+kbfunc_client_grouptoggle(struct client_ctx *cc, union arg *arg)
 {
 	/* XXX for stupid X apps like xpdf and gvim */
 	XGrabKeyboard(X_Dpy, cc->win, True,
@@ -462,25 +462,25 @@ kbfunc_client_grouptoggle(struct client_ctx *cc, void *arg)
 }
 
 void
-kbfunc_client_maximize(struct client_ctx *cc, void *arg)
+kbfunc_client_maximize(struct client_ctx *cc, union arg *arg)
 {
 	client_maximize(cc);
 }
 
 void
-kbfunc_client_vmaximize(struct client_ctx *cc, void *arg)
+kbfunc_client_vmaximize(struct client_ctx *cc, union arg *arg)
 {
 	client_vertmaximize(cc);
 }
 
 void
-kbfunc_quit_wm(struct client_ctx *cc, void *arg)
+kbfunc_quit_wm(struct client_ctx *cc, union arg *arg)
 {
 	_xev_quit = 1;
 }
 
 void
-kbfunc_reload(struct client_ctx *cc, void *arg)
+kbfunc_reload(struct client_ctx *cc, union arg *arg)
 {
 	conf_reload(&Conf);
 }

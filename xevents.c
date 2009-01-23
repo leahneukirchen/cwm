@@ -294,7 +294,7 @@ xev_handle_keypress(struct xevent *xev, XEvent *ee)
 		if (kb->flags & KBFLAG_NEEDCLIENT)
 			goto out;
 
-	(*kb->callback)(cc, kb->argument);
+	(*kb->callback)(cc, &kb->argument);
 
 out:
 	xev_register(xev);
