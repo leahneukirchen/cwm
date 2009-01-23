@@ -178,7 +178,6 @@ char 		*atoms[CWM_NO_ATOMS] = {
 	"_MOTIF_WM_HINTS"
 };
 
-
 void
 xu_getatoms(void)
 {
