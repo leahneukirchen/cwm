@@ -170,13 +170,17 @@ xu_setstate(struct client_ctx *cc, int state)
 }
 
 Atom		cwm_atoms[CWM_NO_ATOMS];
+char 		*atoms[CWM_NO_ATOMS] = {
+	"WM_STATE",
+	"WM_DELETE_WINDOW",
+	"WM_TAKE_FOCUS",
+	"WM_PROTOCOLS",
+	"_MOTIF_WM_HINTS"
+};
+
 
 void
 xu_getatoms(void)
 {
-	WM_STATE = XInternAtom(X_Dpy, "WM_STATE", False);	
-	WM_DELETE_WINDOW = XInternAtom(X_Dpy, "WM_DELETE_WINDOW", False);	
-	WM_TAKE_FOCUS = XInternAtom(X_Dpy, "WM_TAKE_FOCUS", False);
-	WM_PROTOCOLS = XInternAtom(X_Dpy, "WM_PROTOCOLS", False);
-	_MOTIF_WM_HINTS = XInternAtom(X_Dpy, "_MOTIF_WM_HINTS", False);
+	XInternAtoms(X_Dpy, atoms, CWM_NO_ATOMS, False, cwm_atoms);
 }
