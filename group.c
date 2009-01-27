@@ -52,6 +52,9 @@ _group_add(struct group_ctx *gc, struct client_ctx *cc)
 	if (cc->group != NULL)
 		TAILQ_REMOVE(&cc->group->clients, cc, group_entry);
 
+	XChangeProperty(X_Dpy, cc->win, _CWM_GRP, XA_STRING,
+	    8, PropModeReplace, gc->name, strlen(gc->name));
+
 	TAILQ_INSERT_TAIL(&gc->clients, cc, group_entry);
 	cc->group = gc;
 }
@@ -61,6 +64,10 @@ _group_remove(struct client_ctx *cc)
 {
 	if (cc == NULL || cc->group == NULL)
 		errx(1, "_group_remove: a ctx is NULL");
+
+	XChangeProperty(X_Dpy, cc->win, _CWM_GRP, XA_STRING, 8,
+	    PropModeReplace, shortcut_to_name[0],
+	    strlen(shortcut_to_name[0]));
 
 	TAILQ_REMOVE(&cc->group->clients, cc, group_entry);
 	cc->group = NULL;
@@ -132,6 +139,7 @@ group_init(void)
 		TAILQ_INIT(&Groups[i].clients);
 		Groups[i].hidden = 0;
 		Groups[i].shortcut = i + 1;
+		Groups[i].name = shortcut_to_name[Groups[i].shortcut];
 		TAILQ_INSERT_TAIL(&Groupq, &Groups[i], entry);
 	}
 
@@ -325,16 +333,23 @@ group_autogroup(struct client_ctx *cc)
 {
 	struct autogroupwin	*aw;
 	struct group_ctx	*gc;
+	unsigned char		*grpstr = NULL;
 	char			 group[CALMWM_MAXNAMELEN];
 
 	if (cc->app_class == NULL || cc->app_name == NULL)
 		return;
-
-	TAILQ_FOREACH(aw, &Conf.autogroupq, entry) {
-		if (strcmp(aw->class, cc->app_class) == 0 &&
-		    (aw->name == NULL || strcmp(aw->name, cc->app_name) == 0)) {
-			strlcpy(group, aw->group, sizeof(group));
-			break;
+	if (xu_getprop(cc, _CWM_GRP,  XA_STRING,
+	    (CALMWM_MAXNAMELEN - 1)/sizeof(long), &grpstr) > 0) {
+		strlcpy(group, grpstr, sizeof(group));
+		XFree(grpstr);
+	} else {
+		TAILQ_FOREACH(aw, &Conf.autogroupq, entry) {
+			if (strcmp(aw->class, cc->app_class) == 0 &&
+			    (aw->name == NULL ||
+			    strcmp(aw->name, cc->app_name) == 0)) {
+				strlcpy(group, aw->group, sizeof(group));
+				break;
+			}
 		}
 	}
 

@@ -175,7 +175,8 @@ char 		*atoms[CWM_NO_ATOMS] = {
 	"WM_DELETE_WINDOW",
 	"WM_TAKE_FOCUS",
 	"WM_PROTOCOLS",
-	"_MOTIF_WM_HINTS"
+	"_MOTIF_WM_HINTS",
+	"_CWM_GRP",
 };
 
 void
