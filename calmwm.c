@@ -31,7 +31,6 @@ Cursor				 Cursor_question;
 
 struct screen_ctx_q		 Screenq;
 struct screen_ctx		*Curscreen;
-u_int				 Nscreens;
 
 struct client_ctx_q		 Clientq;
 
@@ -124,8 +123,7 @@ x_setup(void)
 	struct keybinding	*kb;
 	int			 i;
 
-	Nscreens = ScreenCount(X_Dpy);
-	for (i = 0; i < (int)Nscreens; i++) {
+	for (i = 0; i < ScreenCount(X_Dpy); i++) {
 		XCALLOC(sc, struct screen_ctx);
 		x_setupscreen(sc, i);
 		TAILQ_INSERT_TAIL(&Screenq, sc, entry);
@@ -137,7 +135,6 @@ x_setup(void)
 	 */
 	TAILQ_FOREACH(kb, &Conf.keybindingq, entry)
 		conf_grab(&Conf, kb);
-
 
 	Cursor_move = XCreateFontCursor(X_Dpy, XC_fleur);
 	Cursor_resize = XCreateFontCursor(X_Dpy, XC_bottom_right_corner);
@@ -159,7 +156,6 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 
 	Curscreen = sc;
 
-	sc->display = x_screenname(which);
 	sc->which = which;
 	sc->rootwin = RootWindow(X_Dpy, which);
 
@@ -240,32 +236,6 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	XSync(X_Dpy, False);
 
 	return;
-}
-
-char *
-x_screenname(int which)
-{
-	char	*cp, *dstr, *sn;
-	size_t	 snlen;
-
-	if (which > 9)
-		errx(1, "Can't handle more than 9 screens.  If you need it, "
-		    "tell <marius@monkey.org>.  It's a trivial fix.");
-
-	dstr = xstrdup(DisplayString(X_Dpy));
-
-	if ((cp = strrchr(dstr, ':')) == NULL)
-		return (NULL);
-
-	if ((cp = strchr(cp, '.')) != NULL)
-		*cp = '\0';
-
-	snlen = strlen(dstr) + 3; /* string, dot, number, null */
-	sn = (char *)xmalloc(snlen);
-	snprintf(sn, snlen, "%s.%d", dstr, which);
-	free(dstr);
-
-	return (sn);
 }
 
 int

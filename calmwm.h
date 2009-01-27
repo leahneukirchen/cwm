@@ -47,7 +47,6 @@ struct screen_ctx {
 	Colormap	 colormap;
 	XColor		 bgcolor, fgcolor, fccolor, redcolor, graycolor,
 			 whitecolor, blackcolor;
-	char		*display;
 	unsigned long	 blackpixl, whitepixl, redpixl, bluepixl, graypixl;
 	GC		 gc;
 
@@ -310,7 +309,6 @@ int			 input_keycodetrans(KeyCode, u_int, enum ctltype *,
 
 int			 x_errorhandler(Display *, XErrorEvent *);
 void			 x_setup(void);
-char			*x_screenname(int);
 void			 x_setupscreen(struct screen_ctx *, u_int);
 __dead void		 usage(void);
 
@@ -512,7 +510,6 @@ extern Cursor				 Cursor_question;
 
 extern struct screen_ctx_q		 Screenq;
 extern struct screen_ctx		*curscreen;
-extern u_int				 Nscreens;
 
 extern struct client_ctx_q		 Clientq;
 
