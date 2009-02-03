@@ -80,14 +80,14 @@ kbfunc_moveresize(struct client_ctx *cc, union arg *arg)
 		cc->geom.y += my;
 		if (cc->geom.y + cc->geom.height < 0)
 			cc->geom.y = -cc->geom.height;
-		if (cc->geom.y > cc->sc->ymax)
-			cc->geom.y = cc->sc->ymax;
+		if (cc->geom.y > cc->sc->ymax - 1)
+			cc->geom.y = cc->sc->ymax - 1;
 
 		cc->geom.x += mx;
 		if (cc->geom.x + cc->geom.width < 0)
 			cc->geom.x = -cc->geom.width;
-		if (cc->geom.x > cc->sc->xmax)
-			cc->geom.x = cc->sc->xmax;
+		if (cc->geom.x > cc->sc->xmax - 1)
+			cc->geom.x = cc->sc->xmax - 1;
 
 		client_move(cc);
 		xu_ptr_getpos(cc->win, &x, &y);
