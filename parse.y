@@ -66,7 +66,7 @@ typedef struct {
 
 %token	FONTNAME STICKY GAP MOUSEBIND
 %token	AUTOGROUP BIND COMMAND IGNORE
-%token	YES NO BORDERWIDTH
+%token	YES NO BORDERWIDTH MOVEAMOUNT
 %token	ERROR
 %token	<v.string>		STRING
 %token	<v.number>		NUMBER
@@ -109,6 +109,9 @@ main		: FONTNAME STRING		{
 		}
 		| BORDERWIDTH NUMBER {
 			conf->bwidth = $2;
+		}
+		| MOVEAMOUNT NUMBER {
+			conf->mamount = $2;
 		}
 		| COMMAND STRING string		{
 			conf_cmd_add(conf, $3, $2, 0);
@@ -207,6 +210,7 @@ lookup(char *s)
 		{ "gap",		GAP},
 		{ "ignore",		IGNORE},
 		{ "mousebind",		MOUSEBIND},
+		{ "moveamount",		MOVEAMOUNT},
 		{ "no",			NO},
 		{ "sticky",		STICKY},
 		{ "yes",		YES}
@@ -499,6 +503,7 @@ parse_config(const char *filename, struct conf *xconf)
 
 		xconf->flags = conf->flags;
 		xconf->bwidth = conf->bwidth;
+		xconf->mamount = conf->mamount;
 
 		while ((cmd = TAILQ_FIRST(&conf->cmdq)) != NULL) {
 			TAILQ_REMOVE(&conf->cmdq, cmd, entry);

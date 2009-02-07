@@ -77,6 +77,7 @@ conf_init(struct conf *c)
 {
 	c->flags = 0;
 	c->bwidth = CONF_BWIDTH;
+	c->mamount = CONF_MAMOUNT;
 
 	TAILQ_INIT(&c->ignoreq);
 	TAILQ_INIT(&c->cmdq);

@@ -14,7 +14,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
-.Dd $Mdocdate: January 21 2009 $
+.Dd $Mdocdate: February 7 2009 $
 .Dt CWMRC 5
 .Os
 .Sh NAME
@@ -34,7 +34,7 @@ properties, where
 .Ar group
 is a number between 0 and 9.
 If the group number is 0, then the window will not be grouped; this to
-allow for 
+allow for
 .Dq sticky
 windows in sticky group mode.
 .Pp
@@ -139,7 +139,7 @@ The modifier keys come first, followed by a
 The following modifiers are recognised:
 .Pp
 .Bl -tag -width Ds -offset indent -compact
-.It C   
+.It C
 The Control key.
 .It M
 The Meta key.
@@ -168,6 +168,11 @@ The
 may be taken from the
 .Sx MOUSEBIND COMMAND LIST
 (see below).
+.Pp
+.It Ic moveamount Ar pixels
+Set a default size for the keyboard movement bindings,
+in pixels.
+The default is 1.
 .Pp
 .It Ic sticky Ic yes Ns \&| Ns Ic no
 Toggle sticky group mode.
@@ -264,53 +269,101 @@ Maximize current window full-screen.
 .It vmaximize
 Maximize current window vertically.
 .It moveup
-Move window 1 pixel up.
+Move window
+.Ar moveamount
+pixels up.
 .It movedown
-Move window 1 pixel down.
+Move window
+.Ar moveamount
+pixels down.
 .It moveright
-Move window 1 pixel right.
+Move window
+.Ar moveamount
+pixels right.
 .It moveleft
-Move window 1 pixel left.
+Move window
+.Ar moveamount
+pixels left.
 .It bigmoveup
-Move window 10 pixels up.
+Move window 10 times
+.Ar moveamount
+pixels up.
 .It bigmovedown
-Move window 10 pixels down.
+Move window 10 times
+.Ar moveamount
+pixels down.
 .It bigmoveright
-Move window 10 pixels right.
+Move window 10 times
+.Ar moveamount
+pixels right.
 .It bigmoveleft
-Move window 10 pixels left.
+Move window 10 times
+.Ar moveamount
+pixels left.
 .It resizeup
-Resize window 1 pixel up.
+Resize window
+.Ar moveamount
+pixels up.
 .It resizedown
-Resize window 1 pixel down.
+Resize window
+.Ar moveamount
+pixels down.
 .It resizeright
-Resize window 1 pixel right.
+Resize window
+.Ar moveamount
+pixels right.
 .It resizeleft
-Resize window 1 pixel left.
+Resize window
+.Ar moveamount
+pixels left.
 .It bigresizeup
-Resize window 10 pixels up.
+Resize window 10 times
+.Ar moveamount
+pixels up.
 .It bigresizedown
-Resize window 10 pixels down.
+Resize window 10 times
+.Ar moveamount
+pixels down.
 .It bigresizeright
-Resize window 10 pixels right.
+Resize window 10 times
+.Ar moveamount
+pixels right.
 .It bigresizeleft
-Resize window 10 pixels left.
+Resize window 10 times
+.Ar moveamount
+pixels left.
 .It ptrmoveup
-Move pointer 1 pixel up.
+Move pointer
+.Ar moveamount
+pixels up.
 .It ptrmovedown
-Move pointer 1 pixel down.
+Move pointer
+.Ar moveamount
+pixels down.
 .It ptrmoveright
-Move pointer 1 pixel right.
+Move pointer
+.Ar moveamount
+pixels right.
 .It ptrmoveleft
-Move pointer 1 pixel left.
+Move pointer
+.Ar moveamount
+pixels left.
 .It bigptrmoveup
-Move pointer 10 pixels up.
+Move pointer 10 times
+.Ar moveamount
+pixels up.
 .It bigptrmovedown
-Move pointer 10 pixels down.
+Move pointer 10 times
+.Ar moveamount
+pixels down.
 .It bigptrmoveright
-Move pointer 10 pixels right.
+Move pointer 10 times
+.Ar moveamount
+pixels right.
 .It bigptrmoveleft
-Move pointer 10 pixels left.
+Move pointer 10 times
+.Ar moveamount
+pixels left.
 .El
 .Sh MOUSEBIND COMMAND LIST
 .Bl -tag -width 18n -compact

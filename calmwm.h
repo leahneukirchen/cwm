@@ -256,6 +256,8 @@ struct conf {
 	int			 flags;
 #define CONF_BWIDTH		 1
 	int			 bwidth;
+#define	CONF_MAMOUNT		 1
+	int			 mamount;
 
 	char			 termpath[MAXPATHLEN];
 	char			 lockpath[MAXPATHLEN];

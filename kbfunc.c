@@ -25,7 +25,6 @@
 
 #define KNOWN_HOSTS	".ssh/known_hosts"
 #define HASH_MARKER	"|1|"
-#define MOVE_AMOUNT	1
 
 extern int		_xev_quit;
 
@@ -54,7 +53,7 @@ kbfunc_moveresize(struct client_ctx *cc, union arg *arg)
 	mx = my = 0;
 
 	flags = arg->i;
-	amt = MOVE_AMOUNT;
+	amt = Conf.mamount;
 
 	if (flags & CWM_BIGMOVE) {
 		flags -= CWM_BIGMOVE;
