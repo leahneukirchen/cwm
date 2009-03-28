@@ -73,7 +73,7 @@ menu_filter(struct menu_q *menuq, char *prompt, char *initial, int dummy,
 	struct menu		*mi = NULL;
 	XEvent			 e;
 	Window			 focuswin;
-	int			 Mask, focusrevert;
+	int			 evmask, focusrevert;
 
 	sc = screen_current();
 
@@ -84,11 +84,11 @@ menu_filter(struct menu_q *menuq, char *prompt, char *initial, int dummy,
 	xu_ptr_getpos(sc->rootwin, &mc.x, &mc.y);
 
 	if (prompt == NULL) {
-		Mask = MenuMask;
+		evmask = MenuMask;
 		mc.promptstr[0] = '\0';
 		mc.list = 1;
 	} else {
-		Mask = MenuMask | KeyMask; /* only accept keys if prompt */
+		evmask = MenuMask | KeyMask; /* only accept keys if prompt */
 		snprintf(mc.promptstr, sizeof(mc.promptstr), "%s%c", prompt,
 		    PROMPT_SCHAR);
 		snprintf(mc.dispstr, sizeof(mc.dispstr), "%s%s%c", mc.promptstr,
@@ -108,7 +108,7 @@ menu_filter(struct menu_q *menuq, char *prompt, char *initial, int dummy,
 
 	XMoveResizeWindow(X_Dpy, sc->menuwin, mc.x, mc.y, mc.width,
 	    font_height());
-	XSelectInput(X_Dpy, sc->menuwin, Mask);
+	XSelectInput(X_Dpy, sc->menuwin, evmask);
 	XMapRaised(X_Dpy, sc->menuwin);
 
 	if (xu_ptr_grab(sc->menuwin, MenuGrabMask, Cursor_question) < 0) {
@@ -126,7 +126,7 @@ menu_filter(struct menu_q *menuq, char *prompt, char *initial, int dummy,
 	for (;;) {
 		mc.changed = 0;
 
-		XWindowEvent(X_Dpy, sc->menuwin, Mask, &e);
+		XWindowEvent(X_Dpy, sc->menuwin, evmask, &e);
 
 		switch (e.type) {
 		default:

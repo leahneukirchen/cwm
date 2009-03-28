@@ -431,7 +431,7 @@ xev_register(struct xevent *xev)
 	TAILQ_INSERT_TAIL(xq, xev, entry);
 }
 
-void
+static void
 _xev_reincorporate(void)
 {
 	struct xevent	*xev;
