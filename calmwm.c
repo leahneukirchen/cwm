@@ -40,6 +40,9 @@ struct conf			 Conf;
 
 static void	_sigchld_cb(int);
 static void	dpy_init(const char *);
+static void	x_setup(void);
+static void	x_setupscreen(struct screen_ctx *, u_int);
+static void	x_teardown(void);
 
 int
 main(int argc, char **argv)
@@ -97,6 +100,8 @@ main(int argc, char **argv)
 
 	xev_loop();
 
+	x_teardown();
+
 	return (0);
 }
 
@@ -141,6 +146,17 @@ x_setup(void)
 	Cursor_select = XCreateFontCursor(X_Dpy, XC_hand1);
 	Cursor_default = XCreateFontCursor(X_Dpy, XC_X_cursor);
 	Cursor_question = XCreateFontCursor(X_Dpy, XC_question_arrow);
+}
+
+void
+x_teardown(void)
+{
+	struct screen_ctx	*sc;
+
+	TAILQ_FOREACH(sc, &Screenq, entry)
+		XFreeGC(X_Dpy, sc->gc);
+
+	XCloseDisplay(X_Dpy);
 }
 
 void

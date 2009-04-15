@@ -310,8 +310,6 @@ int			 input_keycodetrans(KeyCode, u_int, enum ctltype *,
 			     char *);
 
 int			 x_errorhandler(Display *, XErrorEvent *);
-void			 x_setup(void);
-void			 x_setupscreen(struct screen_ctx *, u_int);
 __dead void		 usage(void);
 
 struct client_ctx	*client_find(Window);
