@@ -88,6 +88,7 @@ void
 mousefunc_window_resize(struct client_ctx *cc, void *arg)
 {
 	XEvent			 ev;
+	Time			 time = 0;
 	struct screen_ctx	*sc = CCTOSC(cc);
 	int			 dx, dy;
 	int			 x = cc->geom.x, y = cc->geom.y;
@@ -116,9 +117,19 @@ mousefunc_window_resize(struct client_ctx *cc, void *arg)
 			    ev.xmotion.x, ev.xmotion.y))
 				/* Recompute window output */
 				_mousefunc_sweep_draw(cc, dx, dy);
-			client_resize(cc);
+
+			/* don't sync more than 60 times / second */
+			if ((ev.xmotion.time - time) > (1000 / 60) ) {
+				time = ev.xmotion.time;
+				XSync(X_Dpy, False);
+				client_resize(cc);
+			}
 			break;
 		case ButtonRelease:
+			if (time) {
+				XSync(X_Dpy, False);
+				client_resize(cc);
+			}
 			XUnmapWindow(X_Dpy, sc->menuwin);
 			XReparentWindow(X_Dpy, sc->menuwin, sc->rootwin, 0, 0);
 			xu_ptr_ungrab();
@@ -140,6 +151,7 @@ void
 mousefunc_window_move(struct client_ctx *cc, void *arg)
 {
 	XEvent			 ev;
+	Time			 time = 0;
 	struct screen_ctx	*sc = CCTOSC(cc);
 	int			 mx, my;
 	int			 x = cc->geom.x, y = cc->geom.y;
@@ -161,9 +173,19 @@ mousefunc_window_move(struct client_ctx *cc, void *arg)
 		case MotionNotify:
 			cc->geom.x = x + (ev.xmotion.x - mx);
 			cc->geom.y = y + (ev.xmotion.y - my);
-			client_move(cc);
+
+			/* don't sync more than 60 times / second */
+			if ((ev.xmotion.time - time) > (1000 / 60) ) {
+				time = ev.xmotion.time;
+				XSync(X_Dpy, False);
+				client_move(cc);
+			}
 			break;
 		case ButtonRelease:
+			if (time) {
+				XSync(X_Dpy, False);
+				client_move(cc);
+			}
 			xu_ptr_ungrab();
 			return;
 		}
