@@ -358,15 +358,17 @@ void
 xev_handle_randr(struct xevent *xev, XEvent *ee)
 {
 	XRRScreenChangeNotifyEvent	*rev = (XRRScreenChangeNotifyEvent *)ee;
-	struct client_ctx		*cc;
 	struct screen_ctx		*sc;
+	int				 i;
 
-	if ((cc = client_find(rev->window)) != NULL) {
-		XRRUpdateConfiguration(ee);
-		sc = CCTOSC(cc);
-		sc->xmax = rev->width;
-		sc->ymax = rev->height;
-		screen_init_xinerama(sc);
+	i = XRRRootToScreen(X_Dpy, rev->root);
+	TAILQ_FOREACH(sc, &Screenq, entry) {
+		if (sc->which == (u_int)i) {
+			XRRUpdateConfiguration(ee);
+			sc->xmax = rev->width;
+			sc->ymax = rev->height;
+			screen_init_xinerama(sc);
+		}
 	}
 }
 
