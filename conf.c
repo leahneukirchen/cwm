@@ -57,7 +57,7 @@ conf_font(struct conf *c)
 
 	sc = screen_current();
 
-	c->DefaultFont = font_make(sc, Conf.DefaultFontName);
+	c->DefaultFont = font_make(sc, c->DefaultFontName);
 	c->FontHeight = font_ascent() + font_descent() + 1;
 }
 
