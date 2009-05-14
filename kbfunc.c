@@ -439,6 +439,12 @@ kbfunc_client_group(struct client_ctx *cc, union arg *arg)
 }
 
 void
+kbfunc_client_grouponly(struct client_ctx *cc, union arg *arg)
+{
+	group_only(KBTOGROUP(arg->i));
+}
+
+void
 kbfunc_client_cyclegroup(struct client_ctx *cc, union arg *arg)
 {
 	group_cycle(arg->i);

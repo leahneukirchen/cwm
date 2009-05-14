@@ -213,6 +213,23 @@ group_hidetoggle(int idx)
 	}
 }
 
+void
+group_only(int idx)
+{
+	int	 i;
+
+	if (idx < 0 || idx >= CALMWM_NGROUPS)
+		err(1, "group_only: index out of range (%d)", idx);
+
+	for (i = 0; i < CALMWM_NGROUPS; i++) {
+		if (i == idx) {
+			_group_show(&Groups[i]);
+		} else {
+			_group_hide(&Groups[i]);
+		}
+	}
+}
+
 /*
  * Cycle through active groups.  If none exist, then just stay put.
  */
