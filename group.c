@@ -232,11 +232,10 @@ group_only(int idx)
 		err(1, "group_only: index out of range (%d)", idx);
 
 	for (i = 0; i < CALMWM_NGROUPS; i++) {
-		if (i == idx) {
+		if (i == idx)
 			_group_show(&Groups[i]);
-		} else {
+		else
 			_group_hide(&Groups[i]);
-		}
 	}
 }
 
