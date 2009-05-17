@@ -143,6 +143,7 @@ group_init(void)
 		TAILQ_INSERT_TAIL(&Groupq, &Groups[i], entry);
 	}
 
+	Group_active = &Groups[0];
 }
 
 void
