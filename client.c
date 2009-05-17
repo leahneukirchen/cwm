@@ -396,6 +396,7 @@ client_unhide(struct client_ctx *cc)
 	cc->highlight = 0;
 	cc->flags &= ~CLIENT_HIDDEN;
 	xu_setstate(cc, NormalState);
+	client_draw_border(cc);
 }
 
 void
