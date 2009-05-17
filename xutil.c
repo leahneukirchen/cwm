@@ -184,3 +184,23 @@ xu_getatoms(void)
 {
 	XInternAtoms(X_Dpy, atoms, CWM_NO_ATOMS, False, cwm_atoms);
 }
+
+unsigned long
+xu_getcolor(struct screen_ctx *sc, char *name)
+{
+	XColor	 color, tmp;
+
+	if (!XAllocNamedColor(X_Dpy, DefaultColormap(X_Dpy, sc->which),
+	    name, &color, &tmp)) {
+		warnx("XAllocNamedColor error: '%s'", name);
+		return 0;
+	}
+
+	return color.pixel;
+}
+
+void
+xu_freecolor(struct screen_ctx *sc, unsigned long pixel)
+{
+	XFreeColors(X_Dpy, DefaultColormap(X_Dpy, sc->which), &pixel, 1, 0L);
+}

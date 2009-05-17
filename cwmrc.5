@@ -14,7 +14,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
-.Dd $Mdocdate: May 14 2009 $
+.Dd $Mdocdate: May 17 2009 $
 .Dt CWMRC 5
 .Os
 .Sh NAME
@@ -83,6 +83,18 @@ application.
 .It Ic borderwidth Ar pixels
 Set the window border width to
 .Ar pixels .
+.Pp
+.It Ic color activeborder Ar color
+Set the color of the active border.
+.Pp
+.It Ic color groupborder Ar color
+Set the color of the border while grouping a window.
+.Pp
+.It Ic color inactiveborder Ar color
+Set the color of the inactive border.
+.Pp
+.It Ic color ungroupborder Ar color
+Set the color of the border while ungrouping a window.
 .Pp
 .It Ic command Ar name Ar path
 Every

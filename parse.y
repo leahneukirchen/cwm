@@ -67,6 +67,9 @@ typedef struct {
 %token	FONTNAME STICKY GAP MOUSEBIND
 %token	AUTOGROUP BIND COMMAND IGNORE
 %token	YES NO BORDERWIDTH MOVEAMOUNT
+%token	COLOR
+%token	ACTIVEBORDER INACTIVEBORDER
+%token	GROUPBORDER UNGROUPBORDER
 %token	ERROR
 %token	<v.string>		STRING
 %token	<v.number>		NUMBER
@@ -77,6 +80,7 @@ typedef struct {
 grammar		: /* empty */
 		| grammar '\n'
 		| grammar main '\n'
+		| grammar color '\n'
 		| grammar error '\n'		{ file->errors++; }
 		;
 
@@ -170,6 +174,27 @@ main		: FONTNAME STRING		{
 			free($3);
 		}
 		;
+
+color		: COLOR colors
+		;
+
+colors		: ACTIVEBORDER STRING {
+			free(conf->color[CWM_COLOR_BORDOR_ACTIVE].name);
+			conf->color[CWM_COLOR_BORDOR_ACTIVE].name = $2;
+		}
+		| INACTIVEBORDER STRING {
+			free(conf->color[CWM_COLOR_BORDER_INACTIVE].name);
+			conf->color[CWM_COLOR_BORDER_INACTIVE].name = $2;
+		}
+		| GROUPBORDER STRING {
+			free(conf->color[CWM_COLOR_BORDER_GROUP].name);
+			conf->color[CWM_COLOR_BORDER_GROUP].name = $2;
+		}
+		| UNGROUPBORDER STRING {
+			free(conf->color[CWM_COLOR_BORDER_UNGROUP].name);
+			conf->color[CWM_COLOR_BORDER_UNGROUP].name = $2;
+		}
+		;
 %%
 
 struct keywords {
@@ -202,17 +227,22 @@ lookup(char *s)
 {
 	/* this has to be sorted always */
 	static const struct keywords keywords[] = {
+		{ "activeborder",	ACTIVEBORDER},
 		{ "autogroup",		AUTOGROUP},
 		{ "bind",		BIND},
 		{ "borderwidth",	BORDERWIDTH},
+		{ "color",		COLOR},
 		{ "command",		COMMAND},
 		{ "fontname",		FONTNAME},
 		{ "gap",		GAP},
+		{ "groupborder",	GROUPBORDER},
 		{ "ignore",		IGNORE},
+		{ "inactiveborder",	INACTIVEBORDER},
 		{ "mousebind",		MOUSEBIND},
 		{ "moveamount",		MOVEAMOUNT},
 		{ "no",			NO},
 		{ "sticky",		STICKY},
+		{ "ungroupborder",	UNGROUPBORDER},
 		{ "yes",		YES}
 	};
 	const struct keywords	*p;
@@ -498,6 +528,7 @@ parse_config(const char *filename, struct conf *xconf)
 		struct winmatch		*wm;
 		struct cmd		*cmd;
 		struct mousebinding	*mb;
+		int			 i;
 
 		conf_clear(xconf);
 
@@ -534,6 +565,9 @@ parse_config(const char *filename, struct conf *xconf)
 		    sizeof(xconf->termpath));
 		strlcpy(xconf->lockpath, conf->lockpath,
 		    sizeof(xconf->lockpath));
+
+		for (i = 0; i < CWM_COLOR_MAX; i++)
+			xconf->color[i].name = conf->color[i].name;
 
 		xconf->DefaultFontName = conf->DefaultFontName;
 

@@ -34,6 +34,21 @@
 #define ButtonMask	(ButtonPressMask|ButtonReleaseMask)
 #define MouseMask	(ButtonMask|PointerMotionMask)
 
+enum cwmcolor {
+	CWM_COLOR_BORDOR_ACTIVE,
+	CWM_COLOR_BORDER_INACTIVE,
+	CWM_COLOR_BORDER_GROUP,
+	CWM_COLOR_BORDER_UNGROUP,
+	CWM_COLOR_FG_MENU,
+	CWM_COLOR_BG_MENU,
+	CWM_COLOR_MAX
+};
+
+struct color {
+	unsigned long	 pixel;
+	char		*name;
+};
+
 struct client_ctx;
 
 TAILQ_HEAD(cycle_entry_q, client_ctx);
@@ -44,10 +59,8 @@ struct screen_ctx {
 	u_int		 which;
 	Window		 rootwin;
 	Window		 menuwin;
-	Colormap	 colormap;
-	XColor		 bgcolor, fgcolor, fccolor, redcolor, graycolor,
-			 whitecolor, blackcolor;
-	unsigned long	 blackpixl, whitepixl, redpixl, bluepixl, graypixl;
+
+	struct color	 color[CWM_COLOR_MAX];
 	GC		 gc;
 
 	int		 altpersist;
@@ -78,8 +91,8 @@ TAILQ_HEAD(screen_ctx_q, screen_ctx);
 #define CLIENT_DOVMAXIMIZE	0x10
 #define CLIENT_VMAXIMIZED	0x20
 
-#define CLIENT_HIGHLIGHT_BLUE	1
-#define CLIENT_HIGHLIGHT_RED	2
+#define CLIENT_HIGHLIGHT_GROUP		1
+#define CLIENT_HIGHLIGHT_UNGROUP	2
 
 struct winname {
 	TAILQ_ENTRY(winname)	 entry;
@@ -259,6 +272,14 @@ struct conf {
 #define	CONF_MAMOUNT		 1
 	int			 mamount;
 
+#define CONF_COLOR_ACTIVEBORDER		"#CCCCCC"
+#define CONF_COLOR_INACTIVEBORDER	"#666666"
+#define CONF_COLOR_GROUPBORDER		"blue"
+#define CONF_COLOR_UNGROUPBORDER	"red"
+#define CONF_COLOR_MENUFG		"black"
+#define CONF_COLOR_MENUBG		"white"
+	struct color		 color[CWM_COLOR_MAX];
+
 	char			 termpath[MAXPATHLEN];
 	char			 lockpath[MAXPATHLEN];
 
@@ -393,6 +414,8 @@ int			 xu_getprop(struct client_ctx *, Atom, Atom, long,
 char			*xu_getstrprop(struct client_ctx *, Atom atm);
 void			 xu_setstate(struct client_ctx *, int);
 int			 xu_getstate(struct client_ctx *, int *);
+unsigned long		 xu_getcolor(struct screen_ctx *, char *);
+void			 xu_freecolor(struct screen_ctx *, unsigned long);
 
 int			 u_spawn(char *);
 void			 u_exec(char *);
@@ -422,6 +445,7 @@ void			 conf_mouseunbind(struct conf *, struct mousebinding *);
 void			 conf_grab_mouse(struct client_ctx *);
 void			 conf_reload(struct conf *);
 void			 conf_font(struct conf *);
+void			 conf_color(struct conf *);
 void			 conf_init(struct conf *);
 void			 conf_clear(struct conf *);
 void			 conf_cmd_add(struct conf *, char *, char *, int);

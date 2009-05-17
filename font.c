@@ -22,22 +22,14 @@
 void
 font_init(struct screen_ctx *sc)
 {
-	XColor	 xcolor, tmp;
-
 	sc->xftdraw = XftDrawCreate(X_Dpy, sc->rootwin,
 	    DefaultVisual(X_Dpy, sc->which), DefaultColormap(X_Dpy, sc->which));
 	if (sc->xftdraw == NULL)
 		errx(1, "XftDrawCreate");
 
-	if (!XAllocNamedColor(X_Dpy, DefaultColormap(X_Dpy, sc->which),
-	    "black", &xcolor, &tmp))
-		errx(1, "XAllocNamedColor");
-
-	sc->xftcolor.color.red = xcolor.red;
-	sc->xftcolor.color.green = xcolor.green;
-	sc->xftcolor.color.blue = xcolor.blue;
-	sc->xftcolor.color.alpha = 0x00ff00;
-	sc->xftcolor.pixel = xcolor.pixel;
+	if (!XftColorAllocName(X_Dpy, DefaultVisual(X_Dpy, sc->which),
+	    DefaultColormap(X_Dpy, sc->which), "black", &sc->xftcolor))
+		errx(1, "XftColorAllocName");
 }
 
 int

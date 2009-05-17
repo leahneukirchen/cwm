@@ -58,8 +58,19 @@ static int		 menu_calc_entry(struct screen_ctx *, struct menu_ctx *,
 void
 menu_init(struct screen_ctx *sc)
 {
-	sc->menuwin = XCreateSimpleWindow(X_Dpy, sc->rootwin, 0, 0,
-	    1, 1, 1, sc->blackpixl, sc->whitepixl);
+	XGCValues	 gv;
+
+	sc->menuwin = XCreateSimpleWindow(X_Dpy, sc->rootwin, 0, 0, 1, 1, 0,
+	    sc->color[CWM_COLOR_BG_MENU].pixel,
+	    sc->color[CWM_COLOR_BG_MENU].pixel);
+
+	gv.foreground =
+	    sc->color[CWM_COLOR_FG_MENU].pixel^sc->color[CWM_COLOR_BG_MENU].pixel;
+	gv.background = sc->color[CWM_COLOR_BG_MENU].pixel;
+	gv.function = GXxor;
+
+	sc->gc = XCreateGC(X_Dpy, sc->menuwin,
+	    GCForeground|GCBackground|GCFunction, &gv);
 }
 
 struct menu *

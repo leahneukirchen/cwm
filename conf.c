@@ -62,6 +62,21 @@ conf_font(struct conf *c)
 }
 
 void
+conf_color(struct conf *c)
+{
+	struct screen_ctx	*sc;
+	int			 i;
+
+	sc = screen_current();
+
+
+	for (i = 0; i < CWM_COLOR_MAX; i++) {
+		xu_freecolor(sc, sc->color[i].pixel);
+		sc->color[i].pixel = xu_getcolor(sc, c->color[i].name);
+	}
+}
+
+void
 conf_reload(struct conf *c)
 {
 	if (parse_config(c->conf_path, c) == -1) {
@@ -69,6 +84,7 @@ conf_reload(struct conf *c)
 		return;
 	}
 
+	conf_color(c);
 	conf_font(c);
 }
 
@@ -157,6 +173,19 @@ conf_init(struct conf *c)
 	strlcpy(c->termpath, "xterm", sizeof(c->termpath));
 	strlcpy(c->lockpath, "xlock", sizeof(c->lockpath));
 
+	c->color[CWM_COLOR_BORDOR_ACTIVE].name =
+	    xstrdup(CONF_COLOR_ACTIVEBORDER);
+	c->color[CWM_COLOR_BORDER_INACTIVE].name =
+	    xstrdup(CONF_COLOR_INACTIVEBORDER);
+	c->color[CWM_COLOR_BORDER_GROUP].name =
+	    xstrdup(CONF_COLOR_GROUPBORDER);
+	c->color[CWM_COLOR_BORDER_UNGROUP].name =
+	    xstrdup(CONF_COLOR_UNGROUPBORDER);
+	c->color[CWM_COLOR_FG_MENU].name =
+	    xstrdup(CONF_COLOR_MENUFG);
+	c->color[CWM_COLOR_BG_MENU].name =
+	    xstrdup(CONF_COLOR_MENUBG);
+
 	c->DefaultFontName = xstrdup(DEFAULTFONTNAME);
 }
 
@@ -168,6 +197,7 @@ conf_clear(struct conf *c)
 	struct winmatch		*wm;
 	struct cmd		*cmd;
 	struct mousebinding	*mb;
+	int			 i;
 
 	while ((cmd = TAILQ_FIRST(&c->cmdq)) != NULL) {
 		TAILQ_REMOVE(&c->cmdq, cmd, entry);
@@ -197,6 +227,9 @@ conf_clear(struct conf *c)
 		TAILQ_REMOVE(&c->mousebindingq, mb, entry);
 		xfree(mb);
 	}
+
+	for (i = 0; i < CWM_COLOR_MAX; i++)
+		xfree(c->color[i].name);
 
 	xfree(c->DefaultFontName);
 }
