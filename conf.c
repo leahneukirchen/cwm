@@ -79,12 +79,16 @@ conf_color(struct conf *c)
 void
 conf_reload(struct conf *c)
 {
+	struct client_ctx	*cc;
+
 	if (parse_config(c->conf_path, c) == -1) {
 		warnx("config file %s has errors, not reloading", c->conf_path);
 		return;
 	}
 
 	conf_color(c);
+	TAILQ_FOREACH(cc, &Clientq, entry)
+		client_draw_border(cc);
 	conf_font(c);
 }
 
