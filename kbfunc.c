@@ -467,6 +467,12 @@ kbfunc_client_grouptoggle(struct client_ctx *cc, union arg *arg)
 }
 
 void
+kbfunc_client_movetogroup(struct client_ctx *cc, union arg *arg)
+{
+	group_movetogroup(cc, KBTOGROUP(arg->i));
+}
+
+void
 kbfunc_client_maximize(struct client_ctx *cc, union arg *arg)
 {
 	client_maximize(cc);

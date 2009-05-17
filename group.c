@@ -143,7 +143,16 @@ group_init(void)
 		TAILQ_INSERT_TAIL(&Groupq, &Groups[i], entry);
 	}
 
-	Group_active = &Groups[0];
+}
+
+void
+group_movetogroup(struct client_ctx *cc, int idx)
+{
+	if (idx < 0 || idx >= CALMWM_NGROUPS)
+		err(1, "group_movetogroup: index out of range (%d)", idx);
+
+	client_hide(cc);
+	_group_add(&Groups[idx], cc);
 }
 
 /*
