@@ -38,7 +38,7 @@ int				 HasXinerama, HasRandr, Randr_ev;
 int				 Starting;
 struct conf			 Conf;
 
-static void	_sigchld_cb(int);
+static void	sigchld_cb(int);
 static void	dpy_init(const char *);
 static void	x_setup(void);
 static void	x_setupscreen(struct screen_ctx *, u_int);
@@ -66,7 +66,7 @@ main(int argc, char **argv)
 	argc -= optind;
 	argv += optind;
 
-	if (signal(SIGCHLD, _sigchld_cb) == SIG_ERR)
+	if (signal(SIGCHLD, sigchld_cb) == SIG_ERR)
 		err(1, "signal");
 
 	group_init();
@@ -230,7 +230,7 @@ x_errorhandler(Display *dpy, XErrorEvent *e)
 }
 
 static void
-_sigchld_cb(int which)
+sigchld_cb(int which)
 {
 	pid_t	 pid;
 	int	 save_errno = errno;

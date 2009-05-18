@@ -21,7 +21,7 @@
 #include "headers.h"
 #include "calmwm.h"
 
-static int		 _client_inbound(struct client_ctx *, int, int);
+static int		 client_inbound(struct client_ctx *, int, int);
 
 static char		 emptystring[] = "";
 struct client_ctx	*_curcc = NULL;
@@ -368,7 +368,7 @@ client_ptrsave(struct client_ctx *cc)
 	int	 x, y;
 
 	xu_ptr_getpos(cc->win, &x, &y);
-	if (_client_inbound(cc, x, y)) {
+	if (client_inbound(cc, x, y)) {
 		cc->ptr.x = x;
 		cc->ptr.y = y;
 	}
@@ -704,7 +704,7 @@ client_freehints(struct client_ctx *cc)
 }
 
 static int
-_client_inbound(struct client_ctx *cc, int x, int y)
+client_inbound(struct client_ctx *cc, int x, int y)
 {
 	return (x < cc->geom.width && x >= 0 &&
 	    y < cc->geom.height && y >= 0);

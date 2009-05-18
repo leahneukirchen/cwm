@@ -22,14 +22,14 @@
 #include "headers.h"
 #include "calmwm.h"
 
-static int	_mousefunc_sweep_calc(struct client_ctx *, int, int, int, int);
-static void	_mousefunc_sweep_draw(struct client_ctx *, int, int);
+static int	mousefunc_sweep_calc(struct client_ctx *, int, int, int, int);
+static void	mousefunc_sweep_draw(struct client_ctx *, int, int);
 
 #define ADJUST_HEIGHT(cc, dy)	((cc->geom.height - cc->geom.min_dy) / dy)
 #define ADJUST_WIDTH(cc, dx)	((cc->geom.width - cc->geom.min_dx) / dx)
 
 static int
-_mousefunc_sweep_calc(struct client_ctx *cc, int x, int y, int mx, int my)
+mousefunc_sweep_calc(struct client_ctx *cc, int x, int y, int mx, int my)
 {
 	int	 width = cc->geom.width, height = cc->geom.height;
 
@@ -60,7 +60,7 @@ _mousefunc_sweep_calc(struct client_ctx *cc, int x, int y, int mx, int my)
 }
 
 static void
-_mousefunc_sweep_draw(struct client_ctx *cc, int dx, int dy)
+mousefunc_sweep_draw(struct client_ctx *cc, int dx, int dy)
 {
 	struct screen_ctx	*sc = CCTOSC(cc);
 	char			 asize[10]; /* fits "nnnnxnnnn\0" */
@@ -103,7 +103,7 @@ mousefunc_window_resize(struct client_ctx *cc, void *arg)
 		return;
 
 	xu_ptr_setpos(cc->win, cc->geom.width, cc->geom.height);
-	_mousefunc_sweep_draw(cc, dx, dy);
+	mousefunc_sweep_draw(cc, dx, dy);
 
 	for (;;) {
 		XMaskEvent(X_Dpy, MouseMask|ExposureMask, &ev);
@@ -113,10 +113,10 @@ mousefunc_window_resize(struct client_ctx *cc, void *arg)
 			client_draw_border(cc);
 			break;
 		case MotionNotify:
-			if (_mousefunc_sweep_calc(cc, x, y,
+			if (mousefunc_sweep_calc(cc, x, y,
 			    ev.xmotion.x, ev.xmotion.y))
 				/* Recompute window output */
-				_mousefunc_sweep_draw(cc, dx, dy);
+				mousefunc_sweep_draw(cc, dx, dy);
 
 			/* don't sync more than 60 times / second */
 			if ((ev.xmotion.time - time) > (1000 / 60) ) {

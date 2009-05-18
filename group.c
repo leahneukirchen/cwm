@@ -24,11 +24,11 @@
 
 #define CALMWM_NGROUPS 9
 
-static void		 _group_add(struct group_ctx *, struct client_ctx *);
-static void		 _group_remove(struct client_ctx *);
-static void		 _group_hide(struct group_ctx *);
-static void		 _group_show(struct group_ctx *);
-static void		 _group_fix_hidden_state(struct group_ctx *);
+static void		 group_add(struct group_ctx *, struct client_ctx *);
+static void		 group_remove(struct client_ctx *);
+static void		 group_hide(struct group_ctx *);
+static void		 group_show(struct group_ctx *);
+static void		 group_fix_hidden_state(struct group_ctx *);
 
 struct group_ctx	*Group_active = NULL;
 struct group_ctx	 Groups[CALMWM_NGROUPS];
@@ -41,10 +41,10 @@ const char *shortcut_to_name[] = {
 };
 
 static void
-_group_add(struct group_ctx *gc, struct client_ctx *cc)
+group_add(struct group_ctx *gc, struct client_ctx *cc)
 {
 	if (cc == NULL || gc == NULL)
-		errx(1, "_group_add: a ctx is NULL");
+		errx(1, "group_add: a ctx is NULL");
 
 	if (cc->group == gc)
 		return;
@@ -60,10 +60,10 @@ _group_add(struct group_ctx *gc, struct client_ctx *cc)
 }
 
 static void
-_group_remove(struct client_ctx *cc)
+group_remove(struct client_ctx *cc)
 {
 	if (cc == NULL || cc->group == NULL)
-		errx(1, "_group_remove: a ctx is NULL");
+		errx(1, "group_remove: a ctx is NULL");
 
 	XChangeProperty(X_Dpy, cc->win, _CWM_GRP, XA_STRING, 8,
 	    PropModeReplace, shortcut_to_name[0],
@@ -74,7 +74,7 @@ _group_remove(struct client_ctx *cc)
 }
 
 static void
-_group_hide(struct group_ctx *gc)
+group_hide(struct group_ctx *gc)
 {
 	struct client_ctx	*cc;
 
@@ -92,7 +92,7 @@ _group_hide(struct group_ctx *gc)
 }
 
 static void
-_group_show(struct group_ctx *gc)
+group_show(struct group_ctx *gc)
 {
 	struct client_ctx	*cc;
 	Window			*winlist;
@@ -153,7 +153,7 @@ group_movetogroup(struct client_ctx *cc, int idx)
 		err(1, "group_movetogroup: index out of range (%d)", idx);
 
 	client_hide(cc);
-	_group_add(&Groups[idx], cc);
+	group_add(&Groups[idx], cc);
 }
 
 /*
@@ -167,10 +167,10 @@ group_sticky_toggle_enter(struct client_ctx *cc)
 	gc = Group_active;
 
 	if (gc == cc->group) {
-		_group_remove(cc);
+		group_remove(cc);
 		cc->highlight = CLIENT_HIGHLIGHT_UNGROUP;
 	} else {
-		_group_add(gc, cc);
+		group_add(gc, cc);
 		cc->highlight = CLIENT_HIGHLIGHT_GROUP;
 	}
 
@@ -188,7 +188,7 @@ group_sticky_toggle_exit(struct client_ctx *cc)
  * if group_hidetoggle would produce no effect, toggle the group's hidden state
  */
 static void
-_group_fix_hidden_state(struct group_ctx *gc)
+group_fix_hidden_state(struct group_ctx *gc)
 {
 	struct client_ctx	*cc;
 	int			 same = 0;
@@ -212,12 +212,12 @@ group_hidetoggle(int idx)
 
 	gc = &Groups[idx];
 
-	_group_fix_hidden_state(gc);
+	group_fix_hidden_state(gc);
 
 	if (gc->hidden)
-		_group_show(gc);
+		group_show(gc);
 	else {
-		_group_hide(gc);
+		group_hide(gc);
 		if (TAILQ_EMPTY(&gc->clients))
 			Group_active = gc;
 	}
@@ -233,9 +233,9 @@ group_only(int idx)
 
 	for (i = 0; i < CALMWM_NGROUPS; i++) {
 		if (i == idx)
-			_group_show(&Groups[i]);
+			group_show(&Groups[i]);
 		else
-			_group_hide(&Groups[i]);
+			group_hide(&Groups[i]);
 	}
 }
 
@@ -262,16 +262,16 @@ group_cycle(int reverse)
 		if (!TAILQ_EMPTY(&gc->clients) && showgroup == NULL)
 			showgroup = gc;
 		else if (!gc->hidden)
-			_group_hide(gc);
+			group_hide(gc);
 	}
 
 	if (showgroup == NULL)
 		return;
 
-	_group_hide(Group_active);
+	group_hide(Group_active);
 
 	if (showgroup->hidden)
-		_group_show(showgroup);
+		group_show(showgroup);
 	else
 		Group_active = showgroup;
 }
@@ -325,9 +325,9 @@ group_menu(XButtonEvent *e)
 	gc = (struct group_ctx *)mi->ctx;
 
 	if (gc->hidden)
-		_group_show(gc);
+		group_show(gc);
 	else
-		_group_hide(gc);
+		group_hide(gc);
 
 cleanup:
 	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
@@ -343,9 +343,9 @@ group_alltoggle(void)
 
 	for (i = 0; i < CALMWM_NGROUPS; i++) {
 		if (Grouphideall)
-			_group_show(&Groups[i]);
+			group_show(&Groups[i]);
 		else
-			_group_hide(&Groups[i]);
+			group_hide(&Groups[i]);
 	}
 
 	if (Grouphideall)
@@ -384,12 +384,12 @@ group_autogroup(struct client_ctx *cc)
 
 	TAILQ_FOREACH(gc, &Groupq, entry) {
 		if (strcmp(shortcut_to_name[gc->shortcut], group) == 0) {
-			_group_add(gc, cc);
+			group_add(gc, cc);
 			return;
 		}
 	}
 
 	if (Conf.flags & CONF_STICKY_GROUPS)
-		_group_add(Group_active, cc);
+		group_add(Group_active, cc);
 
 }

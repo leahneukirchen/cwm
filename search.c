@@ -22,7 +22,7 @@
 
 #define SearchMask (KeyPressMask|ExposureMask)
 
-static int	_strsubmatch(char *, char *, int);
+static int	strsubmatch(char *, char *, int);
 
 /*
  * Match: label, title, class.
@@ -54,7 +54,7 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 		struct client_ctx *cc = mi->ctx;
 
 		/* First, try to match on labels. */
-		if (cc->label != NULL && _strsubmatch(search, cc->label, 0)) {
+		if (cc->label != NULL && strsubmatch(search, cc->label, 0)) {
 			cc->matchname = cc->label;
 			tier = 0;
 		}
@@ -62,7 +62,7 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 		/* Then, on window names. */
 		if (tier < 0) {
 			TAILQ_FOREACH_REVERSE(wn, &cc->nameq, winname_q, entry)
-				if (_strsubmatch(search, wn->name, 0)) {
+				if (strsubmatch(search, wn->name, 0)) {
 					cc->matchname = wn->name;
 					tier = 2;
 					break;
@@ -74,7 +74,7 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 		 * name.
 		 */
 
-		if (tier < 0 && _strsubmatch(search, cc->app_class, 0)) {
+		if (tier < 0 && strsubmatch(search, cc->app_class, 0)) {
 			cc->matchname = cc->app_class;
 			tier = 3;
 		}
@@ -168,7 +168,7 @@ search_match_text(struct menu_q *menuq, struct menu_q *resultq, char *search)
 	TAILQ_INIT(resultq);
 
 	TAILQ_FOREACH(mi, menuq, entry)
-		if (_strsubmatch(search, mi->text, 0))
+		if (strsubmatch(search, mi->text, 0))
 			TAILQ_INSERT_TAIL(resultq, mi, resultentry);
 }
 
@@ -180,7 +180,7 @@ search_match_exec(struct menu_q *menuq, struct menu_q *resultq, char *search)
 	TAILQ_INIT(resultq);
 
 	TAILQ_FOREACH(mi, menuq, entry) {
-		if (_strsubmatch(search, mi->text, 1) == 0)
+		if (strsubmatch(search, mi->text, 1) == 0)
 			continue;
 		for (mj = TAILQ_FIRST(resultq); mj != NULL;
 		     mj = TAILQ_NEXT(mj, resultentry)) {
@@ -195,7 +195,7 @@ search_match_exec(struct menu_q *menuq, struct menu_q *resultq, char *search)
 }
 
 static int
-_strsubmatch(char *sub, char *str, int zeroidx)
+strsubmatch(char *sub, char *str, int zeroidx)
 {
 	size_t	 len, sublen;
 	u_int	 n, flen;
