@@ -172,18 +172,6 @@ struct autogroupwin {
 
 TAILQ_HEAD(autogroupwin_q, autogroupwin);
 
-/* NULL/0 values indicate match any. */
-struct xevent {
-	TAILQ_ENTRY(xevent)	 entry;
-	Window			*xev_win;
-	Window			*xev_root;
-	int			 xev_type;
-	void			 (*xev_cb)(struct xevent *, XEvent *);
-	void			*xev_arg;
-};
-
-TAILQ_HEAD(xevent_q, xevent);
-
 #define CWM_MOVE	0x01
 #define CWM_RESIZE	0x02
 #define CWM_PTRMOVE	0x04
@@ -369,33 +357,9 @@ struct menu  		*menu_filter(struct menu_q *, char *, char *, int,
 			     void (*)(struct menu *, int));
 void			 menu_init(struct screen_ctx *);
 
-void			 xev_handle_maprequest(struct xevent *, XEvent *);
-void			 xev_handle_unmapnotify(struct xevent *, XEvent *);
-void			 xev_handle_destroynotify(struct xevent *, XEvent *);
-void			 xev_handle_configurerequest(struct xevent *, XEvent *);
-void			 xev_handle_propertynotify(struct xevent *, XEvent *);
-void			 xev_handle_enternotify(struct xevent *, XEvent *);
-void			 xev_handle_leavenotify(struct xevent *, XEvent *);
-void			 xev_handle_buttonpress(struct xevent *, XEvent *);
-void			 xev_handle_buttonrelease(struct xevent *, XEvent *);
-void			 xev_handle_keypress(struct xevent *, XEvent *);
-void			 xev_handle_keyrelease(struct xevent *, XEvent *);
-void			 xev_handle_expose(struct xevent *, XEvent *);
-void			 xev_handle_clientmessage(struct xevent *, XEvent *);
-void			 xev_handle_randr(struct xevent *, XEvent *);
-void			 xev_handle_mapping(struct xevent *, XEvent *);
-
-#define XEV_QUICK(a, b, c, d, e) do {		\
-	xev_register(xev_new(a, b, c, d, e));	\
-} while (0)
-
 /* XXX should be xu_ */
 void			  xev_reconfig(struct client_ctx *);
 
-void			 xev_init(void);
-struct xevent		*xev_new(Window *, Window *, int,
-			     void (*)(struct xevent *, XEvent *), void *);
-void			 xev_register(struct xevent *);
 void			 xev_loop(void);
 
 void			 xu_getatoms(void);
@@ -505,6 +469,7 @@ void			 search_match_exec(struct menu_q *, struct menu_q *,
 
 void			 group_init(void);
 void			 group_hidetoggle(int);
+void			 group_only(int);
 void			 group_cycle(int);
 void			 group_only(int);
 void			 group_sticky(struct client_ctx *);

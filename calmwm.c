@@ -80,24 +80,6 @@ main(int argc, char **argv)
 	x_setup();
 	Starting = 0;
 
-	xev_init();
-
-	XEV_QUICK(NULL, NULL, MapRequest, xev_handle_maprequest, NULL);
-	XEV_QUICK(NULL, NULL, UnmapNotify, xev_handle_unmapnotify, NULL);
-	XEV_QUICK(NULL, NULL, ConfigureRequest,
-	    xev_handle_configurerequest, NULL);
-	XEV_QUICK(NULL, NULL, PropertyNotify, xev_handle_propertynotify, NULL);
-	XEV_QUICK(NULL, NULL, EnterNotify, xev_handle_enternotify, NULL);
-	XEV_QUICK(NULL, NULL, LeaveNotify, xev_handle_leavenotify, NULL);
-	XEV_QUICK(NULL, NULL, ButtonPress, xev_handle_buttonpress, NULL);
-	XEV_QUICK(NULL, NULL, ButtonRelease, xev_handle_buttonrelease, NULL);
-	XEV_QUICK(NULL, NULL, KeyPress, xev_handle_keypress, NULL);
-	XEV_QUICK(NULL, NULL, KeyRelease, xev_handle_keyrelease, NULL);
-	XEV_QUICK(NULL, NULL, Expose, xev_handle_expose, NULL);
-	XEV_QUICK(NULL, NULL, DestroyNotify, xev_handle_destroynotify, NULL);
-	XEV_QUICK(NULL, NULL, ClientMessage, xev_handle_clientmessage, NULL);
-	XEV_QUICK(NULL, NULL, MappingNotify, xev_handle_mapping, NULL);
-
 	xev_loop();
 
 	x_teardown();

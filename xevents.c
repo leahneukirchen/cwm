@@ -27,13 +27,42 @@
 #include "headers.h"
 #include "calmwm.h"
 
-/*
- * NOTE: in reality, many of these should move to client.c now that
- * we've got this nice event layer.
- */
+static void	 xev_handle_maprequest(XEvent *);
+static void	 xev_handle_unmapnotify(XEvent *);
+static void	 xev_handle_destroynotify(XEvent *);
+static void	 xev_handle_configurerequest(XEvent *);
+static void	 xev_handle_propertynotify(XEvent *);
+static void	 xev_handle_enternotify(XEvent *);
+static void	 xev_handle_leavenotify(XEvent *);
+static void	 xev_handle_buttonpress(XEvent *);
+static void	 xev_handle_buttonrelease(XEvent *);
+static void	 xev_handle_keypress(XEvent *);
+static void	 xev_handle_keyrelease(XEvent *);
+static void	 xev_handle_expose(XEvent *);
+static void	 xev_handle_clientmessage(XEvent *);
+static void	 xev_handle_randr(XEvent *);
+static void	 xev_handle_mappingnotify(XEvent *);
 
-void
-xev_handle_maprequest(struct xevent *xev, XEvent *ee)
+
+void		(*xev_handlers[LASTEvent])(XEvent *) = {
+			[MapRequest] = xev_handle_maprequest,
+			[UnmapNotify] = xev_handle_unmapnotify,
+			[ConfigureRequest] = xev_handle_configurerequest,
+			[PropertyNotify] = xev_handle_propertynotify,
+			[EnterNotify] = xev_handle_enternotify,
+			[LeaveNotify] = xev_handle_leavenotify,
+			[ButtonPress] = xev_handle_buttonpress,
+			[ButtonRelease] = xev_handle_buttonrelease,
+			[KeyPress] = xev_handle_keypress,
+			[KeyRelease] = xev_handle_keyrelease,
+			[Expose] = xev_handle_expose,
+			[DestroyNotify] = xev_handle_destroynotify,
+			[ClientMessage] = xev_handle_clientmessage,
+			[MappingNotify] = xev_handle_mappingnotify,
+};
+
+static void
+xev_handle_maprequest(XEvent *ee)
 {
 	XMapRequestEvent	*e = &ee->xmaprequest;
 	struct client_ctx	*cc = NULL, *old_cc;
@@ -48,11 +77,10 @@ xev_handle_maprequest(struct xevent *xev, XEvent *ee)
 	}
 
 	client_ptrwarp(cc);
-	xev_register(xev);
 }
 
-void
-xev_handle_unmapnotify(struct xevent *xev, XEvent *ee)
+static void
+xev_handle_unmapnotify(XEvent *ee)
 {
 	XUnmapEvent		*e = &ee->xunmap;
 	XEvent			ev;
@@ -76,24 +104,20 @@ xev_handle_unmapnotify(struct xevent *xev, XEvent *ee)
 			client_hide(cc);
 	}
 	XUngrabServer(X_Dpy);
-
-	xev_register(xev);
 }
 
-void
-xev_handle_destroynotify(struct xevent *xev, XEvent *ee)
+static void
+xev_handle_destroynotify(XEvent *ee)
 {
 	XDestroyWindowEvent	*e = &ee->xdestroywindow;
 	struct client_ctx	*cc;
 
 	if ((cc = client_find(e->window)) != NULL)
 		client_delete(cc);
-
-	xev_register(xev);
 }
 
-void
-xev_handle_configurerequest(struct xevent *xev, XEvent *ee)
+static void
+xev_handle_configurerequest(XEvent *ee)
 {
 	XConfigureRequestEvent	*e = &ee->xconfigurerequest;
 	struct client_ctx	*cc;
@@ -140,12 +164,10 @@ xev_handle_configurerequest(struct xevent *xev, XEvent *ee)
 
 		XConfigureWindow(X_Dpy, e->window, e->value_mask, &wc);
 	}
-
-	xev_register(xev);
 }
 
-void
-xev_handle_propertynotify(struct xevent *xev, XEvent *ee)
+static void
+xev_handle_propertynotify(XEvent *ee)
 {
 	XPropertyEvent		*e = &ee->xproperty;
 	struct client_ctx	*cc;
@@ -164,8 +186,6 @@ xev_handle_propertynotify(struct xevent *xev, XEvent *ee)
 			break;
 		}
 	}
-
-	xev_register(xev);
 }
 
 void
@@ -187,29 +207,25 @@ xev_reconfig(struct client_ctx *cc)
 	XSendEvent(X_Dpy, cc->win, False, StructureNotifyMask, (XEvent *)&ce);
 }
 
-void
-xev_handle_enternotify(struct xevent *xev, XEvent *ee)
+static void
+xev_handle_enternotify(XEvent *ee)
 {
 	XCrossingEvent		*e = &ee->xcrossing;
 	struct client_ctx	*cc;
 
 	if ((cc = client_find(e->window)) != NULL)
 		client_setactive(cc, 1);
-
-	xev_register(xev);
 }
 
-void
-xev_handle_leavenotify(struct xevent *xev, XEvent *ee)
+static void
+xev_handle_leavenotify(XEvent *ee)
 {
 	client_leave(NULL);
-
-	xev_register(xev);
 }
 
 /* We can split this into two event handlers. */
-void
-xev_handle_buttonpress(struct xevent *xev, XEvent *ee)
+static void
+xev_handle_buttonpress(XEvent *ee)
 {
 	XButtonEvent		*e = &ee->xbutton;
 	struct client_ctx	*cc;
@@ -228,35 +244,31 @@ xev_handle_buttonpress(struct xevent *xev, XEvent *ee)
 	}
 
 	if (mb == NULL)
-		goto out;
+		return;
 
 	if (mb->context == MOUSEBIND_CTX_ROOT) {
 		if (e->window != sc->rootwin)
-			goto out;
+			return;
 	} else if (mb->context == MOUSEBIND_CTX_WIN) {
 		cc = client_find(e->window);
 		if (cc == NULL)
-			goto out;
+			return;
 	}
 
 	(*mb->callback)(cc, e);
-out:
-	xev_register(xev);
 }
 
-void
-xev_handle_buttonrelease(struct xevent *xev, XEvent *ee)
+static void
+xev_handle_buttonrelease(XEvent *ee)
 {
 	struct client_ctx *cc;
 
 	if ((cc = client_current()) != NULL)
 		group_sticky_toggle_exit(cc);
-
-	xev_register(xev);
 }
 
-void
-xev_handle_keypress(struct xevent *xev, XEvent *ee)
+static void
+xev_handle_keypress(XEvent *ee)
 {
 	XKeyEvent		*e = &ee->xkey;
 	struct client_ctx	*cc = NULL;
@@ -286,25 +298,22 @@ xev_handle_keypress(struct xevent *xev, XEvent *ee)
 	}
 
 	if (kb == NULL)
-		goto out;
+		return;
 
 	if ((kb->flags & (KBFLAG_NEEDCLIENT)) &&
 	    (cc = client_find(e->window)) == NULL &&
 	    (cc = client_current()) == NULL)
 		if (kb->flags & KBFLAG_NEEDCLIENT)
-			goto out;
+			return;
 
 	(*kb->callback)(cc, &kb->argument);
-
-out:
-	xev_register(xev);
 }
 
 /*
  * This is only used for the alt suppression detection.
  */
-void
-xev_handle_keyrelease(struct xevent *xev, XEvent *ee)
+static void
+xev_handle_keyrelease(XEvent *ee)
 {
 	XKeyEvent		*e = &ee->xkey;
 	struct screen_ctx	*sc;
@@ -316,7 +325,7 @@ xev_handle_keyrelease(struct xevent *xev, XEvent *ee)
 
 	keysym = XKeycodeToKeysym(X_Dpy, e->keycode, 0);
 	if (keysym != XK_Alt_L && keysym != XK_Alt_R)
-		goto out;
+		return;
 
 	sc->altpersist = 0;
 
@@ -330,13 +339,10 @@ xev_handle_keyrelease(struct xevent *xev, XEvent *ee)
 		group_sticky_toggle_exit(cc);
 		XUngrabKeyboard(X_Dpy, CurrentTime);
 	}
-
-out:
-	xev_register(xev);
 }
 
-void
-xev_handle_clientmessage(struct xevent *xev, XEvent *ee)
+static void
+xev_handle_clientmessage(XEvent *ee)
 {
 	XClientMessageEvent	*e = &ee->xclient;
 	Atom			 xa_wm_change_state;
@@ -345,17 +351,15 @@ xev_handle_clientmessage(struct xevent *xev, XEvent *ee)
 	xa_wm_change_state = XInternAtom(X_Dpy, "WM_CHANGE_STATE", False);
 
 	if ((cc = client_find(e->window)) == NULL)
-		goto out;
+		return;
 
 	if (e->message_type == xa_wm_change_state && e->format == 32 &&
 	    e->data.l[0] == IconicState)
 		client_hide(cc);
-out:
-	xev_register(xev);
 }
 
-void
-xev_handle_randr(struct xevent *xev, XEvent *ee)
+static void
+xev_handle_randr(XEvent *ee)
 {
 	XRRScreenChangeNotifyEvent	*rev = (XRRScreenChangeNotifyEvent *)ee;
 	struct screen_ctx		*sc;
@@ -376,8 +380,8 @@ xev_handle_randr(struct xevent *xev, XEvent *ee)
  * Called when the keymap has changed.
  * Ungrab all keys, reload keymap and then regrab
  */
-void
-xev_handle_mapping(struct xevent *xev, XEvent *ee)
+static void
+xev_handle_mappingnotify(XEvent *ee)
 {
 	XMappingEvent		*e = &ee->xmapping;
 	struct keybinding	*kb;
@@ -389,160 +393,31 @@ xev_handle_mapping(struct xevent *xev, XEvent *ee)
 
 	TAILQ_FOREACH(kb, &Conf.keybindingq, entry)
 		conf_grab(&Conf, kb);
-
-	xev_register(xev);
-}
-
-/*
- * X Event handling
- */
-
-static struct xevent_q	_xevq, _xevq_putaway;
-static short		_xev_q_lock = 0;
-volatile sig_atomic_t	_xev_quit = 0;
-
-void
-xev_init(void)
-{
-	TAILQ_INIT(&_xevq);
-	TAILQ_INIT(&_xevq_putaway);
-}
-
-struct xevent *
-xev_new(Window *win, Window *root,
-    int type, void (*cb)(struct xevent *, XEvent *), void *arg)
-{
-	struct xevent	*xev;
-
-	XMALLOC(xev, struct xevent);
-	xev->xev_win = win;
-	xev->xev_root = root;
-	xev->xev_type = type;
-	xev->xev_cb = cb;
-	xev->xev_arg = arg;
-
-	return (xev);
-}
-
-void
-xev_register(struct xevent *xev)
-{
-	struct xevent_q	*xq;
-
-	xq = _xev_q_lock ? &_xevq_putaway : &_xevq;
-	TAILQ_INSERT_TAIL(xq, xev, entry);
 }
 
 static void
-_xev_reincorporate(void)
-{
-	struct xevent	*xev;
-
-	while ((xev = TAILQ_FIRST(&_xevq_putaway)) != NULL) {
-		TAILQ_REMOVE(&_xevq_putaway, xev, entry);
-		TAILQ_INSERT_TAIL(&_xevq, xev, entry);
-	}
-}
-
-void
-xev_handle_expose(struct xevent *xev, XEvent *ee)
+xev_handle_expose(XEvent *ee)
 {
 	XExposeEvent		*e = &ee->xexpose;
 	struct client_ctx	*cc;
 
 	if ((cc = client_find(e->window)) != NULL && e->count == 0)
 		client_draw_border(cc);
-
-	xev_register(xev);
 }
 
-#define ASSIGN(xtype) do {			\
-	root = e. xtype .root;			\
-	win = e. xtype .window;			\
-} while (0)
 
-#define ASSIGN1(xtype) do {			\
-	win = e. xtype .window;			\
-} while (0)
+volatile sig_atomic_t	_xev_quit = 0;
 
 void
 xev_loop(void)
 {
-	Window		 win, root;
 	XEvent		 e;
-	struct xevent	*xev = NULL, *nextxev;
-	int type;
 
 	while (_xev_quit == 0) {
-#ifdef DIAGNOSTIC
-		if (TAILQ_EMPTY(&_xevq))
-			errx(1, "X event queue empty");
-#endif
-
 		XNextEvent(X_Dpy, &e);
-		type = e.type;
-
-		win = root = 0;
-
-		switch (type) {
-		case MapRequest:
-			ASSIGN1(xmaprequest);
-			break;
-		case UnmapNotify:
-			ASSIGN1(xunmap);
-			break;
-		case ConfigureRequest:
-			ASSIGN1(xconfigurerequest);
-			break;
-		case PropertyNotify:
-			ASSIGN1(xproperty);
-			break;
-		case EnterNotify:
-		case LeaveNotify:
-			ASSIGN(xcrossing);
-			break;
-		case ButtonPress:
-			ASSIGN(xbutton);
-			break;
-		case ButtonRelease:
-			ASSIGN(xbutton);
-			break;
-		case KeyPress:
-		case KeyRelease:
-			ASSIGN(xkey);
-			break;
-		case DestroyNotify:
-			ASSIGN1(xdestroywindow);
-			break;
-		case ClientMessage:
-			ASSIGN1(xclient);
-			break;
-		default:
-			if (e.type == Randr_ev)
-				xev_handle_randr(xev, &e);
-			break;
-		}
-
-		/*
-		 * Now, search for matches, and call each of them.
-		 */
-		_xev_q_lock = 1;
-		for (xev = TAILQ_FIRST(&_xevq); xev != NULL; xev = nextxev) {
-			nextxev = TAILQ_NEXT(xev, entry);
-
-			if ((type != xev->xev_type && xev->xev_type != 0) ||
-			    (xev->xev_win != NULL && win != *xev->xev_win) ||
-			    (xev->xev_root != NULL && root != *xev->xev_root))
-				continue;
-
-			TAILQ_REMOVE(&_xevq, xev, entry);
-
-			(*xev->xev_cb)(xev, &e);
-		}
-		_xev_q_lock = 0;
-		_xev_reincorporate();
+		if (e.type - Randr_ev == RRScreenChangeNotify)
+			xev_handle_randr(&e);
+		else if (e.type < LASTEvent && xev_handlers[e.type] != NULL)
+			(*xev_handlers[e.type])(&e);
 	}
 }
-
-#undef ASSIGN
-#undef ASSIGN1
