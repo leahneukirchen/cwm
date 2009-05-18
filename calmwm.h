@@ -471,7 +471,6 @@ void			 group_init(void);
 void			 group_hidetoggle(int);
 void			 group_only(int);
 void			 group_cycle(int);
-void			 group_only(int);
 void			 group_sticky(struct client_ctx *);
 void			 group_client_delete(struct client_ctx *);
 void			 group_menu(XButtonEvent *);
