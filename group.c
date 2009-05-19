@@ -152,7 +152,8 @@ group_movetogroup(struct client_ctx *cc, int idx)
 	if (idx < 0 || idx >= CALMWM_NGROUPS)
 		err(1, "group_movetogroup: index out of range (%d)", idx);
 
-	client_hide(cc);
+	if(Group_active != &Groups[idx])
+		client_hide(cc);
 	group_add(&Groups[idx], cc);
 }
 
