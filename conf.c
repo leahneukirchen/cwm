@@ -269,17 +269,12 @@ conf_client(struct client_ctx *cc)
 	char		*wname = cc->name;
 	int		 ignore = 0;
 
-	/* Can wname be NULL? */
-	if (wname != NULL) {
-		TAILQ_FOREACH(wm, &Conf.ignoreq, entry) {
-			if (strncasecmp(wm->title, wname, strlen(wm->title))
-			    == 0) {
-				ignore = 1;
-				break;
-			}
+	TAILQ_FOREACH(wm, &Conf.ignoreq, entry) {
+		if (strncasecmp(wm->title, wname, strlen(wm->title)) == 0) {
+			ignore = 1;
+			break;
 		}
-	} else
-		ignore = 1;
+	}
 
 	cc->bwidth = ignore ? 0 : Conf.bwidth;
 	cc->flags |= ignore ? CLIENT_IGNORE : 0;
