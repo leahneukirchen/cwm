@@ -64,21 +64,12 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	cc->sc = sc;
 	cc->win = win;
 	cc->size = XAllocSizeHints();
+
 	XGetWMNormalHints(X_Dpy, cc->win, cc->size, &tmp);
 	if (cc->size->width_inc == 0)
 		cc->size->width_inc = 1;
 	if (cc->size->height_inc == 0)
 		cc->size->height_inc = 1;
-
-	TAILQ_INIT(&cc->nameq);
-	client_setname(cc);
-
-	/*
-	 * conf_client() needs at least cc->win and cc->name
-	 */
-	conf_client(cc);
-
-	XGetWindowAttributes(X_Dpy, cc->win, &wattr);
 
 	if (cc->size->flags & PBaseSize) {
 		cc->geom.min_dx = cc->size->base_width;
@@ -88,10 +79,16 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 		cc->geom.min_dy = cc->size->min_height;
 	}
 
+	TAILQ_INIT(&cc->nameq);
+	client_setname(cc);
+
+	conf_client(cc);
+
 	/* Saved pointer position */
 	cc->ptr.x = -1;
 	cc->ptr.y = -1;
 
+	XGetWindowAttributes(X_Dpy, cc->win, &wattr);
 	cc->geom.x = wattr.x;
 	cc->geom.y = wattr.y;
 	cc->geom.width = wattr.width;
