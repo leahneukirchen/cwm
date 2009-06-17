@@ -33,6 +33,12 @@
 #define ChildMask	(SubstructureRedirectMask|SubstructureNotifyMask)
 #define ButtonMask	(ButtonPressMask|ButtonReleaseMask)
 #define MouseMask	(ButtonMask|PointerMotionMask)
+#define KeyMask		(KeyPressMask|ExposureMask)
+#define MenuMask 	(ButtonMask|ButtonMotionMask|ExposureMask| \
+			PointerMotionMask)
+#define MenuGrabMask	(ButtonMask|ButtonMotionMask|StructureNotifyMask|\
+			PointerMotionMask)
+#define SearchMask	(KeyPressMask|ExposureMask)
 
 enum cwmcolor {
 	CWM_COLOR_BORDOR_ACTIVE,

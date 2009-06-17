@@ -20,8 +20,6 @@
 #include "headers.h"
 #include "calmwm.h"
 
-#define SearchMask (KeyPressMask|ExposureMask)
-
 static int	strsubmatch(char *, char *, int);
 
 /*

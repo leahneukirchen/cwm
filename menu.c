@@ -18,11 +18,6 @@
 #include "headers.h"
 #include "calmwm.h"
 
-#define KeyMask		(KeyPressMask|ExposureMask)
-#define MenuMask 	(ButtonMask|ButtonMotionMask|ExposureMask| \
-			PointerMotionMask)
-#define MenuGrabMask	(ButtonMask|ButtonMotionMask|StructureNotifyMask|\
-			PointerMotionMask)
 #define PROMPT_SCHAR	'»'
 #define PROMPT_ECHAR	'«'
 
