@@ -23,10 +23,7 @@
 #include "calmwm.h"
 
 static int	mousefunc_sweep_calc(struct client_ctx *, int, int, int, int);
-static void	mousefunc_sweep_draw(struct client_ctx *, int, int);
-
-#define ADJUST_HEIGHT(cc, dy)	((cc->geom.height - cc->geom.min_dy) / dy)
-#define ADJUST_WIDTH(cc, dx)	((cc->geom.width - cc->geom.min_dx) / dx)
+static void	mousefunc_sweep_draw(struct client_ctx *);
 
 static int
 mousefunc_sweep_calc(struct client_ctx *cc, int x, int y, int mx, int my)
@@ -60,28 +57,29 @@ mousefunc_sweep_calc(struct client_ctx *cc, int x, int y, int mx, int my)
 }
 
 static void
-mousefunc_sweep_draw(struct client_ctx *cc, int dx, int dy)
+mousefunc_sweep_draw(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = CCTOSC(cc);
 	char			 asize[10]; /* fits "nnnnxnnnn\0" */
-	int			 wide, height, wide_size, wide_name;
-	int			 x = cc->geom.x, y = cc->geom.y;
+	int			 width, height, width_size, width_name;
 
 	snprintf(asize, sizeof(asize), "%dx%d",
-	    ADJUST_WIDTH(cc, dx), ADJUST_HEIGHT(cc, dy));
-	wide_size = font_width(asize, strlen(asize)) + 4;
-	wide_name = font_width(cc->name, strlen(cc->name)) + 4;
-	wide = MAX(wide_size, wide_name);
+	    (cc->geom.width - cc->geom.min_dx) / cc->size->width_inc,
+	    (cc->geom.height - cc->geom.min_dy) / cc->size->height_inc);
+	width_size = font_width(asize, strlen(asize)) + 4;
+	width_name = font_width(cc->name, strlen(cc->name)) + 4;
+	width = MAX(width_size, width_name);
 	height = font_ascent() + font_descent() + 1;
 
-	XMoveResizeWindow(X_Dpy, sc->menuwin, x, y, wide, height * 2);
+	XMoveResizeWindow(X_Dpy, sc->menuwin, cc->geom.x, cc->geom.y,
+	    width, height * 2);
 	XMapWindow(X_Dpy, sc->menuwin);
 	XReparentWindow(X_Dpy, sc->menuwin, cc->win, 0, 0);
 	XClearWindow(X_Dpy, sc->menuwin);
 	font_draw(sc, cc->name, strlen(cc->name), sc->menuwin,
 	    2, font_ascent() + 1);
 	font_draw(sc, asize, strlen(asize), sc->menuwin,
-	    wide / 2 - wide_size / 2, height + font_ascent() + 1);
+	    width / 2 - width_size / 2, height + font_ascent() + 1);
 }
 
 void
@@ -90,20 +88,19 @@ mousefunc_window_resize(struct client_ctx *cc, void *arg)
 	XEvent			 ev;
 	Time			 time = 0;
 	struct screen_ctx	*sc = CCTOSC(cc);
-	int			 dx, dy;
 	int			 x = cc->geom.x, y = cc->geom.y;
 
-	dx = MAX(1, cc->size->width_inc);
-	dy = MAX(1, cc->size->height_inc);
+	cc->size->width_inc = MAX(1, cc->size->width_inc);
+	cc->size->height_inc = MAX(1, cc->size->height_inc);
 
 	client_raise(cc);
 	client_ptrsave(cc);
 
-	if (xu_ptr_grab(sc->rootwin, MouseMask, Cursor_resize) < 0)
+	if (xu_ptr_grab(cc->win, MouseMask, Cursor_resize) < 0)
 		return;
 
 	xu_ptr_setpos(cc->win, cc->geom.width, cc->geom.height);
-	mousefunc_sweep_draw(cc, dx, dy);
+	mousefunc_sweep_draw(cc);
 
 	for (;;) {
 		XMaskEvent(X_Dpy, MouseMask|ExposureMask, &ev);
@@ -114,12 +111,12 @@ mousefunc_window_resize(struct client_ctx *cc, void *arg)
 			break;
 		case MotionNotify:
 			if (mousefunc_sweep_calc(cc, x, y,
-			    ev.xmotion.x, ev.xmotion.y))
+			    ev.xmotion.x_root, ev.xmotion.y_root))
 				/* Recompute window output */
-				mousefunc_sweep_draw(cc, dx, dy);
+				mousefunc_sweep_draw(cc);
 
 			/* don't sync more than 60 times / second */
-			if ((ev.xmotion.time - time) > (1000 / 60) ) {
+			if ((ev.xmotion.time - time) > (1000 / 60)) {
 				time = ev.xmotion.time;
 				XSync(X_Dpy, False);
 				client_resize(cc);
@@ -152,16 +149,14 @@ mousefunc_window_move(struct client_ctx *cc, void *arg)
 {
 	XEvent			 ev;
 	Time			 time = 0;
-	struct screen_ctx	*sc = CCTOSC(cc);
-	int			 mx, my;
-	int			 x = cc->geom.x, y = cc->geom.y;
+	int			 px, py;
 
 	client_raise(cc);
 
-	if (xu_ptr_grab(sc->rootwin, MouseMask, Cursor_move) < 0)
+	if (xu_ptr_grab(cc->win, MouseMask, Cursor_move) < 0)
 		return;
 
-	xu_ptr_getpos(sc->rootwin, &mx, &my);
+	xu_ptr_getpos(cc->win, &px, &py);
 
 	for (;;) {
 		XMaskEvent(X_Dpy, MouseMask|ExposureMask, &ev);
@@ -171,11 +166,11 @@ mousefunc_window_move(struct client_ctx *cc, void *arg)
 			client_draw_border(cc);
 			break;
 		case MotionNotify:
-			cc->geom.x = x + (ev.xmotion.x - mx);
-			cc->geom.y = y + (ev.xmotion.y - my);
+			cc->geom.x = ev.xmotion.x_root - px;
+			cc->geom.y = ev.xmotion.y_root - py;
 
 			/* don't sync more than 60 times / second */
-			if ((ev.xmotion.time - time) > (1000 / 60) ) {
+			if ((ev.xmotion.time - time) > (1000 / 60)) {
 				time = ev.xmotion.time;
 				XSync(X_Dpy, False);
 				client_move(cc);

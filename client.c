@@ -66,11 +66,6 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	cc->size = XAllocSizeHints();
 
 	XGetWMNormalHints(X_Dpy, cc->win, cc->size, &tmp);
-	if (cc->size->width_inc == 0)
-		cc->size->width_inc = 1;
-	if (cc->size->height_inc == 0)
-		cc->size->height_inc = 1;
-
 	if (cc->size->flags & PBaseSize) {
 		cc->geom.min_dx = cc->size->base_width;
 		cc->geom.min_dy = cc->size->base_height;
