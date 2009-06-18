@@ -14,7 +14,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
-.Dd $Mdocdate: September 22 2008 $
+.Dd $Mdocdate: February 7 2009 $
 .Dt CWM 1
 .Os
 .Sh NAME
@@ -51,14 +51,14 @@ Right mouse button
 .Pp
 .Nm
 is very simple in its use.
-Most of the actions are initiated via keybindings.
-The current keybindings are described below;
+Most of the actions are initiated via key bindings.
+The current key bindings are described below;
 their functionality is described in more detail later.
 .Pp
-.Bl -tag -width "C-M-EscapeXXX" -offset indent -compact
-.It Ic C-M-Return
+.Bl -tag -width "CM-EscapeXXXXX" -offset indent -compact
+.It Ic CM-Return
 Spawn a new terminal.
-.It Ic C-M-Delete
+.It Ic CM-Delete
 Lock the screen.
 .It Ic M-Return
 Hide current window.
@@ -70,27 +70,27 @@ Raise current window.
 Search for windows.
 .It Ic C-/
 Search for applications.
-.It Ic C-M-n
+.It Ic CM-n
 Label current window.
 .It Ic M-Tab
 Cycle through currently visible windows.
-.It Ic M-S-Tab
+.It Ic MS-Tab
 Reverse cycle through currently visible windows.
-.It Ic C-M-x
+.It Ic CM-x
 Delete current window.
-.It Ic C-M-[n]
+.It Ic CM-[n]
 Select group n, where n is 1-9.
-.It Ic C-M-0
+.It Ic CM-0
 Select all groups.
-.It Ic C-M-g
+.It Ic CM-g
 Toggle group membership of current window.
 .It Ic M-Right
 Cycle through active groups.
 .It Ic M-Left
 Reverse cycle through active groups.
-.It Ic C-M-f
+.It Ic CM-f
 Toggle full-screen size of current window.
-.It Ic C-M-=
+.It Ic CM-=
 Toggle vertical maximization of current window.
 .It Ic M-?
 Spawn
@@ -105,15 +105,15 @@ This parses
 to provide host auto-completion.
 .Xr ssh 1
 will be executed via the configured terminal emulator.
-.It Ic C-M-w
+.It Ic CM-w
 Spawn
 .Dq Exec WindowManager
 dialog; allows you to switch from
 .Nm
 to another window manager without restarting the X server.
-.It Ic C-M-S-r
+.It Ic CMS-r
 Reload configuration.
-.It Ic C-M-S-q
+.It Ic CMS-q
 Quit
 .Nm .
 .El
@@ -121,15 +121,15 @@ Quit
 The mouse bindings are also important, they are:
 .Pp
 .Bl -tag -width Ds -offset indent -compact
-.It M-M1
+.It Ic M-M1
 Move current window.
-.It C-M-M1
+.It Ic CM-M1
 Toggle group membership of current window.
-.It M-M2
+.It Ic M-M2
 Resize current window
-.It M-M3
+.It Ic M-M3
 Lower current window.
-.It CMS-M3
+.It Ic CMS-M3
 Hide current window.
 .El
 .Pp
@@ -145,22 +145,34 @@ Specify the display to use.
 .El
 .Sh POINTER MOVEMENT
 The pointer can be moved with the use of the keyboard through bindings.
-C-[UP|DOWN|LEFT|RIGHT] moves the pointer a small amount, while
-C-shift-[UP|DOWN|LEFT|RIGHT] moves the pointer a larger amount.
+.Ic C-[Up|Down|Left|Right]
+moves the pointer a small amount, while
+.Ic CS-[Up|Down|Left|Right]
+moves the pointer a larger amount.
 For example, to move the pointer to the left by a small amount,
-press C-LEFT.
-To move the pointer down by a larger amount, press C-shift-DOWN.
+press
+.Ic C-Left .
+To move the pointer down by a larger amount, press
+.Ic CS-Down .
 .Sh WINDOW MOVEMENT AND RESIZING
 .Nm
-windows can be moved with the use of the keyboard through Vi-like bindings.
-M-[hjkl] moves the current window a small amount, while M-shift-[hjkl] moves
-the current window a larger amount.
-For example, to move the current window to the left a small amount, press M-h.
-To move the current window down by a larger amount, press M-shift-j.
+windows can be moved with the use of the keyboard through
+.Cm vi Ns -like
+bindings.
+.Ic M-[hjkl]
+moves the current window a small amount, while
+.Ic MS-[hjkl]
+moves the current window a larger amount.
+For example, to move the current window to the left a small amount, press
+.Ic M-h .
+To move the current window down by a larger amount, press
+.Ic MS-j .
 .Pp
-Similarly, windows may be resized with the same keybindings with the addition
+Similarly, windows may be resized with the same key bindings with the addition
 of the Control key.
-C-M-[hjkl] resizes the window a small amount and C-M-shift-[hjkl]
+.Ic CM-[hjkl]
+resizes the window a small amount and
+.Ic CMS-[hjkl]
 resizes by a larger increment.
 .Sh SEARCH
 .Nm
@@ -181,7 +193,7 @@ The window is the currently focused window.
 The window is hidden.
 .El
 .Pp
-The following keybindings may be used to navigate the result list:
+The following key bindings may be used to navigate the result list:
 .Pp
 .Bl -tag -width "[Down] or C-s or M-j" -offset indent -compact
 .It Ic [Down], C-s No or Ic M-j
@@ -217,13 +229,13 @@ and a red border will be shown on those just removed.
 Menus are recalled by clicking the mouse on the root window:
 .Pp
 .Bl -tag -width 10n -offset -indent -compact
-.It M1
+.It Ic M1
 Show list of currently hidden windows.
 Clicking on an item will unhide that window.
-.It M2
+.It Ic M2
 Show list of currently defined groups.
 Clicking on an item will hide/unhide that group.
-.It M3
+.It Ic M3
 Show list of applications as defined in
 .Pa ~/.cwmrc .
 Clicking on an item will spawn that application.
