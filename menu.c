@@ -383,7 +383,7 @@ menu_handle_release(XEvent *e, struct menu_ctx *mc, struct screen_ctx *sc,
 		if (entry == i++)
 			break;
 	if (mi == NULL) {
-		XMALLOC(mi, struct menu);
+		mi = xmalloc(sizeof(*mi));
 		mi->text[0] = '\0';
 		mi->dummy = 1;
 	}

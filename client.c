@@ -56,7 +56,7 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	if (win == None)
 		return (NULL);
 
-	XCALLOC(cc, struct client_ctx);
+	cc = xcalloc(1, sizeof(*cc));
 
 	XGrabServer(X_Dpy);
 
@@ -462,7 +462,7 @@ client_setname(struct client_ctx *cc)
 			goto match;
 		}
 
-	XMALLOC(wn, struct winname);
+	wn = xmalloc(sizeof(*wn));
 	wn->name = newname;
 	TAILQ_INSERT_TAIL(&cc->nameq, wn, entry);
 	cc->nameqlen++;

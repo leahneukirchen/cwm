@@ -234,7 +234,7 @@ mousefunc_menu_unhide(struct client_ctx *cc, void *arg)
 			if (wname == NULL)
 				continue;
 
-			XCALLOC(mi, struct menu);
+			mi = xcalloc(1, sizeof(*mi));
 			strlcpy(mi->text, wname, sizeof(mi->text));
 			mi->ctx = cc;
 			TAILQ_INSERT_TAIL(&menuq, mi, entry);
@@ -268,7 +268,7 @@ mousefunc_menu_cmd(struct client_ctx *cc, void *arg)
 
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
-		XCALLOC(mi, struct menu);
+		mi = xcalloc(1, sizeof(*mi));
 		strlcpy(mi->text, cmd->label, sizeof(mi->text));
 		mi->ctx = cmd;
 		TAILQ_INSERT_TAIL(&menuq, mi, entry);

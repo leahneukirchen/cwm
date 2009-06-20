@@ -135,7 +135,7 @@ kbfunc_client_search(struct client_ctx *scratch, union arg *arg)
 	TAILQ_INIT(&menuq);
 
 	TAILQ_FOREACH(cc, &Clientq, entry) {
-		XCALLOC(mi, struct menu);
+		mi = xcalloc(1, sizeof(*mi));
 		strlcpy(mi->text, cc->name, sizeof(mi->text));
 		mi->ctx = cc;
 		TAILQ_INSERT_TAIL(&menuq, mi, entry);
@@ -168,7 +168,7 @@ kbfunc_menu_search(struct client_ctx *scratch, union arg *arg)
 	TAILQ_INIT(&menuq);
 
 	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
-		XCALLOC(mi, struct menu);
+		mi = xcalloc(1, sizeof(*mi));
 		strlcpy(mi->text, cmd->label, sizeof(mi->text));
 		mi->ctx = cmd;
 		TAILQ_INSERT_TAIL(&menuq, mi, entry);
@@ -304,7 +304,7 @@ kbfunc_exec(struct client_ctx *scratch, union arg *arg)
 			continue;
 		executable:
 			/* the thing in tpath, we may execute */
-			XCALLOC(mi, struct menu);
+			mi = xcalloc(1, sizeof(*mi));
 			strlcpy(mi->text, dp->d_name, sizeof(mi->text));
 			TAILQ_INSERT_TAIL(&menuq, mi, entry);
 		}
@@ -380,7 +380,7 @@ kbfunc_ssh(struct client_ctx *scratch, union arg *arg)
 		if (p - buf + 1 > sizeof(hostbuf))
 			continue;
 		(void) strlcpy(hostbuf, buf, p - buf + 1);
-		XCALLOC(mi, struct menu);
+		mi = xcalloc(1, sizeof(*mi));
 		(void) strlcpy(mi->text, hostbuf, sizeof(mi->text));
 		TAILQ_INSERT_TAIL(&menuq, mi, entry);
 	}

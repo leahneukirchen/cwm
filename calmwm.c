@@ -111,7 +111,7 @@ x_setup(void)
 	int			 i;
 
 	for (i = 0; i < ScreenCount(X_Dpy); i++) {
-		XCALLOC(sc, struct screen_ctx);
+		sc = xcalloc(1, sizeof(*sc));
 		x_setupscreen(sc, i);
 		TAILQ_INSERT_TAIL(&Screenq, sc, entry);
 	}

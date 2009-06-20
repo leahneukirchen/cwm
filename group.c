@@ -304,7 +304,7 @@ group_menu(XButtonEvent *e)
 		if (TAILQ_EMPTY(&gc->clients))
 			continue;
 
-		XCALLOC(mi, struct menu);
+		mi = xcalloc(1, sizeof(*mi));
 		if (gc->hidden)
 			snprintf(mi->text, sizeof(mi->text), "%d: [%s]",
 			    gc->shortcut, shortcut_to_name[gc->shortcut]);
