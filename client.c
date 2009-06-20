@@ -166,7 +166,6 @@ client_delete(struct client_ctx *cc)
 	}
 
 	client_freehints(cc);
-
 	xfree(cc);
 
 	return (0);
@@ -439,7 +438,6 @@ client_update(struct client_ctx *cc)
 void
 client_send_delete(struct client_ctx *cc)
 {
-
 	if (cc->xproto & CLIENT_PROTO_DELETE)
 		xu_sendmsg(cc, WM_PROTOCOLS, WM_DELETE_WINDOW);
 	else

@@ -69,7 +69,6 @@ conf_color(struct conf *c)
 
 	sc = screen_current();
 
-
 	for (i = 0; i < CWM_COLOR_MAX; i++) {
 		xu_freecolor(sc, sc->color[i].pixel);
 		sc->color[i].pixel = xu_getcolor(sc, c->color[i].name);
@@ -408,7 +407,6 @@ conf_grab(struct conf *c, struct keybinding *kb)
 
 	TAILQ_FOREACH(sc, &Screenq, entry)
 		xu_key_grab(sc->rootwin, kb->modmask, kb->keysym);
-
 }
 
 /*
