@@ -226,11 +226,7 @@ mousefunc_menu_unhide(struct client_ctx *cc, void *arg)
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(cc, &Clientq, entry)
 		if (cc->flags & CLIENT_HIDDEN) {
-			if (cc->label != NULL)
-				wname = cc->label;
-			else
-				wname = cc->name;
-
+			wname = (cc->label) ? cc->label : cc->name;
 			if (wname == NULL)
 				continue;
 

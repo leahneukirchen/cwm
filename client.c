@@ -113,11 +113,7 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	/* Notify client of its configuration. */
 	xev_reconfig(cc);
 
-	if (state == IconicState)
-		client_hide(cc);
-	else
-		client_unhide(cc);
-
+	(state == IconicState) ? client_hide(cc) : client_unhide(cc);
 	xu_setstate(cc, cc->state);
 
 	XSync(X_Dpy, False);
@@ -345,11 +341,7 @@ client_ptrwarp(struct client_ctx *cc)
 		y = cc->geom.height / 2;
 	}
 
-	if (cc->state == IconicState)
-		client_unhide(cc);
-	else
-		client_raise(cc);
-
+	(cc->state == IconicState) ? client_unhide(cc) : client_raise(cc);
 	xu_ptr_setpos(cc->win, x, y);
 }
 

@@ -325,10 +325,7 @@ group_menu(XButtonEvent *e)
 
 	gc = (struct group_ctx *)mi->ctx;
 
-	if (gc->hidden)
-		group_show(gc);
-	else
-		group_hide(gc);
+	(gc->hidden) ? group_show(gc) : group_hide(gc);
 
 cleanup:
 	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
@@ -349,10 +346,7 @@ group_alltoggle(void)
 			group_hide(&Groups[i]);
 	}
 
-	if (Grouphideall)
-		Grouphideall = 0;
-	else
-		Grouphideall = 1;
+	Grouphideall = (Grouphideall) ? 0 : 1;
 }
 
 void

@@ -412,10 +412,7 @@ kbfunc_client_label(struct client_ctx *cc, union arg *arg)
 
 	TAILQ_INIT(&menuq);
 	
-	if (cc->label != NULL)
-		current = cc->label;
-	else
-		current = NULL;
+	current = cc->label;
 
 	if ((mi = menu_filter(&menuq, "label", current, 1,
 	    search_match_text, NULL)) != NULL) {
