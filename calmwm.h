@@ -328,7 +328,7 @@ int			 x_errorhandler(Display *, XErrorEvent *);
 __dead void		 usage(void);
 
 struct client_ctx	*client_find(Window);
-void			 client_setup(void);
+void			 client_init(void);
 struct client_ctx	*client_new(Window, struct screen_ctx *, int);
 int			 client_delete(struct client_ctx *);
 void			 client_setactive(struct client_ctx *, int);
@@ -395,6 +395,7 @@ void			*xmalloc(size_t);
 void			*xcalloc(size_t, size_t);
 char			*xstrdup(const char *);
 
+void			 screen_init(void);
 struct screen_ctx	*screen_fromroot(Window);
 struct screen_ctx	*screen_current(void);
 void			 screen_updatestackingorder(void);

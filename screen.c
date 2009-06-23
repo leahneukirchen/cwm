@@ -24,6 +24,12 @@
 extern struct screen_ctx_q	 Screenq;
 extern struct screen_ctx	*Curscreen;
 
+void
+screen_init(void)
+{
+	TAILQ_INIT(&Screenq);
+}
+
 struct screen_ctx *
 screen_fromroot(Window rootwin)
 {

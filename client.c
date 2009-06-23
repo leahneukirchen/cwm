@@ -27,7 +27,7 @@ static char		 emptystring[] = "";
 struct client_ctx	*_curcc = NULL;
 
 void
-client_setup(void)
+client_init(void)
 {
 	TAILQ_INIT(&Clientq);
 }
