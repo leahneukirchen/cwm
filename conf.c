@@ -28,6 +28,9 @@
 	    ((tsp)->tv_sec cmp (usp)->tv_sec))
 #endif
 
+static void	 conf_mouseunbind(struct conf *, struct mousebinding *);
+static void	 conf_unbind(struct conf *, struct keybinding *);
+
 extern struct screen_ctx	*Curscreen;
 
 /* Add an command menu entry to the end of the menu */
@@ -278,7 +281,7 @@ conf_client(struct client_ctx *cc)
 	cc->flags |= ignore ? CLIENT_IGNORE : 0;
 }
 
-struct {
+static struct {
 	char		*tag;
 	void		 (*handler)(struct client_ctx *, union arg *);
 	int		 flags;
@@ -493,7 +496,7 @@ conf_bindname(struct conf *c, char *name, char *binding)
 	return;
 }
 
-void
+static void
 conf_unbind(struct conf *c, struct keybinding *unbind)
 {
 	struct keybinding	*key = NULL, *keynxt;
@@ -515,7 +518,7 @@ conf_unbind(struct conf *c, struct keybinding *unbind)
 	}
 }
 
-struct {
+static struct {
 	char *tag;
 	void (*handler)(struct client_ctx *, void *);
 	int context;
@@ -583,7 +586,7 @@ conf_mousebind(struct conf *c, char *name, char *binding)
 	}
 }
 
-void
+static void
 conf_mouseunbind(struct conf *c, struct mousebinding *unbind)
 {
 	struct mousebinding	*mb = NULL, *mbnxt;

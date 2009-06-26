@@ -21,7 +21,7 @@
 #include "headers.h"
 #include "calmwm.h"
 
-unsigned int ign_mods[] = { 0, LockMask, Mod2Mask, Mod2Mask | LockMask };
+static unsigned int ign_mods[] = { 0, LockMask, Mod2Mask, Mod2Mask | LockMask };
 
 int
 xu_ptr_grab(Window win, int mask, Cursor curs)

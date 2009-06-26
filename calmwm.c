@@ -40,6 +40,7 @@ struct conf			 Conf;
 
 static void	sigchld_cb(int);
 static void	dpy_init(const char *);
+static int	x_errorhandler(Display *, XErrorEvent *);
 static void	x_setup(void);
 static void	x_setupscreen(struct screen_ctx *, u_int);
 static void	x_teardown(void);
@@ -89,7 +90,7 @@ main(int argc, char **argv)
 	return (0);
 }
 
-void
+static void
 dpy_init(const char *dpyname)
 {
 	int	i;
@@ -103,7 +104,7 @@ dpy_init(const char *dpyname)
 	HasRandr = XRRQueryExtension(X_Dpy, &Randr_ev, &i);
 }
 
-void
+static void
 x_setup(void)
 {
 	struct screen_ctx	*sc;
@@ -130,7 +131,7 @@ x_setup(void)
 	Cursor_question = XCreateFontCursor(X_Dpy, XC_question_arrow);
 }
 
-void
+static void
 x_teardown(void)
 {
 	struct screen_ctx	*sc;
@@ -141,7 +142,7 @@ x_teardown(void)
 	XCloseDisplay(X_Dpy);
 }
 
-void
+static void
 x_setupscreen(struct screen_ctx *sc, u_int which)
 {
 	Window			*wins, w0, w1;
@@ -200,11 +201,9 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	screen_init_xinerama(sc);
 
 	XSync(X_Dpy, False);
-
-	return;
 }
 
-int
+static int
 x_errorhandler(Display *dpy, XErrorEvent *e)
 {
 #ifdef DEBUG

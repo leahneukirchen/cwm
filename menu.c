@@ -43,7 +43,7 @@ static struct menu	*menu_handle_key(XEvent *, struct menu_ctx *,
 			     struct menu_q *, struct menu_q *);
 static void		 menu_handle_move(XEvent *, struct menu_ctx *,
 			     struct screen_ctx *);
-struct menu		*menu_handle_release(XEvent *, struct menu_ctx *,
+static struct menu	*menu_handle_release(XEvent *, struct menu_ctx *,
 			     struct screen_ctx *, struct menu_q *);
 static void		 menu_draw(struct screen_ctx *, struct menu_ctx *,
 			     struct menu_q *, struct menu_q *);
@@ -349,7 +349,7 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 		    0, 0, mc->width, font_height());
 }
 
-void
+static void
 menu_handle_move(XEvent *e, struct menu_ctx *mc, struct screen_ctx *sc)
 {
 	mc->prev = mc->entry;
@@ -366,7 +366,7 @@ menu_handle_move(XEvent *e, struct menu_ctx *mc, struct screen_ctx *sc)
 		xu_ptr_regrab(MenuGrabMask, Cursor_default);
 }
 
-struct menu *
+static struct menu *
 menu_handle_release(XEvent *e, struct menu_ctx *mc, struct screen_ctx *sc,
     struct menu_q *resultq)
 {

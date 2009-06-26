@@ -21,7 +21,6 @@
 #include "headers.h"
 #include "calmwm.h"
 
-extern struct screen_ctx_q	 Screenq;
 extern struct screen_ctx	*Curscreen;
 
 void

@@ -21,7 +21,13 @@
 #include "headers.h"
 #include "calmwm.h"
 
-static int		 client_inbound(struct client_ctx *, int, int);
+static struct client_ctx	*client_mrunext(struct client_ctx *);
+static struct client_ctx	*client_mruprev(struct client_ctx *);
+static void			 client_placecalc(struct client_ctx *);
+static void			 client_update(struct client_ctx *);
+static void			 client_gethints(struct client_ctx *);
+static void			 client_freehints(struct client_ctx *);
+static int			 client_inbound(struct client_ctx *, int, int);
 
 static char		 emptystring[] = "";
 struct client_ctx	*_curcc = NULL;
@@ -407,7 +413,7 @@ client_draw_border(struct client_ctx *cc)
 	XSetWindowBorder(X_Dpy, cc->win, pixel);
 }
 
-void
+static void
 client_update(struct client_ctx *cc)
 {
 	Atom	*p; 
@@ -522,7 +528,7 @@ client_cycle(int reverse)
 	return (newcc);
 }
 
-struct client_ctx *
+static struct client_ctx *
 client_mrunext(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = CCTOSC(cc);
@@ -532,7 +538,7 @@ client_mrunext(struct client_ctx *cc)
 	    ccc : TAILQ_FIRST(&sc->mruq));
 }
 
-struct client_ctx *
+static struct client_ctx *
 client_mruprev(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = CCTOSC(cc);
@@ -542,7 +548,7 @@ client_mruprev(struct client_ctx *cc)
 	    ccc : TAILQ_LAST(&sc->mruq, cycle_entry_q));
 }
 
-void
+static void
 client_placecalc(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = CCTOSC(cc);
@@ -629,7 +635,7 @@ client_mtf(struct client_ctx *cc)
 	TAILQ_INSERT_HEAD(&sc->mruq, cc, mru_entry);
 }
 
-void
+static void
 client_gethints(struct client_ctx *cc)
 {
 	XClassHint		 xch;
@@ -675,7 +681,7 @@ client_gethints(struct client_ctx *cc)
 	}
 }
 
-void
+static void
 client_freehints(struct client_ctx *cc)
 {
 	if (cc->app_name != NULL)
