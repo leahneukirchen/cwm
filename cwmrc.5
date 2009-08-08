@@ -14,7 +14,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
-.Dd $Mdocdate: May 17 2009 $
+.Dd $Mdocdate: August 8 2009 $
 .Dt CWMRC 5
 .Os
 .Sh NAME
@@ -41,7 +41,7 @@ windows in sticky group mode.
 The class and name of a window may be obtained using
 .Xr xprop 1 .
 .Pp
-.It Ic bind Ar keys Ar command
+.It Ic bind Ar keys command
 Cause the creation of a keybinding, or replacement of a default
 keybinding.
 The modifier keys come first, followed by a
@@ -96,7 +96,7 @@ Set the color of the inactive border.
 .It Ic color ungroupborder Ar color
 Set the color of the border while ungrouping a window.
 .Pp
-.It Ic command Ar name Ar path
+.It Ic command Ar name path
 Every
 .Ar name
 entry is shown in the application menu.
@@ -142,7 +142,7 @@ Ignore windows with the name
 .Ar windowname
 when drawing borders and cycling through windows.
 .Pp
-.It Ic mousebind Ar buttons Ar command
+.It Ic mousebind Ar buttons command
 Cause the creation of a mouse binding, or replacement of a default
 mouse binding.
 The modifier keys come first, followed by a
