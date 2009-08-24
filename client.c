@@ -224,7 +224,7 @@ client_maximize(struct client_ctx *cc)
 	if (cc->flags & CLIENT_MAXIMIZED) {
 		cc->geom = cc->savegeom;
 	} else {
-		if (!(cc->flags & CLIENT_VMAXIMIZED))
+		if (!(cc->flags & (CLIENT_VMAXIMIZED | CLIENT_HMAXIMIZED)))
 			cc->savegeom = cc->geom;
 		if (HasXinerama) {
 			XineramaScreenInfo *xine;
@@ -263,7 +263,7 @@ client_vertmaximize(struct client_ctx *cc)
 	if (cc->flags & CLIENT_VMAXIMIZED) {
 		cc->geom = cc->savegeom;
 	} else {
-		if (!(cc->flags & CLIENT_MAXIMIZED))
+		if (!(cc->flags & (CLIENT_MAXIMIZED | CLIENT_HMAXIMIZED)))
 			cc->savegeom = cc->geom;
 		if (HasXinerama) {
 			XineramaScreenInfo *xine;
@@ -286,9 +286,41 @@ calc:
 }
 
 void
+client_horizmaximize(struct client_ctx *cc)
+{
+	struct screen_ctx	*sc = CCTOSC(cc);
+	int			 x_org = 0, xmax = sc->xmax;
+
+	if (cc->flags & CLIENT_HMAXIMIZED) {
+		cc->geom = cc->savegeom;
+	} else {
+		if (!(cc->flags & (CLIENT_MAXIMIZED | CLIENT_VMAXIMIZED)))
+			cc->savegeom = cc->geom;
+		if (HasXinerama) {
+			XineramaScreenInfo *xine;
+			xine = screen_find_xinerama(CCTOSC(cc),
+			    cc->geom.x + cc->geom.width / 2,
+			    cc->geom.y + cc->geom.height / 2);
+			if (xine == NULL)
+				goto calc;
+			x_org = xine->x_org;
+			xmax = xine->width;
+		}
+calc:
+		cc->geom.x = x_org + Conf.gap_left;
+		cc->geom.width = xmax - (cc->bwidth * 2) - (Conf.gap_left +
+		    Conf.gap_right);
+		cc->flags |= CLIENT_DOHMAXIMIZE;
+	}
+
+	client_resize(cc);
+}
+
+void
 client_resize(struct client_ctx *cc)
 {
-	cc->flags &= ~(CLIENT_MAXIMIZED | CLIENT_VMAXIMIZED);
+	cc->flags &= ~(CLIENT_MAXIMIZED | CLIENT_VMAXIMIZED |
+	    CLIENT_HMAXIMIZED);
 
 	if (cc->flags & CLIENT_DOMAXIMIZE) {
 		cc->flags &= ~CLIENT_DOMAXIMIZE;
@@ -296,6 +328,9 @@ client_resize(struct client_ctx *cc)
 	} else if (cc->flags & CLIENT_DOVMAXIMIZE) {
 		cc->flags &= ~CLIENT_DOVMAXIMIZE;
 		cc->flags |= CLIENT_VMAXIMIZED;
+	} else if (cc->flags & CLIENT_DOHMAXIMIZE) {
+		cc->flags &= ~CLIENT_DOHMAXIMIZE;
+		cc->flags |= CLIENT_HMAXIMIZED;
 	}
 
 	XMoveResizeWindow(X_Dpy, cc->win, cc->geom.x,

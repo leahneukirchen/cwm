@@ -482,6 +482,12 @@ kbfunc_client_vmaximize(struct client_ctx *cc, union arg *arg)
 }
 
 void
+kbfunc_client_hmaximize(struct client_ctx *cc, union arg *arg)
+{
+	client_horizmaximize(cc);
+}
+
+void
 kbfunc_quit_wm(struct client_ctx *cc, union arg *arg)
 {
 	_xev_quit = 1;
