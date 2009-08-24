@@ -302,8 +302,7 @@ calc:
 void
 client_resize(struct client_ctx *cc)
 {
-	if (cc->flags & (CLIENT_MAXIMIZED | CLIENT_VMAXIMIZED))
-		cc->flags &= ~(CLIENT_MAXIMIZED | CLIENT_VMAXIMIZED);
+	cc->flags &= ~(CLIENT_MAXIMIZED | CLIENT_VMAXIMIZED);
 
 	if (cc->flags & CLIENT_DOMAXIMIZE) {
 		cc->flags &= ~CLIENT_DOMAXIMIZE;
