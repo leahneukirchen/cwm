@@ -121,8 +121,9 @@ struct client_ctx {
 
 	u_int			 bwidth;
 	struct {
-		int		 x, y, width, height;
-		int		 min_dx, min_dy;
+		int		 x, y, width, height, basew, baseh,
+				 minw, minh, maxw, maxh, incw, inch;
+		float		 mina, maxa;
 	} geom, savegeom;
 
 	struct {
@@ -349,6 +350,8 @@ void			 client_vertmaximize(struct client_ctx *);
 void			 client_map(struct client_ctx *);
 void			 client_mtf(struct client_ctx *);
 struct client_ctx	*client_cycle(int);
+void			 client_getsizehints(struct client_ctx *);
+void			 client_applysizehints(struct client_ctx *);
 
 struct menu  		*menu_filter(struct menu_q *, char *, char *, int,
 			     void (*)(struct menu_q *, struct menu_q *, char *),

@@ -171,12 +171,11 @@ xev_handle_propertynotify(XEvent *ee)
 {
 	XPropertyEvent		*e = &ee->xproperty;
 	struct client_ctx	*cc;
-	long			 tmp;
 
 	if ((cc = client_find(e->window)) != NULL) {
 		switch (e->atom) {
 		case XA_WM_NORMAL_HINTS:
-			XGetWMNormalHints(X_Dpy, cc->win, cc->size, &tmp);
+			client_getsizehints(cc);
 			break;
 		case XA_WM_NAME:
 			client_setname(cc);

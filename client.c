@@ -50,7 +50,6 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	struct client_ctx	*cc;
 	XWindowAttributes	 wattr;
 	XWMHints		*wmhints;
-	long			 tmp;
 	int			 state;
 
 	if (win == None)
@@ -65,14 +64,7 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	cc->win = win;
 	cc->size = XAllocSizeHints();
 
-	XGetWMNormalHints(X_Dpy, cc->win, cc->size, &tmp);
-	if (cc->size->flags & PBaseSize) {
-		cc->geom.min_dx = cc->size->base_width;
-		cc->geom.min_dy = cc->size->base_height;
-	} else if (cc->size->flags & PMinSize) {
-		cc->geom.min_dx = cc->size->min_width;
-		cc->geom.min_dy = cc->size->min_height;
-	}
+	client_getsizehints(cc);
 
 	TAILQ_INIT(&cc->nameq);
 	client_setname(cc);
@@ -626,6 +618,96 @@ client_mtf(struct client_ctx *cc)
 	/* Move to front. */
 	TAILQ_REMOVE(&sc->mruq, cc, mru_entry);
 	TAILQ_INSERT_HEAD(&sc->mruq, cc, mru_entry);
+}
+
+void
+client_getsizehints(struct client_ctx *cc)
+{
+	long		 tmp;
+
+	if (!XGetWMNormalHints(X_Dpy, cc->win, cc->size, &tmp))
+		cc->size->flags = PSize;
+
+	if (cc->size->flags & PBaseSize) {
+		cc->geom.basew = cc->size->base_width;
+		cc->geom.baseh = cc->size->base_height;
+	} else if (cc->size->flags & PMinSize) {
+		cc->geom.basew = cc->size->min_width;
+		cc->geom.baseh = cc->size->min_height;
+	}
+	if (cc->size->flags & PMinSize) {
+		cc->geom.minw = cc->size->min_width;
+		cc->geom.minh = cc->size->min_height;
+	} else if (cc->size->flags & PBaseSize) {
+		cc->geom.minw = cc->size->base_width;
+		cc->geom.minh = cc->size->base_height;
+	}
+	if (cc->size->flags & PMaxSize) {
+		cc->geom.maxw = cc->size->max_width;
+		cc->geom.maxh = cc->size->max_height;
+	}
+	if (cc->size->flags & PResizeInc) {
+		cc->geom.incw = cc->size->width_inc;
+		cc->geom.inch = cc->size->height_inc;
+	}
+	if (cc->size->flags & PAspect) {
+		if (cc->size->min_aspect.x > 0) 
+			cc->geom.mina = (float)cc->size->min_aspect.y /
+			    cc->size->min_aspect.x;
+		if (cc->size->max_aspect.y > 0) 
+			cc->geom.maxa = (float)cc->size->max_aspect.x /
+			    cc->size->max_aspect.y;
+	}
+}
+void
+client_applysizehints(struct client_ctx *cc)
+{
+	Bool		 baseismin;
+
+	baseismin = (cc->geom.basew == cc->geom.minw) &&
+	    (cc->geom.baseh == cc->geom.minh);
+
+	/* temporarily remove base dimensions, ICCCM 4.1.2.3 */
+	if (!baseismin) {
+		cc->geom.width -= cc->geom.basew;
+		cc->geom.height -= cc->geom.baseh;
+	}
+
+	/* adjust for aspect limits */
+	if (cc->geom.mina > 0 && cc->geom.maxa > 0) {
+		if (cc->geom.maxa <
+		    (float)cc->geom.width / cc->geom.height)
+			cc->geom.width = cc->geom.height * cc->geom.maxa;
+		else if (cc->geom.mina <
+		    (float)cc->geom.height / cc->geom.width)
+			cc->geom.height = cc->geom.width * cc->geom.mina;
+	}
+
+	/* remove base dimensions for increment */
+	if (baseismin) {
+		cc->geom.width -= cc->geom.basew;
+		cc->geom.height -= cc->geom.baseh;
+	}
+
+	/* adjust for increment value */
+	if (cc->geom.incw)
+		cc->geom.width -= cc->geom.width % cc->geom.incw;
+	if (cc->geom.inch)
+		cc->geom.height -= cc->geom.height % cc->geom.inch;
+
+	/* restore base dimensions */
+	cc->geom.width += cc->geom.basew;
+	cc->geom.height += cc->geom.baseh;
+
+	/* adjust for min width/height */
+	cc->geom.width = MAX(cc->geom.width, cc->geom.minw);
+	cc->geom.height = MAX(cc->geom.height, cc->geom.minh);
+
+	/* adjust for max width/height */
+	if (cc->geom.maxw)
+		cc->geom.width = MIN(cc->geom.width, cc->geom.maxw);
+	if (cc->geom.maxh)
+		cc->geom.height = MIN(cc->geom.height, cc->geom.maxh);
 }
 
 static void

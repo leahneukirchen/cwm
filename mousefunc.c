@@ -33,22 +33,7 @@ mousefunc_sweep_calc(struct client_ctx *cc, int x, int y, int mx, int my)
 	cc->geom.width = abs(x - mx) - cc->bwidth;
 	cc->geom.height = abs(y - my) - cc->bwidth;
 
-	if (cc->size->flags & PResizeInc) {
-		cc->geom.width -=
-		    (cc->geom.width - cc->geom.min_dx) % cc->size->width_inc;
-		cc->geom.height -=
-		    (cc->geom.height - cc->geom.min_dy) % cc->size->height_inc;
-	}
-
-	if (cc->size->flags & PMinSize) {
-		cc->geom.width = MAX(cc->geom.width, cc->size->min_width);
-		cc->geom.height = MAX(cc->geom.height, cc->size->min_height);
-	}
-
-	if (cc->size->flags & PMaxSize) {
-		cc->geom.width = MIN(cc->geom.width, cc->size->max_width);
-		cc->geom.height = MIN(cc->geom.height, cc->size->max_height);
-	}
+	client_applysizehints(cc);
 
 	cc->geom.x = x <= mx ? x : x - cc->geom.width;
 	cc->geom.y = y <= my ? y : y - cc->geom.height;
@@ -64,8 +49,8 @@ mousefunc_sweep_draw(struct client_ctx *cc)
 	int			 width, height, width_size, width_name;
 
 	snprintf(asize, sizeof(asize), "%dx%d",
-	    (cc->geom.width - cc->geom.min_dx) / cc->size->width_inc,
-	    (cc->geom.height - cc->geom.min_dy) / cc->size->height_inc);
+	    (cc->geom.width - cc->geom.basew) / MAX(1, cc->geom.incw),
+	    (cc->geom.height - cc->geom.baseh) / MAX(1, cc->geom.inch));
 	width_size = font_width(asize, strlen(asize)) + 4;
 	width_name = font_width(cc->name, strlen(cc->name)) + 4;
 	width = MAX(width_size, width_name);
@@ -89,9 +74,6 @@ mousefunc_window_resize(struct client_ctx *cc, void *arg)
 	Time			 time = 0;
 	struct screen_ctx	*sc = CCTOSC(cc);
 	int			 x = cc->geom.x, y = cc->geom.y;
-
-	cc->size->width_inc = MAX(1, cc->size->width_inc);
-	cc->size->height_inc = MAX(1, cc->size->height_inc);
 
 	client_raise(cc);
 	client_ptrsave(cc);
