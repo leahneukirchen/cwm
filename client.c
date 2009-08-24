@@ -32,12 +32,6 @@ static int			 client_inbound(struct client_ctx *, int, int);
 static char		 emptystring[] = "";
 struct client_ctx	*_curcc = NULL;
 
-void
-client_init(void)
-{
-	TAILQ_INIT(&Clientq);
-}
-
 struct client_ctx *
 client_find(Window win)
 {
