@@ -93,9 +93,83 @@ conf_reload(struct conf *c)
 	conf_font(c);
 }
 
+struct defbind {
+	char	*key;
+	char	*func;
+} kb_binds[] = {
+	{ "CM-Return",	"terminal" },
+	{ "CM-Delete",	"lock" },
+	{ "M-question",	"exec" },
+	{ "CM-w",	"exec_wm" },
+	{ "M-period",	"ssh" },
+	{ "M-Return",	"hide" },
+	{ "M-Down",	"lower" },
+	{ "M-Up",	"raise" },
+	{ "M-slash",	"search" },
+	{ "C-slash",	"menusearch" },
+	{ "M-Tab",	"cycle" },
+	{ "MS-Tab",	"rcycle" },
+	{ "CM-n",	"label" },
+	{ "CM-x",	"delete" },
+	{ "CM-0",	"nogroup" },
+	{ "CM-1",	"group1" },
+	{ "CM-2",	"group2" },
+	{ "CM-3",	"group3" },
+	{ "CM-4",	"group4" },
+	{ "CM-5",	"group5" },
+	{ "CM-6",	"group6" },
+	{ "CM-7",	"group7" },
+	{ "CM-8",	"group8" },
+	{ "CM-9",	"group9" },
+	{ "M-Right",	"cyclegroup" },
+	{ "M-Left",	"rcyclegroup" },
+	{ "CM-g",	"grouptoggle" },
+	{ "CM-f",	"maximize" },
+	{ "CM-equal",	"vmaximize" },
+	{ "CMS-equal",	"hmaximize" },
+	{ "CMS-r",	"reload" },
+	{ "CMS-q",	"quit" },
+	{ "M-h",	"moveleft" },
+	{ "M-j",	"movedown" },
+	{ "M-k",	"moveup" },
+	{ "M-l",	"moveright" },
+	{ "M-H",	"bigmoveleft" },
+	{ "M-J",	"bigmovedown" },
+	{ "M-K",	"bigmoveup" },
+	{ "M-L",	"bigmoveright" },
+	{ "CM-h",	"resizeleft" },
+	{ "CM-j",	"resizedown" },
+	{ "CM-k",	"resizeup" },
+	{ "CM-l",	"resizeright" },
+	{ "CM-H",	"bigresizeleft" },
+	{ "CM-J",	"bigresizedown" },
+	{ "CM-K",	"bigresizeup" },
+	{ "CM-L",	"bigresizeright" },
+	{ "C-Left",	"ptrmoveleft" },
+	{ "C-Down",	"ptrmovedown" },
+	{ "C-Up",	"ptrmoveup" },
+	{ "C-Right",	"ptrmoveright" },
+	{ "CS-Left",	"bigptrmoveleft" },
+	{ "CS-Down",	"bigptrmovedown" },
+	{ "CS-Up",	"bigptrmoveup" },
+	{ "CS-Right",	"bigptrmoveright" },
+},
+m_binds[] = {
+	{ "1",		"menu_unhide" },
+	{ "2",		"menu_group" },
+	{ "3",		"menu_cmd" },
+	{ "M-1",	"window_move" },
+	{ "CM-1",	"window_grouptoggle" },
+	{ "M-2",	"window_resize" },
+	{ "M-3",	"window_lower" },
+	{ "CMS-3",	"window_hide" },
+};
+
 void
 conf_init(struct conf *c)
 {
+	int	i;
+
 	c->flags = 0;
 	c->bwidth = CONF_BWIDTH;
 	c->mamount = CONF_MAMOUNT;
@@ -106,74 +180,11 @@ conf_init(struct conf *c)
 	TAILQ_INIT(&c->autogroupq);
 	TAILQ_INIT(&c->mousebindingq);
 
-	conf_bindname(c, "CM-Return", "terminal");
-	conf_bindname(c, "CM-Delete", "lock");
-	conf_bindname(c, "M-question", "exec");
-	conf_bindname(c, "CM-w", "exec_wm");
-	conf_bindname(c, "M-period", "ssh");
-	conf_bindname(c, "M-Return", "hide");
-	conf_bindname(c, "M-Down", "lower");
-	conf_bindname(c, "M-Up", "raise");
-	conf_bindname(c, "M-slash", "search");
-	conf_bindname(c, "C-slash", "menusearch");
-	conf_bindname(c, "M-Tab", "cycle");
-	conf_bindname(c, "MS-Tab", "rcycle");
-	conf_bindname(c, "CM-n", "label");
-	conf_bindname(c, "CM-x", "delete");
-	conf_bindname(c, "CM-0", "nogroup");
-	conf_bindname(c, "CM-1", "group1");
-	conf_bindname(c, "CM-2", "group2");
-	conf_bindname(c, "CM-3", "group3");
-	conf_bindname(c, "CM-4", "group4");
-	conf_bindname(c, "CM-5", "group5");
-	conf_bindname(c, "CM-6", "group6");
-	conf_bindname(c, "CM-7", "group7");
-	conf_bindname(c, "CM-8", "group8");
-	conf_bindname(c, "CM-9", "group9");
-	conf_bindname(c, "M-Right", "cyclegroup");
-	conf_bindname(c, "M-Left", "rcyclegroup");
-	conf_bindname(c, "CM-g", "grouptoggle");
-	conf_bindname(c, "CM-f", "maximize");
-	conf_bindname(c, "CM-equal", "vmaximize");
-	conf_bindname(c, "CMS-equal", "hmaximize");
-	conf_bindname(c, "CMS-r", "reload");
-	conf_bindname(c, "CMS-q", "quit");
+	for (i = 0; i < sizeof(kb_binds) / sizeof(kb_binds[0]); i++)
+		conf_bindname(c, kb_binds[i].key, kb_binds[i].func);
 
-	conf_bindname(c, "M-h", "moveleft");
-	conf_bindname(c, "M-j", "movedown");
-	conf_bindname(c, "M-k", "moveup");
-	conf_bindname(c, "M-l", "moveright");
-	conf_bindname(c, "M-H", "bigmoveleft");
-	conf_bindname(c, "M-J", "bigmovedown");
-	conf_bindname(c, "M-K", "bigmoveup");
-	conf_bindname(c, "M-L", "bigmoveright");
-
-	conf_bindname(c, "CM-h", "resizeleft");
-	conf_bindname(c, "CM-j", "resizedown");
-	conf_bindname(c, "CM-k", "resizeup");
-	conf_bindname(c, "CM-l", "resizeright");
-	conf_bindname(c, "CM-H", "bigresizeleft");
-	conf_bindname(c, "CM-J", "bigresizedown");
-	conf_bindname(c, "CM-K", "bigresizeup");
-	conf_bindname(c, "CM-L", "bigresizeright");
-
-	conf_bindname(c, "C-Left", "ptrmoveleft");
-	conf_bindname(c, "C-Down", "ptrmovedown");
-	conf_bindname(c, "C-Up", "ptrmoveup");
-	conf_bindname(c, "C-Right", "ptrmoveright");
-	conf_bindname(c, "CS-Left", "bigptrmoveleft");
-	conf_bindname(c, "CS-Down", "bigptrmovedown");
-	conf_bindname(c, "CS-Up", "bigptrmoveup");
-	conf_bindname(c, "CS-Right", "bigptrmoveright");
-
-	conf_mousebind(c, "1", "menu_unhide");
-	conf_mousebind(c, "2", "menu_group");
-	conf_mousebind(c, "3", "menu_cmd");
-	conf_mousebind(c, "M-1", "window_move");
-	conf_mousebind(c, "CM-1", "window_grouptoggle");
-	conf_mousebind(c, "M-2", "window_resize");
-	conf_mousebind(c, "M-3", "window_lower");
-	conf_mousebind(c, "CMS-3", "window_hide");
+	for (i = 0; i < sizeof(m_binds) / sizeof(m_binds[0]); i++)
+		conf_mousebind(c, m_binds[i].key, m_binds[i].func);
 
 	/* Default term/lock */
 	strlcpy(c->termpath, "xterm", sizeof(c->termpath));
