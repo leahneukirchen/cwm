@@ -437,36 +437,40 @@ conf_ungrab(struct conf *c, struct keybinding *kb)
 		xu_key_ungrab(sc->rootwin, kb->modmask, kb->keysym);
 }
 
+struct {
+	char	chr;
+	int	mask;
+} bind_mods[] = {
+	{ 'C',	ControlMask },
+	{ 'M',	Mod1Mask },
+	{ '4',	Mod4Mask },
+	{ 'S',	ShiftMask },
+};
+
 void
 conf_bindname(struct conf *c, char *name, char *binding)
 {
 	struct keybinding	*current_binding;
-	char			*substring;
+	char			*substring, *tmp;
 	int			 iter;
 
 	current_binding = xcalloc(1, sizeof(*current_binding));
 
-	if (strchr(name, 'C') != NULL &&
-	    strchr(name, 'C') < strchr(name, '-'))
-		current_binding->modmask |= ControlMask;
+	if ((substring = strchr(name, '-')) != NULL) {
+		for (iter = 0; iter < (sizeof(bind_mods) /
+		    sizeof(bind_mods[0])); iter++) {
+			if ((tmp = strchr(name, bind_mods[iter].chr)) !=
+			    NULL && tmp < substring) {
+				current_binding->modmask |=
+				    bind_mods[iter].mask;
+			}
+		}
 
-	if (strchr(name, 'M') != NULL &&
-	    strchr(name, 'M') < strchr(name, '-'))
-		current_binding->modmask |= Mod1Mask;
-
-	if (strchr(name, '4') != NULL &&
-	    strchr(name, '4') < strchr(name, '-'))
-		current_binding->modmask |= Mod4Mask;
-
-	if (strchr(name, 'S') != NULL &&
-	    strchr(name, 'S') < strchr(name, '-'))
-		current_binding->modmask |= ShiftMask;
-
-	substring = strchr(name, '-') + 1;
-
-	/* If there is no '-' in name, continue as is */
-	if (strchr(name, '-') == NULL)
+		/* skip past the modifiers */
+		substring++;
+	} else {
 		substring = name;
+	}
 
 	if (substring[0] == '[' &&
 	    substring[strlen(substring)-1] == ']') {
@@ -552,31 +556,25 @@ void
 conf_mousebind(struct conf *c, char *name, char *binding)
 {
 	struct mousebinding	*current_binding;
-	char			*substring;
+	char			*substring, *tmp;
 	const char		*errstr;
 	int			 iter;
 
 	current_binding = xcalloc(1, sizeof(*current_binding));
 
-	if (strchr(name, 'C') != NULL &&
-	    strchr(name, 'C') < strchr(name, '-'))
-		current_binding->modmask |= ControlMask;
+	if ((substring = strchr(name, '-')) != NULL) {
+		for (iter = 0; iter < (sizeof(bind_mods) /
+		    sizeof(bind_mods[0])); iter++) {
+			if ((tmp = strchr(name, bind_mods[iter].chr)) !=
+			    NULL && tmp < substring) {
+				current_binding->modmask |=
+				    bind_mods[iter].mask;
+			}
+		}
 
-	if (strchr(name, 'M') != NULL &&
-	    strchr(name, 'M') < strchr(name, '-'))
-		current_binding->modmask |= Mod1Mask;
-
-	if (strchr(name, 'S') != NULL &&
-	    strchr(name, 'S') < strchr(name, '-'))
-		current_binding->modmask |= ShiftMask;
-
-	if (strchr(name, '4') != NULL &&
-	    strchr(name, '4') < strchr(name, '-'))
-		current_binding->modmask |= Mod4Mask;
-
-	substring = strchr(name, '-') + 1;
-
-	if (strchr(name, '-') == NULL)
+		/* skip past the modifiers */
+		substring++;
+	} else
 		substring = name;
 
 	current_binding->button = strtonum(substring, 1, 3, &errstr);
