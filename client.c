@@ -233,7 +233,7 @@ client_maximize(struct client_ctx *cc)
 			 * that's probably more fair than if just the origin of
 			 * a window is poking over a boundary
 			 */
-			xine = screen_find_xinerama(CCTOSC(cc),
+			xine = screen_find_xinerama(sc,
 			    cc->geom.x + cc->geom.width / 2,
 			    cc->geom.y + cc->geom.height / 2);
 			if (xine == NULL)
@@ -267,7 +267,7 @@ client_vertmaximize(struct client_ctx *cc)
 			cc->savegeom = cc->geom;
 		if (HasXinerama) {
 			XineramaScreenInfo *xine;
-			xine = screen_find_xinerama(CCTOSC(cc),
+			xine = screen_find_xinerama(sc,
 			    cc->geom.x + cc->geom.width / 2,
 			    cc->geom.y + cc->geom.height / 2);
 			if (xine == NULL)
@@ -298,7 +298,7 @@ client_horizmaximize(struct client_ctx *cc)
 			cc->savegeom = cc->geom;
 		if (HasXinerama) {
 			XineramaScreenInfo *xine;
-			xine = screen_find_xinerama(CCTOSC(cc),
+			xine = screen_find_xinerama(sc,
 			    cc->geom.x + cc->geom.width / 2,
 			    cc->geom.y + cc->geom.height / 2);
 			if (xine == NULL)
