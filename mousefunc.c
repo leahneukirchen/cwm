@@ -49,8 +49,8 @@ mousefunc_sweep_draw(struct client_ctx *cc)
 	int			 width, height, width_size, width_name;
 
 	snprintf(asize, sizeof(asize), "%dx%d",
-	    (cc->geom.width - cc->geom.basew) / MAX(1, cc->geom.incw),
-	    (cc->geom.height - cc->geom.baseh) / MAX(1, cc->geom.inch));
+	    (cc->geom.width - cc->geom.basew) / cc->geom.incw,
+	    (cc->geom.height - cc->geom.baseh) / cc->geom.inch);
 	width_size = font_width(asize, strlen(asize)) + 4;
 	width_name = font_width(cc->name, strlen(cc->name)) + 4;
 	width = MAX(width_size, width_name);

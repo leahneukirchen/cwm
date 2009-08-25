@@ -685,6 +685,9 @@ client_getsizehints(struct client_ctx *cc)
 		cc->geom.incw = cc->size->width_inc;
 		cc->geom.inch = cc->size->height_inc;
 	}
+	cc->geom.incw = MAX(1, cc->geom.incw);
+	cc->geom.inch = MAX(1, cc->geom.inch);
+
 	if (cc->size->flags & PAspect) {
 		if (cc->size->min_aspect.x > 0) 
 			cc->geom.mina = (float)cc->size->min_aspect.y /
@@ -725,10 +728,8 @@ client_applysizehints(struct client_ctx *cc)
 	}
 
 	/* adjust for increment value */
-	if (cc->geom.incw)
-		cc->geom.width -= cc->geom.width % cc->geom.incw;
-	if (cc->geom.inch)
-		cc->geom.height -= cc->geom.height % cc->geom.inch;
+	cc->geom.width -= cc->geom.width % cc->geom.incw;
+	cc->geom.height -= cc->geom.height % cc->geom.inch;
 
 	/* restore base dimensions */
 	cc->geom.width += cc->geom.basew;
