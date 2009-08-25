@@ -228,14 +228,11 @@ kbfunc_exec(struct client_ctx *scratch, union arg *arg)
 #define NPATHS 256
 	char		**ap, *paths[NPATHS], *path, *pathcpy, *label;
 	char		 tpath[MAXPATHLEN];
-	int		 l, i, j, ngroups;
-	gid_t		 mygroups[NGROUPS_MAX];
-	uid_t		 ruid, euid, suid;
+	int		 l, i;
 	DIR		*dirp;
 	struct dirent	*dp;
 	struct menu	*mi;
 	struct menu_q	 menuq;
-	struct stat	 sb;
 
 	int cmd = arg->i;
 	switch (cmd) {
@@ -249,11 +246,6 @@ kbfunc_exec(struct client_ctx *scratch, union arg *arg)
 			err(1, "kbfunc_exec: invalid cmd %d", cmd);
 			/*NOTREACHED*/
 	}
-
-	if (getgroups(0, mygroups) == -1)
-		err(1, "getgroups failure");
-	if ((ngroups = getresuid(&ruid, &euid, &suid)) == -1)
-		err(1, "getresuid failure");
 
 	TAILQ_INIT(&menuq);
 
@@ -281,32 +273,11 @@ kbfunc_exec(struct client_ctx *scratch, union arg *arg)
 			/* check for truncation etc */
 			if (l == -1 || l >= (int)sizeof(tpath))
 				continue;
-			/* just ignore on stat failure */
-			if (stat(tpath, &sb) == -1)
-				continue;
-			/* may we execute this file? */
-			if (euid == sb.st_uid) {
-					if (sb.st_mode & S_IXUSR)
-						goto executable;
-					else
-						continue;
+			if (access(tpath, X_OK) == 0) {
+				mi = xcalloc(1, sizeof(*mi));
+				strlcpy(mi->text, dp->d_name, sizeof(mi->text));
+				TAILQ_INSERT_TAIL(&menuq, mi, entry);
 			}
-			for (j = 0; j < ngroups; j++) {
-				if (mygroups[j] == sb.st_gid) {
-					if (sb.st_mode & S_IXGRP)
-						goto executable;
-					else
-						continue;
-				}
-			}
-			if (sb.st_mode & S_IXOTH)
-				goto executable;
-			continue;
-		executable:
-			/* the thing in tpath, we may execute */
-			mi = xcalloc(1, sizeof(*mi));
-			strlcpy(mi->text, dp->d_name, sizeof(mi->text));
-			TAILQ_INSERT_TAIL(&menuq, mi, entry);
 		}
 		(void)closedir(dirp);
 	}
