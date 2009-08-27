@@ -491,8 +491,6 @@ XftFont			*font_make(struct screen_ctx *, const char *);
 #define font_descent()	Conf.DefaultFont->descent
 #define	font_height()	Conf.FontHeight
 
-#define CCTOSC(cc) (cc->sc)
-
 /* Externs */
 
 extern Display				*X_Dpy;

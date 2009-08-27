@@ -126,7 +126,7 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 int
 client_delete(struct client_ctx *cc)
 {
-	struct screen_ctx	*sc = CCTOSC(cc);
+	struct screen_ctx	*sc = cc->sc;
 	struct winname		*wn;
 
 	group_client_delete(cc);
@@ -169,7 +169,7 @@ client_leave(struct client_ctx *cc)
 	if (cc == NULL)
 		return;
 
-	sc = CCTOSC(cc);
+	sc = cc->sc;
 	xu_btn_ungrab(sc->rootwin, AnyModifier, Button1);
 }
 
@@ -183,7 +183,7 @@ client_setactive(struct client_ctx *cc, int fg)
 	if (cc == NULL)
 		return;
 
-	sc = CCTOSC(cc);
+	sc = cc->sc;
 
 	if (fg) {
 		XInstallColormap(X_Dpy, cc->cmap);
@@ -217,7 +217,7 @@ client_current(void)
 void
 client_maximize(struct client_ctx *cc)
 {
-	struct screen_ctx	*sc = CCTOSC(cc);
+	struct screen_ctx	*sc = cc->sc;
 	int			 xmax = sc->xmax, ymax = sc->ymax;
 	int			 x_org = 0, y_org = 0;
 
@@ -257,7 +257,7 @@ calc:
 void
 client_vertmaximize(struct client_ctx *cc)
 {
-	struct screen_ctx	*sc = CCTOSC(cc);
+	struct screen_ctx	*sc = cc->sc;
 	int			 y_org = 0, ymax = sc->ymax;
 
 	if (cc->flags & CLIENT_VMAXIMIZED) {
@@ -288,7 +288,7 @@ calc:
 void
 client_horizmaximize(struct client_ctx *cc)
 {
-	struct screen_ctx	*sc = CCTOSC(cc);
+	struct screen_ctx	*sc = cc->sc;
 	int			 x_org = 0, xmax = sc->xmax;
 
 	if (cc->flags & CLIENT_HMAXIMIZED) {
@@ -411,7 +411,7 @@ client_unhide(struct client_ctx *cc)
 void
 client_draw_border(struct client_ctx *cc)
 {
-	struct screen_ctx	*sc = CCTOSC(cc);
+	struct screen_ctx	*sc = cc->sc;
 	unsigned long		 pixel;
 
 	if (cc->active)
@@ -551,7 +551,7 @@ client_cycle(int reverse)
 static struct client_ctx *
 client_mrunext(struct client_ctx *cc)
 {
-	struct screen_ctx	*sc = CCTOSC(cc);
+	struct screen_ctx	*sc = cc->sc;
 	struct client_ctx	*ccc;
 
 	return ((ccc = TAILQ_NEXT(cc, mru_entry)) != NULL ?
@@ -561,7 +561,7 @@ client_mrunext(struct client_ctx *cc)
 static struct client_ctx *
 client_mruprev(struct client_ctx *cc)
 {
-	struct screen_ctx	*sc = CCTOSC(cc);
+	struct screen_ctx	*sc = cc->sc;
 	struct client_ctx	*ccc;
 
 	return ((ccc = TAILQ_PREV(cc, cycle_entry_q, mru_entry)) != NULL ?
@@ -571,7 +571,7 @@ client_mruprev(struct client_ctx *cc)
 static void
 client_placecalc(struct client_ctx *cc)
 {
-	struct screen_ctx	*sc = CCTOSC(cc);
+	struct screen_ctx	*sc = cc->sc;
 	int			 xslack, yslack;
 
 	if (cc->size->flags & USPosition) {
@@ -648,7 +648,7 @@ client_mtf(struct client_ctx *cc)
 	if (cc == NULL)
 		return;
 
-	sc = CCTOSC(cc);
+	sc = cc->sc;
 
 	/* Move to front. */
 	TAILQ_REMOVE(&sc->mruq, cc, mru_entry);

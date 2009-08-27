@@ -125,7 +125,7 @@ xev_handle_configurerequest(XEvent *ee)
 	XWindowChanges		 wc;
 
 	if ((cc = client_find(e->window)) != NULL) {
-		sc = CCTOSC(cc);
+		sc = cc->sc;
 
 		if (e->value_mask & CWWidth)
 			cc->geom.width = e->width;
