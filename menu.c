@@ -243,14 +243,14 @@ menu_handle_key(XEvent *e, struct menu_ctx *mc, struct menu_q *menuq,
 	}
 
 	mc->noresult = 0;
-	if (mc->changed && strlen(mc->searchstr) > 0) {
+	if (mc->changed && mc->searchstr[0] != '\0') {
 		(*mc->match)(menuq, resultq, mc->searchstr);
 		/* If menuq is empty, never show we've failed */
 		mc->noresult = TAILQ_EMPTY(resultq) && !TAILQ_EMPTY(menuq);
 	} else if (mc->changed)
 		TAILQ_INIT(resultq);
 
-	 if (!mc->list && mc->listing && !mc->changed) {
+	if (!mc->list && mc->listing && !mc->changed) {
 		TAILQ_INIT(resultq);
 		mc->listing = 0;
 	}
