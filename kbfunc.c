@@ -285,6 +285,8 @@ kbfunc_exec(struct client_ctx *scratch, union arg *arg)
 
 	if ((mi = menu_filter(&menuq, label, NULL, 1,
 	    search_match_exec, NULL)) != NULL) {
+		if (mi->text[0] == '\0')
+			goto out;
 		switch (cmd) {
 			case CWM_EXEC_PROGRAM:
 				u_spawn(mi->text);
@@ -298,7 +300,7 @@ kbfunc_exec(struct client_ctx *scratch, union arg *arg)
 				break;
 		}
 	}
-
+out:
 	if (mi != NULL && mi->dummy)
 		xfree(mi);
 	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
@@ -360,12 +362,14 @@ kbfunc_ssh(struct client_ctx *scratch, union arg *arg)
 
 	if ((mi = menu_filter(&menuq, "ssh", NULL, 1,
 	    search_match_exec, NULL)) != NULL) {
+		if (mi->text[0] == '\0')
+			goto out;
 		l = snprintf(cmd, sizeof(cmd), "%s -e ssh %s", Conf.termpath,
 		    mi->text);
 		if (l != -1 && l < sizeof(cmd))
 			u_spawn(cmd);
 	}
-
+out:
 	if (mi != NULL && mi->dummy)
 		xfree(mi);
 	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
