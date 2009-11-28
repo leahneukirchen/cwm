@@ -375,7 +375,7 @@ xev_handle_randr(XEvent *ee)
 	}
 }
 
-/* 
+/*
  * Called when the keymap has changed.
  * Ungrab all keys, reload keymap and then regrab
  */

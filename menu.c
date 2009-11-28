@@ -336,7 +336,7 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 		    mi->print : mi->text;
 
 		font_draw(sc, text, MIN(strlen(text), MENU_MAXENTRY),
-		    sc->menuwin, 0, n*font_height() + font_ascent() + 1);
+		    sc->menuwin, 0, n * font_height() + font_ascent() + 1);
 		n++;
 	}
 

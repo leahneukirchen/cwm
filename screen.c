@@ -77,7 +77,7 @@ screen_init_xinerama(struct screen_ctx *sc)
 		HasXinerama = 0;
 		sc->xinerama_no = 0;
 	}
-		
+
 	info = XineramaQueryScreens(X_Dpy, &no);
 	if (info == NULL) {
 		/* Is xinerama actually off, instead of a malloc failure? */

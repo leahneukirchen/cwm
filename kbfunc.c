@@ -386,7 +386,7 @@ kbfunc_client_label(struct client_ctx *cc, union arg *arg)
 	char		*current;
 
 	TAILQ_INIT(&menuq);
-	
+
 	current = cc->label;
 
 	if ((mi = menu_filter(&menuq, "label", current, 1,
