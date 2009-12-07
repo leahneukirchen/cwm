@@ -23,6 +23,7 @@
 
 static struct client_ctx	*client_mrunext(struct client_ctx *);
 static struct client_ctx	*client_mruprev(struct client_ctx *);
+static void			 client_none(struct screen_ctx *);
 static void			 client_placecalc(struct client_ctx *);
 static void			 client_update(struct client_ctx *);
 static void			 client_gethints(struct client_ctx *);
@@ -142,7 +143,7 @@ client_delete(struct client_ctx *cc)
 	TAILQ_REMOVE(&Clientq, cc, entry);
 
 	if (_curcc == cc)
-		_curcc = NULL;
+		client_none(sc);
 
 	XFree(cc->size);
 
@@ -202,10 +203,26 @@ client_setactive(struct client_ctx *cc, int fg)
 	if (fg && _curcc != cc) {
 		client_setactive(NULL, 0);
 		_curcc = cc;
+		XChangeProperty(X_Dpy, sc->rootwin, _NET_ACTIVE_WINDOW,
+		    XA_WINDOW, 32, PropModeReplace,
+		    (unsigned char *)&cc->win, 1);
 	}
 
 	cc->active = fg;
 	client_draw_border(cc);
+}
+
+/*
+ * set when there is no active client
+ */
+static void
+client_none(struct screen_ctx *sc)
+{
+	Window none = None;
+
+	XChangeProperty(X_Dpy, sc->rootwin, _NET_ACTIVE_WINDOW,
+	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)&none, 1);
+	_curcc = NULL;
 }
 
 struct client_ctx *
@@ -399,7 +416,7 @@ client_hide(struct client_ctx *cc)
 	xu_setstate(cc, IconicState);
 
 	if (cc == _curcc)
-		_curcc = NULL;
+		client_none(cc->sc);
 }
 
 void

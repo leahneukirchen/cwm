@@ -526,7 +526,8 @@ extern struct conf			 Conf;
 #define	_NET_SUPPORTED			 cwm_atoms[7]
 #define	_NET_SUPPORTING_WM_CHECK	 cwm_atoms[8]
 #define	_NET_WM_NAME			 cwm_atoms[9]
-#define CWM_NO_ATOMS			 10
+#define	_NET_ACTIVE_WINDOW		 cwm_atoms[10]
+#define CWM_NO_ATOMS			 11
 #define CWM_NETWM_START			 7
 
 extern Atom				 cwm_atoms[CWM_NO_ATOMS];
