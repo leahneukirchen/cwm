@@ -182,6 +182,7 @@ char 		*atoms[CWM_NO_ATOMS] = {
 	"_NET_SUPPORTING_WM_CHECK",
 	"_NET_WM_NAME",
 	"_NET_ACTIVE_WINDOW",
+	"_NET_CLIENT_LIST",
 };
 
 void

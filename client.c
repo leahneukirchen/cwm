@@ -114,6 +114,9 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 
 	TAILQ_INSERT_TAIL(&sc->mruq, cc, mru_entry);
 	TAILQ_INSERT_TAIL(&Clientq, cc, entry);
+	/* append to the client list */
+	XChangeProperty(X_Dpy, sc->rootwin, _NET_CLIENT_LIST, XA_WINDOW, 32,
+	    PropModeAppend,  (unsigned char *)&cc->win, 1);
 
 	client_gethints(cc);
 	client_update(cc);
@@ -128,7 +131,10 @@ int
 client_delete(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
+	struct client_ctx	*tcc;
 	struct winname		*wn;
+	Window			*winlist;
+	int			 i, j;
 
 	group_client_delete(cc);
 
@@ -141,6 +147,23 @@ client_delete(struct client_ctx *cc)
 
 	TAILQ_REMOVE(&sc->mruq, cc, mru_entry);
 	TAILQ_REMOVE(&Clientq, cc, entry);
+	/*
+	 * Sadly we can't remove just one entry from a property, so we must
+	 * redo the whole thing from scratch. this is the stupid way, the other
+	 * way incurs many roundtrips to the server.
+	 */
+	i = j = 0;
+	TAILQ_FOREACH(tcc, &Clientq, entry)
+		i++;
+	if (i > 0) {
+		winlist = xmalloc(i * sizeof(*winlist));
+		TAILQ_FOREACH(tcc, &Clientq, entry)
+			winlist[j++] = tcc->win;
+		XChangeProperty(X_Dpy, sc->rootwin, _NET_CLIENT_LIST,
+		    XA_WINDOW, 32, PropModeReplace,
+		    (unsigned char *)winlist, i);
+		xfree(winlist);
+	}
 
 	if (_curcc == cc)
 		client_none(sc);
