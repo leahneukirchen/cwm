@@ -49,7 +49,7 @@ kbfunc_moveresize(struct client_ctx *cc, union arg *arg)
 	int			 x, y, flags, amt;
 	u_int			 mx, my;
 
-	sc = screen_current();
+	sc = cc->sc;
 	mx = my = 0;
 
 	flags = arg->i;
