@@ -124,9 +124,9 @@ kbfunc_moveresize(struct client_ctx *cc, union arg *arg)
 }
 
 void
-kbfunc_client_search(struct client_ctx *scratch, union arg *arg)
+kbfunc_client_search(struct client_ctx *cc, union arg *arg)
 {
-	struct client_ctx	*cc, *old_cc;
+	struct client_ctx	*old_cc;
 	struct menu		*mi;
 	struct menu_q		 menuq;
 
@@ -159,7 +159,7 @@ kbfunc_client_search(struct client_ctx *scratch, union arg *arg)
 }
 
 void
-kbfunc_menu_search(struct client_ctx *scratch, union arg *arg)
+kbfunc_menu_search(struct client_ctx *cc, union arg *arg)
 {
 	struct cmd	*cmd;
 	struct menu	*mi;
@@ -185,7 +185,7 @@ kbfunc_menu_search(struct client_ctx *scratch, union arg *arg)
 }
 
 void
-kbfunc_client_cycle(struct client_ctx *scratch, union arg *arg)
+kbfunc_client_cycle(struct client_ctx *cc, union arg *arg)
 {
 	struct screen_ctx	*sc;
 
@@ -223,7 +223,7 @@ kbfunc_lock(struct client_ctx *cc, union arg *arg)
 }
 
 void
-kbfunc_exec(struct client_ctx *scratch, union arg *arg)
+kbfunc_exec(struct client_ctx *cc, union arg *arg)
 {
 #define NPATHS 256
 	char		**ap, *paths[NPATHS], *path, *pathcpy, *label;
@@ -310,7 +310,7 @@ out:
 }
 
 void
-kbfunc_ssh(struct client_ctx *scratch, union arg *arg)
+kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 {
 	struct menu	*mi;
 	struct menu_q	 menuq;
