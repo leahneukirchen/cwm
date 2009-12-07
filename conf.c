@@ -31,8 +31,6 @@
 static void	 conf_mouseunbind(struct conf *, struct mousebinding *);
 static void	 conf_unbind(struct conf *, struct keybinding *);
 
-extern struct screen_ctx	*Curscreen;
-
 /* Add an command menu entry to the end of the menu */
 void
 conf_cmd_add(struct conf *c, char *image, char *label, int flags)
