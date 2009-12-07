@@ -398,7 +398,7 @@ menu_calc_entry(struct screen_ctx *sc, struct menu_ctx *mc, int x, int y)
 	entry = y / font_height();
 
 	/* in bounds? */
-	if (x < 0 || x > mc->width || y < 0 || y > font_height() * mc->num ||
+	if (x <= 0 || x > mc->width || y <= 0 || y > font_height() * mc->num ||
 	    entry < 0 || entry >= mc->num)
 		entry = -1;
 
