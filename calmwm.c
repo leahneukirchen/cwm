@@ -166,6 +166,8 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	/* Initialize menu window. */
 	menu_init(sc);
 
+	xu_setwmname(sc);
+
 	/* Deal with existing clients. */
 	XQueryTree(X_Dpy, sc->rootwin, &w0, &w1, &wins, &nwins);
 

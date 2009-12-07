@@ -177,12 +177,41 @@ char 		*atoms[CWM_NO_ATOMS] = {
 	"WM_PROTOCOLS",
 	"_MOTIF_WM_HINTS",
 	"_CWM_GRP",
+	"UTF8_STRING",
+	"_NET_SUPPORTED",
+	"_NET_SUPPORTING_WM_CHECK",
+	"_NET_WM_NAME",
 };
 
 void
 xu_getatoms(void)
 {
 	XInternAtoms(X_Dpy, atoms, CWM_NO_ATOMS, False, cwm_atoms);
+}
+
+void
+xu_setwmname(struct screen_ctx *sc)
+{
+	/*
+	 * set up the _NET_SUPPORTED hint with all netwm atoms that we
+	 * know about.
+	 */
+	XChangeProperty(X_Dpy, sc->rootwin, _NET_SUPPORTED, XA_ATOM, 32,
+	    PropModeReplace,  (unsigned char *)&_NET_SUPPORTED,
+	    CWM_NO_ATOMS - CWM_NETWM_START);
+	/*
+	 * netwm spec says that to prove that the hint is not stale you must
+	 * provide _NET_SUPPORTING_WM_CHECK containing a window (we use the
+	 * menu window). The property must be set on the root window and the
+	 * window itself, the window also must have _NET_WM_NAME set with the
+	 * window manager name.
+	 */
+	XChangeProperty(X_Dpy, sc->rootwin, _NET_SUPPORTING_WM_CHECK,
+	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)&sc->menuwin, 1);
+	XChangeProperty(X_Dpy, sc->menuwin, _NET_SUPPORTING_WM_CHECK,
+	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)&sc->menuwin, 1);
+	XChangeProperty(X_Dpy, sc->menuwin, _NET_WM_NAME, UTF8_STRING,
+	    8, PropModeReplace, WMNAME, strlen(WMNAME));
 }
 
 unsigned long
