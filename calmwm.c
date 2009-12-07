@@ -147,7 +147,7 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	XWindowAttributes	 winattr;
 	XSetWindowAttributes	 rootattr;
 	int			 fake;
-	u_int			 nwins, i;
+	u_int			 ndesks = CALMWM_NGROUPS, nwins, i;
 
 	Curscreen = sc;
 
@@ -165,6 +165,13 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 
 	/* Initialize menu window. */
 	menu_init(sc);
+
+	/*
+	 * XXX this probably should be somewhere else, but since it's a 
+	 * static value for now it does ok.
+	 */
+	XChangeProperty(X_Dpy, sc->rootwin, _NET_NUMBER_OF_DESKTOPS,
+	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&ndesks, 1);
 
 	xu_setwmname(sc);
 

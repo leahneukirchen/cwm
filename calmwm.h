@@ -159,6 +159,7 @@ TAILQ_HEAD(client_ctx_q, client_ctx);
 
 extern const char *shortcut_to_name[];
 
+#define CALMWM_NGROUPS 9
 struct group_ctx {
 	TAILQ_ENTRY(group_ctx)	 entry;
 	struct client_ctx_q	 clients;
@@ -528,7 +529,8 @@ extern struct conf			 Conf;
 #define	_NET_WM_NAME			 cwm_atoms[9]
 #define	_NET_ACTIVE_WINDOW		 cwm_atoms[10]
 #define _NET_CLIENT_LIST		 cwm_atoms[11]
-#define CWM_NO_ATOMS			 12
+#define	_NET_NUMBER_OF_DESKTOPS		 cwm_atoms[12]
+#define CWM_NO_ATOMS			 13
 #define CWM_NETWM_START			 7
 
 extern Atom				 cwm_atoms[CWM_NO_ATOMS];

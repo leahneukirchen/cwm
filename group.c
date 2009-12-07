@@ -22,8 +22,6 @@
 #include "headers.h"
 #include "calmwm.h"
 
-#define CALMWM_NGROUPS 9
-
 static void		 group_add(struct group_ctx *, struct client_ctx *);
 static void		 group_remove(struct client_ctx *);
 static void		 group_hide(struct group_ctx *);

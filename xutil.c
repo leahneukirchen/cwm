@@ -183,6 +183,7 @@ char 		*atoms[CWM_NO_ATOMS] = {
 	"_NET_WM_NAME",
 	"_NET_ACTIVE_WINDOW",
 	"_NET_CLIENT_LIST",
+	"_NET_NUMBER_OF_DESKTOPS",
 };
 
 void
