@@ -51,23 +51,16 @@ conf_cmd_add(struct conf *c, char *image, char *label, int flags)
 }
 
 void
-conf_font(struct conf *c)
+conf_font(struct conf *c, struct screen_ctx *sc)
 {
-	struct screen_ctx	*sc;
-
-	sc = screen_current();
-
-	c->DefaultFont = font_make(sc, c->DefaultFontName);
-	c->FontHeight = font_ascent() + font_descent() + 1;
+	sc->font = font_make(sc, c->DefaultFontName);
+	sc->fontheight = font_ascent(sc) + font_descent(sc) + 1;
 }
 
 void
-conf_color(struct conf *c)
+conf_color(struct conf *c, struct screen_ctx *sc)
 {
-	struct screen_ctx	*sc;
-	int			 i;
-
-	sc = screen_current();
+	int	 i;
 
 	for (i = 0; i < CWM_COLOR_MAX; i++) {
 		xu_freecolor(sc, sc->color[i].pixel);
@@ -78,6 +71,7 @@ conf_color(struct conf *c)
 void
 conf_reload(struct conf *c)
 {
+	struct screen_ctx	*sc;
 	struct client_ctx	*cc;
 
 	if (parse_config(c->conf_path, c) == -1) {
@@ -85,10 +79,12 @@ conf_reload(struct conf *c)
 		return;
 	}
 
-	conf_color(c);
 	TAILQ_FOREACH(cc, &Clientq, entry)
 		client_draw_border(cc);
-	conf_font(c);
+	TAILQ_FOREACH(sc, &Screenq, entry) {
+		conf_color(c, sc);
+		conf_font(c, sc);
+	}
 }
 
 static struct {

@@ -156,10 +156,10 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	sc->xmax = DisplayWidth(X_Dpy, sc->which);
 	sc->ymax = DisplayHeight(X_Dpy, sc->which);
 
-	conf_color(&Conf);
+	conf_color(&Conf, sc);
 
 	font_init(sc);
-	conf_font(&Conf);
+	conf_font(&Conf, sc);
 
 	TAILQ_INIT(&sc->mruq);
 

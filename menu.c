@@ -99,7 +99,7 @@ menu_filter(struct menu_q *menuq, char *prompt, char *initial, int dummy,
 		    PROMPT_SCHAR);
 		snprintf(mc.dispstr, sizeof(mc.dispstr), "%s%s%c", mc.promptstr,
 		    mc.searchstr, PROMPT_ECHAR);
-		mc.width = font_width(mc.dispstr, strlen(mc.dispstr));
+		mc.width = font_width(sc, mc.dispstr, strlen(mc.dispstr));
 		mc.hasprompt = 1;
 	}
 
@@ -113,7 +113,7 @@ menu_filter(struct menu_q *menuq, char *prompt, char *initial, int dummy,
 	mc.entry = mc.prev = -1;
 
 	XMoveResizeWindow(X_Dpy, sc->menuwin, mc.x, mc.y, mc.width,
-	    font_height());
+	    font_height(sc));
 	XSelectInput(X_Dpy, sc->menuwin, evmask);
 	XMapRaised(X_Dpy, sc->menuwin);
 
@@ -283,8 +283,8 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 	if (mc->hasprompt) {
 		snprintf(mc->dispstr, sizeof(mc->dispstr), "%s%s%c",
 		    mc->promptstr, mc->searchstr, PROMPT_ECHAR);
-		mc->width = font_width(mc->dispstr, strlen(mc->dispstr));
-		dy = font_height();
+		mc->width = font_width(sc, mc->dispstr, strlen(mc->dispstr));
+		dy = font_height(sc);
 		mc->num = 1;
 	}
 
@@ -299,9 +299,9 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 			text = mi->text;
 		}
 
-		mc->width = MAX(mc->width, font_width(text,
+		mc->width = MAX(mc->width, font_width(sc, text,
 		    MIN(strlen(text), MENU_MAXENTRY)));
-		dy += font_height();
+		dy += font_height(sc);
 		mc->num++;
 	}
 
@@ -326,7 +326,7 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 
 	if (mc->hasprompt) {
 		font_draw(sc, mc->dispstr, strlen(mc->dispstr), sc->menuwin,
-		    0, font_ascent() + 1);
+		    0, font_ascent(sc) + 1);
 		n = 1;
 	} else
 		n = 0;
@@ -336,17 +336,17 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 		    mi->print : mi->text;
 
 		font_draw(sc, text, MIN(strlen(text), MENU_MAXENTRY),
-		    sc->menuwin, 0, n * font_height() + font_ascent() + 1);
+		    sc->menuwin, 0, n * font_height(sc) + font_ascent(sc) + 1);
 		n++;
 	}
 
 	if (mc->hasprompt && n > 1)
 		XFillRectangle(X_Dpy, sc->menuwin, sc->gc,
-		    0, font_height(), mc->width, font_height());
+		    0, font_height(sc), mc->width, font_height(sc));
 
 	if (mc->noresult)
 		XFillRectangle(X_Dpy, sc->menuwin, sc->gc,
-		    0, 0, mc->width, font_height());
+		    0, 0, mc->width, font_height(sc));
 }
 
 static void
@@ -357,11 +357,11 @@ menu_handle_move(XEvent *e, struct menu_ctx *mc, struct screen_ctx *sc)
 
 	if (mc->prev != -1)
 		XFillRectangle(X_Dpy, sc->menuwin, sc->gc, 0,
-		    font_height() * mc->prev, mc->width, font_height());
+		    font_height(sc) * mc->prev, mc->width, font_height(sc));
 	if (mc->entry != -1) {
 		xu_ptr_regrab(MenuGrabMask, Cursor_select);
 		XFillRectangle(X_Dpy, sc->menuwin, sc->gc, 0,
-		    font_height() * mc->entry, mc->width, font_height());
+		    font_height(sc) * mc->entry, mc->width, font_height(sc));
 	} else
 		xu_ptr_regrab(MenuGrabMask, Cursor_default);
 }
@@ -395,11 +395,11 @@ menu_calc_entry(struct screen_ctx *sc, struct menu_ctx *mc, int x, int y)
 {
 	int	 entry;
 
-	entry = y / font_height();
+	entry = y / font_height(sc);
 
 	/* in bounds? */
-	if (x <= 0 || x > mc->width || y <= 0 || y > font_height() * mc->num ||
-	    entry < 0 || entry >= mc->num)
+	if (x <= 0 || x > mc->width || y <= 0 ||
+	    y > font_height(sc) * mc->num || entry < 0 || entry >= mc->num)
 		entry = -1;
 
 	if (mc->hasprompt && entry == 0)

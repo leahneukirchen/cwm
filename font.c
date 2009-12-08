@@ -33,11 +33,11 @@ font_init(struct screen_ctx *sc)
 }
 
 int
-font_width(const char *text, int len)
+font_width(struct screen_ctx *sc, const char *text, int len)
 {
 	XGlyphInfo	 extents;
 
-	XftTextExtents8(X_Dpy, Conf.DefaultFont, (const XftChar8*)text,
+	XftTextExtents8(X_Dpy, sc->font, (const XftChar8*)text,
 	    len, &extents);
 
 	return (extents.xOff);
@@ -49,7 +49,7 @@ font_draw(struct screen_ctx *sc, const char *text, int len,
 {
 	XftDrawChange(sc->xftdraw, d);
 	/* Really needs to be UTF8'd. */
-	XftDrawString8(sc->xftdraw, &sc->xftcolor, Conf.DefaultFont, x, y,
+	XftDrawString8(sc->xftdraw, &sc->xftcolor, sc->font, x, y,
 	    (const FcChar8*)text, len);
 }
 
