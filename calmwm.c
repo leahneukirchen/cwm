@@ -143,12 +143,12 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	XWindowAttributes	 winattr;
 	XSetWindowAttributes	 rootattr;
 	int			 fake;
-	u_int			 ndesks = CALMWM_NGROUPS, nwins, i;
-
+	u_int			 nwins, i;
 	sc->which = which;
 	sc->rootwin = RootWindow(X_Dpy, sc->which);
-	sc->xmax = DisplayWidth(X_Dpy, sc->which);
-	sc->ymax = DisplayHeight(X_Dpy, sc->which);
+
+	screen_update_geometry(sc, DisplayWidth(X_Dpy, sc->which),
+	    DisplayHeight(X_Dpy, sc->which));
 
 	conf_color(&Conf, sc);
 
@@ -160,13 +160,6 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 
 	/* Initialize menu window. */
 	menu_init(sc);
-
-	/*
-	 * XXX this probably should be somewhere else, but since it's a 
-	 * static value for now it does ok.
-	 */
-	XChangeProperty(X_Dpy, sc->rootwin, _NET_NUMBER_OF_DESKTOPS,
-	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&ndesks, 1);
 
 	xu_setwmname(sc);
 

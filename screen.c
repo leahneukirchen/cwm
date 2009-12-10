@@ -98,3 +98,14 @@ screen_find_xinerama(struct screen_ctx *sc, int x, int y)
 	}
 	return (NULL);
 }
+
+void
+screen_update_geometry(struct screen_ctx *sc, int width, int height)
+{
+	int	geom[2];
+
+	sc->xmax = geom[0] = width;
+	sc->ymax = geom[1] = height;
+	XChangeProperty(X_Dpy, sc->rootwin, _NET_DESKTOP_GEOMETRY,
+	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)geom , 2);
+}

@@ -401,6 +401,7 @@ char			*xstrdup(const char *);
 
 struct screen_ctx	*screen_fromroot(Window);
 void			 screen_updatestackingorder(struct screen_ctx *);
+void			 screen_update_geometry(struct screen_ctx *, int, int);
 void			 screen_init_xinerama(struct screen_ctx *);
 XineramaScreenInfo	*screen_find_xinerama(struct screen_ctx *, int, int);
 
@@ -530,9 +531,12 @@ extern struct conf			 Conf;
 #define	_NET_SUPPORTING_WM_CHECK	 cwm_atoms[8]
 #define	_NET_WM_NAME			 cwm_atoms[9]
 #define	_NET_ACTIVE_WINDOW		 cwm_atoms[10]
-#define _NET_CLIENT_LIST		 cwm_atoms[11]
+#define	_NET_CLIENT_LIST		 cwm_atoms[11]
 #define	_NET_NUMBER_OF_DESKTOPS		 cwm_atoms[12]
-#define CWM_NO_ATOMS			 13
+#define	_NET_CURRENT_DESKTOP		 cwm_atoms[13]
+#define	_NET_DESKTOP_VIEWPORT		 cwm_atoms[14]
+#define	_NET_DESKTOP_GEOMETRY		 cwm_atoms[15]
+#define CWM_NO_ATOMS			 16
 #define CWM_NETWM_START			 7
 
 extern Atom				 cwm_atoms[CWM_NO_ATOMS];

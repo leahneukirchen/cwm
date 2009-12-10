@@ -368,8 +368,7 @@ xev_handle_randr(XEvent *ee)
 	TAILQ_FOREACH(sc, &Screenq, entry) {
 		if (sc->which == (u_int)i) {
 			XRRUpdateConfiguration(ee);
-			sc->xmax = rev->width;
-			sc->ymax = rev->height;
+			screen_update_geometry(sc, rev->width, rev->height);
 			screen_init_xinerama(sc);
 		}
 	}

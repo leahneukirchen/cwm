@@ -27,6 +27,7 @@ static void		 group_remove(struct client_ctx *);
 static void		 group_hide(struct screen_ctx *, struct group_ctx *);
 static void		 group_show(struct screen_ctx *, struct group_ctx *);
 static void		 group_fix_hidden_state(struct group_ctx *);
+static void		 group_setactive(struct screen_ctx *, int);
 
 const char *shortcut_to_name[] = {
 	"nogroup", "one", "two", "three", "four", "five", "six",
@@ -118,17 +119,17 @@ group_show(struct screen_ctx *sc, struct group_ctx *gc)
 	xfree(winlist);
 
 	gc->hidden = 0;
-	sc->group_active = gc;
+	group_setactive(sc, gc->shortcut - 1);
 }
 
 void
 group_init(struct screen_ctx *sc)
 {
-	int	 i;
+	int	 	 i;
+	u_int32_t	 viewports[2] = {0, 0}, ndesks = CALMWM_NGROUPS;
 
 	TAILQ_INIT(&sc->groupq);
 	sc->group_hideall = 0;
-	sc->group_active = NULL;
 
 	for (i = 0; i < CALMWM_NGROUPS; i++) {
 		TAILQ_INIT(&sc->groups[i].clients);
@@ -138,7 +139,20 @@ group_init(struct screen_ctx *sc)
 		TAILQ_INSERT_TAIL(&sc->groupq, &sc->groups[i], entry);
 	}
 
-	sc->group_active = &sc->groups[0];
+	/* we don't support large desktops, so this is always (0, 0) */
+	XChangeProperty(X_Dpy, sc->rootwin, _NET_DESKTOP_VIEWPORT,
+	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)viewports, 2);
+	XChangeProperty(X_Dpy, sc->rootwin, _NET_NUMBER_OF_DESKTOPS,
+	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&ndesks, 1);
+	group_setactive(sc, 0);
+}
+
+static void
+group_setactive(struct screen_ctx *sc, int idx)
+{
+	sc->group_active = &sc->groups[idx];
+	XChangeProperty(X_Dpy, sc->rootwin, _NET_CURRENT_DESKTOP,
+	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&idx, 1);
 }
 
 void
@@ -210,7 +224,6 @@ group_hidetoggle(struct screen_ctx *sc, int idx)
 		err(1, "group_hidetoggle: index out of range (%d)", idx);
 
 	gc = &sc->groups[idx];
-
 	group_fix_hidden_state(gc);
 
 	if (gc->hidden)
@@ -219,7 +232,7 @@ group_hidetoggle(struct screen_ctx *sc, int idx)
 		group_hide(sc, gc);
 		/* XXX wtf? */
 		if (TAILQ_EMPTY(&gc->clients))
-			sc->group_active = gc;
+			group_setactive(sc, idx);
 	}
 }
 
@@ -273,7 +286,7 @@ group_cycle(struct screen_ctx *sc, int reverse)
 	if (showgroup->hidden)
 		group_show(sc, showgroup);
 	else
-		sc->group_active = showgroup;
+		group_setactive(sc, showgroup->shortcut - 1);
 }
 
 /* called when a client is deleted */
