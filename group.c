@@ -126,7 +126,8 @@ void
 group_init(struct screen_ctx *sc)
 {
 	int	 	 i;
-	u_int32_t	 viewports[2] = {0, 0}, ndesks = CALMWM_NGROUPS;
+	u_int32_t	 viewports[2] = {0, 0};
+	u_int32_t	 ndesks = CALMWM_NGROUPS, zero = 0;
 
 	TAILQ_INIT(&sc->groupq);
 	sc->group_hideall = 0;
@@ -144,6 +145,18 @@ group_init(struct screen_ctx *sc)
 	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)viewports, 2);
 	XChangeProperty(X_Dpy, sc->rootwin, _NET_NUMBER_OF_DESKTOPS,
 	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&ndesks, 1);
+	/*
+	 * we don't use virtual roots, so make sure it's not there from a 
+	 * previous wm.
+	 */
+	XDeleteProperty(X_Dpy, sc->rootwin, _NET_VIRTUAL_ROOTS);
+	/*
+	 * We don't really have a ``showing desktop'' mode, so this is zero
+	 * always. XXX Note that when we hide all groups, or when all groups
+	 * are hidden we could technically set this later on.
+	 */
+	XChangeProperty(X_Dpy, sc->rootwin, _NET_SHOWING_DESKTOP,
+	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&zero, 1);
 	group_setactive(sc, 0);
 }
 
