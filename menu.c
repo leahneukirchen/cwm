@@ -69,19 +69,17 @@ menu_init(struct screen_ctx *sc)
 }
 
 struct menu *
-menu_filter(struct menu_q *menuq, char *prompt, char *initial, int dummy,
+menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
+    char *initial, int dummy,
     void (*match)(struct menu_q *, struct menu_q *, char *),
     void (*print)(struct menu *, int))
 {
-	struct screen_ctx	*sc;
 	struct menu_ctx		 mc;
 	struct menu_q		 resultq;
 	struct menu		*mi = NULL;
 	XEvent			 e;
 	Window			 focuswin;
 	int			 evmask, focusrevert;
-
-	sc = screen_current();
 
 	TAILQ_INIT(&resultq);
 

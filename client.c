@@ -548,14 +548,12 @@ match:
 }
 
 struct client_ctx *
-client_cycle(int reverse)
+client_cycle(struct screen_ctx *sc, int reverse)
 {
 	struct client_ctx	*oldcc, *newcc;
-	struct screen_ctx	*sc;
 	int			 again = 1;
 
 	oldcc = client_current();
-	sc = screen_current();
 
 	/* If no windows then you cant cycle */
 	if (TAILQ_EMPTY(&sc->mruq))

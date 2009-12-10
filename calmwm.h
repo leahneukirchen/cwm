@@ -59,31 +59,48 @@ struct color {
 struct client_ctx;
 
 TAILQ_HEAD(cycle_entry_q, client_ctx);
+TAILQ_HEAD(group_ctx_q, group_ctx);
+TAILQ_HEAD(client_ctx_q, client_ctx);
+
+#define CALMWM_NGROUPS 9
+struct group_ctx {
+	TAILQ_ENTRY(group_ctx)	 entry;
+	struct client_ctx_q	 clients;
+	const char		*name;
+	int			 shortcut;
+	int			 hidden;
+	int			 nhidden;
+	int			 highstack;
+};
 
 struct screen_ctx {
-	TAILQ_ENTRY(screen_ctx)	entry;
+	TAILQ_ENTRY(screen_ctx)	 entry;
 
-	u_int		 which;
-	Window		 rootwin;
-	Window		 menuwin;
+	u_int			 which;
+	Window			 rootwin;
+	Window			 menuwin;
 
-	struct color	 color[CWM_COLOR_MAX];
-	GC		 gc;
+	struct color		 color[CWM_COLOR_MAX];
+	GC			 gc;
 
-	int		 altpersist;
+	int			 altpersist;
 
-	int		 xmax;
-	int		 ymax;
+	int			 xmax;
+	int			 ymax;
 
-	struct cycle_entry_q mruq;
+	struct cycle_entry_q	 mruq;
 
-	XftDraw		*xftdraw;
-	XftColor	 xftcolor;
-	XftFont		*font;
-	u_int		 fontheight;
+	XftDraw			*xftdraw;
+	XftColor		 xftcolor;
+	XftFont			*font;
+	u_int			 fontheight;
 
-	int		 xinerama_no;
-	XineramaScreenInfo *xinerama;
+	int			 xinerama_no;
+	XineramaScreenInfo	*xinerama;
+	struct group_ctx	*group_active;
+	struct group_ctx	 groups[CALMWM_NGROUPS];
+	int			 group_hideall;
+	struct group_ctx_q	 groupq;
 };
 
 TAILQ_HEAD(screen_ctx_q, screen_ctx);
@@ -157,22 +174,7 @@ struct client_ctx {
 	char			*app_cliarg;
 };
 
-TAILQ_HEAD(client_ctx_q, client_ctx);
-
 extern const char *shortcut_to_name[];
-
-#define CALMWM_NGROUPS 9
-struct group_ctx {
-	TAILQ_ENTRY(group_ctx)	 entry;
-	struct client_ctx_q	 clients;
-	const char		*name;
-	int			 shortcut;
-	int			 hidden;
-	int			 nhidden;
-	int			 highstack;
-};
-
-TAILQ_HEAD(group_ctx_q, group_ctx);
 
 /* Autogroups */
 struct autogroupwin {
@@ -354,11 +356,12 @@ void			 client_vertmaximize(struct client_ctx *);
 void			 client_horizmaximize(struct client_ctx *);
 void			 client_map(struct client_ctx *);
 void			 client_mtf(struct client_ctx *);
-struct client_ctx	*client_cycle(int);
+struct client_ctx	*client_cycle(struct screen_ctx *, int);
 void			 client_getsizehints(struct client_ctx *);
 void			 client_applysizehints(struct client_ctx *);
 
-struct menu  		*menu_filter(struct menu_q *, char *, char *, int,
+struct menu  		*menu_filter(struct screen_ctx *, struct menu_q *,
+			     char *, char *, int,
 			     void (*)(struct menu_q *, struct menu_q *, char *),
 			     void (*)(struct menu *, int));
 void			 menu_init(struct screen_ctx *);
@@ -397,8 +400,7 @@ void			*xcalloc(size_t, size_t);
 char			*xstrdup(const char *);
 
 struct screen_ctx	*screen_fromroot(Window);
-struct screen_ctx	*screen_current(void);
-void			 screen_updatestackingorder(void);
+void			 screen_updatestackingorder(struct screen_ctx *);
 void			 screen_init_xinerama(struct screen_ctx *);
 XineramaScreenInfo	*screen_find_xinerama(struct screen_ctx *, int, int);
 
@@ -471,14 +473,14 @@ void			 search_match_text(struct menu_q *, struct menu_q *,
 void			 search_match_exec(struct menu_q *, struct menu_q *,
 			     char *);
 
-void			 group_init(void);
-void			 group_hidetoggle(int);
-void			 group_only(int);
-void			 group_cycle(int);
+void			 group_init(struct screen_ctx *);
+void			 group_hidetoggle(struct screen_ctx *, int);
+void			 group_only(struct screen_ctx *, int);
+void			 group_cycle(struct screen_ctx *, int);
 void			 group_sticky(struct client_ctx *);
 void			 group_client_delete(struct client_ctx *);
 void			 group_menu(XButtonEvent *);
-void			 group_alltoggle(void);
+void			 group_alltoggle(struct screen_ctx *);
 void			 group_sticky_toggle_enter(struct client_ctx *);
 void			 group_sticky_toggle_exit(struct client_ctx *);
 void			 group_autogroup(struct client_ctx *);

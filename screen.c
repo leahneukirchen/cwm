@@ -21,8 +21,6 @@
 #include "headers.h"
 #include "calmwm.h"
 
-extern struct screen_ctx	*Curscreen;
-
 struct screen_ctx *
 screen_fromroot(Window rootwin)
 {
@@ -36,21 +34,12 @@ screen_fromroot(Window rootwin)
 	return (TAILQ_FIRST(&Screenq));
 }
 
-struct screen_ctx *
-screen_current(void)
-{
-	return (Curscreen);
-}
-
 void
-screen_updatestackingorder(void)
+screen_updatestackingorder(struct screen_ctx *sc)
 {
 	Window			*wins, w0, w1;
-	struct screen_ctx	*sc;
 	struct client_ctx	*cc;
 	u_int			 nwins, i, s;
-
-	sc = screen_current();
 
 	if (!XQueryTree(X_Dpy, sc->rootwin, &w0, &w1, &wins, &nwins))
 		return;

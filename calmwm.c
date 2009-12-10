@@ -30,8 +30,6 @@ Cursor				 Cursor_default;
 Cursor				 Cursor_question;
 
 struct screen_ctx_q		 Screenq = TAILQ_HEAD_INITIALIZER(Screenq);
-struct screen_ctx		*Curscreen;
-
 struct client_ctx_q		 Clientq = TAILQ_HEAD_INITIALIZER(Clientq);
 
 int				 HasXinerama, HasRandr, Randr_ev;
@@ -72,8 +70,6 @@ main(int argc, char **argv)
 
 	Starting = 1;
 	dpy_init(display_name);
-
-	group_init();
 
 	bzero(&Conf, sizeof(Conf));
 	conf_setup(&Conf, conf_file);
@@ -149,8 +145,6 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	int			 fake;
 	u_int			 ndesks = CALMWM_NGROUPS, nwins, i;
 
-	Curscreen = sc;
-
 	sc->which = which;
 	sc->rootwin = RootWindow(X_Dpy, sc->which);
 	sc->xmax = DisplayWidth(X_Dpy, sc->which);
@@ -158,6 +152,7 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 
 	conf_color(&Conf, sc);
 
+	group_init(sc);
 	font_init(sc);
 	conf_font(&Conf, sc);
 
@@ -187,7 +182,7 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	}
 	XFree(wins);
 
-	screen_updatestackingorder();
+	screen_updatestackingorder(sc);
 
 	rootattr.event_mask = ChildMask|PropertyChangeMask|EnterWindowMask|
 	    LeaveWindowMask|ColormapChangeMask|ButtonMask;

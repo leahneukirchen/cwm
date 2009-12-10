@@ -198,11 +198,13 @@ mousefunc_menu_group(struct client_ctx *cc, void *arg)
 void
 mousefunc_menu_unhide(struct client_ctx *cc, void *arg)
 {
+	struct screen_ctx	*sc;
 	struct client_ctx	*old_cc;
 	struct menu		*mi;
 	struct menu_q		 menuq;
 	char			*wname;
 
+	sc = cc->sc;
 	old_cc = client_current();
 
 	TAILQ_INIT(&menuq);
@@ -221,7 +223,7 @@ mousefunc_menu_unhide(struct client_ctx *cc, void *arg)
 	if (TAILQ_EMPTY(&menuq))
 		return;
 
-	mi = menu_filter(&menuq, NULL, NULL, 0, NULL, NULL);
+	mi = menu_filter(sc, &menuq, NULL, NULL, 0, NULL, NULL);
 	if (mi != NULL) {
 		cc = (struct client_ctx *)mi->ctx;
 		client_unhide(cc);
@@ -240,9 +242,12 @@ mousefunc_menu_unhide(struct client_ctx *cc, void *arg)
 void
 mousefunc_menu_cmd(struct client_ctx *cc, void *arg)
 {
-	struct menu	*mi;
-	struct menu_q	 menuq;
-	struct cmd	*cmd;
+	struct screen_ctx	*sc;
+	struct menu		*mi;
+	struct menu_q		 menuq;
+	struct cmd		*cmd;
+
+	sc = cc->sc;
 
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
@@ -254,7 +259,7 @@ mousefunc_menu_cmd(struct client_ctx *cc, void *arg)
 	if (TAILQ_EMPTY(&menuq))
 		return;
 
-	mi = menu_filter(&menuq, NULL, NULL, 0, NULL, NULL);
+	mi = menu_filter(sc, &menuq, NULL, NULL, 0, NULL, NULL);
 	if (mi != NULL)
 		u_spawn(((struct cmd *)mi->ctx)->image);
 	else

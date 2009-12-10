@@ -126,10 +126,12 @@ kbfunc_moveresize(struct client_ctx *cc, union arg *arg)
 void
 kbfunc_client_search(struct client_ctx *cc, union arg *arg)
 {
+	struct screen_ctx	*sc;
 	struct client_ctx	*old_cc;
 	struct menu		*mi;
 	struct menu_q		 menuq;
 
+	sc = cc->sc;
 	old_cc = client_current();
 
 	TAILQ_INIT(&menuq);
@@ -141,7 +143,7 @@ kbfunc_client_search(struct client_ctx *cc, union arg *arg)
 		TAILQ_INSERT_TAIL(&menuq, mi, entry);
 	}
 
-	if ((mi = menu_filter(&menuq, "window", NULL, 0,
+	if ((mi = menu_filter(sc, &menuq, "window", NULL, 0,
 	    search_match_client, search_print_client)) != NULL) {
 		cc = (struct client_ctx *)mi->ctx;
 		if (cc->flags & CLIENT_HIDDEN)
@@ -161,10 +163,12 @@ kbfunc_client_search(struct client_ctx *cc, union arg *arg)
 void
 kbfunc_menu_search(struct client_ctx *cc, union arg *arg)
 {
-	struct cmd	*cmd;
-	struct menu	*mi;
-	struct menu_q	 menuq;
+	struct screen_ctx	*sc;
+	struct cmd		*cmd;
+	struct menu		*mi;
+	struct menu_q		 menuq;
 
+	sc = cc->sc;
 	TAILQ_INIT(&menuq);
 
 	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
@@ -174,7 +178,7 @@ kbfunc_menu_search(struct client_ctx *cc, union arg *arg)
 		TAILQ_INSERT_TAIL(&menuq, mi, entry);
 	}
 
-	if ((mi = menu_filter(&menuq, "application", NULL, 0,
+	if ((mi = menu_filter(sc, &menuq, "application", NULL, 0,
 	    search_match_text, NULL)) != NULL)
 		u_spawn(((struct cmd *)mi->ctx)->image);
 
@@ -189,13 +193,13 @@ kbfunc_client_cycle(struct client_ctx *cc, union arg *arg)
 {
 	struct screen_ctx	*sc;
 
-	sc = screen_current();
+	sc = cc->sc;
 
 	/* XXX for X apps that ignore events */
 	XGrabKeyboard(X_Dpy, sc->rootwin, True,
 	    GrabModeAsync, GrabModeAsync, CurrentTime);
 
-	client_cycle(arg->i);
+	client_cycle(sc, arg->i);
 }
 
 void
@@ -226,15 +230,16 @@ void
 kbfunc_exec(struct client_ctx *cc, union arg *arg)
 {
 #define NPATHS 256
-	char		**ap, *paths[NPATHS], *path, *pathcpy, *label;
-	char		 tpath[MAXPATHLEN];
-	int		 l, i;
-	DIR		*dirp;
-	struct dirent	*dp;
-	struct menu	*mi;
-	struct menu_q	 menuq;
+	struct screen_ctx	*sc;
+	char			**ap, *paths[NPATHS], *path, *pathcpy, *label;
+	char			 tpath[MAXPATHLEN];
+	DIR			*dirp;
+	struct dirent		*dp;
+	struct menu		*mi;
+	struct menu_q		 menuq;
+	int			 l, i, cmd = arg->i;
 
-	int cmd = arg->i;
+	sc = cc->sc;
 	switch (cmd) {
 		case CWM_EXEC_PROGRAM:
 			label = "exec";
@@ -283,7 +288,7 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 	}
 	xfree(path);
 
-	if ((mi = menu_filter(&menuq, label, NULL, 1,
+	if ((mi = menu_filter(sc, &menuq, label, NULL, 1,
 	    search_match_exec, NULL)) != NULL) {
 		if (mi->text[0] == '\0')
 			goto out;
@@ -312,14 +317,17 @@ out:
 void
 kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 {
-	struct menu	*mi;
-	struct menu_q	 menuq;
-	FILE		*fp;
-	char		*buf, *lbuf, *p, *home;
-	char		 hostbuf[MAXHOSTNAMELEN], filename[MAXPATHLEN];
-	char		 cmd[256];
-	int		 l;
-	size_t		 len;
+	struct screen_ctx	*sc;
+	struct menu		*mi;
+	struct menu_q		 menuq;
+	FILE			*fp;
+	char			*buf, *lbuf, *p, *home;
+	char			 hostbuf[MAXHOSTNAMELEN], filename[MAXPATHLEN];
+	char			 cmd[256];
+	int			 l;
+	size_t			 len;
+
+	sc = cc->sc;
 
 	if ((home = getenv("HOME")) == NULL)
 		return;
@@ -360,7 +368,7 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 	xfree(lbuf);
 	fclose(fp);
 
-	if ((mi = menu_filter(&menuq, "ssh", NULL, 1,
+	if ((mi = menu_filter(sc, &menuq, "ssh", NULL, 1,
 	    search_match_exec, NULL)) != NULL) {
 		if (mi->text[0] == '\0')
 			goto out;
@@ -389,7 +397,7 @@ kbfunc_client_label(struct client_ctx *cc, union arg *arg)
 
 	current = cc->label;
 
-	if ((mi = menu_filter(&menuq, "label", current, 1,
+	if ((mi = menu_filter(cc->sc, &menuq, "label", current, 1,
 	    search_match_text, NULL)) != NULL) {
 		if (cc->label != NULL)
 			xfree(cc->label);
@@ -407,25 +415,25 @@ kbfunc_client_delete(struct client_ctx *cc, union arg *arg)
 void
 kbfunc_client_group(struct client_ctx *cc, union arg *arg)
 {
-	group_hidetoggle(KBTOGROUP(arg->i));
+	group_hidetoggle(cc->sc, KBTOGROUP(arg->i));
 }
 
 void
 kbfunc_client_grouponly(struct client_ctx *cc, union arg *arg)
 {
-	group_only(KBTOGROUP(arg->i));
+	group_only(cc->sc, KBTOGROUP(arg->i));
 }
 
 void
 kbfunc_client_cyclegroup(struct client_ctx *cc, union arg *arg)
 {
-	group_cycle(arg->i);
+	group_cycle(cc->sc, arg->i);
 }
 
 void
 kbfunc_client_nogroup(struct client_ctx *cc, union arg *arg)
 {
-	group_alltoggle();
+	group_alltoggle(cc->sc);
 }
 
 void
