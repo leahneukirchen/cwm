@@ -542,7 +542,8 @@ extern struct conf			 Conf;
 #define	_NET_SHOWING_DESKTOP		 cwm_atoms[17]
 #define	_NET_DESKTOP_NAMES		 cwm_atoms[18]
 #define _NET_WM_DESKTOP			 cwm_atoms[19]
-#define CWM_NO_ATOMS			 20
+#define	_NET_WORKAREA			 cwm_atoms[20]
+#define CWM_NO_ATOMS			 21
 #define CWM_NETWM_START			 7
 
 extern Atom				 cwm_atoms[CWM_NO_ATOMS];

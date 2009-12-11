@@ -102,10 +102,23 @@ screen_find_xinerama(struct screen_ctx *sc, int x, int y)
 void
 screen_update_geometry(struct screen_ctx *sc, int width, int height)
 {
-	long	geom[2];
+	long	 geom[2], workareas[CALMWM_NGROUPS][4];
+	int	 i;
 
 	sc->xmax = geom[0] = width;
 	sc->ymax = geom[1] = height;
 	XChangeProperty(X_Dpy, sc->rootwin, _NET_DESKTOP_GEOMETRY,
 	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)geom , 2);
+
+	/* x, y, width, height. XXX gap */
+	for (i = 0; i < CALMWM_NGROUPS; i++) {
+		workareas[i][0] = 0;
+		workareas[i][1] = 0;
+		workareas[i][2] = width;
+		workareas[i][3] = height;
+	}
+
+	XChangeProperty(X_Dpy, sc->rootwin, _NET_WORKAREA,
+	    XA_CARDINAL, 32, PropModeReplace,
+	    (unsigned char *)workareas, CALMWM_NGROUPS * 4);
 }

@@ -191,6 +191,7 @@ char 		*atoms[CWM_NO_ATOMS] = {
 	"_NET_SHOWING_DESKTOP",
 	"_NET_DESKTOP_NAMES",
 	"_NET_WM_DESKTOP",
+	"_NET_WORKAREA",
 };
 
 void
