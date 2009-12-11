@@ -102,7 +102,7 @@ screen_find_xinerama(struct screen_ctx *sc, int x, int y)
 void
 screen_update_geometry(struct screen_ctx *sc, int width, int height)
 {
-	int	geom[2];
+	long	geom[2];
 
 	sc->xmax = geom[0] = width;
 	sc->ymax = geom[1] = height;
