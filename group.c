@@ -27,7 +27,7 @@ static void		 group_remove(struct client_ctx *);
 static void		 group_hide(struct screen_ctx *, struct group_ctx *);
 static void		 group_show(struct screen_ctx *, struct group_ctx *);
 static void		 group_fix_hidden_state(struct group_ctx *);
-static void		 group_setactive(struct screen_ctx *, int);
+static void		 group_setactive(struct screen_ctx *, long);
 static void		 group_set_names(struct screen_ctx *);
 
 const char *shortcut_to_name[] = {
@@ -38,8 +38,11 @@ const char *shortcut_to_name[] = {
 static void
 group_add(struct group_ctx *gc, struct client_ctx *cc)
 {
+	long	no;
 	if (cc == NULL || gc == NULL)
 		errx(1, "group_add: a ctx is NULL");
+
+	no = gc->shortcut - 1;
 
 	if (cc->group == gc)
 		return;
@@ -50,6 +53,8 @@ group_add(struct group_ctx *gc, struct client_ctx *cc)
 	XChangeProperty(X_Dpy, cc->win, _CWM_GRP, XA_STRING,
 	    8, PropModeReplace, shortcut_to_name[gc->shortcut],
 	    strlen(shortcut_to_name[gc->shortcut]));
+	XChangeProperty(X_Dpy, cc->win, _NET_WM_DESKTOP, XA_CARDINAL,
+	    32, PropModeReplace, (unsigned char *)&no, 1);
 
 	TAILQ_INSERT_TAIL(&gc->clients, cc, group_entry);
 	cc->group = gc;
@@ -58,12 +63,16 @@ group_add(struct group_ctx *gc, struct client_ctx *cc)
 static void
 group_remove(struct client_ctx *cc)
 {
+	long	no = 0xffffffff;
+
 	if (cc == NULL || cc->group == NULL)
 		errx(1, "group_remove: a ctx is NULL");
 
 	XChangeProperty(X_Dpy, cc->win, _CWM_GRP, XA_STRING, 8,
 	    PropModeReplace, shortcut_to_name[0],
 	    strlen(shortcut_to_name[0]));
+	XChangeProperty(X_Dpy, cc->win, _NET_WM_DESKTOP, XA_CARDINAL,
+	    32, PropModeReplace, (unsigned char *)&no, 1);
 
 	TAILQ_REMOVE(&cc->group->clients, cc, group_entry);
 	cc->group = NULL;
@@ -127,9 +136,9 @@ group_show(struct screen_ctx *sc, struct group_ctx *gc)
 void
 group_init(struct screen_ctx *sc)
 {
-	int	 	 i;
-	u_int32_t	 viewports[2] = {0, 0};
-	u_int32_t	 ndesks = CALMWM_NGROUPS, zero = 0;
+	int	 i;
+	long	 viewports[2] = {0, 0};
+	long	 ndesks = CALMWM_NGROUPS, zero = 0;
 
 	TAILQ_INIT(&sc->groupq);
 	sc->group_hideall = 0;
@@ -188,7 +197,7 @@ group_make_autogroup(struct conf *conf, char *class, int no)
 }
 
 static void
-group_setactive(struct screen_ctx *sc, int idx)
+group_setactive(struct screen_ctx *sc, long idx)
 {
 	sc->group_active = &sc->groups[idx];
 	XChangeProperty(X_Dpy, sc->rootwin, _NET_CURRENT_DESKTOP,
@@ -410,11 +419,21 @@ group_autogroup(struct client_ctx *cc)
 	struct autogroupwin	*aw;
 	struct group_ctx	*gc;
 	int			 no = -1, i;
+	long			*grpno;
 	unsigned char		*grpstr = NULL;
 
 	if (cc->app_class == NULL || cc->app_name == NULL)
 		return;
-	if (xu_getprop(cc, _CWM_GRP,  XA_STRING,
+	if (xu_getprop(cc, _NET_WM_DESKTOP, XA_CARDINAL,
+	    1, (unsigned char **)&grpno) > 0) {
+		if (*grpno == 0xffffffff)
+			no = 0;
+		else if (*grpno > CALMWM_NGROUPS || *grpno < 0)
+			no = CALMWM_NGROUPS - 1;
+		else
+			no = *grpno + 1;
+		XFree(grpno);
+	} else if (xu_getprop(cc, _CWM_GRP,  XA_STRING,
 	    (CALMWM_MAXNAMELEN - 1)/sizeof(long), &grpstr) > 0) {
 		for (i = 0; i < sizeof(shortcut_to_name) /
 		    sizeof(shortcut_to_name[0]); i++) {
