@@ -66,7 +66,6 @@ TAILQ_HEAD(client_ctx_q, client_ctx);
 struct group_ctx {
 	TAILQ_ENTRY(group_ctx)	 entry;
 	struct client_ctx_q	 clients;
-	const char		*name;
 	int			 shortcut;
 	int			 hidden;
 	int			 nhidden;
@@ -101,6 +100,8 @@ struct screen_ctx {
 	struct group_ctx	 groups[CALMWM_NGROUPS];
 	int			 group_hideall;
 	struct group_ctx_q	 groupq;
+	char 			**group_names;
+	int			 group_nonames;
 };
 
 TAILQ_HEAD(screen_ctx_q, screen_ctx);
@@ -178,11 +179,10 @@ extern const char *shortcut_to_name[];
 
 /* Autogroups */
 struct autogroupwin {
-	TAILQ_ENTRY(autogroupwin) entry;
-
-	char	*class;
-	char	*name;
-	char	*group;
+	TAILQ_ENTRY(autogroupwin)	 entry;
+	char				*class;
+	char				*name;
+	int 				 num;
 };
 
 TAILQ_HEAD(autogroupwin_q, autogroupwin);
@@ -475,6 +475,8 @@ void			 search_match_exec(struct menu_q *, struct menu_q *,
 			     char *);
 
 void			 group_init(struct screen_ctx *);
+void			 group_make_autogroup(struct conf *, char *, int);
+void			 group_update_names(struct screen_ctx *);
 void			 group_hidetoggle(struct screen_ctx *, int);
 void			 group_only(struct screen_ctx *, int);
 void			 group_cycle(struct screen_ctx *, int);
@@ -538,7 +540,8 @@ extern struct conf			 Conf;
 #define	_NET_DESKTOP_GEOMETRY		 cwm_atoms[15]
 #define	_NET_VIRTUAL_ROOTS		 cwm_atoms[16]
 #define	_NET_SHOWING_DESKTOP		 cwm_atoms[17]
-#define CWM_NO_ATOMS			 18
+#define	_NET_DESKTOP_NAMES		 cwm_atoms[18]
+#define CWM_NO_ATOMS			 19
 #define CWM_NETWM_START			 7
 
 extern Atom				 cwm_atoms[CWM_NO_ATOMS];

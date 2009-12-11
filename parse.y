@@ -123,29 +123,13 @@ main		: FONTNAME STRING		{
 			free($3);
 		}
 		| AUTOGROUP NUMBER STRING	{
-			struct autogroupwin *aw;
-			char *p;
-
 			if ($2 < 0 || $2 > 9) {
 				free($3);
 				yyerror("autogroup number out of range: %d", $2);
 				YYERROR;
 			}
 
-			aw = xcalloc(1, sizeof(*aw));
-
-			if ((p = strchr($3, ',')) == NULL) {
-				aw->name = NULL;
-				aw->class = xstrdup($3);
-			} else {
-				*(p++) = '\0';
-				aw->name = xstrdup($3);
-				aw->class = xstrdup(p);
-			}
-			aw->group = xstrdup(shortcut_to_name[$2]);
-
-			TAILQ_INSERT_TAIL(&conf->autogroupq, aw, entry);
-
+			group_make_autogroup(conf, $3, $2);
 			free($3);
 		}
 		| IGNORE STRING {

@@ -28,6 +28,7 @@ static void		 group_hide(struct screen_ctx *, struct group_ctx *);
 static void		 group_show(struct screen_ctx *, struct group_ctx *);
 static void		 group_fix_hidden_state(struct group_ctx *);
 static void		 group_setactive(struct screen_ctx *, int);
+static void		 group_set_names(struct screen_ctx *);
 
 const char *shortcut_to_name[] = {
 	"nogroup", "one", "two", "three", "four", "five", "six",
@@ -47,7 +48,8 @@ group_add(struct group_ctx *gc, struct client_ctx *cc)
 		TAILQ_REMOVE(&cc->group->clients, cc, group_entry);
 
 	XChangeProperty(X_Dpy, cc->win, _CWM_GRP, XA_STRING,
-	    8, PropModeReplace, gc->name, strlen(gc->name));
+	    8, PropModeReplace, shortcut_to_name[gc->shortcut],
+	    strlen(shortcut_to_name[gc->shortcut]));
 
 	TAILQ_INSERT_TAIL(&gc->clients, cc, group_entry);
 	cc->group = gc;
@@ -131,12 +133,15 @@ group_init(struct screen_ctx *sc)
 
 	TAILQ_INIT(&sc->groupq);
 	sc->group_hideall = 0;
+	/* see if any group names have already been set and update the property
+	 * with ours if they'll have changed.
+	 */
+	group_update_names(sc);
 
 	for (i = 0; i < CALMWM_NGROUPS; i++) {
 		TAILQ_INIT(&sc->groups[i].clients);
 		sc->groups[i].hidden = 0;
 		sc->groups[i].shortcut = i + 1;
-		sc->groups[i].name = shortcut_to_name[sc->groups[i].shortcut];
 		TAILQ_INSERT_TAIL(&sc->groupq, &sc->groups[i], entry);
 	}
 
@@ -158,6 +163,28 @@ group_init(struct screen_ctx *sc)
 	XChangeProperty(X_Dpy, sc->rootwin, _NET_SHOWING_DESKTOP,
 	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&zero, 1);
 	group_setactive(sc, 0);
+}
+
+void
+group_make_autogroup(struct conf *conf, char *class, int no)
+{
+	struct autogroupwin	*aw;
+	char			*p;
+
+	aw = xcalloc(1, sizeof(*aw));
+
+	if ((p = strchr(class, ',')) == NULL) {
+		aw->name = NULL;
+		aw->class = xstrdup(class);
+	} else {
+		*(p++) = '\0';
+		aw->name = xstrdup(class);
+		aw->class = xstrdup(p);
+	}
+	aw->num = no;
+
+	TAILQ_INSERT_TAIL(&conf->autogroupq, aw, entry);
+	
 }
 
 static void
@@ -334,10 +361,10 @@ group_menu(XButtonEvent *e)
 		mi = xcalloc(1, sizeof(*mi));
 		if (gc->hidden)
 			snprintf(mi->text, sizeof(mi->text), "%d: [%s]",
-			    gc->shortcut, shortcut_to_name[gc->shortcut]);
+			    gc->shortcut, sc->group_names[i]);
 		else
 			snprintf(mi->text, sizeof(mi->text), "%d: %s",
-			    gc->shortcut, shortcut_to_name[gc->shortcut]);
+			    gc->shortcut, sc->group_names[i]);
 		mi->ctx = gc;
 		TAILQ_INSERT_TAIL(&menuq, mi, entry);
 	}
@@ -382,31 +409,36 @@ group_autogroup(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	struct autogroupwin	*aw;
 	struct group_ctx	*gc;
+	int			 no = -1, i;
 	unsigned char		*grpstr = NULL;
-	char			 group[CALMWM_MAXNAMELEN];
 
 	if (cc->app_class == NULL || cc->app_name == NULL)
 		return;
 	if (xu_getprop(cc, _CWM_GRP,  XA_STRING,
 	    (CALMWM_MAXNAMELEN - 1)/sizeof(long), &grpstr) > 0) {
-		strlcpy(group, grpstr, sizeof(group));
+		for (i = 0; i < sizeof(shortcut_to_name) /
+		    sizeof(shortcut_to_name[0]); i++) {
+			if (strcmp(shortcut_to_name[i], grpstr) == 0)
+				no = i;
+		}
 		XFree(grpstr);
 	} else {
 		TAILQ_FOREACH(aw, &Conf.autogroupq, entry) {
 			if (strcmp(aw->class, cc->app_class) == 0 &&
 			    (aw->name == NULL ||
 			    strcmp(aw->name, cc->app_name) == 0)) {
-				strlcpy(group, aw->group, sizeof(group));
+				no = aw->num;
 				break;
 			}
 		}
 	}
 
-	if (strncmp("nogroup", group, 7) == 0)
+	/* no group please */
+	if (no == 0)
 		return;
 
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
-		if (strcmp(shortcut_to_name[gc->shortcut], group) == 0) {
+		if (gc->shortcut == no) {
 			group_add(gc, cc);
 			return;
 		}
@@ -415,4 +447,79 @@ group_autogroup(struct client_ctx *cc)
 	if (Conf.flags & CONF_STICKY_GROUPS)
 		group_add(sc->group_active, cc);
 
+}
+
+void
+group_update_names(struct screen_ctx *sc)
+{
+	char		**strings, *p;
+	unsigned char	*prop_ret;
+	Atom		 type_ret;
+	int		 format_ret, i = 0, nstrings = 0, n, setnames = 0;
+	unsigned long	 bytes_after, num_ret;
+	
+	if (XGetWindowProperty(X_Dpy, sc->rootwin, _NET_DESKTOP_NAMES, 0,
+	    0xffffff, False, UTF8_STRING, &type_ret, &format_ret,
+	    &num_ret, &bytes_after, &prop_ret) == Success &&
+	    prop_ret != NULL && format_ret == 8) {
+		/* failure, just set defaults */
+		prop_ret[num_ret - 1] = '\0'; /* paranoia */
+		while (i < num_ret) {
+			if (prop_ret[i++] == '\0')
+				nstrings++;
+		}
+	}
+
+	strings = xmalloc((nstrings < CALMWM_NGROUPS ? CALMWM_NGROUPS :
+	    nstrings) * sizeof(*strings));
+
+	i = n = 0;
+	p = prop_ret;
+	while (n < nstrings) {
+		strings[n++] = xstrdup(p);
+		p += strlen(p) + 1;
+	}
+	/*
+	 * make sure we always set our defaults if nothing is there to
+	 * replace them.
+	 */
+	if (n < CALMWM_NGROUPS) {
+		setnames = 1;
+		i = 1;
+		while (n < CALMWM_NGROUPS)
+			strings[n++] = xstrdup(shortcut_to_name[i++]);
+	}
+
+	if (prop_ret != NULL)
+		XFree(prop_ret);
+	if (sc->group_nonames != 0)
+		free(sc->group_names);
+
+	sc->group_names = strings;
+	sc->group_nonames = n;
+	if (setnames)
+		group_set_names(sc);
+}
+
+static void
+group_set_names(struct screen_ctx *sc)
+{
+	unsigned char	*p, *q;
+	size_t		 len = 0, tlen, slen;
+	int		 i;
+
+	for (i = 0; i < sc->group_nonames; i++)
+		len += strlen(sc->group_names[i]) + 1;
+	q = p = xcalloc(len,  sizeof(*p));
+
+	tlen = len;
+	for (i = 0; i < sc->group_nonames; i++) {
+		slen = strlen(sc->group_names[i]) + 1;
+		strlcpy(q, sc->group_names[i], tlen);
+		tlen -= slen;
+		q += slen;
+	}
+		
+	XChangeProperty(X_Dpy, sc->rootwin, _NET_DESKTOP_NAMES,
+	    UTF8_STRING, 8, PropModeReplace, p, len);
 }

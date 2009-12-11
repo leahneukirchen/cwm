@@ -170,6 +170,7 @@ static void
 xev_handle_propertynotify(XEvent *ee)
 {
 	XPropertyEvent		*e = &ee->xproperty;
+	struct screen_ctx	*sc;
 	struct client_ctx	*cc;
 
 	if ((cc = client_find(e->window)) != NULL) {
@@ -184,7 +185,17 @@ xev_handle_propertynotify(XEvent *ee)
 			/* do nothing */
 			break;
 		}
+	} else {
+		TAILQ_FOREACH(sc, &Screenq, entry) 
+			if (sc->rootwin == e->window)
+				goto test;
+		return;
+
+test:
+		if (e->atom == _NET_DESKTOP_NAMES)
+			group_update_names(sc);
 	}
+
 }
 
 void

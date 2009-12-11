@@ -225,7 +225,6 @@ conf_clear(struct conf *c)
 		xfree(ag->class);
 		if (ag->name)
 			xfree(ag->name);
-		xfree(ag->group);
 		xfree(ag);
 	}
 
