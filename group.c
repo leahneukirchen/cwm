@@ -50,9 +50,6 @@ group_add(struct group_ctx *gc, struct client_ctx *cc)
 	if (cc->group != NULL)
 		TAILQ_REMOVE(&cc->group->clients, cc, group_entry);
 
-	XChangeProperty(X_Dpy, cc->win, _CWM_GRP, XA_STRING,
-	    8, PropModeReplace, shortcut_to_name[gc->shortcut],
-	    strlen(shortcut_to_name[gc->shortcut]));
 	XChangeProperty(X_Dpy, cc->win, _NET_WM_DESKTOP, XA_CARDINAL,
 	    32, PropModeReplace, (unsigned char *)&no, 1);
 
@@ -68,9 +65,6 @@ group_remove(struct client_ctx *cc)
 	if (cc == NULL || cc->group == NULL)
 		errx(1, "group_remove: a ctx is NULL");
 
-	XChangeProperty(X_Dpy, cc->win, _CWM_GRP, XA_STRING, 8,
-	    PropModeReplace, shortcut_to_name[0],
-	    strlen(shortcut_to_name[0]));
 	XChangeProperty(X_Dpy, cc->win, _NET_WM_DESKTOP, XA_CARDINAL,
 	    32, PropModeReplace, (unsigned char *)&no, 1);
 
@@ -418,9 +412,8 @@ group_autogroup(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	struct autogroupwin	*aw;
 	struct group_ctx	*gc;
-	int			 no = -1, i;
+	int			 no = -1;
 	long			*grpno;
-	unsigned char		*grpstr = NULL;
 
 	if (cc->app_class == NULL || cc->app_name == NULL)
 		return;
@@ -433,14 +426,6 @@ group_autogroup(struct client_ctx *cc)
 		else
 			no = *grpno + 1;
 		XFree(grpno);
-	} else if (xu_getprop(cc, _CWM_GRP,  XA_STRING,
-	    (CALMWM_MAXNAMELEN - 1)/sizeof(long), &grpstr) > 0) {
-		for (i = 0; i < sizeof(shortcut_to_name) /
-		    sizeof(shortcut_to_name[0]); i++) {
-			if (strcmp(shortcut_to_name[i], grpstr) == 0)
-				no = i;
-		}
-		XFree(grpstr);
 	} else {
 		TAILQ_FOREACH(aw, &Conf.autogroupq, entry) {
 			if (strcmp(aw->class, cc->app_class) == 0 &&

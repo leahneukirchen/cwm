@@ -522,29 +522,28 @@ extern struct conf			 Conf;
 #define WM_TAKE_FOCUS			 cwm_atoms[2]
 #define WM_PROTOCOLS			 cwm_atoms[3]
 #define _MOTIF_WM_HINTS			 cwm_atoms[4]
-#define	_CWM_GRP			 cwm_atoms[5]
-#define	UTF8_STRING			 cwm_atoms[6]
+#define	UTF8_STRING			 cwm_atoms[5]
 /*
  * please make all hints below this point netwm hints, starting with
  * _NET_SUPPORTED. If you change other hints make sure you update
  * CWM_NETWM_START
  */
-#define	_NET_SUPPORTED			 cwm_atoms[7]
-#define	_NET_SUPPORTING_WM_CHECK	 cwm_atoms[8]
-#define	_NET_WM_NAME			 cwm_atoms[9]
-#define	_NET_ACTIVE_WINDOW		 cwm_atoms[10]
-#define	_NET_CLIENT_LIST		 cwm_atoms[11]
-#define	_NET_NUMBER_OF_DESKTOPS		 cwm_atoms[12]
-#define	_NET_CURRENT_DESKTOP		 cwm_atoms[13]
-#define	_NET_DESKTOP_VIEWPORT		 cwm_atoms[14]
-#define	_NET_DESKTOP_GEOMETRY		 cwm_atoms[15]
-#define	_NET_VIRTUAL_ROOTS		 cwm_atoms[16]
-#define	_NET_SHOWING_DESKTOP		 cwm_atoms[17]
-#define	_NET_DESKTOP_NAMES		 cwm_atoms[18]
-#define _NET_WM_DESKTOP			 cwm_atoms[19]
-#define	_NET_WORKAREA			 cwm_atoms[20]
-#define CWM_NO_ATOMS			 21
-#define CWM_NETWM_START			 7
+#define	_NET_SUPPORTED			 cwm_atoms[6]
+#define	_NET_SUPPORTING_WM_CHECK	 cwm_atoms[7]
+#define	_NET_WM_NAME			 cwm_atoms[8]
+#define	_NET_ACTIVE_WINDOW		 cwm_atoms[9]
+#define	_NET_CLIENT_LIST		 cwm_atoms[10]
+#define	_NET_NUMBER_OF_DESKTOPS		 cwm_atoms[11]
+#define	_NET_CURRENT_DESKTOP		 cwm_atoms[12]
+#define	_NET_DESKTOP_VIEWPORT		 cwm_atoms[13]
+#define	_NET_DESKTOP_GEOMETRY		 cwm_atoms[14]
+#define	_NET_VIRTUAL_ROOTS		 cwm_atoms[15]
+#define	_NET_SHOWING_DESKTOP		 cwm_atoms[16]
+#define	_NET_DESKTOP_NAMES		 cwm_atoms[17]
+#define	_NET_WM_DESKTOP			 cwm_atoms[18]
+#define	_NET_WORKAREA			 cwm_atoms[19]
+#define CWM_NO_ATOMS			 20
+#define CWM_NETWM_START			 6
 
 extern Atom				 cwm_atoms[CWM_NO_ATOMS];
 
