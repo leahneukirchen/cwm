@@ -19,6 +19,8 @@
  * $Id$
  */
 
+#include <assert.h>
+
 #include "calmwm.h"
 
 static void		 group_add(struct group_ctx *, struct client_ctx *);

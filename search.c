@@ -17,6 +17,7 @@
  * $Id$
  */
 
+#include <assert.h>
 #include <fnmatch.h>
 
 #include "calmwm.h"

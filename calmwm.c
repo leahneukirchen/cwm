@@ -18,6 +18,9 @@
  * $Id$
  */
 
+#include <getopt.h>
+#include <signal.h>
+
 #include "calmwm.h"
 
 Display				*X_Dpy;

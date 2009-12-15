@@ -26,13 +26,9 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 
-#include <assert.h>
 #include <ctype.h>
 #include <err.h>
 #include <errno.h>
-#include <dirent.h>
-#include <getopt.h>
-#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

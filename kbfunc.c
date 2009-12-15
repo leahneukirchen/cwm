@@ -18,6 +18,7 @@
  * $Id$
  */
 
+#include <dirent.h>
 #include <paths.h>
 
 #include "calmwm.h"

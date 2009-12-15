@@ -18,6 +18,8 @@
  * $Id$
  */
 
+#include <assert.h>
+
 #include "calmwm.h"
 
 static struct client_ctx	*client_mrunext(struct client_ctx *);
