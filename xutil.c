@@ -18,7 +18,6 @@
  * $Id$
  */
 
-#include "headers.h"
 #include "calmwm.h"
 
 static unsigned int ign_mods[] = { 0, LockMask, Mod2Mask, Mod2Mask | LockMask };

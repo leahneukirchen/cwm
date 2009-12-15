@@ -21,6 +21,33 @@
 #ifndef _CALMWM_H_
 #define _CALMWM_H_
 
+#include <sys/param.h>
+#include <sys/queue.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
+
+#include <assert.h>
+#include <ctype.h>
+#include <err.h>
+#include <errno.h>
+#include <dirent.h>
+#include <getopt.h>
+#include <signal.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <unistd.h>
+
+#include <X11/Xatom.h>
+#include <X11/Xft/Xft.h>
+#include <X11/Xlib.h>
+#include <X11/Xproto.h>
+#include <X11/Xutil.h>
+#include <X11/cursorfont.h>
+#include <X11/extensions/Xinerama.h>
+#include <X11/extensions/Xrandr.h>
+#include <X11/keysym.h>
+
 #define CALMWM_MAXNAMELEN 256
 
 #undef MIN

@@ -24,7 +24,6 @@
  *   management of the xevent's.
  */
 
-#include "headers.h"
 #include "calmwm.h"
 
 static void	 xev_handle_maprequest(XEvent *);

@@ -19,7 +19,6 @@
  * $Id$
  */
 
-#include "headers.h"
 #include "calmwm.h"
 
 static int	mousefunc_sweep_calc(struct client_ctx *, int, int, int, int);

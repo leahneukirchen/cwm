@@ -18,7 +18,7 @@
  */
 
 #include <fnmatch.h>
-#include "headers.h"
+
 #include "calmwm.h"
 
 static int	strsubmatch(char *, char *, int);

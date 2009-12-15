@@ -18,7 +18,6 @@
  * $Id$
  */
 
-#include "headers.h"
 #include "calmwm.h"
 
 Display				*X_Dpy;

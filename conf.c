@@ -18,7 +18,6 @@
  * $Id$
  */
 
-#include "headers.h"
 #include "calmwm.h"
 
 #ifndef timespeccmp

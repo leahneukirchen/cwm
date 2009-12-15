@@ -29,7 +29,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "headers.h"
 #include "calmwm.h"
 
 TAILQ_HEAD(files, file)		 files = TAILQ_HEAD_INITIALIZER(files);

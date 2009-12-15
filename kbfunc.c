@@ -20,7 +20,6 @@
 
 #include <paths.h>
 
-#include "headers.h"
 #include "calmwm.h"
 
 #define KNOWN_HOSTS	".ssh/known_hosts"
