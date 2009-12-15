@@ -188,7 +188,6 @@ group_make_autogroup(struct conf *conf, char *class, int no)
 	aw->num = no;
 
 	TAILQ_INSERT_TAIL(&conf->autogroupq, aw, entry);
-	
 }
 
 static void
@@ -451,7 +450,6 @@ group_autogroup(struct client_ctx *cc)
 
 	if (Conf.flags & CONF_STICKY_GROUPS)
 		group_add(sc->group_active, cc);
-
 }
 
 void
@@ -515,7 +513,7 @@ group_set_names(struct screen_ctx *sc)
 
 	for (i = 0; i < sc->group_nonames; i++)
 		len += strlen(sc->group_names[i]) + 1;
-	q = p = xcalloc(len,  sizeof(*p));
+	q = p = xcalloc(len, sizeof(*p));
 
 	tlen = len;
 	for (i = 0; i < sc->group_nonames; i++) {
