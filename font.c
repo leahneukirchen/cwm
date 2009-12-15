@@ -18,6 +18,24 @@
 
 #include "calmwm.h"
 
+int
+font_ascent(struct screen_ctx *sc)
+{
+	return (sc->font->ascent);
+}
+
+int
+font_descent(struct screen_ctx *sc)
+{
+	return (sc->font->descent);
+}
+
+u_int
+font_height(struct screen_ctx *sc)
+{
+	return (sc->fontheight);
+}
+
 void
 font_init(struct screen_ctx *sc)
 {
