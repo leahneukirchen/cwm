@@ -21,19 +21,6 @@
 #ifndef _CALMWM_H_
 #define _CALMWM_H_
 
-#include <sys/param.h>
-#include <sys/queue.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-
-#include <ctype.h>
-#include <err.h>
-#include <errno.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <unistd.h>
-
 #include <X11/Xatom.h>
 #include <X11/Xft/Xft.h>
 #include <X11/Xlib.h>
