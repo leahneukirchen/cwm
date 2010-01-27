@@ -150,10 +150,10 @@ main		: FONTNAME STRING		{
 			free($3);
 		}
 		| GAP NUMBER NUMBER NUMBER NUMBER {
-			conf->gap_top = $2;
-			conf->gap_bottom = $3;
-			conf->gap_left = $4;
-			conf->gap_right = $5;
+			conf->gap.top = $2;
+			conf->gap.bottom = $3;
+			conf->gap.left = $4;
+			conf->gap.right = $5;
 		}
 		| MOUSEBIND STRING string	{
 			conf_mousebind(conf, $2, $3);
@@ -522,6 +522,7 @@ parse_config(const char *filename, struct conf *xconf)
 		xconf->flags = conf->flags;
 		xconf->bwidth = conf->bwidth;
 		xconf->mamount = conf->mamount;
+		xconf->gap = conf->gap;
 
 		while ((cmd = TAILQ_FIRST(&conf->cmdq)) != NULL) {
 			TAILQ_REMOVE(&conf->cmdq, cmd, entry);
@@ -557,8 +558,6 @@ parse_config(const char *filename, struct conf *xconf)
 			xconf->color[i].name = conf->color[i].name;
 
 		xconf->DefaultFontName = conf->DefaultFontName;
-
-		bcopy(&(conf->gap_top), &(xconf->gap_top), sizeof(int) * 4);
 	}
 
 	free(conf);

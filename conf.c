@@ -61,6 +61,12 @@ conf_cmd_add(struct conf *c, char *image, char *label, int flags)
 }
 
 void
+conf_gap(struct conf *c, struct screen_ctx *sc)
+{
+	sc->gap = c->gap;
+}
+
+void
 conf_font(struct conf *c, struct screen_ctx *sc)
 {
 	sc->font = font_make(sc, c->DefaultFontName);
@@ -92,6 +98,7 @@ conf_reload(struct conf *c)
 	TAILQ_FOREACH(cc, &Clientq, entry)
 		client_draw_border(cc);
 	TAILQ_FOREACH(sc, &Screenq, entry) {
+		conf_gap(c, sc);
 		conf_color(c, sc);
 		conf_font(c, sc);
 	}

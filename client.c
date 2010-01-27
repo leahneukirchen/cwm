@@ -294,10 +294,10 @@ client_maximize(struct client_ctx *cc)
 			ymax = xine->height;
 		}
 calc:
-		cc->geom.x = x_org + Conf.gap_left;
-		cc->geom.y = y_org + Conf.gap_top;
-		cc->geom.height = ymax - (Conf.gap_top + Conf.gap_bottom);
-		cc->geom.width = xmax - (Conf.gap_left + Conf.gap_right);
+		cc->geom.x = x_org + sc->gap.left;
+		cc->geom.y = y_org + sc->gap.top;
+		cc->geom.height = ymax - (sc->gap.top + sc->gap.bottom);
+		cc->geom.width = xmax - (sc->gap.left + sc->gap.right);
 		cc->flags |= CLIENT_DOMAXIMIZE;
 	}
 
@@ -326,9 +326,9 @@ client_vertmaximize(struct client_ctx *cc)
 			ymax = xine->height;
 		}
 calc:
-		cc->geom.y = y_org + Conf.gap_top;
-		cc->geom.height = ymax - (cc->bwidth * 2) - (Conf.gap_top +
-		    Conf.gap_bottom);
+		cc->geom.y = y_org + sc->gap.top;
+		cc->geom.height = ymax - (cc->bwidth * 2) - (sc->gap.top +
+		    sc->gap.bottom);
 		cc->flags |= CLIENT_DOVMAXIMIZE;
 	}
 
@@ -357,9 +357,9 @@ client_horizmaximize(struct client_ctx *cc)
 			xmax = xine->width;
 		}
 calc:
-		cc->geom.x = x_org + Conf.gap_left;
-		cc->geom.width = xmax - (cc->bwidth * 2) - (Conf.gap_left +
-		    Conf.gap_right);
+		cc->geom.x = x_org + sc->gap.left;
+		cc->geom.width = xmax - (cc->bwidth * 2) - (sc->gap.left +
+		    sc->gap.right);
 		cc->flags |= CLIENT_DOHMAXIMIZE;
 	}
 
@@ -672,21 +672,21 @@ noxine:
 
 		if (xslack >= xorig) {
 			cc->geom.x = MAX(MIN(xmouse, xslack),
-			    xorig + Conf.gap_left);
-			if (cc->geom.x > (xslack - Conf.gap_right))
-				cc->geom.x -= Conf.gap_right;
+			    xorig + sc->gap.left);
+			if (cc->geom.x > (xslack - sc->gap.right))
+				cc->geom.x -= sc->gap.right;
 		} else {
-			cc->geom.x = xorig + Conf.gap_left;
-			cc->geom.width = xmax - Conf.gap_left;
+			cc->geom.x = xorig + sc->gap.left;
+			cc->geom.width = xmax - sc->gap.left;
 		}
 		if (yslack >= yorig) {
 			cc->geom.y = MAX(MIN(ymouse, yslack),
-			    yorig + Conf.gap_top);
-			if (cc->geom.y > (yslack - Conf.gap_bottom))
-				cc->geom.y -= Conf.gap_bottom;
+			    yorig + sc->gap.top);
+			if (cc->geom.y > (yslack - sc->gap.bottom))
+				cc->geom.y -= sc->gap.bottom;
 		} else {
-			cc->geom.y = yorig + Conf.gap_top;
-			cc->geom.height = ymax - Conf.gap_top;
+			cc->geom.y = yorig + sc->gap.top;
+			cc->geom.height = ymax - sc->gap.top;
 		}
 	}
 }
