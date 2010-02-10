@@ -320,6 +320,7 @@ struct menu {
 	char			 print[MENU_MAXENTRY + 1];
 	void			*ctx;
 	short			 dummy;
+	short			 abort;
 };
 
 TAILQ_HEAD(menu_q, menu);

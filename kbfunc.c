@@ -400,19 +400,19 @@ kbfunc_client_label(struct client_ctx *cc, union arg *arg)
 {
 	struct menu	*mi;
 	struct menu_q	 menuq;
-	char		*current;
 
 	TAILQ_INIT(&menuq);
 
-	current = cc->label;
+	/* dummy is set, so this will always return */
+	mi = menu_filter(cc->sc, &menuq, "label", cc->label, 1,
+	    search_match_text, NULL);
 
-	if ((mi = menu_filter(cc->sc, &menuq, "label", current, 1,
-	    search_match_text, NULL)) != NULL) {
+	if (!mi->abort) {
 		if (cc->label != NULL)
 			xfree(cc->label);
 		cc->label = xstrdup(mi->text);
-		xfree(mi);
 	}
+	xfree(mi);
 }
 
 void

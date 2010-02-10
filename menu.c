@@ -223,6 +223,7 @@ menu_handle_key(XEvent *e, struct menu_ctx *mc, struct menu_q *menuq,
 			    mc->searchstr, sizeof(mi->text));
 			mi->dummy = 1;
 		}
+		mi->abort = 0;
 		return (mi);
 	case CTL_WIPE:
 		mc->searchstr[0] = '\0';
@@ -235,6 +236,7 @@ menu_handle_key(XEvent *e, struct menu_ctx *mc, struct menu_q *menuq,
 		mi = xmalloc(sizeof *mi);
 		mi->text[0] = '\0';
 		mi->dummy = 1;
+		mi->abort = 1;
 		return (mi);
 	default:
 		break;
