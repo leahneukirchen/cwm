@@ -21,6 +21,10 @@
 #ifndef _CALMWM_H_
 #define _CALMWM_H_
 
+/* ugly stuff */
+#define TAILQ_END(head) NULL
+#define __dead
+
 #include <X11/Xatom.h>
 #include <X11/Xft/Xft.h>
 #include <X11/Xlib.h>
