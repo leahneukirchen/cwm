@@ -119,29 +119,29 @@ xu_key_ungrab(Window win, int mask, int keysym)
 }
 
 void
-xu_sendmsg(struct client_ctx *cc, Atom atm, long val)
+xu_sendmsg(Window win, Atom atm, long val)
 {
 	XEvent	 e;
 
 	memset(&e, 0, sizeof(e));
 	e.xclient.type = ClientMessage;
-	e.xclient.window = cc->win;
+	e.xclient.window = win;
 	e.xclient.message_type = atm;
 	e.xclient.format = 32;
 	e.xclient.data.l[0] = val;
 	e.xclient.data.l[1] = CurrentTime;
 
-	XSendEvent(X_Dpy, cc->win, False, 0, &e);
+	XSendEvent(X_Dpy, win, False, 0, &e);
 }
 
 int
-xu_getprop(struct client_ctx *cc, Atom atm, Atom type, long len, u_char **p)
+xu_getprop(Window win, Atom atm, Atom type, long len, u_char **p)
 {
 	Atom	 realtype;
 	u_long	 n, extra;
 	int	 format;
 
-	if (XGetWindowProperty(X_Dpy, cc->win, atm, 0L, len, False, type,
+	if (XGetWindowProperty(X_Dpy, win, atm, 0L, len, False, type,
 	    &realtype, &format, &n, &extra, p) != Success || *p == NULL)
 		return (-1);
 
@@ -156,7 +156,7 @@ xu_getstate(struct client_ctx *cc, int *state)
 {
 	long	*p = NULL;
 
-	if (xu_getprop(cc, WM_STATE, WM_STATE, 2L, (u_char **)&p) <= 0)
+	if (xu_getprop(cc->win, WM_STATE, WM_STATE, 2L, (u_char **)&p) <= 0)
 		return (-1);
 
 	*state = (int)*p;
