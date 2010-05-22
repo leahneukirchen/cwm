@@ -152,6 +152,38 @@ xu_getprop(Window win, Atom atm, Atom type, long len, u_char **p)
 }
 
 int
+xu_getstrprop(Window win, Atom atm, char **text) {
+	XTextProperty	 prop;
+	char		**list;
+	int		 nitems = 0;
+
+	*text = NULL;
+
+	XGetTextProperty(X_Dpy, win, &prop, atm);
+	if (!prop.nitems)
+		return (0);
+
+	if (Xutf8TextPropertyToTextList(X_Dpy, &prop, &list,
+	    &nitems) == Success && nitems > 0 && *list) {
+		if (nitems > 1) {
+			XTextProperty    prop2;
+			if (Xutf8TextListToTextProperty(X_Dpy, list, nitems,
+			    XUTF8StringStyle, &prop2) == Success) {
+				*text = xstrdup(prop2.value);
+				XFree(prop2.value);
+			}
+		} else {
+			*text = xstrdup(*list);
+		}
+		XFreeStringList(list);
+	}
+
+	XFree(prop.value);
+
+	return (nitems);
+}
+
+int
 xu_getstate(struct client_ctx *cc, int *state)
 {
 	long	*p = NULL;

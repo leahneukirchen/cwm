@@ -183,7 +183,7 @@ client_delete(struct client_ctx *cc)
 	while ((wn = TAILQ_FIRST(&cc->nameq)) != NULL) {
 		TAILQ_REMOVE(&cc->nameq, wn, entry);
 		if (wn->name != emptystring)
-			XFree(wn->name);
+			xfree(wn->name);
 		xfree(wn);
 	}
 
@@ -523,7 +523,8 @@ client_setname(struct client_ctx *cc)
 	struct winname	*wn;
 	char		*newname;
 
-	XFetchName(X_Dpy, cc->win, &newname);
+	if (!xu_getstrprop(cc->win, _NET_WM_NAME, &newname))
+		xu_getstrprop(cc->win, XA_WM_NAME, &newname);
 	if (newname == NULL)
 		newname = emptystring;
 
@@ -549,7 +550,7 @@ match:
 		assert(wn != NULL);
 		TAILQ_REMOVE(&cc->nameq, wn, entry);
 		if (wn->name != emptystring)
-			XFree(wn->name);
+			xfree(wn->name);
 		xfree(wn);
 		cc->nameqlen--;
 	}
