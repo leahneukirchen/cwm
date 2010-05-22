@@ -155,7 +155,7 @@ int
 xu_getstrprop(Window win, Atom atm, char **text) {
 	XTextProperty	 prop;
 	char		**list;
-	int		 nitems;
+	int		 nitems = 0;
 
 	*text = NULL;
 
