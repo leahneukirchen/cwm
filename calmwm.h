@@ -401,7 +401,7 @@ void			 xu_key_grab(Window, int, int);
 void			 xu_key_ungrab(Window, int, int);
 void			 xu_sendmsg(Window, Atom, long);
 int			 xu_getprop(Window, Atom, Atom, long, u_char **);
-char			*xu_getstrprop(struct client_ctx *, Atom atm);
+int			 xu_getstrprop(Window, Atom, char **);
 void			 xu_setstate(struct client_ctx *, int);
 int			 xu_getstate(struct client_ctx *, int *);
 unsigned long		 xu_getcolor(struct screen_ctx *, char *);
