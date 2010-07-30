@@ -14,7 +14,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
-.Dd $Mdocdate: March 20 2010 $
+.Dd $Mdocdate: July 23 2010 $
 .Dt CWMRC 5
 .Os
 .Sh NAME
@@ -27,8 +27,8 @@ configuration file.
 The following options are accepted in the configuration file:
 .Pp
 .Bl -tag -width Ds -compact
-.It Ic autogroup Ar group windowclass
-.It Ic autogroup Ar group windowclass,windowname
+.It Ic autogroup Ar group windowname
+.It Ic autogroup Ar group windowname,windowclass
 Control automatic window grouping, based on the class and/or name
 properties, where
 .Ar group
@@ -206,8 +206,8 @@ command xmms		xmms
 command top		"xterm -e top"
 
 # Autogroup definitions
-autogroup 3 "XTerm,aterm"
-autogroup 3 "XTerm,xterm"
+autogroup 3 "aterm,XTerm"
+autogroup 3 "xterm,XTerm"
 
 # Ignore programs by that name by not drawing borders around them.
 ignore XMMS

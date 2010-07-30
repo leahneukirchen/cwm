@@ -188,11 +188,12 @@ group_make_autogroup(struct conf *conf, char *class, int no)
 
 	if ((p = strchr(class, ',')) == NULL) {
 		aw->name = NULL;
+		aw->class = xstrdup(class);
 	} else {
 		*(p++) = '\0';
-		aw->name = xstrdup(p);
+		aw->name = xstrdup(class);
+		aw->class = xstrdup(p);
 	}
-	aw->class = xstrdup(class);
 	aw->num = no;
 
 	TAILQ_INSERT_TAIL(&conf->autogroupq, aw, entry);
