@@ -78,11 +78,7 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 				}
 		}
 
-		/*
-		 * See if there is a match on the window class
-		 * name.
-		 */
-
+		/* Then if there is a match on the window class name. */
 		if (tier < 0 && strsubmatch(search, cc->app_class, 0)) {
 			cc->matchname = cc->app_class;
 			tier = 3;
@@ -99,9 +95,7 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 		if (cc == client_current() && tier < ntiers - 1)
 			tier++;
 
-		/*
-		 * Clients that are hidden get ranked one up.
-		 */
+		/* Clients that are hidden get ranked one up. */
 		if (cc->flags & CLIENT_HIDDEN && tier > 0)
 			tier--;
 
@@ -114,7 +108,6 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 		 * Always make your current tierp the newly inserted
 		 * entry.
 		 */
-
 		for (t = tier; t >= 0 && ((before = tierp[t]) == NULL); t--)
 			;
 
