@@ -36,7 +36,7 @@ clean:
 	rm -rf $(OBJS) $(PROG) y.tab.c
 
 y.tab.c: parse.y
-	byacc parse.y
+	yacc parse.y
 
 
 $(PROG): $(OBJS) y.tab.o
