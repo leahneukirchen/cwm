@@ -14,7 +14,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
-.Dd $Mdocdate: July 23 2010 $
+.Dd $Mdocdate: September 25 2010 $
 .Dt CWMRC 5
 .Os
 .Sh NAME
@@ -29,7 +29,7 @@ The following options are accepted in the configuration file:
 .Bl -tag -width Ds -compact
 .It Ic autogroup Ar group windowname
 .It Ic autogroup Ar group windowname,windowclass
-Control automatic window grouping, based on the class and/or name
+Control automatic window grouping, based on the name and/or class
 properties, where
 .Ar group
 is a number between 0 and 9.
@@ -38,7 +38,7 @@ allow for
 .Dq sticky
 windows in sticky group mode.
 .Pp
-The class and name of a window may be obtained using
+The name and class of a window may be obtained using
 .Xr xprop 1 .
 .Pp
 .It Ic bind Ar keys command
@@ -138,7 +138,7 @@ can be used for applications such as
 where the user may wish to remain visible.
 .Pp
 .It Ic ignore Ar windowname
-Ignore windows with the name
+Ignore, and do not warp to, windows with the name
 .Ar windowname
 when drawing borders and cycling through windows.
 .Pp
@@ -147,7 +147,7 @@ Cause the creation of a mouse binding, or replacement of a default
 mouse binding.
 The modifier keys come first, followed by a
 .Sq - .
-.Pb
+.Pp
 The following modifiers are recognised:
 .Pp
 .Bl -tag -width Ds -offset indent -compact
@@ -164,7 +164,7 @@ The Mod4 key (normally the windows key).
 The
 .Sq -
 should be followed by number:
-.Pb
+.Pp
 .Bl -tag -width Ds -offset indent -compact
 .It 1
 Left mouse button.
