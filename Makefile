@@ -19,7 +19,7 @@ X11BASE=	/usr
 
 CPPFLAGS+=	-I${X11BASE}/include -I${X11BASE}/include/freetype2 -I.
 
-CFLAGS+=	-Wall
+CFLAGS+=	-Wall -O2 -g
 
 LDADD+=		-L${X11BASE}/lib -lXft -lXrender -lX11 -lXau -lXdmcp \
 		-lfontconfig -lexpat -lfreetype -lz -lXinerama -lXrandr -lXext
