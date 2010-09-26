@@ -24,6 +24,10 @@
 /* ugly stuff */
 #define TAILQ_END(head) NULL
 #define __dead
+char *fgetln(FILE *, size_t *);
+long long strtonum(const char *, long long, long long, const char **);
+size_t strlcpy(char *, const char *, size_t);
+size_t strlcat(char *, const char *, size_t);
 
 #include <X11/Xatom.h>
 #include <X11/Xft/Xft.h>
