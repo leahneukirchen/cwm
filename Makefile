@@ -21,7 +21,7 @@ CPPFLAGS+=	-I${X11BASE}/include -I${X11BASE}/include/freetype2 -I.
 
 CFLAGS+=	-Wall -O2 -g
 
-LDADD+=		-L${X11BASE}/lib -lXft -lXrender -lX11 -lXau -lXdmcp \
+LDADD+=		-L${X11BASE}/lib -lXft -lXrender -lX11 ${LIBXCB} -lXau -lXdmcp \
 		-lfontconfig -lexpat -lfreetype -lz -lXinerama -lXrandr -lXext
 
 MANDIR=		${X11BASE}/man/cat

@@ -157,8 +157,8 @@ mousefunc_window_move(struct client_ctx *cc, void *arg)
 			client_draw_border(cc);
 			break;
 		case MotionNotify:
-			cc->geom.x = ev.xmotion.x_root - px;
-			cc->geom.y = ev.xmotion.y_root - py;
+			cc->geom.x = ev.xmotion.x_root - px - cc->bwidth;
+			cc->geom.y = ev.xmotion.y_root - py - cc->bwidth;
 
 			/* don't sync more than 60 times / second */
 			if ((ev.xmotion.time - time) > (1000 / 60)) {
