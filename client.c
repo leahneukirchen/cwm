@@ -435,6 +435,9 @@ client_ptrsave(struct client_ctx *cc)
 	if (client_inbound(cc, x, y)) {
 		cc->ptr.x = x;
 		cc->ptr.y = y;
+	} else {
+		cc->ptr.x = -1;
+		cc->ptr.y = -1;
 	}
 }
 
