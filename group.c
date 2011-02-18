@@ -108,6 +108,11 @@ group_show(struct screen_ctx *sc, struct group_ctx *gc)
 	u_int			 i;
 	int			 lastempty = -1;
 
+	gc->highstack = 0;
+	TAILQ_FOREACH(cc, &gc->clients, group_entry) {
+		if (cc->stackingorder > gc->highstack)
+			gc->highstack = cc->stackingorder;
+	}
 	winlist = (Window *) xcalloc(sizeof(*winlist), (gc->highstack + 1));
 
 	/*
