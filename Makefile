@@ -11,11 +11,8 @@ SRCS=		calmwm.c screen.c xmalloc.c client.c menu.c \
 CPPFLAGS+=	-I${X11BASE}/include -I${X11BASE}/include/freetype2 -I${.CURDIR}
 
 CFLAGS+=	-Wall
-.if ${XENOCARA_BUILD_XCB:L} != "no"
-LIBXCB=		-lxcb
-.endif
 
-LDADD+=		-L${X11BASE}/lib -lXft -lXrender -lX11 ${LIBXCB} -lXau -lXdmcp \
+LDADD+=		-L${X11BASE}/lib -lXft -lXrender -lX11 -lxcb -lXau -lXdmcp \
 		-lfontconfig -lexpat -lfreetype -lz -lXinerama -lXrandr -lXext
 
 MANDIR=		${X11BASE}/man/cat
