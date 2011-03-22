@@ -150,8 +150,6 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
 		XWindowEvent(X_Dpy, sc->menuwin, evmask, &e);
 
 		switch (e.type) {
-		default:
-			break;
 		case KeyPress:
 			if ((mi = menu_handle_key(&e, &mc, menuq, &resultq))
 			    != NULL)
@@ -167,6 +165,8 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
 			if ((mi = menu_handle_release(&e, &mc, sc, &resultq))
 			    != NULL)
 				goto out;
+			break;
+		default:
 			break;
 		}
 	}
