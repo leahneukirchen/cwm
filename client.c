@@ -396,6 +396,11 @@ client_resize(struct client_ctx *cc)
 void
 client_move(struct client_ctx *cc)
 {
+	if (cc->flags & CLIENT_VMAXIMIZED)
+		cc->savegeom.x = cc->geom.x;
+	if (cc->flags & CLIENT_HMAXIMIZED)
+		cc->savegeom.y = cc->geom.y;
+
 	XMoveWindow(X_Dpy, cc->win, cc->geom.x, cc->geom.y);
 	xu_configure(cc);
 }
