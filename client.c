@@ -114,7 +114,7 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	XAddToSaveSet(X_Dpy, cc->win);
 
 	/* Notify client of its configuration. */
-	xev_reconfig(cc);
+	xu_configure(cc);
 
 	(state == IconicState) ? client_hide(cc) : client_unhide(cc);
 	xu_setstate(cc, cc->state);
@@ -390,14 +390,14 @@ client_resize(struct client_ctx *cc)
 
 	XMoveResizeWindow(X_Dpy, cc->win, cc->geom.x,
 	    cc->geom.y, cc->geom.width, cc->geom.height);
-	xev_reconfig(cc);
+	xu_configure(cc);
 }
 
 void
 client_move(struct client_ctx *cc)
 {
 	XMoveWindow(X_Dpy, cc->win, cc->geom.x, cc->geom.y);
-	xev_reconfig(cc);
+	xu_configure(cc);
 }
 
 void

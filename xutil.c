@@ -119,6 +119,25 @@ xu_key_ungrab(Window win, int mask, int keysym)
 }
 
 void
+xu_configure(struct client_ctx *cc)
+{
+	XConfigureEvent	 ce;
+
+	ce.type = ConfigureNotify;
+	ce.event = cc->win;
+	ce.window = cc->win;
+	ce.x = cc->geom.x;
+	ce.y = cc->geom.y;
+	ce.width = cc->geom.width;
+	ce.height = cc->geom.height;
+	ce.border_width = cc->bwidth;
+	ce.above = None;
+	ce.override_redirect = 0;
+
+	XSendEvent(X_Dpy, cc->win, False, StructureNotifyMask, (XEvent *)&ce);
+}
+
+void
 xu_sendmsg(Window win, Atom atm, long val)
 {
 	XEvent	 e;

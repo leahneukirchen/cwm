@@ -375,9 +375,6 @@ struct menu  		*menu_filter(struct screen_ctx *, struct menu_q *,
 			     void (*)(struct menu *, int));
 void			 menu_init(struct screen_ctx *);
 
-/* XXX should be xu_ */
-void			  xev_reconfig(struct client_ctx *);
-
 void			 xev_loop(void);
 
 void			 xu_getatoms(void);
@@ -390,6 +387,7 @@ void			 xu_ptr_setpos(Window, int, int);
 void			 xu_ptr_getpos(Window, int *, int *);
 void			 xu_key_grab(Window, int, int);
 void			 xu_key_ungrab(Window, int, int);
+void			 xu_configure(struct client_ctx *);
 void			 xu_sendmsg(Window, Atom, long);
 int			 xu_getprop(Window, Atom, Atom, long, u_char **);
 int			 xu_getstrprop(Window, Atom, char **);
