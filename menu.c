@@ -30,6 +30,12 @@
 #define PROMPT_SCHAR	'»'
 #define PROMPT_ECHAR	'«'
 
+enum ctltype {
+	CTL_NONE = -1,
+	CTL_ERASEONE = 0, CTL_WIPE, CTL_UP, CTL_DOWN, CTL_RETURN,
+	CTL_ABORT, CTL_ALL
+};
+
 struct menu_ctx {
 	char			 searchstr[MENU_MAXENTRY + 1];
 	char			 dispstr[MENU_MAXENTRY*2 + 1];
@@ -58,6 +64,8 @@ static void		 menu_draw(struct screen_ctx *, struct menu_ctx *,
 			     struct menu_q *, struct menu_q *);
 static int		 menu_calc_entry(struct screen_ctx *, struct menu_ctx *,
 			     int, int);
+static int		 menu_keycode(KeyCode, u_int, enum ctltype *,
+                             char *);
 
 void
 menu_init(struct screen_ctx *sc)
@@ -185,8 +193,7 @@ menu_handle_key(XEvent *e, struct menu_ctx *mc, struct menu_q *menuq,
 	char		 chr;
 	size_t		 len;
 
-	if (input_keycodetrans(e->xkey.keycode, e->xkey.state,
-	    &ctl, &chr) < 0)
+	if (menu_keycode(e->xkey.keycode, e->xkey.state, &ctl, &chr) < 0)
 		return (NULL);
 
 	switch (ctl) {
@@ -415,4 +422,90 @@ menu_calc_entry(struct screen_ctx *sc, struct menu_ctx *mc, int x, int y)
 		entry = -1;
 
 	return (entry);
+}
+
+static int
+menu_keycode(KeyCode kc, u_int state, enum ctltype *ctl, char *chr)
+{
+	int	 ks;
+
+	*ctl = CTL_NONE;
+	*chr = '\0';
+
+	ks = XKeycodeToKeysym(X_Dpy, kc, (state & ShiftMask) ? 1 : 0);
+
+	/* Look for control characters. */
+	switch (ks) {
+	case XK_BackSpace:
+		*ctl = CTL_ERASEONE;
+		break;
+	case XK_Return:
+		*ctl = CTL_RETURN;
+		break;
+	case XK_Up:
+		*ctl = CTL_UP;
+		break;
+	case XK_Down:
+		*ctl = CTL_DOWN;
+		break;
+	case XK_Escape:
+		*ctl = CTL_ABORT;
+		break;
+	}
+
+	if (*ctl == CTL_NONE && (state & ControlMask)) {
+		switch (ks) {
+		case XK_s:
+		case XK_S:
+			/* Emacs "next" */
+			*ctl = CTL_DOWN;
+			break;
+		case XK_r:
+		case XK_R:
+			/* Emacs "previous" */
+			*ctl = CTL_UP;
+			break;
+		case XK_u:
+		case XK_U:
+			*ctl = CTL_WIPE;
+			break;
+		case XK_h:
+		case XK_H:
+			*ctl = CTL_ERASEONE;
+			break;
+		case XK_a:
+		case XK_A:
+			*ctl = CTL_ALL;
+			break;
+		}
+	}
+
+	if (*ctl == CTL_NONE && (state & Mod1Mask)) {
+		switch (ks) {
+		case XK_j:
+		case XK_J:
+			/* Vi "down" */
+			*ctl = CTL_DOWN;
+			break;
+		case XK_k:
+		case XK_K:
+			/* Vi "up" */
+			*ctl = CTL_UP;
+			break;
+		}
+	}
+
+	if (*ctl != CTL_NONE)
+		return (0);
+
+	/*
+	 * For regular characters, only (part of, actually) Latin 1
+	 * for now.
+	 */
+	if (ks < 0x20 || ks > 0x07e)
+		return (-1);
+
+	*chr = (char)ks;
+
+	return (0);
 }

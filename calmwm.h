@@ -325,12 +325,6 @@ struct menu {
 
 TAILQ_HEAD(menu_q, menu);
 
-enum ctltype {
-	CTL_NONE = -1,
-	CTL_ERASEONE = 0, CTL_WIPE, CTL_UP, CTL_DOWN, CTL_RETURN,
-	CTL_ABORT, CTL_ALL
-};
-
 /* MWM hints */
 
 struct mwm_hints {
@@ -345,9 +339,6 @@ struct mwm_hints {
 #define	MWM_HINTS_DECORATIONS	(1 << 1)
 #define	MWM_DECOR_ALL		(1 << 0)
 #define	MWM_DECOR_BORDER	(1 << 1)
-
-int			 input_keycodetrans(KeyCode, u_int, enum ctltype *,
-			     char *);
 
 __dead void		 usage(void);
 
