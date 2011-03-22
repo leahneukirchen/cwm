@@ -97,12 +97,16 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
 	XEvent			 e;
 	Window			 focuswin;
 	int			 evmask, focusrevert;
+	int			 xsave, ysave, xcur, ycur;
 
 	TAILQ_INIT(&resultq);
 
 	bzero(&mc, sizeof(mc));
 
 	xu_ptr_getpos(sc->rootwin, &mc.x, &mc.y);
+
+	xsave = mc.x;
+	ysave = mc.y;
 
 	if (prompt == NULL) {
 		evmask = MenuMask;
@@ -177,6 +181,10 @@ out:
 	}
 
 	XSetInputFocus(X_Dpy, focuswin, focusrevert, CurrentTime);
+	/* restore if user didn't move */
+	xu_ptr_getpos(sc->rootwin, &xcur, &ycur);
+	if (xcur == mc.x && ycur == mc.y)
+		xu_ptr_setpos(sc->rootwin, xsave, ysave);
 	xu_ptr_ungrab();
 
 	XUnmapWindow(X_Dpy, sc->menuwin);
