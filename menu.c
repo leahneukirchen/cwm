@@ -356,7 +356,7 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 		n++;
 	}
 
-	if (mc->hasprompt && n > 1)
+	if (mc->hasprompt && n > 1 && (mc->searchstr[0] != '\0'))
 		XFillRectangle(X_Dpy, sc->menuwin, sc->gc,
 		    0, font_height(sc), mc->width, font_height(sc));
 
