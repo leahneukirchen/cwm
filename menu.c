@@ -171,12 +171,13 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
 		}
 	}
 out:
-	if (dummy == 0 && mi->dummy) { /* no match */
-		xfree (mi);
+	if (dummy == 0 && mi->dummy) { /* no mouse based match */
+		xfree(mi);
 		mi = NULL;
-		xu_ptr_ungrab();
-		XSetInputFocus(X_Dpy, focuswin, focusrevert, CurrentTime);
 	}
+
+	XSetInputFocus(X_Dpy, focuswin, focusrevert, CurrentTime);
+	xu_ptr_ungrab();
 
 	XUnmapWindow(X_Dpy, sc->menuwin);
 	XUngrabKeyboard(X_Dpy, CurrentTime);
@@ -390,7 +391,6 @@ menu_handle_release(XEvent *e, struct menu_ctx *mc, struct screen_ctx *sc,
 	int		 entry, i = 0;
 
 	entry = menu_calc_entry(sc, mc, e->xbutton.x, e->xbutton.y);
-	xu_ptr_ungrab();
 
 	if (mc->hasprompt)
 		i = 1;
