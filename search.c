@@ -42,9 +42,6 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 {
 	struct winname	*wn;
 	struct menu	*mi, *tierp[4], *before = NULL;
-	int		 ntiers;
-
-	ntiers = sizeof(tierp) / sizeof(tierp[0]);
 
 	TAILQ_INIT(resultq);
 
@@ -92,14 +89,14 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 		 * window.  Furthermore, this is denoted by a "!" when
 		 * printing the window name in the search menu.
 		 */
-		if (cc == client_current() && tier < ntiers - 1)
+		if (cc == client_current() && tier < nitems(tierp) - 1)
 			tier++;
 
 		/* Clients that are hidden get ranked one up. */
 		if (cc->flags & CLIENT_HIDDEN && tier > 0)
 			tier--;
 
-		assert(tier < ntiers);
+		assert(tier < nitems(tierp));
 
 		/*
 		 * If you have a tierp, insert after it, and make it

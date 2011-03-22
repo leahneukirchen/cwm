@@ -191,10 +191,10 @@ conf_init(struct conf *c)
 	TAILQ_INIT(&c->autogroupq);
 	TAILQ_INIT(&c->mousebindingq);
 
-	for (i = 0; i < sizeof(kb_binds) / sizeof(kb_binds[0]); i++)
+	for (i = 0; i < nitems(kb_binds); i++)
 		conf_bindname(c, kb_binds[i].key, kb_binds[i].func);
 
-	for (i = 0; i < sizeof(m_binds) / sizeof(m_binds[0]); i++)
+	for (i = 0; i < nitems(m_binds); i++)
 		conf_mousebind(c, m_binds[i].key, m_binds[i].func);
 
 	/* Default term/lock */
@@ -467,8 +467,7 @@ conf_bindname(struct conf *c, char *name, char *binding)
 	current_binding = xcalloc(1, sizeof(*current_binding));
 
 	if ((substring = strchr(name, '-')) != NULL) {
-		for (iter = 0; iter < (sizeof(bind_mods) /
-		    sizeof(bind_mods[0])); iter++) {
+		for (iter = 0; iter < nitems(bind_mods); iter++) {
 			if ((tmp = strchr(name, bind_mods[iter].chr)) !=
 			    NULL && tmp < substring) {
 				current_binding->modmask |=
@@ -573,8 +572,7 @@ conf_mousebind(struct conf *c, char *name, char *binding)
 	current_binding = xcalloc(1, sizeof(*current_binding));
 
 	if ((substring = strchr(name, '-')) != NULL) {
-		for (iter = 0; iter < (sizeof(bind_mods) /
-		    sizeof(bind_mods[0])); iter++) {
+		for (iter = 0; iter < nitems(bind_mods); iter++) {
 			if ((tmp = strchr(name, bind_mods[iter].chr)) !=
 			    NULL && tmp < substring) {
 				current_binding->modmask |=

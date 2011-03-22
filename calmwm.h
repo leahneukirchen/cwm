@@ -51,6 +51,10 @@
 			PointerMotionMask)
 #define SearchMask	(KeyPressMask|ExposureMask)
 
+#ifndef nitems
+#define nitems(_a) (sizeof((_a)) / sizeof((_a)[0]))
+#endif
+
 enum cwmcolor {
 	CWM_COLOR_BORDOR_ACTIVE,
 	CWM_COLOR_BORDER_INACTIVE,

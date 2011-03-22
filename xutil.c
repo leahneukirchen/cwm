@@ -57,7 +57,7 @@ void
 xu_btn_grab(Window win, int mask, u_int btn)
 {
 	int	i;
-	for (i = 0; i < sizeof(ign_mods)/sizeof(*ign_mods); i++)
+	for (i = 0; i < nitems(ign_mods); i++)
 		XGrabButton(X_Dpy, btn, (mask | ign_mods[i]), win,
 		    False, ButtonMask, GrabModeAsync,
 		    GrabModeSync, None, None);
@@ -67,7 +67,7 @@ void
 xu_btn_ungrab(Window win, int mask, u_int btn)
 {
 	int	i;
-	for (i = 0; i < sizeof(ign_mods)/sizeof(*ign_mods); i++)
+	for (i = 0; i < nitems(ign_mods); i++)
 		XUngrabButton(X_Dpy, btn, (mask | ign_mods[i]), win);
 }
 
@@ -98,7 +98,7 @@ xu_key_grab(Window win, int mask, int keysym)
 	    (XKeycodeToKeysym(X_Dpy, code, 1) == keysym))
 		mask |= ShiftMask;
 
-	for (i = 0; i < sizeof(ign_mods)/sizeof(*ign_mods); i++)
+	for (i = 0; i < nitems(ign_mods); i++)
 		XGrabKey(X_Dpy, code, (mask | ign_mods[i]), win,
 		    True, GrabModeAsync, GrabModeAsync);
 }
@@ -114,7 +114,7 @@ xu_key_ungrab(Window win, int mask, int keysym)
 	    (XKeycodeToKeysym(X_Dpy, code, 1) == keysym))
 		mask |= ShiftMask;
 
-	for (i = 0; i < sizeof(ign_mods)/sizeof(*ign_mods); i++)
+	for (i = 0; i < nitems(ign_mods); i++)
 		XUngrabKey(X_Dpy, code, (mask | ign_mods[i]), win);
 }
 
