@@ -807,8 +807,6 @@ static void
 client_gethints(struct client_ctx *cc)
 {
 	XClassHint		 xch;
-	int			 argc;
-	char			**argv;
 	struct mwm_hints	*mwmh;
 
 	if (XGetClassHint(X_Dpy, cc->win, &xch)) {
@@ -824,29 +822,6 @@ client_gethints(struct client_ctx *cc)
 		    !(mwmh->decorations & MWM_DECOR_ALL) &&
 		    !(mwmh->decorations & MWM_DECOR_BORDER))
 			cc->bwidth = 0;
-	if (XGetCommand(X_Dpy, cc->win, &argv, &argc)) {
-#define MAX_ARGLEN 512
-#define ARG_SEP_ " "
-		int	 i, o, len = MAX_ARGLEN;
-		char	*buf;
-
-		buf = xmalloc(len);
-		buf[0] = '\0';
-
-		for (o = 0, i = 0; o < len && i < argc; i++) {
-			if (argv[i] == NULL)
-				break;
-			strlcat(buf, argv[i], len);
-			o += strlen(buf);
-			strlcat(buf, ARG_SEP_, len);
-			o += strlen(ARG_SEP_);
-		}
-
-		if (strlen(buf) > 0)
-			cc->app_cliarg = buf;
-
-		XFreeStringList(argv);
-	}
 }
 
 static void
@@ -856,7 +831,6 @@ client_freehints(struct client_ctx *cc)
 		XFree(cc->app_name);
 	if (cc->app_class != NULL)
 		XFree(cc->app_class);
-	xfree(cc->app_cliarg);
 }
 
 static int

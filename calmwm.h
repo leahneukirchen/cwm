@@ -189,7 +189,6 @@ struct client_ctx {
 
 	char			*app_class;
 	char			*app_name;
-	char			*app_cliarg;
 };
 
 extern const char *shortcut_to_name[];
