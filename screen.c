@@ -101,8 +101,8 @@ screen_find_xinerama(struct screen_ctx *sc, int x, int y)
 
 	for (i = 0; i < sc->xinerama_no; i++) {
 		info = &sc->xinerama[i];
-		if (x > info->x_org && x < info->x_org + info->width &&
-		    y > info->y_org && y < info->y_org + info->height)
+		if (x >= info->x_org && x < info->x_org + info->width &&
+		    y >= info->y_org && y < info->y_org + info->height)
 			return (info);
 	}
 	return (NULL);
