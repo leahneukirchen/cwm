@@ -30,6 +30,12 @@
 #define PROMPT_SCHAR	'»'
 #define PROMPT_ECHAR	'«'
 
+enum ctltype {
+	CTL_NONE = -1,
+	CTL_ERASEONE = 0, CTL_WIPE, CTL_UP, CTL_DOWN, CTL_RETURN,
+	CTL_ABORT, CTL_ALL
+};
+
 struct menu_ctx {
 	char			 searchstr[MENU_MAXENTRY + 1];
 	char			 dispstr[MENU_MAXENTRY*2 + 1];
@@ -58,6 +64,8 @@ static void		 menu_draw(struct screen_ctx *, struct menu_ctx *,
 			     struct menu_q *, struct menu_q *);
 static int		 menu_calc_entry(struct screen_ctx *, struct menu_ctx *,
 			     int, int);
+static int		 menu_keycode(KeyCode, u_int, enum ctltype *,
+                             char *);
 
 void
 menu_init(struct screen_ctx *sc)
@@ -89,12 +97,16 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
 	XEvent			 e;
 	Window			 focuswin;
 	int			 evmask, focusrevert;
+	int			 xsave, ysave, xcur, ycur;
 
 	TAILQ_INIT(&resultq);
 
 	bzero(&mc, sizeof(mc));
 
 	xu_ptr_getpos(sc->rootwin, &mc.x, &mc.y);
+
+	xsave = mc.x;
+	ysave = mc.y;
 
 	if (prompt == NULL) {
 		evmask = MenuMask;
@@ -142,8 +154,6 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
 		XWindowEvent(X_Dpy, sc->menuwin, evmask, &e);
 
 		switch (e.type) {
-		default:
-			break;
 		case KeyPress:
 			if ((mi = menu_handle_key(&e, &mc, menuq, &resultq))
 			    != NULL)
@@ -160,15 +170,22 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
 			    != NULL)
 				goto out;
 			break;
+		default:
+			break;
 		}
 	}
 out:
-	if (dummy == 0 && mi->dummy) { /* no match */
-		xfree (mi);
+	if (dummy == 0 && mi->dummy) { /* no mouse based match */
+		xfree(mi);
 		mi = NULL;
-		xu_ptr_ungrab();
-		XSetInputFocus(X_Dpy, focuswin, focusrevert, CurrentTime);
 	}
+
+	XSetInputFocus(X_Dpy, focuswin, focusrevert, CurrentTime);
+	/* restore if user didn't move */
+	xu_ptr_getpos(sc->rootwin, &xcur, &ycur);
+	if (xcur == mc.x && ycur == mc.y)
+		xu_ptr_setpos(sc->rootwin, xsave, ysave);
+	xu_ptr_ungrab();
 
 	XUnmapWindow(X_Dpy, sc->menuwin);
 	XUngrabKeyboard(X_Dpy, CurrentTime);
@@ -185,8 +202,7 @@ menu_handle_key(XEvent *e, struct menu_ctx *mc, struct menu_q *menuq,
 	char		 chr;
 	size_t		 len;
 
-	if (input_keycodetrans(e->xkey.keycode, e->xkey.state,
-	    &ctl, &chr) < 0)
+	if (menu_keycode(e->xkey.keycode, e->xkey.state, &ctl, &chr) < 0)
 		return (NULL);
 
 	switch (ctl) {
@@ -349,7 +365,7 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 		n++;
 	}
 
-	if (mc->hasprompt && n > 1)
+	if (mc->hasprompt && n > 1 && (mc->searchstr[0] != '\0'))
 		XFillRectangle(X_Dpy, sc->menuwin, sc->gc,
 		    0, font_height(sc), mc->width, font_height(sc));
 
@@ -383,7 +399,6 @@ menu_handle_release(XEvent *e, struct menu_ctx *mc, struct screen_ctx *sc,
 	int		 entry, i = 0;
 
 	entry = menu_calc_entry(sc, mc, e->xbutton.x, e->xbutton.y);
-	xu_ptr_ungrab();
 
 	if (mc->hasprompt)
 		i = 1;
@@ -415,4 +430,90 @@ menu_calc_entry(struct screen_ctx *sc, struct menu_ctx *mc, int x, int y)
 		entry = -1;
 
 	return (entry);
+}
+
+static int
+menu_keycode(KeyCode kc, u_int state, enum ctltype *ctl, char *chr)
+{
+	int	 ks;
+
+	*ctl = CTL_NONE;
+	*chr = '\0';
+
+	ks = XKeycodeToKeysym(X_Dpy, kc, (state & ShiftMask) ? 1 : 0);
+
+	/* Look for control characters. */
+	switch (ks) {
+	case XK_BackSpace:
+		*ctl = CTL_ERASEONE;
+		break;
+	case XK_Return:
+		*ctl = CTL_RETURN;
+		break;
+	case XK_Up:
+		*ctl = CTL_UP;
+		break;
+	case XK_Down:
+		*ctl = CTL_DOWN;
+		break;
+	case XK_Escape:
+		*ctl = CTL_ABORT;
+		break;
+	}
+
+	if (*ctl == CTL_NONE && (state & ControlMask)) {
+		switch (ks) {
+		case XK_s:
+		case XK_S:
+			/* Emacs "next" */
+			*ctl = CTL_DOWN;
+			break;
+		case XK_r:
+		case XK_R:
+			/* Emacs "previous" */
+			*ctl = CTL_UP;
+			break;
+		case XK_u:
+		case XK_U:
+			*ctl = CTL_WIPE;
+			break;
+		case XK_h:
+		case XK_H:
+			*ctl = CTL_ERASEONE;
+			break;
+		case XK_a:
+		case XK_A:
+			*ctl = CTL_ALL;
+			break;
+		}
+	}
+
+	if (*ctl == CTL_NONE && (state & Mod1Mask)) {
+		switch (ks) {
+		case XK_j:
+		case XK_J:
+			/* Vi "down" */
+			*ctl = CTL_DOWN;
+			break;
+		case XK_k:
+		case XK_K:
+			/* Vi "up" */
+			*ctl = CTL_UP;
+			break;
+		}
+	}
+
+	if (*ctl != CTL_NONE)
+		return (0);
+
+	/*
+	 * For regular characters, only (part of, actually) Latin 1
+	 * for now.
+	 */
+	if (ks < 0x20 || ks > 0x07e)
+		return (-1);
+
+	*chr = (char)ks;
+
+	return (0);
 }

@@ -7,11 +7,11 @@ PROG=		cwm
 BINDIR=		/usr/bin
 
 SRCS=		calmwm.c screen.c xmalloc.c client.c menu.c \
-		search.c util.c xutil.c conf.c input.c xevents.c group.c \
+		search.c util.c xutil.c conf.c xevents.c group.c \
 		kbfunc.c mousefunc.c font.c parse.y
 
 OBJS=		calmwm.o screen.o xmalloc.o client.o menu.o \
-		search.o util.o xutil.o conf.o input.o xevents.o group.o \
+		search.o util.o xutil.o conf.o xevents.o group.o \
 		kbfunc.o mousefunc.o font.o strlcpy.o strlcat.o y.tab.o \
 		strtonum.o fgetln.o
 
@@ -21,7 +21,7 @@ CPPFLAGS+=	-I${X11BASE}/include -I${X11BASE}/include/freetype2 -I.
 
 CFLAGS+=	-Wall -O2 -g
 
-LDADD+=		-L${X11BASE}/lib -lXft -lXrender -lX11 ${LIBXCB} -lXau -lXdmcp \
+LDADD+=		-L${X11BASE}/lib -lXft -lXrender -lX11 -lxcb -lXau -lXdmcp \
 		-lfontconfig -lexpat -lfreetype -lz -lXinerama -lXrandr -lXext
 
 MANDIR=		${X11BASE}/man/cat
