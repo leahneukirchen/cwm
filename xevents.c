@@ -90,8 +90,8 @@ xev_handle_maprequest(XEvent *ee)
 		if (strncasecmp(wm->title, cc->name, strlen(wm->title)) == 0)
 			return;
 	}
-
-	client_ptrwarp(cc);
+	if ((cc->flags & CLIENT_IGNORE) == 0)
+		client_ptrwarp(cc);
 }
 
 static void
