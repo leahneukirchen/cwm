@@ -265,11 +265,23 @@ client_current(void)
 }
 
 void
+client_freeze(struct client_ctx *cc)
+{
+	if (cc->flags & CLIENT_FREEZE)
+		cc->flags &= ~CLIENT_FREEZE;
+	else
+		cc->flags |= CLIENT_FREEZE;
+}
+
+void
 client_maximize(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
 	int			 xmax = sc->xmax, ymax = sc->ymax;
 	int			 x_org = 0, y_org = 0;
+
+	if (cc->flags & CLIENT_FREEZE)
+		return;
 
 	if (cc->flags & CLIENT_MAXIMIZED) {
 		cc->geom = cc->savegeom;
@@ -310,6 +322,9 @@ client_vertmaximize(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	int			 y_org = 0, ymax = sc->ymax;
 
+	if (cc->flags & CLIENT_FREEZE)
+		return;
+
 	if (cc->flags & CLIENT_VMAXIMIZED) {
 		cc->geom = cc->savegeom;
 	} else {
@@ -340,6 +355,9 @@ client_horizmaximize(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
 	int			 x_org = 0, xmax = sc->xmax;
+
+	if (cc->flags & CLIENT_FREEZE)
+		return;
 
 	if (cc->flags & CLIENT_HMAXIMIZED) {
 		cc->geom = cc->savegeom;

@@ -58,6 +58,9 @@ kbfunc_moveresize(struct client_ctx *cc, union arg *arg)
 	int			 x, y, flags, amt;
 	u_int			 mx, my;
 
+	if (cc->flags & CLIENT_FREEZE)
+		return;
+
 	sc = cc->sc;
 	mx = my = 0;
 
@@ -477,6 +480,12 @@ void
 kbfunc_client_hmaximize(struct client_ctx *cc, union arg *arg)
 {
 	client_horizmaximize(cc);
+}
+
+void
+kbfunc_client_freeze(struct client_ctx *cc, union arg *arg)
+{
+	client_freeze(cc);
 }
 
 void

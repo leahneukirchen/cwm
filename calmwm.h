@@ -150,6 +150,7 @@ struct client_ctx {
 #define CLIENT_VMAXIMIZED		0x0020
 #define CLIENT_DOHMAXIMIZE		0x0040
 #define CLIENT_HMAXIMIZED		0x0080
+#define CLIENT_FREEZE			0x0100
 	int			 flags;
 	int			 state;
 	int			 active;
@@ -314,6 +315,7 @@ struct client_ctx	*client_cycle(struct screen_ctx *, int);
 int			 client_delete(struct client_ctx *);
 void			 client_draw_border(struct client_ctx *);
 struct client_ctx	*client_find(Window);
+void			 client_freeze(struct client_ctx *);
 void			 client_getsizehints(struct client_ctx *);
 void			 client_hide(struct client_ctx *);
 void			 client_horizmaximize(struct client_ctx *);
@@ -368,6 +370,7 @@ void			 kbfunc_client_cycle(struct client_ctx *, union arg *);
 void			 kbfunc_client_cyclegroup(struct client_ctx *,
 			     union arg *);
 void			 kbfunc_client_delete(struct client_ctx *, union arg *);
+void			 kbfunc_client_freeze(struct client_ctx *, union arg *);
 void			 kbfunc_client_group(struct client_ctx *, union arg *);
 void			 kbfunc_client_grouponly(struct client_ctx *,
 			     union arg *);
