@@ -84,6 +84,9 @@ mousefunc_window_resize(struct client_ctx *cc, void *arg)
 	struct screen_ctx	*sc = cc->sc;
 	int			 x = cc->geom.x, y = cc->geom.y;
 
+	if (cc->flags & CLIENT_FREEZE)
+		return;
+
 	client_raise(cc);
 	client_ptrsave(cc);
 
@@ -106,10 +109,9 @@ mousefunc_window_resize(struct client_ctx *cc, void *arg)
 				/* Recompute window output */
 				mousefunc_sweep_draw(cc);
 
-			/* don't sync more than 10 times / second */
-			if ((ev.xmotion.time - time) > (1000 / 10)) {
+			/* don't resize more than 60 times / second */
+			if ((ev.xmotion.time - time) > (1000 / 60)) {
 				time = ev.xmotion.time;
-				XSync(X_Dpy, False);
 				client_resize(cc);
 			}
 			break;
@@ -143,6 +145,9 @@ mousefunc_window_move(struct client_ctx *cc, void *arg)
 
 	client_raise(cc);
 
+	if (cc->flags & CLIENT_FREEZE)
+		return;
+
 	if (xu_ptr_grab(cc->win, MouseMask, Cursor_move) < 0)
 		return;
 
@@ -159,10 +164,9 @@ mousefunc_window_move(struct client_ctx *cc, void *arg)
 			cc->geom.x = ev.xmotion.x_root - px - cc->bwidth;
 			cc->geom.y = ev.xmotion.y_root - py - cc->bwidth;
 
-			/* don't sync more than 60 times / second */
+			/* don't move more than 60 times / second */
 			if ((ev.xmotion.time - time) > (1000 / 60)) {
 				time = ev.xmotion.time;
-				XSync(X_Dpy, False);
 				client_move(cc);
 			}
 			break;

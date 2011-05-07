@@ -287,8 +287,10 @@ static void
 menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
     struct menu_q *resultq)
 {
-	struct menu	*mi;
-	int		 n, dy, xsave, ysave;
+	struct menu		*mi;
+	XineramaScreenInfo	*xine;
+	int			 xmin, xmax, ymin, ymax;
+	int			 n, dy, xsave, ysave;
 
 	if (mc->list) {
 		if (TAILQ_EMPTY(resultq) && mc->list) {
@@ -330,18 +332,33 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 		mc->num++;
 	}
 
+	xine = screen_find_xinerama(sc, mc->x, mc->y);
+	if (xine) {
+		xmin = xine->x_org;
+		xmax = xine->x_org + xine->width;
+		ymin = xine->y_org;
+		ymax = xine->y_org + xine->height;
+	} else {
+		xmin = ymin = 0;
+		xmax = sc->xmax;
+		ymax = sc->ymax;
+	}
+
 	xsave = mc->x;
 	ysave = mc->y;
-	if (mc->x < 0)
-		mc->x = 0;
-	else if (mc->x + mc->width >= sc->xmax)
-		mc->x = sc->xmax - mc->width;
 
-	if (mc->y + dy >= sc->ymax)
-		mc->y = sc->ymax - dy;
+	if (mc->x < xmin)
+		mc->x = xmin;
+	else if (mc->x + mc->width >= xmax)
+		mc->x = xmax - mc->width;
+
+	if (mc->y + dy >= ymax)
+		mc->y = ymax - dy;
 	/* never hide the top of the menu */
-        if (mc->y < 0)
-                mc->y = 0;
+	if (mc->y < ymin) {
+		mc->y = ymin;
+		dy = ymax - ymin;
+	}
 
 	if (mc->x != xsave || mc->y != ysave)
 		xu_ptr_setpos(sc->rootwin, mc->x, mc->y);
