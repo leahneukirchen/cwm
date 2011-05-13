@@ -116,10 +116,8 @@ mousefunc_window_resize(struct client_ctx *cc, void *arg)
 			}
 			break;
 		case ButtonRelease:
-			if (time) {
-				XSync(X_Dpy, False);
+			if (time)
 				client_resize(cc);
-			}
 			XUnmapWindow(X_Dpy, sc->menuwin);
 			XReparentWindow(X_Dpy, sc->menuwin, sc->rootwin, 0, 0);
 			xu_ptr_ungrab();
@@ -171,10 +169,8 @@ mousefunc_window_move(struct client_ctx *cc, void *arg)
 			}
 			break;
 		case ButtonRelease:
-			if (time) {
-				XSync(X_Dpy, False);
+			if (time)
 				client_move(cc);
-			}
 			xu_ptr_ungrab();
 			return;
 		}
