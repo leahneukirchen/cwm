@@ -1,5 +1,5 @@
 /*
- * font.c - cwm font abstraction
+ * calmwm - the calm window manager
  *
  * Copyright (c) 2005 Marius Eriksen <marius@monkey.org>
  *
@@ -14,6 +14,8 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ *
+ * $OpenBSD$
  */
 
 #include <sys/param.h>

@@ -1,8 +1,8 @@
 /*
- *  calmwm - the calm window manager
+ * calmwm - the calm window manager
  *
- *  Copyright (c) 2004 Marius Aamodt Eriksen <marius@monkey.org>
- *  Copyright (c) 2008 rivo nurges <rix@estpak.ee>
+ * Copyright (c) 2004 Marius Aamodt Eriksen <marius@monkey.org>
+ * Copyright (c) 2008 rivo nurges <rix@estpak.ee>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -16,7 +16,7 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
- * $Id$
+ * $OpenBSD$
  */
 
 #include <sys/param.h>
@@ -116,10 +116,8 @@ mousefunc_window_resize(struct client_ctx *cc, void *arg)
 			}
 			break;
 		case ButtonRelease:
-			if (time) {
-				XSync(X_Dpy, False);
+			if (time)
 				client_resize(cc);
-			}
 			XUnmapWindow(X_Dpy, sc->menuwin);
 			XReparentWindow(X_Dpy, sc->menuwin, sc->rootwin, 0, 0);
 			xu_ptr_ungrab();
@@ -171,10 +169,8 @@ mousefunc_window_move(struct client_ctx *cc, void *arg)
 			}
 			break;
 		case ButtonRelease:
-			if (time) {
-				XSync(X_Dpy, False);
+			if (time)
 				client_move(cc);
-			}
 			xu_ptr_ungrab();
 			return;
 		}
