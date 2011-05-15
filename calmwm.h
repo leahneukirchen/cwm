@@ -68,12 +68,12 @@
 #define	CWM_EXEC_WM		0x0002
 
 /* client cycle */
-#define CWM_CYCLE		0x0001
-#define CWM_RCYCLE		0x0002
+#define CWM_CYCLE		0
+#define CWM_RCYCLE		1
 
 /* group cycle */
-#define CWM_CYCLEGROUP		0x0001
-#define CWM_RCYCLEGROUP		0x0002
+#define CWM_CYCLEGROUP		0
+#define CWM_RCYCLEGROUP		1
 
 #define KBTOGROUP(X) ((X) - 1)
 
