@@ -554,6 +554,7 @@ static struct {
 	{ "window_grouptoggle", mousefunc_window_grouptoggle,
 	    MOUSEBIND_CTX_WIN },
 	{ "window_lower", mousefunc_window_lower, MOUSEBIND_CTX_WIN },
+	{ "window_raise", mousefunc_window_raise, MOUSEBIND_CTX_WIN },
 	{ "window_hide", mousefunc_window_hide, MOUSEBIND_CTX_WIN },
 	{ "menu_group", mousefunc_menu_group, MOUSEBIND_CTX_ROOT },
 	{ "menu_unhide", mousefunc_menu_unhide, MOUSEBIND_CTX_ROOT },

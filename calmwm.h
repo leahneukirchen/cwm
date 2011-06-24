@@ -405,6 +405,7 @@ void			 mousefunc_window_grouptoggle(struct client_ctx *,
 void			 mousefunc_window_hide(struct client_ctx *, void *);
 void			 mousefunc_window_lower(struct client_ctx *, void *);
 void			 mousefunc_window_move(struct client_ctx *, void *);
+void			 mousefunc_window_raise(struct client_ctx *, void *);
 void			 mousefunc_window_resize(struct client_ctx *, void *);
 
 struct menu  		*menu_filter(struct screen_ctx *, struct menu_q *,

@@ -197,6 +197,12 @@ mousefunc_window_lower(struct client_ctx *cc, void *arg)
 }
 
 void
+mousefunc_window_raise(struct client_ctx *cc, void *arg)
+{
+	client_raise(cc);
+}
+
+void
 mousefunc_window_hide(struct client_ctx *cc, void *arg)
 {
 	client_hide(cc);
