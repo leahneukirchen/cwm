@@ -207,7 +207,6 @@ struct screen_ctx {
 	XftColor		 xftcolor;
 	XftDraw			*xftdraw;
 	XftFont			*font;
-	u_int			 fontheight;
 	int			 xinerama_no;
 	XineramaScreenInfo	*xinerama;
 #define CALMWM_NGROUPS		 9

@@ -55,7 +55,7 @@ mousefunc_sweep_draw(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
 	char			 asize[10]; /* fits "nnnnxnnnn\0" */
-	int			 width, height, width_size, width_name;
+	int			 width, width_size, width_name;
 
 	snprintf(asize, sizeof(asize), "%dx%d",
 	    (cc->geom.width - cc->geom.basew) / cc->geom.incw,
@@ -63,17 +63,16 @@ mousefunc_sweep_draw(struct client_ctx *cc)
 	width_size = font_width(sc, asize, strlen(asize)) + 4;
 	width_name = font_width(sc, cc->name, strlen(cc->name)) + 4;
 	width = MAX(width_size, width_name);
-	height = font_ascent(sc) + font_descent(sc) + 1;
 
 	XMoveResizeWindow(X_Dpy, sc->menuwin, cc->geom.x, cc->geom.y,
-	    width, height * 2);
+	    width, font_height(sc) * 2);
 	XMapWindow(X_Dpy, sc->menuwin);
 	XReparentWindow(X_Dpy, sc->menuwin, cc->win, 0, 0);
 	XClearWindow(X_Dpy, sc->menuwin);
 	font_draw(sc, cc->name, strlen(cc->name), sc->menuwin,
 	    2, font_ascent(sc) + 1);
 	font_draw(sc, asize, strlen(asize), sc->menuwin,
-	    width / 2 - width_size / 2, height + font_ascent(sc) + 1);
+	    width / 2 - width_size / 2, font_height(sc) + font_ascent(sc) + 1);
 }
 
 void

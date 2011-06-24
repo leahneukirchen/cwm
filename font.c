@@ -45,7 +45,7 @@ font_descent(struct screen_ctx *sc)
 u_int
 font_height(struct screen_ctx *sc)
 {
-	return (sc->fontheight);
+	return (sc->font->height + 1);
 }
 
 void

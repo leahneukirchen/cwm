@@ -70,7 +70,6 @@ void
 conf_font(struct conf *c, struct screen_ctx *sc)
 {
 	sc->font = font_make(sc, c->DefaultFontName);
-	sc->fontheight = font_ascent(sc) + font_descent(sc) + 1;
 }
 
 void
