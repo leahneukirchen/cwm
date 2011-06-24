@@ -414,7 +414,6 @@ static struct {
 	    {.i = (CWM_LEFT|CWM_PTRMOVE|CWM_BIGMOVE)} },
 	{ "bigptrmoveright", kbfunc_moveresize, 0,
 	    {.i = (CWM_RIGHT|CWM_PTRMOVE|CWM_BIGMOVE)} },
-	{ NULL, NULL, 0, {0}},
 };
 
 /*
@@ -503,7 +502,7 @@ conf_bindname(struct conf *c, char *name, char *binding)
 	if (strcmp("unmap", binding) == 0)
 		return;
 
-	for (iter = 0; name_to_kbfunc[iter].tag != NULL; iter++) {
+	for (iter = 0; iter < nitems(name_to_kbfunc); iter++) {
 		if (strcmp(name_to_kbfunc[iter].tag, binding) != 0)
 			continue;
 
@@ -558,7 +557,6 @@ static struct {
 	{ "menu_group", mousefunc_menu_group, MOUSEBIND_CTX_ROOT },
 	{ "menu_unhide", mousefunc_menu_unhide, MOUSEBIND_CTX_ROOT },
 	{ "menu_cmd", mousefunc_menu_cmd, MOUSEBIND_CTX_ROOT },
-	{ NULL, NULL, 0 },
 };
 
 void
@@ -594,7 +592,7 @@ conf_mousebind(struct conf *c, char *name, char *binding)
 	if (strcmp("unmap", binding) == 0)
 		return;
 
-	for (iter = 0; name_to_mousefunc[iter].tag != NULL; iter++) {
+	for (iter = 0; iter < nitems(name_to_mousefunc); iter++) {
 		if (strcmp(name_to_mousefunc[iter].tag, binding) != 0)
 			continue;
 
