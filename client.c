@@ -842,3 +842,32 @@ client_inbound(struct client_ctx *cc, int x, int y)
 	return (x < cc->geom.width && x >= 0 &&
 	    y < cc->geom.height && y >= 0);
 }
+
+int
+client_snapcalc(int n, int dn, int nmax, int bwidth, int snapdist)
+{
+	int	 n0, n1, s0, s1;
+
+	s0 = s1 = 0;
+	n0 = n;
+	n1 = n + dn + (bwidth * 2);
+
+	if (abs(n0) <= snapdist)
+		s0 = -n0;
+
+	if (nmax - snapdist <= n1 && n1 <= nmax + snapdist)
+		s1 = nmax - n1;
+
+	/* possible to snap in both directions */
+	if (s0 != 0 && s1 != 0)
+		if (abs(s0) < abs(s1))
+			return s0;
+		else
+			return s1;
+	else if (s0 != 0)
+		return s0;
+	else if (s1 != 0)
+		return s1;
+	else
+		return 0;
+}

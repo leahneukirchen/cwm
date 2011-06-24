@@ -273,6 +273,8 @@ struct conf {
 	int			 bwidth;
 #define	CONF_MAMOUNT			1
 	int			 mamount;
+#define	CONF_SNAPDIST			0
+	int			 snapdist;
 	struct gap		 gap;
 #define CONF_COLOR_ACTIVEBORDER		"#CCCCCC"
 #define CONF_COLOR_INACTIVEBORDER	"#666666"
@@ -325,6 +327,7 @@ void			 client_resize(struct client_ctx *);
 void			 client_send_delete(struct client_ctx *);
 void			 client_setactive(struct client_ctx *, int);
 void			 client_setname(struct client_ctx *);
+int			 client_snapcalc(int, int, int, int, int);
 void			 client_unhide(struct client_ctx *);
 void			 client_vertmaximize(struct client_ctx *);
 void			 client_warp(struct client_ctx *);

@@ -100,6 +100,13 @@ kbfunc_moveresize(struct client_ctx *cc, union arg *arg)
 		if (cc->geom.x > cc->sc->xmax - 1)
 			cc->geom.x = cc->sc->xmax - 1;
 
+		cc->geom.x += client_snapcalc(cc->geom.x,
+		    cc->geom.width, cc->sc->xmax,
+		    cc->bwidth, Conf.snapdist);
+		cc->geom.y += client_snapcalc(cc->geom.y,
+		    cc->geom.height, cc->sc->ymax,
+		    cc->bwidth, Conf.snapdist);
+
 		client_move(cc);
 		xu_ptr_getpos(cc->win, &x, &y);
 		cc->ptr.y = y + my;
