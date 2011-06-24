@@ -45,12 +45,12 @@ struct screen_ctx_q		 Screenq = TAILQ_HEAD_INITIALIZER(Screenq);
 struct client_ctx_q		 Clientq = TAILQ_HEAD_INITIALIZER(Clientq);
 
 int				 HasXinerama, HasRandr, Randr_ev;
-int				 Starting;
 struct conf			 Conf;
 
 static void	sigchld_cb(int);
 static void	dpy_init(const char *);
 static int	x_errorhandler(Display *, XErrorEvent *);
+static int	x_wmerrorhandler(Display *, XErrorEvent *);
 static void	x_setup(void);
 static void	x_setupscreen(struct screen_ctx *, u_int);
 static void	x_teardown(void);
@@ -80,14 +80,12 @@ main(int argc, char **argv)
 	if (signal(SIGCHLD, sigchld_cb) == SIG_ERR)
 		err(1, "signal");
 
-	Starting = 1;
 	dpy_init(display_name);
 
 	bzero(&Conf, sizeof(Conf));
 	conf_setup(&Conf, conf_file);
 	xu_getatoms();
 	x_setup();
-	Starting = 0;
 
 	xev_loop();
 
@@ -101,10 +99,15 @@ dpy_init(const char *dpyname)
 {
 	int	i;
 
+	XSetErrorHandler(x_errorhandler);
+
 	if ((X_Dpy = XOpenDisplay(dpyname)) == NULL)
 		errx(1, "unable to open display \"%s\"",
 		    XDisplayName(dpyname));
 
+	XSetErrorHandler(x_wmerrorhandler);
+	XSelectInput(X_Dpy, DefaultRootWindow(X_Dpy), SubstructureRedirectMask);
+	XSync(X_Dpy, False);
 	XSetErrorHandler(x_errorhandler);
 
 	HasRandr = XRRQueryExtension(X_Dpy, &Randr_ev, &i);
@@ -212,27 +215,25 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 }
 
 static int
+x_wmerrorhandler(Display *dpy, XErrorEvent *e)
+{
+	errx(1, "root window unavailable - perhaps another wm is running?");
+
+	return (0);
+}
+static int
 x_errorhandler(Display *dpy, XErrorEvent *e)
 {
-#ifdef DEBUG
-	{
-		char msg[80], number[80], req[80];
+#if DEBUG
+	char msg[80], number[80], req[80];
 
-		XGetErrorText(X_Dpy, e->error_code, msg, sizeof(msg));
-		snprintf(number, sizeof(number), "%d", e->request_code);
-		XGetErrorDatabaseText(X_Dpy, "XRequest", number,
-		    "<unknown>", req, sizeof(req));
+	XGetErrorText(X_Dpy, e->error_code, msg, sizeof(msg));
+	snprintf(number, sizeof(number), "%d", e->request_code);
+	XGetErrorDatabaseText(X_Dpy, "XRequest", number,
+	    "<unknown>", req, sizeof(req));
 
-		warnx("%s(0x%x): %s", req, (u_int)e->resourceid, msg);
-	}
+	warnx("%s(0x%x): %s", req, (u_int)e->resourceid, msg);
 #endif
-
-	if (Starting &&
-	    e->error_code == BadAccess &&
-	    e->request_code == X_GrabKey)
-		errx(1, "root window unavailable - perhaps another "
-		    "wm is running?");
-
 	return (0);
 }
 
