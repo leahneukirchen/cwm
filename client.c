@@ -137,7 +137,7 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	return (cc);
 }
 
-int
+void
 client_delete(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
@@ -189,8 +189,6 @@ client_delete(struct client_ctx *cc)
 
 	client_freehints(cc);
 	xfree(cc);
-
-	return (0);
 }
 
 void
@@ -550,9 +548,8 @@ client_setname(struct client_ctx *cc)
 	char		*newname;
 
 	if (!xu_getstrprop(cc->win, _NET_WM_NAME, &newname))
-		xu_getstrprop(cc->win, XA_WM_NAME, &newname);
-	if (newname == NULL)
-		newname = emptystring;
+		if (!xu_getstrprop(cc->win, XA_WM_NAME, &newname))
+			newname = emptystring;
 
 	TAILQ_FOREACH(wn, &cc->nameq, entry)
 		if (strcmp(wn->name, newname) == 0) {
@@ -580,11 +577,9 @@ match:
 		xfree(wn);
 		cc->nameqlen--;
 	}
-
-	return;
 }
 
-struct client_ctx *
+void
 client_cycle(struct screen_ctx *sc, int reverse)
 {
 	struct client_ctx	*oldcc, *newcc;
@@ -594,7 +589,7 @@ client_cycle(struct screen_ctx *sc, int reverse)
 
 	/* If no windows then you cant cycle */
 	if (TAILQ_EMPTY(&sc->mruq))
-		return (NULL);
+		return;
 
 	if (oldcc == NULL)
 		oldcc = (reverse ? TAILQ_LAST(&sc->mruq, cycle_entry_q) :
@@ -614,7 +609,7 @@ client_cycle(struct screen_ctx *sc, int reverse)
 		/* Is oldcc the only non-hidden window? */
 		if (newcc == oldcc) {
 			if (again)
-				return (NULL);	/* No windows visible. */
+				return;	/* No windows visible. */
 
 			break;
 		}
@@ -624,8 +619,6 @@ client_cycle(struct screen_ctx *sc, int reverse)
 	sc->altpersist = 1;
 	client_ptrsave(oldcc);
 	client_ptrwarp(newcc);
-
-	return (newcc);
 }
 
 static struct client_ctx *

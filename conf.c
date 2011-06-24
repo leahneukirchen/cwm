@@ -521,7 +521,6 @@ conf_bindname(struct conf *c, char *name, char *binding)
 	current_binding->flags = 0;
 	conf_grab(c, current_binding);
 	TAILQ_INSERT_TAIL(&c->keybindingq, current_binding, entry);
-	return;
 }
 
 static void

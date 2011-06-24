@@ -307,8 +307,8 @@ __dead void		 usage(void);
 
 void			 client_applysizehints(struct client_ctx *);
 struct client_ctx	*client_current(void);
-struct client_ctx	*client_cycle(struct screen_ctx *, int);
-int			 client_delete(struct client_ctx *);
+void			 client_cycle(struct screen_ctx *, int);
+void			 client_delete(struct client_ctx *);
 void			 client_draw_border(struct client_ctx *);
 struct client_ctx	*client_find(Window);
 void			 client_freeze(struct client_ctx *);
@@ -463,7 +463,7 @@ void			 xu_setstate(struct client_ctx *, int);
 void			 xu_setwmname(struct screen_ctx *);
 
 void			 u_exec(char *);
-int			 u_spawn(char *);
+void			 u_spawn(char *);
 
 void			*xcalloc(size_t, size_t);
 void			 xfree(void *);
