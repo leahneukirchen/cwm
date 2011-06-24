@@ -473,11 +473,11 @@ char			*xstrdup(const char *);
 /* Externs */
 extern Display				*X_Dpy;
 
-extern Cursor				 Cursor_move;
-extern Cursor				 Cursor_resize;
-extern Cursor				 Cursor_select;
 extern Cursor				 Cursor_default;
+extern Cursor				 Cursor_move;
+extern Cursor				 Cursor_normal;
 extern Cursor				 Cursor_question;
+extern Cursor				 Cursor_resize;
 
 extern struct screen_ctx_q		 Screenq;
 extern struct client_ctx_q		 Clientq;

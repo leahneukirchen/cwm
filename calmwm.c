@@ -35,11 +35,11 @@
 
 Display				*X_Dpy;
 
-Cursor				 Cursor_move;
-Cursor				 Cursor_resize;
-Cursor				 Cursor_select;
 Cursor				 Cursor_default;
+Cursor				 Cursor_move;
+Cursor				 Cursor_normal;
 Cursor				 Cursor_question;
+Cursor				 Cursor_resize;
 
 struct screen_ctx_q		 Screenq = TAILQ_HEAD_INITIALIZER(Screenq);
 struct client_ctx_q		 Clientq = TAILQ_HEAD_INITIALIZER(Clientq);
@@ -120,6 +120,12 @@ x_setup(void)
 	struct keybinding	*kb;
 	int			 i;
 
+	Cursor_default = XCreateFontCursor(X_Dpy, XC_X_cursor);
+	Cursor_move = XCreateFontCursor(X_Dpy, XC_fleur);
+	Cursor_normal = XCreateFontCursor(X_Dpy, XC_left_ptr);
+	Cursor_question = XCreateFontCursor(X_Dpy, XC_question_arrow);
+	Cursor_resize = XCreateFontCursor(X_Dpy, XC_bottom_right_corner);
+
 	for (i = 0; i < ScreenCount(X_Dpy); i++) {
 		sc = xcalloc(1, sizeof(*sc));
 		x_setupscreen(sc, i);
@@ -132,12 +138,6 @@ x_setup(void)
 	 */
 	TAILQ_FOREACH(kb, &Conf.keybindingq, entry)
 		conf_grab(&Conf, kb);
-
-	Cursor_move = XCreateFontCursor(X_Dpy, XC_fleur);
-	Cursor_resize = XCreateFontCursor(X_Dpy, XC_bottom_right_corner);
-	Cursor_select = XCreateFontCursor(X_Dpy, XC_hand1);
-	Cursor_default = XCreateFontCursor(X_Dpy, XC_X_cursor);
-	Cursor_question = XCreateFontCursor(X_Dpy, XC_question_arrow);
 }
 
 static void
@@ -179,11 +179,12 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 
 	xu_setwmname(sc);
 
+	rootattr.cursor = Cursor_normal;
 	rootattr.event_mask = ChildMask|PropertyChangeMask|EnterWindowMask|
 	    LeaveWindowMask|ColormapChangeMask|ButtonMask;
 
 	XChangeWindowAttributes(X_Dpy, sc->rootwin,
-	    CWEventMask, &rootattr);
+	    CWEventMask|CWCursor, &rootattr);
 
 	/* Deal with existing clients. */
 	XQueryTree(X_Dpy, sc->rootwin, &w0, &w1, &wins, &nwins);

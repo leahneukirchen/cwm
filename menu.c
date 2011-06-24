@@ -405,7 +405,7 @@ menu_handle_move(XEvent *e, struct menu_ctx *mc, struct screen_ctx *sc)
 		XFillRectangle(X_Dpy, sc->menuwin, sc->gc, 0,
 		    font_height(sc) * mc->prev, mc->width, font_height(sc));
 	if (mc->entry != -1) {
-		xu_ptr_regrab(MenuGrabMask, Cursor_select);
+		xu_ptr_regrab(MenuGrabMask, Cursor_normal);
 		XFillRectangle(X_Dpy, sc->menuwin, sc->gc, 0,
 		    font_height(sc) * mc->entry, mc->width, font_height(sc));
 	} else
