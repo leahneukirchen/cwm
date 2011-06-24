@@ -283,6 +283,8 @@ client_maximize(struct client_ctx *cc)
 
 	if (cc->flags & CLIENT_MAXIMIZED) {
 		cc->geom = cc->savegeom;
+		cc->bwidth = Conf.bwidth;
+		cc->flags &= ~CLIENT_MAXIMIZED;
 	} else {
 		if (!(cc->flags & (CLIENT_VMAXIMIZED | CLIENT_HMAXIMIZED)))
 			cc->savegeom = cc->geom;
@@ -308,7 +310,8 @@ calc:
 		cc->geom.y = y_org + sc->gap.top;
 		cc->geom.height = ymax - (sc->gap.top + sc->gap.bottom);
 		cc->geom.width = xmax - (sc->gap.left + sc->gap.right);
-		cc->flags |= CLIENT_DOMAXIMIZE;
+		cc->bwidth = 0;
+		cc->flags |= CLIENT_MAXIMIZED;
 	}
 
 	client_resize(cc);
@@ -324,7 +327,10 @@ client_vertmaximize(struct client_ctx *cc)
 		return;
 
 	if (cc->flags & CLIENT_VMAXIMIZED) {
-		cc->geom = cc->savegeom;
+		cc->geom.y = cc->savegeom.y;
+		cc->geom.height = cc->savegeom.height;
+		cc->bwidth = Conf.bwidth;
+		cc->flags &= ~CLIENT_VMAXIMIZED;
 	} else {
 		if (!(cc->flags & (CLIENT_MAXIMIZED | CLIENT_HMAXIMIZED)))
 			cc->savegeom = cc->geom;
@@ -342,7 +348,7 @@ calc:
 		cc->geom.y = y_org + sc->gap.top;
 		cc->geom.height = ymax - (cc->bwidth * 2) - (sc->gap.top +
 		    sc->gap.bottom);
-		cc->flags |= CLIENT_DOVMAXIMIZE;
+		cc->flags |= CLIENT_VMAXIMIZED;
 	}
 
 	client_resize(cc);
@@ -358,7 +364,10 @@ client_horizmaximize(struct client_ctx *cc)
 		return;
 
 	if (cc->flags & CLIENT_HMAXIMIZED) {
-		cc->geom = cc->savegeom;
+		cc->geom.x = cc->savegeom.x;
+		cc->geom.width = cc->savegeom.width;
+		cc->bwidth = Conf.bwidth;
+		cc->flags &= ~CLIENT_HMAXIMIZED;
 	} else {
 		if (!(cc->flags & (CLIENT_MAXIMIZED | CLIENT_VMAXIMIZED)))
 			cc->savegeom = cc->geom;
@@ -376,7 +385,7 @@ calc:
 		cc->geom.x = x_org + sc->gap.left;
 		cc->geom.width = xmax - (cc->bwidth * 2) - (sc->gap.left +
 		    sc->gap.right);
-		cc->flags |= CLIENT_DOHMAXIMIZE;
+		cc->flags |= CLIENT_HMAXIMIZED;
 	}
 
 	client_resize(cc);
@@ -385,23 +394,6 @@ calc:
 void
 client_resize(struct client_ctx *cc)
 {
-	cc->flags &= ~(CLIENT_MAXIMIZED | CLIENT_VMAXIMIZED |
-	    CLIENT_HMAXIMIZED);
-
-	if (cc->flags & CLIENT_DOMAXIMIZE) {
-		cc->bwidth = 0;
-		cc->flags &= ~CLIENT_DOMAXIMIZE;
-		cc->flags |= CLIENT_MAXIMIZED;
-	} else if (cc->flags & CLIENT_DOVMAXIMIZE) {
-		cc->flags &= ~CLIENT_DOVMAXIMIZE;
-		cc->flags |= CLIENT_VMAXIMIZED;
-	} else if (cc->flags & CLIENT_DOHMAXIMIZE) {
-		cc->flags &= ~CLIENT_DOHMAXIMIZE;
-		cc->flags |= CLIENT_HMAXIMIZED;
-	} else {
-		cc->bwidth = Conf.bwidth;
-	}
-
 	client_draw_border(cc);
 
 	XMoveResizeWindow(X_Dpy, cc->win, cc->geom.x,
@@ -412,11 +404,6 @@ client_resize(struct client_ctx *cc)
 void
 client_move(struct client_ctx *cc)
 {
-	if (cc->flags & CLIENT_VMAXIMIZED)
-		cc->savegeom.x = cc->geom.x;
-	if (cc->flags & CLIENT_HMAXIMIZED)
-		cc->savegeom.y = cc->geom.y;
-
 	XMoveWindow(X_Dpy, cc->win, cc->geom.x, cc->geom.y);
 	xu_configure(cc);
 }

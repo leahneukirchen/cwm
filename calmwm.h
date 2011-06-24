@@ -140,13 +140,10 @@ struct client_ctx {
 	int			 xproto;
 #define CLIENT_HIDDEN			0x0001
 #define CLIENT_IGNORE			0x0002
-#define CLIENT_DOMAXIMIZE		0x0004
-#define CLIENT_MAXIMIZED		0x0008
-#define CLIENT_DOVMAXIMIZE		0x0010
-#define CLIENT_VMAXIMIZED		0x0020
-#define CLIENT_DOHMAXIMIZE		0x0040
-#define CLIENT_HMAXIMIZED		0x0080
-#define CLIENT_FREEZE			0x0100
+#define CLIENT_MAXIMIZED		0x0004
+#define CLIENT_VMAXIMIZED		0x0008
+#define CLIENT_HMAXIMIZED		0x0010
+#define CLIENT_FREEZE			0x0020
 	int			 flags;
 	int			 state;
 	int			 active;
