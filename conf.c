@@ -283,7 +283,8 @@ conf_setup(struct conf *c, const char *conf_file)
 
 	conf_init(c);
 
-	(void)parse_config(c->conf_path, c);
+	if (parse_config(c->conf_path, c) == -1)
+		warnx("config file %s has errors, not loading", c->conf_path);
 }
 
 void
