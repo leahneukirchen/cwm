@@ -31,8 +31,8 @@
 
 #include "calmwm.h"
 
-#define PROMPT_SCHAR	'»'
-#define PROMPT_ECHAR	'«'
+#define PROMPT_SCHAR	"\xc2\xbb"
+#define PROMPT_ECHAR	"\xc2\xab"
 
 enum ctltype {
 	CTL_NONE = -1,
@@ -118,9 +118,9 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
 		mc.list = 1;
 	} else {
 		evmask = MenuMask | KeyMask; /* only accept keys if prompt */
-		snprintf(mc.promptstr, sizeof(mc.promptstr), "%s%c", prompt,
+		snprintf(mc.promptstr, sizeof(mc.promptstr), "%s%s", prompt,
 		    PROMPT_SCHAR);
-		snprintf(mc.dispstr, sizeof(mc.dispstr), "%s%s%c", mc.promptstr,
+		snprintf(mc.dispstr, sizeof(mc.dispstr), "%s%s%s", mc.promptstr,
 		    mc.searchstr, PROMPT_ECHAR);
 		mc.width = font_width(sc, mc.dispstr, strlen(mc.dispstr));
 		mc.hasprompt = 1;
@@ -312,7 +312,7 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 	mc->width = 0;
 	dy = 0;
 	if (mc->hasprompt) {
-		snprintf(mc->dispstr, sizeof(mc->dispstr), "%s%s%c",
+		snprintf(mc->dispstr, sizeof(mc->dispstr), "%s%s%s",
 		    mc->promptstr, mc->searchstr, PROMPT_ECHAR);
 		mc->width = font_width(sc, mc->dispstr, strlen(mc->dispstr));
 		dy = font_height(sc);
