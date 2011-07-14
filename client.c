@@ -489,7 +489,7 @@ client_draw_border(struct client_ctx *cc)
 			pixel = sc->color[CWM_COLOR_BORDER_UNGROUP].pixel;
 			break;
 		default:
-			pixel = sc->color[CWM_COLOR_BORDOR_ACTIVE].pixel;
+			pixel = sc->color[CWM_COLOR_BORDER_ACTIVE].pixel;
 			break;
 		}
 	else

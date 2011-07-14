@@ -202,7 +202,7 @@ conf_init(struct conf *c)
 	strlcpy(c->termpath, "xterm", sizeof(c->termpath));
 	strlcpy(c->lockpath, "xlock", sizeof(c->lockpath));
 
-	c->color[CWM_COLOR_BORDOR_ACTIVE].name =
+	c->color[CWM_COLOR_BORDER_ACTIVE].name =
 	    xstrdup(CONF_COLOR_ACTIVEBORDER);
 	c->color[CWM_COLOR_BORDER_INACTIVE].name =
 	    xstrdup(CONF_COLOR_INACTIVEBORDER);

@@ -169,8 +169,8 @@ color		: COLOR colors
 		;
 
 colors		: ACTIVEBORDER STRING {
-			free(conf->color[CWM_COLOR_BORDOR_ACTIVE].name);
-			conf->color[CWM_COLOR_BORDOR_ACTIVE].name = $2;
+			free(conf->color[CWM_COLOR_BORDER_ACTIVE].name);
+			conf->color[CWM_COLOR_BORDER_ACTIVE].name = $2;
 		}
 		| INACTIVEBORDER STRING {
 			free(conf->color[CWM_COLOR_BORDER_INACTIVE].name);
