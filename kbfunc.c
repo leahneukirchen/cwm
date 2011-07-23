@@ -49,8 +49,8 @@ kbfunc_client_raise(struct client_ctx *cc, union arg *arg)
 	client_raise(cc);
 }
 
-#define typemask	(CWM_MOVE | CWM_RESIZE | CWM_PTRMOVE)
-#define movemask	(CWM_UP | CWM_DOWN | CWM_LEFT | CWM_RIGHT)
+#define TYPEMASK	(CWM_MOVE | CWM_RESIZE | CWM_PTRMOVE)
+#define MOVEMASK	(CWM_UP | CWM_DOWN | CWM_LEFT | CWM_RIGHT)
 void
 kbfunc_moveresize(struct client_ctx *cc, union arg *arg)
 {
@@ -72,7 +72,7 @@ kbfunc_moveresize(struct client_ctx *cc, union arg *arg)
 		amt = amt * 10;
 	}
 
-	switch (flags & movemask) {
+	switch (flags & MOVEMASK) {
 	case CWM_UP:
 		my -= amt;
 		break;
@@ -86,7 +86,7 @@ kbfunc_moveresize(struct client_ctx *cc, union arg *arg)
 		mx -= amt;
 		break;
 	}
-	switch (flags & typemask) {
+	switch (flags & TYPEMASK) {
 	case CWM_MOVE:
 		cc->geom.y += my;
 		if (cc->geom.y + cc->geom.height < 0)

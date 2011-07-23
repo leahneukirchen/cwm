@@ -180,8 +180,8 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	xu_setwmname(sc);
 
 	rootattr.cursor = Cursor_normal;
-	rootattr.event_mask = ChildMask|PropertyChangeMask|EnterWindowMask|
-	    LeaveWindowMask|ColormapChangeMask|ButtonMask;
+	rootattr.event_mask = CHILDMASK|PropertyChangeMask|EnterWindowMask|
+	    LeaveWindowMask|ColormapChangeMask|BUTTONMASK;
 
 	XChangeWindowAttributes(X_Dpy, sc->rootwin,
 	    CWEventMask|CWCursor, &rootattr);

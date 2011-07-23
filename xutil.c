@@ -59,7 +59,7 @@ xu_btn_grab(Window win, int mask, u_int btn)
 	int	i;
 	for (i = 0; i < nitems(ign_mods); i++)
 		XGrabButton(X_Dpy, btn, (mask | ign_mods[i]), win,
-		    False, ButtonMask, GrabModeAsync,
+		    False, BUTTONMASK, GrabModeAsync,
 		    GrabModeSync, None, None);
 }
 

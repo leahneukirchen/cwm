@@ -113,11 +113,11 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
 	ysave = mc.y;
 
 	if (prompt == NULL) {
-		evmask = MenuMask;
+		evmask = MENUMASK;
 		mc.promptstr[0] = '\0';
 		mc.list = 1;
 	} else {
-		evmask = MenuMask | KeyMask; /* only accept keys if prompt */
+		evmask = MENUMASK | KEYMASK; /* only accept keys if prompt */
 		snprintf(mc.promptstr, sizeof(mc.promptstr), "%s%s", prompt,
 		    PROMPT_SCHAR);
 		snprintf(mc.dispstr, sizeof(mc.dispstr), "%s%s%s", mc.promptstr,
@@ -140,7 +140,7 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
 	XSelectInput(X_Dpy, sc->menuwin, evmask);
 	XMapRaised(X_Dpy, sc->menuwin);
 
-	if (xu_ptr_grab(sc->menuwin, MenuGrabMask, Cursor_question) < 0) {
+	if (xu_ptr_grab(sc->menuwin, MENUGRABMASK, Cursor_question) < 0) {
 		XUnmapWindow(X_Dpy, sc->menuwin);
 		return (NULL);
 	}
@@ -405,11 +405,11 @@ menu_handle_move(XEvent *e, struct menu_ctx *mc, struct screen_ctx *sc)
 		XFillRectangle(X_Dpy, sc->menuwin, sc->gc, 0,
 		    font_height(sc) * mc->prev, mc->width, font_height(sc));
 	if (mc->entry != -1) {
-		xu_ptr_regrab(MenuGrabMask, Cursor_normal);
+		xu_ptr_regrab(MENUGRABMASK, Cursor_normal);
 		XFillRectangle(X_Dpy, sc->menuwin, sc->gc, 0,
 		    font_height(sc) * mc->entry, mc->width, font_height(sc));
 	} else
-		xu_ptr_regrab(MenuGrabMask, Cursor_default);
+		xu_ptr_regrab(MENUGRABMASK, Cursor_default);
 }
 
 static struct menu *
