@@ -118,16 +118,16 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
 		mc.list = 1;
 	} else {
 		evmask = MENUMASK | KEYMASK; /* only accept keys if prompt */
-		snprintf(mc.promptstr, sizeof(mc.promptstr), "%s%s", prompt,
-		    PROMPT_SCHAR);
-		snprintf(mc.dispstr, sizeof(mc.dispstr), "%s%s%s", mc.promptstr,
-		    mc.searchstr, PROMPT_ECHAR);
+		(void)snprintf(mc.promptstr, sizeof(mc.promptstr), "%s%s",
+		    prompt, PROMPT_SCHAR);
+		(void)snprintf(mc.dispstr, sizeof(mc.dispstr), "%s%s%s",
+		    mc.promptstr, mc.searchstr, PROMPT_ECHAR);
 		mc.width = font_width(sc, mc.dispstr, strlen(mc.dispstr));
 		mc.hasprompt = 1;
 	}
 
 	if (initial != NULL)
-		strlcpy(mc.searchstr, initial, sizeof(mc.searchstr));
+		(void)strlcpy(mc.searchstr, initial, sizeof(mc.searchstr));
 	else
 		mc.searchstr[0] = '\0';
 
@@ -268,7 +268,7 @@ menu_handle_key(XEvent *e, struct menu_ctx *mc, struct menu_q *menuq,
 		str[0] = chr;
 		str[1] = '\0';
 		mc->changed = 1;
-		strlcat(mc->searchstr, str, sizeof(mc->searchstr));
+		(void)strlcat(mc->searchstr, str, sizeof(mc->searchstr));
 	}
 
 	mc->noresult = 0;
@@ -312,7 +312,7 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 	mc->width = 0;
 	dy = 0;
 	if (mc->hasprompt) {
-		snprintf(mc->dispstr, sizeof(mc->dispstr), "%s%s%s",
+		(void)snprintf(mc->dispstr, sizeof(mc->dispstr), "%s%s%s",
 		    mc->promptstr, mc->searchstr, PROMPT_ECHAR);
 		mc->width = font_width(sc, mc->dispstr, strlen(mc->dispstr));
 		dy = font_height(sc);
@@ -405,11 +405,11 @@ menu_handle_move(XEvent *e, struct menu_ctx *mc, struct screen_ctx *sc)
 		XFillRectangle(X_Dpy, sc->menuwin, sc->gc, 0,
 		    font_height(sc) * mc->prev, mc->width, font_height(sc));
 	if (mc->entry != -1) {
-		xu_ptr_regrab(MENUGRABMASK, Cursor_normal);
+		(void)xu_ptr_regrab(MENUGRABMASK, Cursor_normal);
 		XFillRectangle(X_Dpy, sc->menuwin, sc->gc, 0,
 		    font_height(sc) * mc->entry, mc->width, font_height(sc));
 	} else
-		xu_ptr_regrab(MENUGRABMASK, Cursor_default);
+		(void)xu_ptr_regrab(MENUGRABMASK, Cursor_default);
 }
 
 static struct menu *

@@ -142,7 +142,7 @@ xu_sendmsg(Window win, Atom atm, long val)
 {
 	XEvent	 e;
 
-	memset(&e, 0, sizeof(e));
+	(void)memset(&e, 0, sizeof(e));
 	e.xclient.type = ClientMessage;
 	e.xclient.window = win;
 	e.xclient.message_type = atm;

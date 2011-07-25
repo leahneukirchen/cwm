@@ -157,7 +157,7 @@ kbfunc_client_search(struct client_ctx *cc, union arg *arg)
 
 	TAILQ_FOREACH(cc, &Clientq, entry) {
 		mi = xcalloc(1, sizeof(*mi));
-		strlcpy(mi->text, cc->name, sizeof(mi->text));
+		(void)strlcpy(mi->text, cc->name, sizeof(mi->text));
 		mi->ctx = cc;
 		TAILQ_INSERT_TAIL(&menuq, mi, entry);
 	}
@@ -192,7 +192,7 @@ kbfunc_menu_search(struct client_ctx *cc, union arg *arg)
 
 	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
 		mi = xcalloc(1, sizeof(*mi));
-		strlcpy(mi->text, cmd->label, sizeof(mi->text));
+		(void)strlcpy(mi->text, cmd->label, sizeof(mi->text));
 		mi->ctx = cmd;
 		TAILQ_INSERT_TAIL(&menuq, mi, entry);
 	}
@@ -291,7 +291,7 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 			/* skip everything but regular files and symlinks */
 			if (dp->d_type != DT_REG && dp->d_type != DT_LNK)
 				continue;
-			memset(tpath, '\0', sizeof(tpath));
+			(void)memset(tpath, '\0', sizeof(tpath));
 			l = snprintf(tpath, sizeof(tpath), "%s/%s", paths[i],
 			    dp->d_name);
 			/* check for truncation etc */
@@ -299,7 +299,8 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 				continue;
 			if (access(tpath, X_OK) == 0) {
 				mi = xcalloc(1, sizeof(*mi));
-				strlcpy(mi->text, dp->d_name, sizeof(mi->text));
+				(void)strlcpy(mi->text,
+				    dp->d_name, sizeof(mi->text));
 				TAILQ_INSERT_TAIL(&menuq, mi, entry);
 			}
 		}
@@ -366,7 +367,7 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 		else {
 			/* EOF without EOL, copy and add the NUL */
 			lbuf = xmalloc(len + 1);
-			memcpy(lbuf, buf, len);
+			(void)memcpy(lbuf, buf, len);
 			lbuf[len] = '\0';
 			buf = lbuf;
 		}
@@ -379,13 +380,13 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 		/* ignore badness */
 		if (p - buf + 1 > sizeof(hostbuf))
 			continue;
-		(void) strlcpy(hostbuf, buf, p - buf + 1);
+		(void)strlcpy(hostbuf, buf, p - buf + 1);
 		mi = xcalloc(1, sizeof(*mi));
-		(void) strlcpy(mi->text, hostbuf, sizeof(mi->text));
+		(void)strlcpy(mi->text, hostbuf, sizeof(mi->text));
 		TAILQ_INSERT_TAIL(&menuq, mi, entry);
 	}
 	xfree(lbuf);
-	fclose(fp);
+	(void)fclose(fp);
 
 	if ((mi = menu_filter(sc, &menuq, "ssh", NULL, 1,
 	    search_match_exec, NULL)) != NULL) {

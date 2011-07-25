@@ -76,6 +76,6 @@ u_exec(char *argstr)
 	}
 
 	*ap = NULL;
-	setsid();
-	execvp(args[0], args);
+	(void)setsid();
+	(void)execvp(args[0], args);
 }

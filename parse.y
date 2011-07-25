@@ -142,7 +142,7 @@ main		: FONTNAME STRING		{
 			struct winmatch	*wm;
 
 			wm = xcalloc(1, sizeof(*wm));
-			strlcpy(wm->title, $2, sizeof(wm->title));
+			(void)strlcpy(wm->title, $2, sizeof(wm->title));
 			TAILQ_INSERT_TAIL(&conf->ignoreq, wm, entry);
 
 			free($2);
@@ -502,7 +502,7 @@ parse_config(const char *filename, struct conf *xconf)
 		return (-1);
 	}
 
-	strlcpy(conf->conf_path, filename, sizeof(conf->conf_path));
+	(void)strlcpy(conf->conf_path, filename, sizeof(conf->conf_path));
 
 	conf_init(conf);
 
@@ -555,9 +555,9 @@ parse_config(const char *filename, struct conf *xconf)
 			TAILQ_INSERT_TAIL(&xconf->mousebindingq, mb, entry);
 		}
 
-		strlcpy(xconf->termpath, conf->termpath,
+		(void)strlcpy(xconf->termpath, conf->termpath,
 		    sizeof(xconf->termpath));
-		strlcpy(xconf->lockpath, conf->lockpath,
+		(void)strlcpy(xconf->lockpath, conf->lockpath,
 		    sizeof(xconf->lockpath));
 
 		for (i = 0; i < CWM_COLOR_MAX; i++)

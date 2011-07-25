@@ -48,14 +48,14 @@ conf_cmd_add(struct conf *c, char *image, char *label, int flags)
 	/* "term" and "lock" have special meanings. */
 
 	if (strcmp(label, "term") == 0)
-		strlcpy(c->termpath, image, sizeof(c->termpath));
+		(void)strlcpy(c->termpath, image, sizeof(c->termpath));
 	else if (strcmp(label, "lock") == 0)
-		strlcpy(c->lockpath, image, sizeof(c->lockpath));
+		(void)strlcpy(c->lockpath, image, sizeof(c->lockpath));
 	else {
 		struct cmd *cmd = xmalloc(sizeof(*cmd));
 		cmd->flags = flags;
-		strlcpy(cmd->image, image, sizeof(cmd->image));
-		strlcpy(cmd->label, label, sizeof(cmd->label));
+		(void)strlcpy(cmd->image, image, sizeof(cmd->image));
+		(void)strlcpy(cmd->label, label, sizeof(cmd->label));
 		TAILQ_INSERT_TAIL(&c->cmdq, cmd, entry);
 	}
 }
@@ -199,8 +199,8 @@ conf_init(struct conf *c)
 		conf_mousebind(c, m_binds[i].key, m_binds[i].func);
 
 	/* Default term/lock */
-	strlcpy(c->termpath, "xterm", sizeof(c->termpath));
-	strlcpy(c->lockpath, "xlock", sizeof(c->lockpath));
+	(void)strlcpy(c->termpath, "xterm", sizeof(c->termpath));
+	(void)strlcpy(c->lockpath, "xlock", sizeof(c->lockpath));
 
 	c->color[CWM_COLOR_BORDER_ACTIVE].name =
 	    xstrdup(CONF_COLOR_ACTIVEBORDER);
@@ -273,13 +273,14 @@ conf_setup(struct conf *c, const char *conf_file)
 		if (home == NULL)
 			errx(1, "No HOME directory.");
 
-		snprintf(c->conf_path, sizeof(c->conf_path), "%s/%s", home,
-		    CONFFILE);
+		(void)snprintf(c->conf_path, sizeof(c->conf_path), "%s/%s",
+		    home, CONFFILE);
 	} else
 		if (stat(conf_file, &sb) == -1 || !(sb.st_mode & S_IFREG))
 			errx(1, "%s: %s", conf_file, strerror(errno));
 		else
-			strlcpy(c->conf_path, conf_file, sizeof(c->conf_path));
+			(void)strlcpy(c->conf_path, conf_file,
+			    sizeof(c->conf_path));
 
 	conf_init(c);
 
