@@ -76,8 +76,9 @@ menu_init(struct screen_ctx *sc)
 {
 	XGCValues	 gv;
 
-	sc->menuwin = XCreateSimpleWindow(X_Dpy, sc->rootwin, 0, 0, 1, 1, 0,
-	    sc->color[CWM_COLOR_BG_MENU].pixel,
+	sc->menuwin = XCreateSimpleWindow(X_Dpy, sc->rootwin, 0, 0, 1, 1,
+	    Conf.bwidth,
+	    sc->color[CWM_COLOR_FG_MENU].pixel,
 	    sc->color[CWM_COLOR_BG_MENU].pixel);
 
 	gv.foreground =
