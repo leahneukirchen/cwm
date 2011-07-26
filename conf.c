@@ -94,13 +94,13 @@ conf_reload(struct conf *c)
 		return;
 	}
 
-	TAILQ_FOREACH(cc, &Clientq, entry)
-		client_draw_border(cc);
 	TAILQ_FOREACH(sc, &Screenq, entry) {
 		conf_gap(c, sc);
 		conf_color(c, sc);
 		conf_font(c, sc);
 	}
+	TAILQ_FOREACH(cc, &Clientq, entry)
+		client_draw_border(cc);
 }
 
 static struct {
