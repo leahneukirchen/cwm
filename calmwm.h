@@ -51,15 +51,15 @@ size_t strlcat(char *, const char *, size_t);
 #define	CONFFILE	".cwmrc"
 #define	WMNAME	 	"CWM"
 
-#define ChildMask	(SubstructureRedirectMask|SubstructureNotifyMask)
-#define ButtonMask	(ButtonPressMask|ButtonReleaseMask)
-#define MouseMask	(ButtonMask|PointerMotionMask)
-#define KeyMask		(KeyPressMask|ExposureMask)
-#define MenuMask 	(ButtonMask|ButtonMotionMask|ExposureMask| \
+#define CHILDMASK	(SubstructureRedirectMask|SubstructureNotifyMask)
+#define BUTTONMASK	(ButtonPressMask|ButtonReleaseMask)
+#define MOUSEMASK	(BUTTONMASK|PointerMotionMask)
+#define KEYMASK		(KeyPressMask|ExposureMask)
+#define MENUMASK 	(BUTTONMASK|ButtonMotionMask|ExposureMask| \
 			PointerMotionMask)
-#define MenuGrabMask	(ButtonMask|ButtonMotionMask|StructureNotifyMask|\
+#define MENUGRABMASK	(BUTTONMASK|ButtonMotionMask|StructureNotifyMask|\
 			PointerMotionMask)
-#define SearchMask	(KeyPressMask|ExposureMask)
+#define SEARCHMASK	(KeyPressMask|ExposureMask)
 
 /* kb movement */
 #define CWM_MOVE		0x0001
@@ -75,13 +75,9 @@ size_t strlcat(char *, const char *, size_t);
 #define	CWM_EXEC_PROGRAM	0x0001
 #define	CWM_EXEC_WM		0x0002
 
-/* client cycle */
+/* cycle */
 #define CWM_CYCLE		0
 #define CWM_RCYCLE		1
-
-/* group cycle */
-#define CWM_CYCLEGROUP		0
-#define CWM_RCYCLEGROUP		1
 
 #define KBTOGROUP(X) ((X) - 1)
 
@@ -91,7 +87,7 @@ union arg {
 };
 
 enum cwmcolor {
-	CWM_COLOR_BORDOR_ACTIVE,
+	CWM_COLOR_BORDER_ACTIVE,
 	CWM_COLOR_BORDER_INACTIVE,
 	CWM_COLOR_BORDER_GROUP,
 	CWM_COLOR_BORDER_UNGROUP,
@@ -152,13 +148,10 @@ struct client_ctx {
 	int			 xproto;
 #define CLIENT_HIDDEN			0x0001
 #define CLIENT_IGNORE			0x0002
-#define CLIENT_DOMAXIMIZE		0x0004
-#define CLIENT_MAXIMIZED		0x0008
-#define CLIENT_DOVMAXIMIZE		0x0010
-#define CLIENT_VMAXIMIZED		0x0020
-#define CLIENT_DOHMAXIMIZE		0x0040
-#define CLIENT_HMAXIMIZED		0x0080
-#define CLIENT_FREEZE			0x0100
+#define CLIENT_MAXIMIZED		0x0004
+#define CLIENT_VMAXIMIZED		0x0008
+#define CLIENT_HMAXIMIZED		0x0010
+#define CLIENT_FREEZE			0x0020
 	int			 flags;
 	int			 state;
 	int			 active;
@@ -219,7 +212,6 @@ struct screen_ctx {
 	XftColor		 xftcolor;
 	XftDraw			*xftdraw;
 	XftFont			*font;
-	u_int			 fontheight;
 	int			 xinerama_no;
 	XineramaScreenInfo	*xinerama;
 #define CALMWM_NGROUPS		 9
@@ -289,6 +281,8 @@ struct conf {
 	int			 bwidth;
 #define	CONF_MAMOUNT			1
 	int			 mamount;
+#define	CONF_SNAPDIST			0
+	int			 snapdist;
 	struct gap		 gap;
 #define CONF_COLOR_ACTIVEBORDER		"#CCCCCC"
 #define CONF_COLOR_INACTIVEBORDER	"#666666"
@@ -319,8 +313,8 @@ __dead void		 usage(void);
 
 void			 client_applysizehints(struct client_ctx *);
 struct client_ctx	*client_current(void);
-struct client_ctx	*client_cycle(struct screen_ctx *, int);
-int			 client_delete(struct client_ctx *);
+void			 client_cycle(struct screen_ctx *, int);
+void			 client_delete(struct client_ctx *);
 void			 client_draw_border(struct client_ctx *);
 struct client_ctx	*client_find(Window);
 void			 client_freeze(struct client_ctx *);
@@ -341,6 +335,7 @@ void			 client_resize(struct client_ctx *);
 void			 client_send_delete(struct client_ctx *);
 void			 client_setactive(struct client_ctx *, int);
 void			 client_setname(struct client_ctx *);
+int			 client_snapcalc(int, int, int, int, int);
 void			 client_unhide(struct client_ctx *);
 void			 client_vertmaximize(struct client_ctx *);
 void			 client_warp(struct client_ctx *);
@@ -418,6 +413,7 @@ void			 mousefunc_window_grouptoggle(struct client_ctx *,
 void			 mousefunc_window_hide(struct client_ctx *, void *);
 void			 mousefunc_window_lower(struct client_ctx *, void *);
 void			 mousefunc_window_move(struct client_ctx *, void *);
+void			 mousefunc_window_raise(struct client_ctx *, void *);
 void			 mousefunc_window_resize(struct client_ctx *, void *);
 
 struct menu  		*menu_filter(struct screen_ctx *, struct menu_q *,
@@ -475,7 +471,7 @@ void			 xu_setstate(struct client_ctx *, int);
 void			 xu_setwmname(struct screen_ctx *);
 
 void			 u_exec(char *);
-int			 u_spawn(char *);
+void			 u_spawn(char *);
 
 void			*xcalloc(size_t, size_t);
 void			 xfree(void *);
@@ -485,11 +481,11 @@ char			*xstrdup(const char *);
 /* Externs */
 extern Display				*X_Dpy;
 
-extern Cursor				 Cursor_move;
-extern Cursor				 Cursor_resize;
-extern Cursor				 Cursor_select;
 extern Cursor				 Cursor_default;
+extern Cursor				 Cursor_move;
+extern Cursor				 Cursor_normal;
 extern Cursor				 Cursor_question;
+extern Cursor				 Cursor_resize;
 
 extern struct screen_ctx_q		 Screenq;
 extern struct client_ctx_q		 Clientq;

@@ -48,14 +48,14 @@ conf_cmd_add(struct conf *c, char *image, char *label, int flags)
 	/* "term" and "lock" have special meanings. */
 
 	if (strcmp(label, "term") == 0)
-		strlcpy(c->termpath, image, sizeof(c->termpath));
+		(void)strlcpy(c->termpath, image, sizeof(c->termpath));
 	else if (strcmp(label, "lock") == 0)
-		strlcpy(c->lockpath, image, sizeof(c->lockpath));
+		(void)strlcpy(c->lockpath, image, sizeof(c->lockpath));
 	else {
 		struct cmd *cmd = xmalloc(sizeof(*cmd));
 		cmd->flags = flags;
-		strlcpy(cmd->image, image, sizeof(cmd->image));
-		strlcpy(cmd->label, label, sizeof(cmd->label));
+		(void)strlcpy(cmd->image, image, sizeof(cmd->image));
+		(void)strlcpy(cmd->label, label, sizeof(cmd->label));
 		TAILQ_INSERT_TAIL(&c->cmdq, cmd, entry);
 	}
 }
@@ -70,7 +70,6 @@ void
 conf_font(struct conf *c, struct screen_ctx *sc)
 {
 	sc->font = font_make(sc, c->DefaultFontName);
-	sc->fontheight = font_ascent(sc) + font_descent(sc) + 1;
 }
 
 void
@@ -95,13 +94,13 @@ conf_reload(struct conf *c)
 		return;
 	}
 
-	TAILQ_FOREACH(cc, &Clientq, entry)
-		client_draw_border(cc);
 	TAILQ_FOREACH(sc, &Screenq, entry) {
 		conf_gap(c, sc);
 		conf_color(c, sc);
 		conf_font(c, sc);
 	}
+	TAILQ_FOREACH(cc, &Clientq, entry)
+		client_draw_border(cc);
 }
 
 static struct {
@@ -185,6 +184,7 @@ conf_init(struct conf *c)
 	c->flags = 0;
 	c->bwidth = CONF_BWIDTH;
 	c->mamount = CONF_MAMOUNT;
+	c->snapdist = CONF_SNAPDIST;
 
 	TAILQ_INIT(&c->ignoreq);
 	TAILQ_INIT(&c->cmdq);
@@ -199,10 +199,10 @@ conf_init(struct conf *c)
 		conf_mousebind(c, m_binds[i].key, m_binds[i].func);
 
 	/* Default term/lock */
-	strlcpy(c->termpath, "xterm", sizeof(c->termpath));
-	strlcpy(c->lockpath, "xlock", sizeof(c->lockpath));
+	(void)strlcpy(c->termpath, "xterm", sizeof(c->termpath));
+	(void)strlcpy(c->lockpath, "xlock", sizeof(c->lockpath));
 
-	c->color[CWM_COLOR_BORDOR_ACTIVE].name =
+	c->color[CWM_COLOR_BORDER_ACTIVE].name =
 	    xstrdup(CONF_COLOR_ACTIVEBORDER);
 	c->color[CWM_COLOR_BORDER_INACTIVE].name =
 	    xstrdup(CONF_COLOR_INACTIVEBORDER);
@@ -273,17 +273,19 @@ conf_setup(struct conf *c, const char *conf_file)
 		if (home == NULL)
 			errx(1, "No HOME directory.");
 
-		snprintf(c->conf_path, sizeof(c->conf_path), "%s/%s", home,
-		    CONFFILE);
+		(void)snprintf(c->conf_path, sizeof(c->conf_path), "%s/%s",
+		    home, CONFFILE);
 	} else
 		if (stat(conf_file, &sb) == -1 || !(sb.st_mode & S_IFREG))
 			errx(1, "%s: %s", conf_file, strerror(errno));
 		else
-			strlcpy(c->conf_path, conf_file, sizeof(c->conf_path));
+			(void)strlcpy(c->conf_path, conf_file,
+			    sizeof(c->conf_path));
 
 	conf_init(c);
 
-	(void)parse_config(c->conf_path, c);
+	if (parse_config(c->conf_path, c) == -1)
+		warnx("config file %s has errors, not loading", c->conf_path);
 }
 
 void
@@ -356,8 +358,8 @@ static struct {
 	{ "movetogroup9", kbfunc_client_movetogroup, KBFLAG_NEEDCLIENT,
 	    {.i = 9} },
 	{ "nogroup", kbfunc_client_nogroup, 0, {0} },
-	{ "cyclegroup", kbfunc_client_cyclegroup, 0, {.i = CWM_CYCLEGROUP} },
-	{ "rcyclegroup", kbfunc_client_cyclegroup, 0, {.i = CWM_RCYCLEGROUP} },
+	{ "cyclegroup", kbfunc_client_cyclegroup, 0, {.i = CWM_CYCLE} },
+	{ "rcyclegroup", kbfunc_client_cyclegroup, 0, {.i = CWM_RCYCLE} },
 	{ "grouptoggle", kbfunc_client_grouptoggle, KBFLAG_NEEDCLIENT, {0}},
 	{ "maximize", kbfunc_client_maximize, KBFLAG_NEEDCLIENT, {0} },
 	{ "vmaximize", kbfunc_client_vmaximize, KBFLAG_NEEDCLIENT, {0} },
@@ -415,7 +417,6 @@ static struct {
 	    {.i = (CWM_LEFT|CWM_PTRMOVE|CWM_BIGMOVE)} },
 	{ "bigptrmoveright", kbfunc_moveresize, 0,
 	    {.i = (CWM_RIGHT|CWM_PTRMOVE|CWM_BIGMOVE)} },
-	{ NULL, NULL, 0, {0}},
 };
 
 /*
@@ -504,7 +505,7 @@ conf_bindname(struct conf *c, char *name, char *binding)
 	if (strcmp("unmap", binding) == 0)
 		return;
 
-	for (iter = 0; name_to_kbfunc[iter].tag != NULL; iter++) {
+	for (iter = 0; iter < nitems(name_to_kbfunc); iter++) {
 		if (strcmp(name_to_kbfunc[iter].tag, binding) != 0)
 			continue;
 
@@ -521,7 +522,6 @@ conf_bindname(struct conf *c, char *name, char *binding)
 	current_binding->flags = 0;
 	conf_grab(c, current_binding);
 	TAILQ_INSERT_TAIL(&c->keybindingq, current_binding, entry);
-	return;
 }
 
 static void
@@ -556,11 +556,11 @@ static struct {
 	{ "window_grouptoggle", mousefunc_window_grouptoggle,
 	    MOUSEBIND_CTX_WIN },
 	{ "window_lower", mousefunc_window_lower, MOUSEBIND_CTX_WIN },
+	{ "window_raise", mousefunc_window_raise, MOUSEBIND_CTX_WIN },
 	{ "window_hide", mousefunc_window_hide, MOUSEBIND_CTX_WIN },
 	{ "menu_group", mousefunc_menu_group, MOUSEBIND_CTX_ROOT },
 	{ "menu_unhide", mousefunc_menu_unhide, MOUSEBIND_CTX_ROOT },
 	{ "menu_cmd", mousefunc_menu_cmd, MOUSEBIND_CTX_ROOT },
-	{ NULL, NULL, 0 },
 };
 
 void
@@ -596,7 +596,7 @@ conf_mousebind(struct conf *c, char *name, char *binding)
 	if (strcmp("unmap", binding) == 0)
 		return;
 
-	for (iter = 0; name_to_mousefunc[iter].tag != NULL; iter++) {
+	for (iter = 0; iter < nitems(name_to_mousefunc); iter++) {
 		if (strcmp(name_to_mousefunc[iter].tag, binding) != 0)
 			continue;
 

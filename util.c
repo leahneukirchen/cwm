@@ -32,7 +32,7 @@
 
 #define MAXARGLEN 20
 
-int
+void
 u_spawn(char *argstr)
 {
 	switch (fork()) {
@@ -42,12 +42,9 @@ u_spawn(char *argstr)
 		break;
 	case -1:
 		warn("fork");
-		return (-1);
 	default:
 		break;
 	}
-
-	return (0);
 }
 
 void
@@ -79,6 +76,6 @@ u_exec(char *argstr)
 	}
 
 	*ap = NULL;
-	setsid();
-	execvp(args[0], args);
+	(void)setsid();
+	(void)execvp(args[0], args);
 }

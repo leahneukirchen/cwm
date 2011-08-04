@@ -70,7 +70,7 @@ typedef struct {
 %token	FONTNAME STICKY GAP MOUSEBIND
 %token	AUTOGROUP BIND COMMAND IGNORE
 %token	YES NO BORDERWIDTH MOVEAMOUNT
-%token	COLOR
+%token	COLOR SNAPDIST
 %token	ACTIVEBORDER INACTIVEBORDER
 %token	GROUPBORDER UNGROUPBORDER
 %token	ERROR
@@ -120,6 +120,9 @@ main		: FONTNAME STRING		{
 		| MOVEAMOUNT NUMBER {
 			conf->mamount = $2;
 		}
+		| SNAPDIST NUMBER {
+			conf->snapdist = $2;
+		}
 		| COMMAND STRING string		{
 			conf_cmd_add(conf, $3, $2, 0);
 			free($2);
@@ -139,7 +142,7 @@ main		: FONTNAME STRING		{
 			struct winmatch	*wm;
 
 			wm = xcalloc(1, sizeof(*wm));
-			strlcpy(wm->title, $2, sizeof(wm->title));
+			(void)strlcpy(wm->title, $2, sizeof(wm->title));
 			TAILQ_INSERT_TAIL(&conf->ignoreq, wm, entry);
 
 			free($2);
@@ -166,8 +169,8 @@ color		: COLOR colors
 		;
 
 colors		: ACTIVEBORDER STRING {
-			free(conf->color[CWM_COLOR_BORDOR_ACTIVE].name);
-			conf->color[CWM_COLOR_BORDOR_ACTIVE].name = $2;
+			free(conf->color[CWM_COLOR_BORDER_ACTIVE].name);
+			conf->color[CWM_COLOR_BORDER_ACTIVE].name = $2;
 		}
 		| INACTIVEBORDER STRING {
 			free(conf->color[CWM_COLOR_BORDER_INACTIVE].name);
@@ -228,6 +231,7 @@ lookup(char *s)
 		{ "mousebind",		MOUSEBIND},
 		{ "moveamount",		MOVEAMOUNT},
 		{ "no",			NO},
+		{ "snapdist",		SNAPDIST},
 		{ "sticky",		STICKY},
 		{ "ungroupborder",	UNGROUPBORDER},
 		{ "yes",		YES}
@@ -498,7 +502,7 @@ parse_config(const char *filename, struct conf *xconf)
 		return (-1);
 	}
 
-	strlcpy(conf->conf_path, filename, sizeof(conf->conf_path));
+	(void)strlcpy(conf->conf_path, filename, sizeof(conf->conf_path));
 
 	conf_init(conf);
 
@@ -523,6 +527,7 @@ parse_config(const char *filename, struct conf *xconf)
 		xconf->flags = conf->flags;
 		xconf->bwidth = conf->bwidth;
 		xconf->mamount = conf->mamount;
+		xconf->snapdist = conf->snapdist;
 		xconf->gap = conf->gap;
 
 		while ((cmd = TAILQ_FIRST(&conf->cmdq)) != NULL) {
@@ -550,9 +555,9 @@ parse_config(const char *filename, struct conf *xconf)
 			TAILQ_INSERT_TAIL(&xconf->mousebindingq, mb, entry);
 		}
 
-		strlcpy(xconf->termpath, conf->termpath,
+		(void)strlcpy(xconf->termpath, conf->termpath,
 		    sizeof(xconf->termpath));
-		strlcpy(xconf->lockpath, conf->lockpath,
+		(void)strlcpy(xconf->lockpath, conf->lockpath,
 		    sizeof(xconf->lockpath));
 
 		for (i = 0; i < CWM_COLOR_MAX; i++)

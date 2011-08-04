@@ -35,22 +35,22 @@
 
 Display				*X_Dpy;
 
-Cursor				 Cursor_move;
-Cursor				 Cursor_resize;
-Cursor				 Cursor_select;
 Cursor				 Cursor_default;
+Cursor				 Cursor_move;
+Cursor				 Cursor_normal;
 Cursor				 Cursor_question;
+Cursor				 Cursor_resize;
 
 struct screen_ctx_q		 Screenq = TAILQ_HEAD_INITIALIZER(Screenq);
 struct client_ctx_q		 Clientq = TAILQ_HEAD_INITIALIZER(Clientq);
 
 int				 HasXinerama, HasRandr, Randr_ev;
-int				 Starting;
 struct conf			 Conf;
 
 static void	sigchld_cb(int);
 static void	dpy_init(const char *);
 static int	x_errorhandler(Display *, XErrorEvent *);
+static int	x_wmerrorhandler(Display *, XErrorEvent *);
 static void	x_setup(void);
 static void	x_setupscreen(struct screen_ctx *, u_int);
 static void	x_teardown(void);
@@ -80,14 +80,12 @@ main(int argc, char **argv)
 	if (signal(SIGCHLD, sigchld_cb) == SIG_ERR)
 		err(1, "signal");
 
-	Starting = 1;
 	dpy_init(display_name);
 
 	bzero(&Conf, sizeof(Conf));
 	conf_setup(&Conf, conf_file);
 	xu_getatoms();
 	x_setup();
-	Starting = 0;
 
 	xev_loop();
 
@@ -101,10 +99,15 @@ dpy_init(const char *dpyname)
 {
 	int	i;
 
+	XSetErrorHandler(x_errorhandler);
+
 	if ((X_Dpy = XOpenDisplay(dpyname)) == NULL)
 		errx(1, "unable to open display \"%s\"",
 		    XDisplayName(dpyname));
 
+	XSetErrorHandler(x_wmerrorhandler);
+	XSelectInput(X_Dpy, DefaultRootWindow(X_Dpy), SubstructureRedirectMask);
+	XSync(X_Dpy, False);
 	XSetErrorHandler(x_errorhandler);
 
 	HasRandr = XRRQueryExtension(X_Dpy, &Randr_ev, &i);
@@ -116,6 +119,12 @@ x_setup(void)
 	struct screen_ctx	*sc;
 	struct keybinding	*kb;
 	int			 i;
+
+	Cursor_default = XCreateFontCursor(X_Dpy, XC_X_cursor);
+	Cursor_move = XCreateFontCursor(X_Dpy, XC_fleur);
+	Cursor_normal = XCreateFontCursor(X_Dpy, XC_left_ptr);
+	Cursor_question = XCreateFontCursor(X_Dpy, XC_question_arrow);
+	Cursor_resize = XCreateFontCursor(X_Dpy, XC_bottom_right_corner);
 
 	for (i = 0; i < ScreenCount(X_Dpy); i++) {
 		sc = xcalloc(1, sizeof(*sc));
@@ -129,12 +138,6 @@ x_setup(void)
 	 */
 	TAILQ_FOREACH(kb, &Conf.keybindingq, entry)
 		conf_grab(&Conf, kb);
-
-	Cursor_move = XCreateFontCursor(X_Dpy, XC_fleur);
-	Cursor_resize = XCreateFontCursor(X_Dpy, XC_bottom_right_corner);
-	Cursor_select = XCreateFontCursor(X_Dpy, XC_hand1);
-	Cursor_default = XCreateFontCursor(X_Dpy, XC_X_cursor);
-	Cursor_question = XCreateFontCursor(X_Dpy, XC_question_arrow);
 }
 
 static void
@@ -176,11 +179,12 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 
 	xu_setwmname(sc);
 
-	rootattr.event_mask = ChildMask|PropertyChangeMask|EnterWindowMask|
-	    LeaveWindowMask|ColormapChangeMask|ButtonMask;
+	rootattr.cursor = Cursor_normal;
+	rootattr.event_mask = CHILDMASK|PropertyChangeMask|EnterWindowMask|
+	    LeaveWindowMask|ColormapChangeMask|BUTTONMASK;
 
 	XChangeWindowAttributes(X_Dpy, sc->rootwin,
-	    CWEventMask, &rootattr);
+	    CWEventMask|CWCursor, &rootattr);
 
 	/* Deal with existing clients. */
 	XQueryTree(X_Dpy, sc->rootwin, &w0, &w1, &wins, &nwins);
@@ -190,7 +194,7 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 		if (winattr.override_redirect ||
 		    winattr.map_state != IsViewable)
 			continue;
-		client_new(wins[i], sc, winattr.map_state != IsUnmapped);
+		(void)client_new(wins[i], sc, winattr.map_state != IsUnmapped);
 	}
 	XFree(wins);
 
@@ -212,27 +216,25 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 }
 
 static int
+x_wmerrorhandler(Display *dpy, XErrorEvent *e)
+{
+	errx(1, "root window unavailable - perhaps another wm is running?");
+
+	return (0);
+}
+static int
 x_errorhandler(Display *dpy, XErrorEvent *e)
 {
-#ifdef DEBUG
-	{
-		char msg[80], number[80], req[80];
+#if DEBUG
+	char msg[80], number[80], req[80];
 
-		XGetErrorText(X_Dpy, e->error_code, msg, sizeof(msg));
-		snprintf(number, sizeof(number), "%d", e->request_code);
-		XGetErrorDatabaseText(X_Dpy, "XRequest", number,
-		    "<unknown>", req, sizeof(req));
+	XGetErrorText(X_Dpy, e->error_code, msg, sizeof(msg));
+	(void)snprintf(number, sizeof(number), "%d", e->request_code);
+	XGetErrorDatabaseText(X_Dpy, "XRequest", number,
+	    "<unknown>", req, sizeof(req));
 
-		warnx("%s(0x%x): %s", req, (u_int)e->resourceid, msg);
-	}
+	warnx("%s(0x%x): %s", req, (u_int)e->resourceid, msg);
 #endif
-
-	if (Starting &&
-	    e->error_code == BadAccess &&
-	    e->request_code == X_GrabKey)
-		errx(1, "root window unavailable - perhaps another "
-		    "wm is running?");
-
 	return (0);
 }
 
@@ -256,6 +258,7 @@ usage(void)
 {
 	extern char	*__progname;
 
-	fprintf(stderr, "usage: %s [-c file] [-d display]\n", __progname);
+	(void)fprintf(stderr, "usage: %s [-c file] [-d display]\n",
+	    __progname);
 	exit(1);
 }

@@ -59,7 +59,7 @@ xu_btn_grab(Window win, int mask, u_int btn)
 	int	i;
 	for (i = 0; i < nitems(ign_mods); i++)
 		XGrabButton(X_Dpy, btn, (mask | ign_mods[i]), win,
-		    False, ButtonMask, GrabModeAsync,
+		    False, BUTTONMASK, GrabModeAsync,
 		    GrabModeSync, None, None);
 }
 
@@ -142,7 +142,7 @@ xu_sendmsg(Window win, Atom atm, long val)
 {
 	XEvent	 e;
 
-	memset(&e, 0, sizeof(e));
+	(void)memset(&e, 0, sizeof(e));
 	e.xclient.type = ClientMessage;
 	e.xclient.window = win;
 	e.xclient.message_type = atm;

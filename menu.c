@@ -31,8 +31,8 @@
 
 #include "calmwm.h"
 
-#define PROMPT_SCHAR	'»'
-#define PROMPT_ECHAR	'«'
+#define PROMPT_SCHAR	"\xc2\xbb"
+#define PROMPT_ECHAR	"\xc2\xab"
 
 enum ctltype {
 	CTL_NONE = -1,
@@ -76,8 +76,9 @@ menu_init(struct screen_ctx *sc)
 {
 	XGCValues	 gv;
 
-	sc->menuwin = XCreateSimpleWindow(X_Dpy, sc->rootwin, 0, 0, 1, 1, 0,
-	    sc->color[CWM_COLOR_BG_MENU].pixel,
+	sc->menuwin = XCreateSimpleWindow(X_Dpy, sc->rootwin, 0, 0, 1, 1,
+	    Conf.bwidth,
+	    sc->color[CWM_COLOR_FG_MENU].pixel,
 	    sc->color[CWM_COLOR_BG_MENU].pixel);
 
 	gv.foreground =
@@ -113,21 +114,21 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
 	ysave = mc.y;
 
 	if (prompt == NULL) {
-		evmask = MenuMask;
+		evmask = MENUMASK;
 		mc.promptstr[0] = '\0';
 		mc.list = 1;
 	} else {
-		evmask = MenuMask | KeyMask; /* only accept keys if prompt */
-		snprintf(mc.promptstr, sizeof(mc.promptstr), "%s%c", prompt,
-		    PROMPT_SCHAR);
-		snprintf(mc.dispstr, sizeof(mc.dispstr), "%s%s%c", mc.promptstr,
-		    mc.searchstr, PROMPT_ECHAR);
+		evmask = MENUMASK | KEYMASK; /* only accept keys if prompt */
+		(void)snprintf(mc.promptstr, sizeof(mc.promptstr), "%s%s",
+		    prompt, PROMPT_SCHAR);
+		(void)snprintf(mc.dispstr, sizeof(mc.dispstr), "%s%s%s",
+		    mc.promptstr, mc.searchstr, PROMPT_ECHAR);
 		mc.width = font_width(sc, mc.dispstr, strlen(mc.dispstr));
 		mc.hasprompt = 1;
 	}
 
 	if (initial != NULL)
-		strlcpy(mc.searchstr, initial, sizeof(mc.searchstr));
+		(void)strlcpy(mc.searchstr, initial, sizeof(mc.searchstr));
 	else
 		mc.searchstr[0] = '\0';
 
@@ -140,7 +141,7 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
 	XSelectInput(X_Dpy, sc->menuwin, evmask);
 	XMapRaised(X_Dpy, sc->menuwin);
 
-	if (xu_ptr_grab(sc->menuwin, MenuGrabMask, Cursor_question) < 0) {
+	if (xu_ptr_grab(sc->menuwin, MENUGRABMASK, Cursor_question) < 0) {
 		XUnmapWindow(X_Dpy, sc->menuwin);
 		return (NULL);
 	}
@@ -268,7 +269,7 @@ menu_handle_key(XEvent *e, struct menu_ctx *mc, struct menu_q *menuq,
 		str[0] = chr;
 		str[1] = '\0';
 		mc->changed = 1;
-		strlcat(mc->searchstr, str, sizeof(mc->searchstr));
+		(void)strlcat(mc->searchstr, str, sizeof(mc->searchstr));
 	}
 
 	mc->noresult = 0;
@@ -312,7 +313,7 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 	mc->width = 0;
 	dy = 0;
 	if (mc->hasprompt) {
-		snprintf(mc->dispstr, sizeof(mc->dispstr), "%s%s%c",
+		(void)snprintf(mc->dispstr, sizeof(mc->dispstr), "%s%s%s",
 		    mc->promptstr, mc->searchstr, PROMPT_ECHAR);
 		mc->width = font_width(sc, mc->dispstr, strlen(mc->dispstr));
 		dy = font_height(sc);
@@ -405,11 +406,11 @@ menu_handle_move(XEvent *e, struct menu_ctx *mc, struct screen_ctx *sc)
 		XFillRectangle(X_Dpy, sc->menuwin, sc->gc, 0,
 		    font_height(sc) * mc->prev, mc->width, font_height(sc));
 	if (mc->entry != -1) {
-		xu_ptr_regrab(MenuGrabMask, Cursor_select);
+		(void)xu_ptr_regrab(MENUGRABMASK, Cursor_normal);
 		XFillRectangle(X_Dpy, sc->menuwin, sc->gc, 0,
 		    font_height(sc) * mc->entry, mc->width, font_height(sc));
 	} else
-		xu_ptr_regrab(MenuGrabMask, Cursor_default);
+		(void)xu_ptr_regrab(MENUGRABMASK, Cursor_default);
 }
 
 static struct menu *

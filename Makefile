@@ -24,11 +24,10 @@ CFLAGS+=	-Wall -O2 -g
 LDADD+=		-L${X11BASE}/lib -lXft -lXrender -lX11 -lxcb -lXau -lXdmcp \
 		-lfontconfig -lexpat -lfreetype -lz -lXinerama -lXrandr -lXext
 
-MANDIR=		${X11BASE}/man/cat
+MANDIR=		${X11BASE}/man/man
 MAN=		cwm.1 cwmrc.5
 
 CLEANFILES=	cwm.cat1 cwmrc.cat5
-
 
 all: $(PROG)
 

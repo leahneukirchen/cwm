@@ -45,7 +45,7 @@ font_descent(struct screen_ctx *sc)
 u_int
 font_height(struct screen_ctx *sc)
 {
-	return (sc->fontheight);
+	return (sc->font->height + 1);
 }
 
 void
@@ -66,7 +66,7 @@ font_width(struct screen_ctx *sc, const char *text, int len)
 {
 	XGlyphInfo	 extents;
 
-	XftTextExtents8(X_Dpy, sc->font, (const XftChar8*)text,
+	XftTextExtentsUtf8(X_Dpy, sc->font, (const FcChar8*)text,
 	    len, &extents);
 
 	return (extents.xOff);
@@ -77,8 +77,7 @@ font_draw(struct screen_ctx *sc, const char *text, int len,
     Drawable d, int x, int y)
 {
 	XftDrawChange(sc->xftdraw, d);
-	/* Really needs to be UTF8'd. */
-	XftDrawString8(sc->xftdraw, &sc->xftcolor, sc->font, x, y,
+	XftDrawStringUtf8(sc->xftdraw, &sc->xftcolor, sc->font, x, y,
 	    (const FcChar8*)text, len);
 }
 

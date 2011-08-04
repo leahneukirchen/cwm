@@ -411,14 +411,14 @@ xev_handle_expose(XEvent *ee)
 		client_draw_border(cc);
 }
 
-volatile sig_atomic_t	_xev_quit = 0;
+volatile sig_atomic_t	xev_quit = 0;
 
 void
 xev_loop(void)
 {
 	XEvent		 e;
 
-	while (_xev_quit == 0) {
+	while (xev_quit == 0) {
 		XNextEvent(X_Dpy, &e);
 		if (e.type - Randr_ev == RRScreenChangeNotify)
 			xev_handle_randr(&e);

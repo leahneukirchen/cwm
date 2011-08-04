@@ -377,10 +377,10 @@ group_menu(XButtonEvent *e)
 
 		mi = xcalloc(1, sizeof(*mi));
 		if (gc->hidden)
-			snprintf(mi->text, sizeof(mi->text), "%d: [%s]",
+			(void)snprintf(mi->text, sizeof(mi->text), "%d: [%s]",
 			    gc->shortcut, sc->group_names[i]);
 		else
-			snprintf(mi->text, sizeof(mi->text), "%d: %s",
+			(void)snprintf(mi->text, sizeof(mi->text), "%d: %s",
 			    gc->shortcut, sc->group_names[i]);
 		mi->ctx = gc;
 		TAILQ_INSERT_TAIL(&menuq, mi, entry);
@@ -533,7 +533,7 @@ group_set_names(struct screen_ctx *sc)
 	tlen = len;
 	for (i = 0; i < sc->group_nonames; i++) {
 		slen = strlen(sc->group_names[i]) + 1;
-		strlcpy(q, sc->group_names[i], tlen);
+		(void)strlcpy(q, sc->group_names[i], tlen);
 		tlen -= slen;
 		q += slen;
 	}

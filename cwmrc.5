@@ -14,7 +14,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
-.Dd $Mdocdate: September 25 2010 $
+.Dd $Mdocdate: June 24 2011 $
 .Dt CWMRC 5
 .Os
 .Sh NAME
@@ -24,7 +24,19 @@
 This manual page describes the
 .Xr cwm 1
 configuration file.
-The following options are accepted in the configuration file:
+.Pp
+The current line can be extended over multiple lines using a backslash
+.Pq Sq \e .
+Comments can be put anywhere in the file using a hash mark
+.Pq Sq # ,
+and extend to the end of the current line.
+Care should be taken when commenting out multi-line text:
+the comment is effective until the end of the entire block.
+.Pp
+Arguments containing whitespace should be surrounded by double quotes
+.Pq \&" .
+.Pp
+The following options are accepted:
 .Pp
 .Bl -tag -width Ds -compact
 .It Ic autogroup Ar group windowname
@@ -277,6 +289,8 @@ Reverse cycle through groups.
 Forward cycle through windows.
 .It rcycle
 Reverse cycle through windows.
+.It snapdist
+Minimum distance to snap-to adjacent edge.
 .It delete
 Delete current window.
 .It hide
@@ -400,6 +414,8 @@ Move current window.
 Resize current window.
 .It window_lower
 Lower current window.
+.It window_raise
+Raise current window.
 .It window_hide
 Hide current window.
 .It window_grouptoggle

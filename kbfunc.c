@@ -25,6 +25,7 @@
 #include <err.h>
 #include <errno.h>
 #include <paths.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -35,7 +36,7 @@
 #define KNOWN_HOSTS	".ssh/known_hosts"
 #define HASH_MARKER	"|1|"
 
-extern int		_xev_quit;
+extern sig_atomic_t	xev_quit;
 
 void
 kbfunc_client_lower(struct client_ctx *cc, union arg *arg)
@@ -49,8 +50,8 @@ kbfunc_client_raise(struct client_ctx *cc, union arg *arg)
 	client_raise(cc);
 }
 
-#define typemask	(CWM_MOVE | CWM_RESIZE | CWM_PTRMOVE)
-#define movemask	(CWM_UP | CWM_DOWN | CWM_LEFT | CWM_RIGHT)
+#define TYPEMASK	(CWM_MOVE | CWM_RESIZE | CWM_PTRMOVE)
+#define MOVEMASK	(CWM_UP | CWM_DOWN | CWM_LEFT | CWM_RIGHT)
 void
 kbfunc_moveresize(struct client_ctx *cc, union arg *arg)
 {
@@ -72,7 +73,7 @@ kbfunc_moveresize(struct client_ctx *cc, union arg *arg)
 		amt = amt * 10;
 	}
 
-	switch (flags & movemask) {
+	switch (flags & MOVEMASK) {
 	case CWM_UP:
 		my -= amt;
 		break;
@@ -86,7 +87,7 @@ kbfunc_moveresize(struct client_ctx *cc, union arg *arg)
 		mx -= amt;
 		break;
 	}
-	switch (flags & typemask) {
+	switch (flags & TYPEMASK) {
 	case CWM_MOVE:
 		cc->geom.y += my;
 		if (cc->geom.y + cc->geom.height < 0)
@@ -99,6 +100,13 @@ kbfunc_moveresize(struct client_ctx *cc, union arg *arg)
 			cc->geom.x = -cc->geom.width;
 		if (cc->geom.x > cc->sc->xmax - 1)
 			cc->geom.x = cc->sc->xmax - 1;
+
+		cc->geom.x += client_snapcalc(cc->geom.x,
+		    cc->geom.width, cc->sc->xmax,
+		    cc->bwidth, Conf.snapdist);
+		cc->geom.y += client_snapcalc(cc->geom.y,
+		    cc->geom.height, cc->sc->ymax,
+		    cc->bwidth, Conf.snapdist);
 
 		client_move(cc);
 		xu_ptr_getpos(cc->win, &x, &y);
@@ -150,7 +158,7 @@ kbfunc_client_search(struct client_ctx *cc, union arg *arg)
 
 	TAILQ_FOREACH(cc, &Clientq, entry) {
 		mi = xcalloc(1, sizeof(*mi));
-		strlcpy(mi->text, cc->name, sizeof(mi->text));
+		(void)strlcpy(mi->text, cc->name, sizeof(mi->text));
 		mi->ctx = cc;
 		TAILQ_INSERT_TAIL(&menuq, mi, entry);
 	}
@@ -185,7 +193,7 @@ kbfunc_menu_search(struct client_ctx *cc, union arg *arg)
 
 	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
 		mi = xcalloc(1, sizeof(*mi));
-		strlcpy(mi->text, cmd->label, sizeof(mi->text));
+		(void)strlcpy(mi->text, cmd->label, sizeof(mi->text));
 		mi->ctx = cmd;
 		TAILQ_INSERT_TAIL(&menuq, mi, entry);
 	}
@@ -284,7 +292,7 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 			/* skip everything but regular files and symlinks */
 			if (dp->d_type != DT_REG && dp->d_type != DT_LNK)
 				continue;
-			memset(tpath, '\0', sizeof(tpath));
+			(void)memset(tpath, '\0', sizeof(tpath));
 			l = snprintf(tpath, sizeof(tpath), "%s/%s", paths[i],
 			    dp->d_name);
 			/* check for truncation etc */
@@ -292,7 +300,8 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 				continue;
 			if (access(tpath, X_OK) == 0) {
 				mi = xcalloc(1, sizeof(*mi));
-				strlcpy(mi->text, dp->d_name, sizeof(mi->text));
+				(void)strlcpy(mi->text,
+				    dp->d_name, sizeof(mi->text));
 				TAILQ_INSERT_TAIL(&menuq, mi, entry);
 			}
 		}
@@ -359,7 +368,7 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 		else {
 			/* EOF without EOL, copy and add the NUL */
 			lbuf = xmalloc(len + 1);
-			memcpy(lbuf, buf, len);
+			(void)memcpy(lbuf, buf, len);
 			lbuf[len] = '\0';
 			buf = lbuf;
 		}
@@ -372,13 +381,13 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 		/* ignore badness */
 		if (p - buf + 1 > sizeof(hostbuf))
 			continue;
-		(void) strlcpy(hostbuf, buf, p - buf + 1);
+		(void)strlcpy(hostbuf, buf, p - buf + 1);
 		mi = xcalloc(1, sizeof(*mi));
-		(void) strlcpy(mi->text, hostbuf, sizeof(mi->text));
+		(void)strlcpy(mi->text, hostbuf, sizeof(mi->text));
 		TAILQ_INSERT_TAIL(&menuq, mi, entry);
 	}
 	xfree(lbuf);
-	fclose(fp);
+	(void)fclose(fp);
 
 	if ((mi = menu_filter(sc, &menuq, "ssh", NULL, 1,
 	    search_match_exec, NULL)) != NULL) {
@@ -491,7 +500,7 @@ kbfunc_client_freeze(struct client_ctx *cc, union arg *arg)
 void
 kbfunc_quit_wm(struct client_ctx *cc, union arg *arg)
 {
-	_xev_quit = 1;
+	xev_quit = 1;
 }
 
 void

@@ -46,7 +46,7 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 
 	TAILQ_INIT(resultq);
 
-	memset(tierp, 0, sizeof(tierp));
+	(void)memset(tierp, 0, sizeof(tierp));
 
 	/*
 	 * In order of rank:
@@ -134,7 +134,8 @@ search_print_client(struct menu *mi, int list)
 	if (list)
 		cc->matchname = cc->name;
 
-	snprintf(mi->print, sizeof(mi->print), "%c%s", flag, cc->matchname);
+	(void)snprintf(mi->print, sizeof(mi->print), "%c%s", flag,
+	    cc->matchname);
 
 	if (!list && cc->matchname != cc->name &&
 	    strlen(mi->print) < sizeof(mi->print) - 1) {
@@ -154,8 +155,8 @@ search_print_client(struct menu *mi, int list)
 			diff = strlen(cc->name);
 		}
 
-		strlcpy(buf, mi->print, sizeof(buf));
-		snprintf(mi->print, sizeof(mi->print),
+		(void)strlcpy(buf, mi->print, sizeof(buf));
+		(void)snprintf(mi->print, sizeof(mi->print),
 		    "%s:%.*s%s", buf, diff, cc->name, marker);
 	}
 }
