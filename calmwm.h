@@ -90,8 +90,8 @@ enum cwmcolor {
 };
 
 struct color {
-	unsigned long	 pixel;
 	char		*name;
+	unsigned long	 pixel;
 };
 
 struct gap {
@@ -277,12 +277,6 @@ struct conf {
 #define	CONF_SNAPDIST			0
 	int			 snapdist;
 	struct gap		 gap;
-#define CONF_COLOR_ACTIVEBORDER		"#CCCCCC"
-#define CONF_COLOR_INACTIVEBORDER	"#666666"
-#define CONF_COLOR_GROUPBORDER		"blue"
-#define CONF_COLOR_UNGROUPBORDER	"red"
-#define CONF_COLOR_MENUFG		"black"
-#define CONF_COLOR_MENUBG		"white"
 	struct color		 color[CWM_COLOR_MAX];
 	char			 termpath[MAXPATHLEN];
 	char			 lockpath[MAXPATHLEN];
