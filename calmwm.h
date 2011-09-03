@@ -285,8 +285,8 @@ struct conf {
 	struct color		 color[CWM_COLOR_MAX];
 	char			 termpath[MAXPATHLEN];
 	char			 lockpath[MAXPATHLEN];
-#define	DEFAULTFONTNAME			"sans-serif:pixelsize=14:bold"
-	char			*DefaultFontName;
+#define	CONF_FONT			"sans-serif:pixelsize=14:bold"
+	char			*font;
 };
 
 /* MWM hints */

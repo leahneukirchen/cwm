@@ -62,7 +62,7 @@ conf_gap(struct conf *c, struct screen_ctx *sc)
 void
 conf_font(struct conf *c, struct screen_ctx *sc)
 {
-	sc->font = font_make(sc, c->DefaultFontName);
+	sc->font = font_make(sc, c->font);
 }
 
 void
@@ -208,7 +208,7 @@ conf_init(struct conf *c)
 	c->color[CWM_COLOR_BG_MENU].name =
 	    xstrdup(CONF_COLOR_MENUBG);
 
-	c->DefaultFontName = xstrdup(DEFAULTFONTNAME);
+	c->font = xstrdup(CONF_FONT);
 }
 
 void
@@ -252,7 +252,7 @@ conf_clear(struct conf *c)
 	for (i = 0; i < CWM_COLOR_MAX; i++)
 		xfree(c->color[i].name);
 
-	xfree(c->DefaultFontName);
+	xfree(c->font);
 }
 
 void

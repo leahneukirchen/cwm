@@ -105,8 +105,8 @@ yesno		: YES				{ $$ = 1; }
 		;
 
 main		: FONTNAME STRING		{
-			free(conf->DefaultFontName);
-			conf->DefaultFontName = $2;
+			free(conf->font);
+			conf->font = $2;
 		}
 		| STICKY yesno {
 			if ($2 == 0)
@@ -561,7 +561,7 @@ parse_config(const char *filename, struct conf *xconf)
 		for (i = 0; i < CWM_COLOR_MAX; i++)
 			xconf->color[i].name = conf->color[i].name;
 
-		xconf->DefaultFontName = conf->DefaultFontName;
+		xconf->font = conf->font;
 	}
 
 	free(conf);
