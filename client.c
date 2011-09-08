@@ -281,39 +281,49 @@ client_maximize(struct client_ctx *cc)
 	if (cc->flags & CLIENT_FREEZE)
 		return;
 
-	if (cc->flags & CLIENT_MAXIMIZED) {
+	if ((cc->flags & CLIENT_MAXFLAGS) == CLIENT_MAXIMIZED) {
+		cc->flags &= ~CLIENT_MAXIMIZED;
 		cc->geom = cc->savegeom;
 		cc->bwidth = Conf.bwidth;
-		cc->flags &= ~CLIENT_MAXIMIZED;
-	} else {
-		if (!(cc->flags & (CLIENT_VMAXIMIZED | CLIENT_HMAXIMIZED)))
-			cc->savegeom = cc->geom;
-		if (HasXinerama) {
-			XineramaScreenInfo *xine;
-			/*
-			 * pick screen that the middle of the window is on.
-			 * that's probably more fair than if just the origin of
-			 * a window is poking over a boundary
-			 */
-			xine = screen_find_xinerama(sc,
-			    cc->geom.x + cc->geom.width / 2,
-			    cc->geom.y + cc->geom.height / 2);
-			if (xine == NULL)
-				goto calc;
-			x_org = xine->x_org;
-			y_org = xine->y_org;
-			xmax = xine->width;
-			ymax = xine->height;
-		}
-calc:
-		cc->geom.x = x_org + sc->gap.left;
-		cc->geom.y = y_org + sc->gap.top;
-		cc->geom.height = ymax - (sc->gap.top + sc->gap.bottom);
-		cc->geom.width = xmax - (sc->gap.left + sc->gap.right);
-		cc->bwidth = 0;
-		cc->flags |= CLIENT_MAXIMIZED;
+		goto resize;
 	}
 
+	if ((cc->flags & CLIENT_VMAXIMIZED) == 0) {
+		cc->savegeom.height = cc->geom.height;
+		cc->savegeom.y = cc->geom.y;
+	}
+
+	if ((cc->flags & CLIENT_HMAXIMIZED) == 0) {
+		cc->savegeom.width = cc->geom.width;
+		cc->savegeom.x = cc->geom.x;
+	}
+
+	if (HasXinerama) {
+		XineramaScreenInfo *xine;
+		/*
+		 * pick screen that the middle of the window is on.
+		 * that's probably more fair than if just the origin of
+		 * a window is poking over a boundary
+		 */
+		xine = screen_find_xinerama(sc,
+		    cc->geom.x + cc->geom.width / 2,
+		    cc->geom.y + cc->geom.height / 2);
+		if (xine == NULL)
+			goto calc;
+		x_org = xine->x_org;
+		y_org = xine->y_org;
+		xmax = xine->width;
+		ymax = xine->height;
+	}
+calc:
+	cc->geom.x = x_org + sc->gap.left;
+	cc->geom.y = y_org + sc->gap.top;
+	cc->geom.height = ymax - (sc->gap.top + sc->gap.bottom);
+	cc->geom.width = xmax - (sc->gap.left + sc->gap.right);
+	cc->bwidth = 0;
+	cc->flags |= CLIENT_MAXIMIZED;
+
+resize:
 	client_resize(cc);
 }
 
@@ -330,27 +340,38 @@ client_vertmaximize(struct client_ctx *cc)
 		cc->geom.y = cc->savegeom.y;
 		cc->geom.height = cc->savegeom.height;
 		cc->bwidth = Conf.bwidth;
+		if (cc->flags & CLIENT_HMAXIMIZED)
+			cc->geom.width -= cc->bwidth * 2;
 		cc->flags &= ~CLIENT_VMAXIMIZED;
-	} else {
-		if (!(cc->flags & (CLIENT_MAXIMIZED | CLIENT_HMAXIMIZED)))
-			cc->savegeom = cc->geom;
-		if (HasXinerama) {
-			XineramaScreenInfo *xine;
-			xine = screen_find_xinerama(sc,
-			    cc->geom.x + cc->geom.width / 2,
-			    cc->geom.y + cc->geom.height / 2);
-			if (xine == NULL)
-				goto calc;
-			y_org = xine->y_org;
-			ymax = xine->height;
-		}
-calc:
-		cc->geom.y = y_org + sc->gap.top;
-		cc->geom.height = ymax - (cc->bwidth * 2) - (sc->gap.top +
-		    sc->gap.bottom);
-		cc->flags |= CLIENT_VMAXIMIZED;
+		goto resize;
 	}
 
+	cc->savegeom.y = cc->geom.y;
+	cc->savegeom.height = cc->geom.height;
+
+	/* if this will make us fully maximized then remove boundary */
+	if ((cc->flags & CLIENT_MAXFLAGS) == CLIENT_HMAXIMIZED) {
+		cc->geom.width += Conf.bwidth * 2;
+		cc->bwidth = 0;
+	}
+
+	if (HasXinerama) {
+		XineramaScreenInfo *xine;
+		xine = screen_find_xinerama(sc,
+		    cc->geom.x + cc->geom.width / 2,
+		    cc->geom.y + cc->geom.height / 2);
+		if (xine == NULL)
+			goto calc;
+		y_org = xine->y_org;
+		ymax = xine->height;
+	}
+calc:
+	cc->geom.y = y_org + sc->gap.top;
+	cc->geom.height = ymax - (cc->bwidth * 2) - (sc->gap.top +
+	    sc->gap.bottom);
+	cc->flags |= CLIENT_VMAXIMIZED;
+
+resize:
 	client_resize(cc);
 }
 
@@ -367,27 +388,38 @@ client_horizmaximize(struct client_ctx *cc)
 		cc->geom.x = cc->savegeom.x;
 		cc->geom.width = cc->savegeom.width;
 		cc->bwidth = Conf.bwidth;
+		if (cc->flags & CLIENT_VMAXIMIZED)
+			cc->geom.height -= cc->bwidth * 2;
 		cc->flags &= ~CLIENT_HMAXIMIZED;
-	} else {
-		if (!(cc->flags & (CLIENT_MAXIMIZED | CLIENT_VMAXIMIZED)))
-			cc->savegeom = cc->geom;
-		if (HasXinerama) {
-			XineramaScreenInfo *xine;
-			xine = screen_find_xinerama(sc,
-			    cc->geom.x + cc->geom.width / 2,
-			    cc->geom.y + cc->geom.height / 2);
-			if (xine == NULL)
-				goto calc;
-			x_org = xine->x_org;
-			xmax = xine->width;
-		}
-calc:
-		cc->geom.x = x_org + sc->gap.left;
-		cc->geom.width = xmax - (cc->bwidth * 2) - (sc->gap.left +
-		    sc->gap.right);
-		cc->flags |= CLIENT_HMAXIMIZED;
+		goto resize;
+	} 
+
+	cc->savegeom.x = cc->geom.x;
+	cc->savegeom.width = cc->geom.width;
+
+	/* if this will make us fully maximized then remove boundary */
+	if ((cc->flags & CLIENT_MAXFLAGS) == CLIENT_VMAXIMIZED) {
+		cc->geom.height += cc->bwidth * 2;
+		cc->bwidth = 0;
 	}
 
+	if (HasXinerama) {
+		XineramaScreenInfo *xine;
+		xine = screen_find_xinerama(sc,
+		    cc->geom.x + cc->geom.width / 2,
+		    cc->geom.y + cc->geom.height / 2);
+		if (xine == NULL)
+			goto calc;
+		x_org = xine->x_org;
+		xmax = xine->width;
+	}
+calc:
+	cc->geom.x = x_org + sc->gap.left;
+	cc->geom.width = xmax - (cc->bwidth * 2) - (sc->gap.left +
+	    sc->gap.right);
+	cc->flags |= CLIENT_HMAXIMIZED;
+
+resize:
 	client_resize(cc);
 }
 
@@ -567,7 +599,7 @@ match:
 }
 
 void
-client_cycle(struct screen_ctx *sc, int reverse)
+client_cycle(struct screen_ctx *sc, int flags)
 {
 	struct client_ctx	*oldcc, *newcc;
 	int			 again = 1;
@@ -579,18 +611,19 @@ client_cycle(struct screen_ctx *sc, int reverse)
 		return;
 
 	if (oldcc == NULL)
-		oldcc = (reverse ? TAILQ_LAST(&sc->mruq, cycle_entry_q) :
+		oldcc = (flags & CWM_RCYCLE ? TAILQ_LAST(&sc->mruq, cycle_entry_q) :
 		    TAILQ_FIRST(&sc->mruq));
 
 	newcc = oldcc;
 	while (again) {
 		again = 0;
 
-		newcc = (reverse ? client_mruprev(newcc) :
+		newcc = (flags & CWM_RCYCLE ? client_mruprev(newcc) :
 		    client_mrunext(newcc));
 
 		/* Only cycle visible and non-ignored windows. */
-		if (newcc->flags & (CLIENT_HIDDEN|CLIENT_IGNORE))
+		if ((newcc->flags & (CLIENT_HIDDEN|CLIENT_IGNORE))
+			|| ((flags & CWM_INGROUP) && (newcc->group != oldcc->group)))
 			again = 1;
 
 		/* Is oldcc the only non-hidden window? */
@@ -724,36 +757,36 @@ client_getsizehints(struct client_ctx *cc)
 		cc->size->flags = PSize;
 
 	if (cc->size->flags & PBaseSize) {
-		cc->geom.basew = cc->size->base_width;
-		cc->geom.baseh = cc->size->base_height;
+		cc->hint.basew = cc->size->base_width;
+		cc->hint.baseh = cc->size->base_height;
 	} else if (cc->size->flags & PMinSize) {
-		cc->geom.basew = cc->size->min_width;
-		cc->geom.baseh = cc->size->min_height;
+		cc->hint.basew = cc->size->min_width;
+		cc->hint.baseh = cc->size->min_height;
 	}
 	if (cc->size->flags & PMinSize) {
-		cc->geom.minw = cc->size->min_width;
-		cc->geom.minh = cc->size->min_height;
+		cc->hint.minw = cc->size->min_width;
+		cc->hint.minh = cc->size->min_height;
 	} else if (cc->size->flags & PBaseSize) {
-		cc->geom.minw = cc->size->base_width;
-		cc->geom.minh = cc->size->base_height;
+		cc->hint.minw = cc->size->base_width;
+		cc->hint.minh = cc->size->base_height;
 	}
 	if (cc->size->flags & PMaxSize) {
-		cc->geom.maxw = cc->size->max_width;
-		cc->geom.maxh = cc->size->max_height;
+		cc->hint.maxw = cc->size->max_width;
+		cc->hint.maxh = cc->size->max_height;
 	}
 	if (cc->size->flags & PResizeInc) {
-		cc->geom.incw = cc->size->width_inc;
-		cc->geom.inch = cc->size->height_inc;
+		cc->hint.incw = cc->size->width_inc;
+		cc->hint.inch = cc->size->height_inc;
 	}
-	cc->geom.incw = MAX(1, cc->geom.incw);
-	cc->geom.inch = MAX(1, cc->geom.inch);
+	cc->hint.incw = MAX(1, cc->hint.incw);
+	cc->hint.inch = MAX(1, cc->hint.inch);
 
 	if (cc->size->flags & PAspect) {
 		if (cc->size->min_aspect.x > 0)
-			cc->geom.mina = (float)cc->size->min_aspect.y /
+			cc->hint.mina = (float)cc->size->min_aspect.y /
 			    cc->size->min_aspect.x;
 		if (cc->size->max_aspect.y > 0)
-			cc->geom.maxa = (float)cc->size->max_aspect.x /
+			cc->hint.maxa = (float)cc->size->max_aspect.x /
 			    cc->size->max_aspect.y;
 	}
 }
@@ -762,48 +795,48 @@ client_applysizehints(struct client_ctx *cc)
 {
 	Bool		 baseismin;
 
-	baseismin = (cc->geom.basew == cc->geom.minw) &&
-	    (cc->geom.baseh == cc->geom.minh);
+	baseismin = (cc->hint.basew == cc->hint.minw) &&
+	    (cc->hint.baseh == cc->hint.minh);
 
 	/* temporarily remove base dimensions, ICCCM 4.1.2.3 */
 	if (!baseismin) {
-		cc->geom.width -= cc->geom.basew;
-		cc->geom.height -= cc->geom.baseh;
+		cc->geom.width -= cc->hint.basew;
+		cc->geom.height -= cc->hint.baseh;
 	}
 
 	/* adjust for aspect limits */
-	if (cc->geom.mina > 0 && cc->geom.maxa > 0) {
-		if (cc->geom.maxa <
+	if (cc->hint.mina > 0 && cc->hint.maxa > 0) {
+		if (cc->hint.maxa <
 		    (float)cc->geom.width / cc->geom.height)
-			cc->geom.width = cc->geom.height * cc->geom.maxa;
-		else if (cc->geom.mina <
+			cc->geom.width = cc->geom.height * cc->hint.maxa;
+		else if (cc->hint.mina <
 		    (float)cc->geom.height / cc->geom.width)
-			cc->geom.height = cc->geom.width * cc->geom.mina;
+			cc->geom.height = cc->geom.width * cc->hint.mina;
 	}
 
 	/* remove base dimensions for increment */
 	if (baseismin) {
-		cc->geom.width -= cc->geom.basew;
-		cc->geom.height -= cc->geom.baseh;
+		cc->geom.width -= cc->hint.basew;
+		cc->geom.height -= cc->hint.baseh;
 	}
 
 	/* adjust for increment value */
-	cc->geom.width -= cc->geom.width % cc->geom.incw;
-	cc->geom.height -= cc->geom.height % cc->geom.inch;
+	cc->geom.width -= cc->geom.width % cc->hint.incw;
+	cc->geom.height -= cc->geom.height % cc->hint.inch;
 
 	/* restore base dimensions */
-	cc->geom.width += cc->geom.basew;
-	cc->geom.height += cc->geom.baseh;
+	cc->geom.width += cc->hint.basew;
+	cc->geom.height += cc->hint.baseh;
 
 	/* adjust for min width/height */
-	cc->geom.width = MAX(cc->geom.width, cc->geom.minw);
-	cc->geom.height = MAX(cc->geom.height, cc->geom.minh);
+	cc->geom.width = MAX(cc->geom.width, cc->hint.minw);
+	cc->geom.height = MAX(cc->geom.height, cc->hint.minh);
 
 	/* adjust for max width/height */
-	if (cc->geom.maxw)
-		cc->geom.width = MIN(cc->geom.width, cc->geom.maxw);
-	if (cc->geom.maxh)
-		cc->geom.height = MIN(cc->geom.height, cc->geom.maxh);
+	if (cc->hint.maxw)
+		cc->geom.width = MIN(cc->geom.width, cc->hint.maxw);
+	if (cc->hint.maxh)
+		cc->geom.height = MIN(cc->geom.height, cc->hint.maxh);
 }
 
 static void

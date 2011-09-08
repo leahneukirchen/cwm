@@ -31,13 +31,6 @@
 
 #include "calmwm.h"
 
-#ifndef timespeccmp
-#define timespeccmp(tsp, usp, cmp)			\
-	(((tsp)->tv_sec == (usp)->tv_sec) ?		\
-	    ((tsp)->tv_nsec cmp (usp)->tv_nsec) :	\
-	    ((tsp)->tv_sec cmp (usp)->tv_sec))
-#endif
-
 static void	 conf_mouseunbind(struct conf *, struct mousebinding *);
 static void	 conf_unbind(struct conf *, struct keybinding *);
 
@@ -69,8 +62,19 @@ conf_gap(struct conf *c, struct screen_ctx *sc)
 void
 conf_font(struct conf *c, struct screen_ctx *sc)
 {
-	sc->font = font_make(sc, c->DefaultFontName);
+	font_init(sc, c->color[CWM_COLOR_FONT].name);
+	sc->font = font_make(sc, c->font);
 }
+
+static struct color color_binds[] = {
+	{ "#CCCCCC",	0 }, /* CWM_COLOR_BORDOR_ACTIVE */
+	{ "#666666",	0 }, /* CWM_COLOR_BORDOR_INACTIVE */
+	{ "blue",	0 }, /* CWM_COLOR_BORDOR_GROUP */
+	{ "red",	0 }, /* CWM_COLOR_BORDOR_UNGROUP */
+	{ "black",	0 }, /* CWM_COLOR_FG_MENU */
+	{ "white",	0 }, /* CWM_COLOR_BG_MENU */
+	{ "black",	0 }, /* CWM_COLOR_FONT */
+};
 
 void
 conf_color(struct conf *c, struct screen_ctx *sc)
@@ -98,6 +102,7 @@ conf_reload(struct conf *c)
 		conf_gap(c, sc);
 		conf_color(c, sc);
 		conf_font(c, sc);
+		menu_init(sc);
 	}
 	TAILQ_FOREACH(cc, &Clientq, entry)
 		client_draw_border(cc);
@@ -198,24 +203,14 @@ conf_init(struct conf *c)
 	for (i = 0; i < nitems(m_binds); i++)
 		conf_mousebind(c, m_binds[i].key, m_binds[i].func);
 
+	for (i = 0; i < nitems(color_binds); i++)
+		c->color[i].name = xstrdup(color_binds[i].name);
+
 	/* Default term/lock */
 	(void)strlcpy(c->termpath, "xterm", sizeof(c->termpath));
 	(void)strlcpy(c->lockpath, "xlock", sizeof(c->lockpath));
 
-	c->color[CWM_COLOR_BORDER_ACTIVE].name =
-	    xstrdup(CONF_COLOR_ACTIVEBORDER);
-	c->color[CWM_COLOR_BORDER_INACTIVE].name =
-	    xstrdup(CONF_COLOR_INACTIVEBORDER);
-	c->color[CWM_COLOR_BORDER_GROUP].name =
-	    xstrdup(CONF_COLOR_GROUPBORDER);
-	c->color[CWM_COLOR_BORDER_UNGROUP].name =
-	    xstrdup(CONF_COLOR_UNGROUPBORDER);
-	c->color[CWM_COLOR_FG_MENU].name =
-	    xstrdup(CONF_COLOR_MENUFG);
-	c->color[CWM_COLOR_BG_MENU].name =
-	    xstrdup(CONF_COLOR_MENUBG);
-
-	c->DefaultFontName = xstrdup(DEFAULTFONTNAME);
+	c->font = xstrdup(CONF_FONT);
 }
 
 void
@@ -259,32 +254,38 @@ conf_clear(struct conf *c)
 	for (i = 0; i < CWM_COLOR_MAX; i++)
 		xfree(c->color[i].name);
 
-	xfree(c->DefaultFontName);
+	xfree(c->font);
 }
 
 void
 conf_setup(struct conf *c, const char *conf_file)
 {
+	char		*home;
 	struct stat	 sb;
+	int		 parse = 0;
+
+	conf_init(c);
 
 	if (conf_file == NULL) {
-		char *home = getenv("HOME");
-
-		if (home == NULL)
+		if ((home = getenv("HOME")) == NULL)
 			errx(1, "No HOME directory.");
 
 		(void)snprintf(c->conf_path, sizeof(c->conf_path), "%s/%s",
 		    home, CONFFILE);
-	} else
+
+		if (stat(c->conf_path, &sb) == 0 && (sb.st_mode & S_IFREG))
+			parse = 1;
+	} else {
 		if (stat(conf_file, &sb) == -1 || !(sb.st_mode & S_IFREG))
 			errx(1, "%s: %s", conf_file, strerror(errno));
-		else
+		else {
 			(void)strlcpy(c->conf_path, conf_file,
 			    sizeof(c->conf_path));
+			parse = 1;
+		}
+	}
 
-	conf_init(c);
-
-	if (parse_config(c->conf_path, c) == -1)
+	if (parse && (parse_config(c->conf_path, c) == -1))
 		warnx("config file %s has errors, not loading", c->conf_path);
 }
 
@@ -360,6 +361,8 @@ static struct {
 	{ "nogroup", kbfunc_client_nogroup, 0, {0} },
 	{ "cyclegroup", kbfunc_client_cyclegroup, 0, {.i = CWM_CYCLE} },
 	{ "rcyclegroup", kbfunc_client_cyclegroup, 0, {.i = CWM_RCYCLE} },
+	{ "cycleingroup", kbfunc_client_cycle, KBFLAG_NEEDCLIENT, {.i = CWM_CYCLE|CWM_INGROUP} },
+	{ "rcycleingroup", kbfunc_client_cycle, KBFLAG_NEEDCLIENT, {.i = CWM_RCYCLE|CWM_INGROUP} },
 	{ "grouptoggle", kbfunc_client_grouptoggle, KBFLAG_NEEDCLIENT, {0}},
 	{ "maximize", kbfunc_client_maximize, KBFLAG_NEEDCLIENT, {0} },
 	{ "vmaximize", kbfunc_client_vmaximize, KBFLAG_NEEDCLIENT, {0} },

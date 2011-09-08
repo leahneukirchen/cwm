@@ -169,7 +169,6 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	conf_color(&Conf, sc);
 
 	group_init(sc);
-	font_init(sc);
 	conf_font(&Conf, sc);
 
 	TAILQ_INIT(&sc->mruq);

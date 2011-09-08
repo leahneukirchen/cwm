@@ -76,8 +76,9 @@ size_t strlcat(char *, const char *, size_t);
 #define	CWM_EXEC_WM		0x0002
 
 /* cycle */
-#define CWM_CYCLE		0
-#define CWM_RCYCLE		1
+#define CWM_CYCLE		0x0001
+#define CWM_RCYCLE		0x0002
+#define CWM_INGROUP		0x0004
 
 #define KBTOGROUP(X) ((X) - 1)
 
@@ -93,12 +94,13 @@ enum cwmcolor {
 	CWM_COLOR_BORDER_UNGROUP,
 	CWM_COLOR_FG_MENU,
 	CWM_COLOR_BG_MENU,
+	CWM_COLOR_FONT,
 	CWM_COLOR_MAX
 };
 
 struct color {
-	unsigned long	 pixel;
 	char		*name;
+	unsigned long	 pixel;
 };
 
 struct gap {
@@ -128,6 +130,8 @@ struct client_ctx {
 		int		 y;	/* y position */
 		int		 width;	/* width */
 		int		 height;/* height */
+	} geom, savegeom;
+	struct {
 		int		 basew;	/* desired width */
 		int		 baseh;	/* desired height */
 		int		 minw;	/* minimum width */
@@ -138,7 +142,7 @@ struct client_ctx {
 		int		 inch;	/* height increment progression */
 		float		 mina;	/* minimum aspect ratio */
 		float		 maxa;	/* maximum aspect ratio */
-	} geom, savegeom;
+	} hint;
 	struct {
 		int		 x;	/* x position */
 		int		 y;	/* y position */
@@ -148,10 +152,12 @@ struct client_ctx {
 	int			 xproto;
 #define CLIENT_HIDDEN			0x0001
 #define CLIENT_IGNORE			0x0002
-#define CLIENT_MAXIMIZED		0x0004
-#define CLIENT_VMAXIMIZED		0x0008
-#define CLIENT_HMAXIMIZED		0x0010
-#define CLIENT_FREEZE			0x0020
+#define CLIENT_VMAXIMIZED		0x0004
+#define CLIENT_HMAXIMIZED		0x0008
+#define CLIENT_FREEZE			0x0010
+
+#define CLIENT_MAXFLAGS			(CLIENT_VMAXIMIZED | CLIENT_HMAXIMIZED)
+#define CLIENT_MAXIMIZED		(CLIENT_VMAXIMIZED | CLIENT_HMAXIMIZED)
 	int			 flags;
 	int			 state;
 	int			 active;
@@ -284,17 +290,11 @@ struct conf {
 #define	CONF_SNAPDIST			0
 	int			 snapdist;
 	struct gap		 gap;
-#define CONF_COLOR_ACTIVEBORDER		"#CCCCCC"
-#define CONF_COLOR_INACTIVEBORDER	"#666666"
-#define CONF_COLOR_GROUPBORDER		"blue"
-#define CONF_COLOR_UNGROUPBORDER	"red"
-#define CONF_COLOR_MENUFG		"black"
-#define CONF_COLOR_MENUBG		"white"
 	struct color		 color[CWM_COLOR_MAX];
 	char			 termpath[MAXPATHLEN];
 	char			 lockpath[MAXPATHLEN];
-#define	DEFAULTFONTNAME			"sans-serif:pixelsize=14:bold"
-	char			*DefaultFontName;
+#define	CONF_FONT			"sans-serif:pixelsize=14:bold"
+	char			*font;
 };
 
 /* MWM hints */
@@ -444,7 +444,7 @@ int			 font_descent(struct screen_ctx *);
 void			 font_draw(struct screen_ctx *, const char *, int,
 			     Drawable, int, int);
 u_int			 font_height(struct screen_ctx *);
-void			 font_init(struct screen_ctx *);
+void			 font_init(struct screen_ctx *, const char *);
 int			 font_width(struct screen_ctx *, const char *, int);
 XftFont			*font_make(struct screen_ctx *, const char *);
 

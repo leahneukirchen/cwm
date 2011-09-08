@@ -130,13 +130,8 @@ kbfunc_moveresize(struct client_ctx *cc, union arg *arg)
 		client_ptrwarp(cc);
 		break;
 	case CWM_PTRMOVE:
-		if (cc) {
-			xu_ptr_getpos(cc->win, &x, &y);
-			xu_ptr_setpos(cc->win, x + mx, y + my);
-		} else {
-			xu_ptr_getpos(sc->rootwin, &x, &y);
-			xu_ptr_setpos(sc->rootwin, x + mx, y + my);
-		}
+		xu_ptr_getpos(sc->rootwin, &x, &y);
+		xu_ptr_setpos(sc->rootwin, x + mx, y + my);
 		break;
 	default:
 		warnx("invalid flags passed to kbfunc_client_moveresize");

@@ -77,7 +77,6 @@ xev_handle_maprequest(XEvent *ee)
 	XMapRequestEvent	*e = &ee->xmaprequest;
 	struct client_ctx	*cc = NULL, *old_cc;
 	XWindowAttributes	 xattr;
-	struct winmatch		*wm;
 
 	if ((old_cc = client_current()) != NULL)
 		client_ptrsave(old_cc);
@@ -87,10 +86,6 @@ xev_handle_maprequest(XEvent *ee)
 		cc = client_new(e->window, screen_fromroot(xattr.root), 1);
 	}
 
-	TAILQ_FOREACH(wm, &Conf.ignoreq, entry) {
-		if (strncasecmp(wm->title, cc->name, strlen(wm->title)) == 0)
-			return;
-	}
 	if ((cc->flags & CLIENT_IGNORE) == 0)
 		client_ptrwarp(cc);
 }

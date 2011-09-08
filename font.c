@@ -49,15 +49,20 @@ font_height(struct screen_ctx *sc)
 }
 
 void
-font_init(struct screen_ctx *sc)
+font_init(struct screen_ctx *sc, const char *color)
 {
+	if (sc->xftdraw)
+		XftDrawDestroy(sc->xftdraw);
 	sc->xftdraw = XftDrawCreate(X_Dpy, sc->rootwin,
 	    DefaultVisual(X_Dpy, sc->which), DefaultColormap(X_Dpy, sc->which));
 	if (sc->xftdraw == NULL)
 		errx(1, "XftDrawCreate");
 
+	if (sc->xftcolor.pixel)
+		XftColorFree(X_Dpy, DefaultVisual(X_Dpy, sc->which),
+		    DefaultColormap(X_Dpy, sc->which), &sc->xftcolor);
 	if (!XftColorAllocName(X_Dpy, DefaultVisual(X_Dpy, sc->which),
-	    DefaultColormap(X_Dpy, sc->which), "black", &sc->xftcolor))
+	    DefaultColormap(X_Dpy, sc->which), color, &sc->xftcolor))
 		errx(1, "XftColorAllocName");
 }
 

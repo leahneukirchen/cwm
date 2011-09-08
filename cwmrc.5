@@ -14,7 +14,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
-.Dd $Mdocdate: June 24 2011 $
+.Dd $Mdocdate: September 8 2011 $
 .Dt CWMRC 5
 .Os
 .Sh NAME
@@ -99,11 +99,20 @@ Set the window border width to
 .It Ic color activeborder Ar color
 Set the color of the active border.
 .Pp
+.It Ic color font Ar color
+Set menu font color.
+.Pp
 .It Ic color groupborder Ar color
 Set the color of the border while grouping a window.
 .Pp
 .It Ic color inactiveborder Ar color
 Set the color of the inactive border.
+.Pp
+.It Ic color menubg Ar color
+Set menu background color.
+.Pp
+.It Ic color menufg Ar color
+Set menu foreground color.
 .Pp
 .It Ic color ungroupborder Ar color
 Set the color of the border while ungrouping a window.
@@ -289,6 +298,10 @@ Reverse cycle through groups.
 Forward cycle through windows.
 .It rcycle
 Reverse cycle through windows.
+.It cycleingroup
+Forward cycle through windows in current group.
+.It rcycleingroup
+Reverse cycle through windows in current group.
 .It snapdist
 Minimum distance to snap-to adjacent edge.
 .It delete
