@@ -73,7 +73,7 @@ typedef struct {
 %token	COLOR SNAPDIST
 %token	ACTIVEBORDER INACTIVEBORDER
 %token	GROUPBORDER UNGROUPBORDER
-%token	MENUBG MENUFG
+%token	MENUBG MENUFG FONTCOLOR
 %token	ERROR
 %token	<v.string>		STRING
 %token	<v.number>		NUMBER
@@ -193,6 +193,10 @@ colors		: ACTIVEBORDER STRING {
 			free(conf->color[CWM_COLOR_FG_MENU].name);
 			conf->color[CWM_COLOR_FG_MENU].name = $2;
 		}
+		| FONTCOLOR STRING {
+			free(conf->color[CWM_COLOR_FONT].name);
+			conf->color[CWM_COLOR_FONT].name = $2;
+		}
 		;
 %%
 
@@ -232,6 +236,7 @@ lookup(char *s)
 		{ "borderwidth",	BORDERWIDTH},
 		{ "color",		COLOR},
 		{ "command",		COMMAND},
+		{ "font",		FONTCOLOR},
 		{ "fontname",		FONTNAME},
 		{ "gap",		GAP},
 		{ "groupborder",	GROUPBORDER},

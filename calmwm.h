@@ -86,6 +86,7 @@ enum cwmcolor {
 	CWM_COLOR_BORDER_UNGROUP,
 	CWM_COLOR_FG_MENU,
 	CWM_COLOR_BG_MENU,
+	CWM_COLOR_FONT,
 	CWM_COLOR_MAX
 };
 
@@ -435,7 +436,7 @@ int			 font_descent(struct screen_ctx *);
 void			 font_draw(struct screen_ctx *, const char *, int,
 			     Drawable, int, int);
 u_int			 font_height(struct screen_ctx *);
-void			 font_init(struct screen_ctx *);
+void			 font_init(struct screen_ctx *, const char *);
 int			 font_width(struct screen_ctx *, const char *, int);
 XftFont			*font_make(struct screen_ctx *, const char *);
 
