@@ -100,6 +100,7 @@ conf_reload(struct conf *c)
 		conf_gap(c, sc);
 		conf_color(c, sc);
 		conf_font(c, sc);
+		menu_init(sc);
 	}
 	TAILQ_FOREACH(cc, &Clientq, entry)
 		client_draw_border(cc);
