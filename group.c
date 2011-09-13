@@ -313,7 +313,7 @@ group_only(struct screen_ctx *sc, int idx)
  * Cycle through active groups.  If none exist, then just stay put.
  */
 void
-group_cycle(struct screen_ctx *sc, int reverse)
+group_cycle(struct screen_ctx *sc, int flags)
 {
 	struct group_ctx	*gc, *showgroup = NULL;
 
@@ -321,11 +321,11 @@ group_cycle(struct screen_ctx *sc, int reverse)
 
 	gc = sc->group_active;
 	for (;;) {
-		gc = reverse ? TAILQ_PREV(gc, group_ctx_q, entry) :
-		    TAILQ_NEXT(gc, entry);
+		gc = (flags & CWM_RCYCLE) ? TAILQ_PREV(gc, group_ctx_q,
+		    entry) : TAILQ_NEXT(gc, entry);
 		if (gc == NULL)
-			gc = reverse ? TAILQ_LAST(&sc->groupq, group_ctx_q) :
-			    TAILQ_FIRST(&sc->groupq);
+			gc = (flags & CWM_RCYCLE) ? TAILQ_LAST(&sc->groupq,
+			    group_ctx_q) : TAILQ_FIRST(&sc->groupq);
 		if (gc == sc->group_active)
 			break;
 

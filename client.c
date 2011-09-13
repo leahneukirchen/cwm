@@ -113,6 +113,8 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 
 	XAddToSaveSet(X_Dpy, cc->win);
 
+	client_transient(cc);
+
 	/* Notify client of its configuration. */
 	xu_configure(cc);
 
@@ -867,6 +869,21 @@ client_freehints(struct client_ctx *cc)
 		XFree(cc->app_name);
 	if (cc->app_class != NULL)
 		XFree(cc->app_class);
+}
+
+void
+client_transient(struct client_ctx *cc)
+{
+	struct client_ctx	*tc;
+	Window			 trans;
+
+	if (XGetTransientForHint(X_Dpy, cc->win, &trans)) {
+		if ((tc = client_find(trans)) && tc->group) {
+			group_movetogroup(cc, tc->group->shortcut - 1);
+			if (tc->flags & CLIENT_IGNORE)
+				cc->flags |= CLIENT_IGNORE;
+		}
+	}
 }
 
 static int
