@@ -67,10 +67,10 @@ conf_font(struct conf *c, struct screen_ctx *sc)
 }
 
 static struct color color_binds[] = {
-	{ "#CCCCCC",	0 }, /* CWM_COLOR_BORDOR_ACTIVE */
-	{ "#666666",	0 }, /* CWM_COLOR_BORDOR_INACTIVE */
-	{ "blue",	0 }, /* CWM_COLOR_BORDOR_GROUP */
-	{ "red",	0 }, /* CWM_COLOR_BORDOR_UNGROUP */
+	{ "#CCCCCC",	0 }, /* CWM_COLOR_BORDER_ACTIVE */
+	{ "#666666",	0 }, /* CWM_COLOR_BORDER_INACTIVE */
+	{ "blue",	0 }, /* CWM_COLOR_BORDER_GROUP */
+	{ "red",	0 }, /* CWM_COLOR_BORDER_UNGROUP */
 	{ "black",	0 }, /* CWM_COLOR_FG_MENU */
 	{ "white",	0 }, /* CWM_COLOR_BG_MENU */
 	{ "black",	0 }, /* CWM_COLOR_FONT */
