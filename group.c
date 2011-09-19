@@ -216,12 +216,16 @@ void
 group_movetogroup(struct client_ctx *cc, int idx)
 {
 	struct screen_ctx	*sc = cc->sc;
+	struct group_ctx	*gc;
 
 	if (idx < 0 || idx >= CALMWM_NGROUPS)
 		err(1, "group_movetogroup: index out of range (%d)", idx);
 
-	if(sc->group_active != &sc->groups[idx])
+	gc = &sc->groups[idx];
+	if (gc->hidden) {
 		client_hide(cc);
+		gc->nhidden++;
+	}
 	group_add(&sc->groups[idx], cc);
 }
 
