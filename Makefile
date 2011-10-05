@@ -1,10 +1,9 @@
-# $OpenBSD$
-
-#.include <bsd.xconf.mk>
+# cwm makefile for BSD make and GNU make
+# uses pkg-config, DESTDIR and PREFIX
 
 PROG=		cwm
 
-BINDIR=		/usr/bin
+PREFIX=         /usr/local
 
 SRCS=		calmwm.c screen.c xmalloc.c client.c menu.c \
 		search.c util.c xutil.c conf.c xevents.c group.c \
@@ -15,39 +14,30 @@ OBJS=		calmwm.o screen.o xmalloc.o client.o menu.o \
 		kbfunc.o mousefunc.o font.o strlcpy.o strlcat.o y.tab.o \
 		strtonum.o fgetln.o
 
-X11BASE=	/usr
+CPPFLAGS+=	`pkg-config --cflags xft`
 
-CPPFLAGS+=	-I${X11BASE}/include -I${X11BASE}/include/freetype2 -I.
+CFLAGS=		-Wall -O2 -g
 
-CFLAGS+=	-Wall -O2 -g
+LDFLAGS+=	`pkg-config --libs xft xinerama xrandr`
 
-LDADD+=		-L${X11BASE}/lib -lXft -lXrender -lX11 -lxcb -lXau -lXdmcp \
-		-lfontconfig -lexpat -lfreetype -lz -lXinerama -lXrandr -lXext
+MANPREFIX=	${PREFIX}/share/man
 
-MANDIR=		${X11BASE}/man/man
-MAN=		cwm.1 cwmrc.5
-
-CLEANFILES=	cwm.cat1 cwmrc.cat5
-
-all: $(PROG)
+all: ${PROG}
 
 clean:
-	rm -rf $(OBJS) $(PROG) y.tab.c
+	rm -rf ${OBJS} ${PROG} y.tab.c
 
 y.tab.c: parse.y
 	yacc parse.y
 
+${PROG}: ${OBJS} y.tab.o
+	${CC} ${OBJS} ${LDFLAGS} -o ${PROG}
 
-$(PROG): $(OBJS) y.tab.o
-	$(CC) $(OBJS) ${LDADD} -o ${PROG}
-
-$(OBJS): %.o: %.c
-	$(CC) -c $(CFLAGS) $(CPPFLAGS) $<
+.c.o:
+	${CC} -c ${CFLAGS} ${CPPFLAGS} $<
 
 install: ${PROG}
-	install -m 755 cwm /usr/local/bin/
-	install -m 644 cwm.1 /usr/local/man/man1
-	install -m 644 cwmrc.5 /usr/local/man/man5
-
-#.include <bsd.prog.mk>
-#.include <bsd.xorg.mk>
+	install -d ${DESTDIR}${PREFIX}/bin ${DESTDIR}${MANPREFIX}/man1 ${DESTDIR}${MANPREFIX}/man5
+	install -m 755 cwm ${DESTDIR}${PREFIX}/bin
+	install -m 644 cwm.1 ${DESTDIR}${MANPREFIX}/man1
+	install -m 644 cwmrc.5 ${DESTDIR}${MANPREFIX}/man5
