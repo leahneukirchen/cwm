@@ -1,0 +1,16 @@
+This is a port of OpenBSD's excellent cwm[0] to Linux and other
+Unices.
+
+    cwm is a window manager for X11 which contains many features that
+    concentrate on the efficiency and transparency of window
+    management.  cwm also aims to maintain the simplest and most
+    pleasant aesthetic.
+
+This port requires pkg-config, Xft, Xinerama and Xrandr.  The included
+Makefile should work with both GNU make and BSD make.
+
+This version actively tracks changes in the OpenBSD CVS repository.
+
+--Christian Neukirchen <chneukirchen@gmail.com>
+
+[0]: http://www.openbsd.org/cgi-bin/cvsweb/xenocara/app/cwm/
