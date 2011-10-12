@@ -515,7 +515,7 @@ group_update_names(struct screen_ctx *sc)
 	if (prop_ret != NULL)
 		XFree(prop_ret);
 	if (sc->group_nonames != 0)
-		free(sc->group_names);
+		xfree(sc->group_names);
 
 	sc->group_names = strings;
 	sc->group_nonames = n;
