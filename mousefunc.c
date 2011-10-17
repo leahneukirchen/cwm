@@ -78,7 +78,7 @@ void
 mousefunc_window_resize(struct client_ctx *cc, void *arg)
 {
 	XEvent			 ev;
-	Time			 time = 0;
+	Time			 ltime = 0;
 	struct screen_ctx	*sc = cc->sc;
 	int			 x = cc->geom.x, y = cc->geom.y;
 
@@ -108,13 +108,13 @@ mousefunc_window_resize(struct client_ctx *cc, void *arg)
 				mousefunc_sweep_draw(cc);
 
 			/* don't resize more than 60 times / second */
-			if ((ev.xmotion.time - time) > (1000 / 60)) {
-				time = ev.xmotion.time;
+			if ((ev.xmotion.time - ltime) > (1000 / 60)) {
+				ltime = ev.xmotion.time;
 				client_resize(cc);
 			}
 			break;
 		case ButtonRelease:
-			if (time)
+			if (ltime)
 				client_resize(cc);
 			XUnmapWindow(X_Dpy, sc->menuwin);
 			XReparentWindow(X_Dpy, sc->menuwin, sc->rootwin, 0, 0);
@@ -136,7 +136,7 @@ void
 mousefunc_window_move(struct client_ctx *cc, void *arg)
 {
 	XEvent			 ev;
-	Time			 time = 0;
+	Time			 ltime = 0;
 	int			 px, py;
 
 	client_raise(cc);
@@ -168,13 +168,13 @@ mousefunc_window_move(struct client_ctx *cc, void *arg)
 			    cc->bwidth, Conf.snapdist);
 
 			/* don't move more than 60 times / second */
-			if ((ev.xmotion.time - time) > (1000 / 60)) {
-				time = ev.xmotion.time;
+			if ((ev.xmotion.time - ltime) > (1000 / 60)) {
+				ltime = ev.xmotion.time;
 				client_move(cc);
 			}
 			break;
 		case ButtonRelease:
-			if (time)
+			if (ltime)
 				client_move(cc);
 			xu_ptr_ungrab();
 			return;
