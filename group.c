@@ -222,11 +222,13 @@ group_movetogroup(struct client_ctx *cc, int idx)
 		err(1, "group_movetogroup: index out of range (%d)", idx);
 
 	gc = &sc->groups[idx];
+	if (cc->group == gc)
+		return;
 	if (gc->hidden) {
 		client_hide(cc);
 		gc->nhidden++;
 	}
-	group_add(&sc->groups[idx], cc);
+	group_add(gc, cc);
 }
 
 /*
