@@ -10,6 +10,14 @@ This port requires pkg-config, Xft, Xinerama and Xrandr.  The included
 Makefile should work with both GNU make and BSD make.
 
 This version actively tracks changes in the OpenBSD CVS repository.
+Releases are roughly coordinated.
+
+The revision controlled version is at https://github.com/chneukirchen/cwm
+Releases can be found at http://chneukirchen.org/releases
+
+ChangeLog:
+
+2012-05-02: First public release 5.1 of portable cwm.
 
 --Christian Neukirchen <chneukirchen@gmail.com>
 
