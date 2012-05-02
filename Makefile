@@ -41,3 +41,7 @@ install: ${PROG}
 	install -m 755 cwm ${DESTDIR}${PREFIX}/bin
 	install -m 644 cwm.1 ${DESTDIR}${MANPREFIX}/man1
 	install -m 644 cwmrc.5 ${DESTDIR}${MANPREFIX}/man5
+
+release:
+	VERSION=$$(git describe --tags | sed 's/^v//;s/-[^.]*$$//') && \
+	git archive --prefix=cwm-$$VERSION/ -o cwm-$$VERSION.tar.gz HEAD
