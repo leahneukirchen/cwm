@@ -16,7 +16,7 @@ OBJS=		calmwm.o screen.o xmalloc.o client.o menu.o \
 
 CPPFLAGS+=	`pkg-config --cflags fontconfig x11 xft xinerama xrandr`
 
-CFLAGS=		-Wall -O2 -g
+CFLAGS=		-Wall -O2 -g -D_GNU_SOURCE
 
 LDFLAGS+=	`pkg-config --libs fontconfig x11 xft xinerama xrandr`
 
