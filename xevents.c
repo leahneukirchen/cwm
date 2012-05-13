@@ -331,7 +331,7 @@ xev_handle_keyrelease(XEvent *ee)
 	if (keysym != XK_Alt_L && keysym != XK_Alt_R)
 		return;
 
-	sc->altpersist = 0;
+	sc->cycling = 0;
 
 	/*
 	 * XXX - better interface... xevents should not know about

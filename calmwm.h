@@ -202,7 +202,7 @@ struct screen_ctx {
 	Window			 menuwin;
 	struct color		 color[CWM_COLOR_MAX];
 	GC			 gc;
-	int			 altpersist;
+	int			 cycling;
 	int			 xmax;
 	int			 ymax;
 	struct gap		 gap;

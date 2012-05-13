@@ -228,7 +228,7 @@ client_setactive(struct client_ctx *cc, int fg)
 		 * If we're in the middle of alt-tabbing, don't change
 		 * the order please.
 		 */
-		if (!sc->altpersist)
+		if (!sc->cycling)
 			client_mtf(cc);
 	} else
 		client_leave(cc);
@@ -638,8 +638,8 @@ client_cycle(struct screen_ctx *sc, int flags)
 		}
 	}
 
-	/* reset when alt is released. XXX I hate this hack */
-	sc->altpersist = 1;
+	/* reset when cycling mod is released. XXX I hate this hack */
+	sc->cycling = 1;
 	client_ptrsave(oldcc);
 	client_ptrwarp(newcc);
 }
