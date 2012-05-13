@@ -159,6 +159,7 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	XSetWindowAttributes	 rootattr;
 	int			 fake;
 	u_int			 nwins, i;
+
 	sc->which = which;
 	sc->rootwin = RootWindow(X_Dpy, sc->which);
 
@@ -221,6 +222,7 @@ x_wmerrorhandler(Display *dpy, XErrorEvent *e)
 
 	return (0);
 }
+
 static int
 x_errorhandler(Display *dpy, XErrorEvent *e)
 {
