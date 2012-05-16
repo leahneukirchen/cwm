@@ -70,6 +70,9 @@ void		(*xev_handlers[LASTEvent])(XEvent *) = {
 			[MappingNotify] = xev_handle_mappingnotify,
 };
 
+static KeySym modkeys[] = { XK_Alt_L, XK_Alt_R, XK_Super_L, XK_Super_R,
+			    XK_Control_L, XK_Control_R };
+
 static void
 xev_handle_maprequest(XEvent *ee)
 {
@@ -314,7 +317,7 @@ xev_handle_keypress(XEvent *ee)
 }
 
 /*
- * This is only used for the alt suppression detection.
+ * This is only used for the modifier suppression detection.
  */
 static void
 xev_handle_keyrelease(XEvent *ee)
@@ -322,26 +325,17 @@ xev_handle_keyrelease(XEvent *ee)
 	XKeyEvent		*e = &ee->xkey;
 	struct screen_ctx	*sc;
 	struct client_ctx	*cc;
-	int			 keysym;
+	int			 i, keysym;
 
 	sc = screen_fromroot(e->root);
 	cc = client_current();
 
 	keysym = XkbKeycodeToKeysym(X_Dpy, e->keycode, 0, 0);
-	if (keysym != XK_Alt_L && keysym != XK_Alt_R)
-		return;
-
-	sc->cycling = 0;
-
-	/*
-	 * XXX - better interface... xevents should not know about
-	 * how/when to mtf.
-	 */
-	client_mtf(NULL);
-
-	if (cc != NULL) {
-		group_sticky_toggle_exit(cc);
-		XUngrabKeyboard(X_Dpy, CurrentTime);
+	for (i = 0; i < nitems(modkeys); i++) {
+		if (keysym == modkeys[i]) {
+			client_cycle_leave(sc, cc);
+			break;
+		}
 	}
 }
 

@@ -307,6 +307,7 @@ __dead void		 usage(void);
 void			 client_applysizehints(struct client_ctx *);
 struct client_ctx	*client_current(void);
 void			 client_cycle(struct screen_ctx *, int);
+void			 client_cycle_leave(struct screen_ctx *, struct client_ctx *);
 void			 client_delete(struct client_ctx *);
 void			 client_draw_border(struct client_ctx *);
 struct client_ctx	*client_find(Window);

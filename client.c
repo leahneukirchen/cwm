@@ -644,6 +644,18 @@ client_cycle(struct screen_ctx *sc, int flags)
 	client_ptrwarp(newcc);
 }
 
+void
+client_cycle_leave(struct screen_ctx *sc, struct client_ctx *cc) 
+{
+	sc->cycling = 0;
+
+	client_mtf(NULL);
+	if (cc) {
+		group_sticky_toggle_exit(cc);
+		XUngrabKeyboard(X_Dpy, CurrentTime);
+	}
+}
+
 static struct client_ctx *
 client_mrunext(struct client_ctx *cc)
 {
