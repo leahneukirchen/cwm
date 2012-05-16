@@ -466,7 +466,7 @@ menu_keycode(KeyCode kc, u_int state, enum ctltype *ctl, char *chr)
 	*ctl = CTL_NONE;
 	*chr = '\0';
 
-	ks = XKeycodeToKeysym(X_Dpy, kc, (state & ShiftMask) ? 1 : 0);
+	ks = XkbKeycodeToKeysym(X_Dpy, kc, 0, (state & ShiftMask) ? 1 : 0);
 
 	/* Look for control characters. */
 	switch (ks) {

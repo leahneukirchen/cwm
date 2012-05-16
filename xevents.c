@@ -278,8 +278,8 @@ xev_handle_keypress(XEvent *ee)
 	KeySym			 keysym, skeysym;
 	int			 modshift;
 
-	keysym = XKeycodeToKeysym(X_Dpy, e->keycode, 0);
-	skeysym = XKeycodeToKeysym(X_Dpy, e->keycode, 1);
+	keysym = XkbKeycodeToKeysym(X_Dpy, e->keycode, 0, 0);
+	skeysym = XkbKeycodeToKeysym(X_Dpy, e->keycode, 0, 1);
 
 	/* we don't care about caps lock and numlock here */
 	e->state &= ~(LockMask | Mod2Mask);
@@ -327,7 +327,7 @@ xev_handle_keyrelease(XEvent *ee)
 	sc = screen_fromroot(e->root);
 	cc = client_current();
 
-	keysym = XKeycodeToKeysym(X_Dpy, e->keycode, 0);
+	keysym = XkbKeycodeToKeysym(X_Dpy, e->keycode, 0, 0);
 	if (keysym != XK_Alt_L && keysym != XK_Alt_R)
 		return;
 

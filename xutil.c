@@ -94,8 +94,8 @@ xu_key_grab(Window win, int mask, int keysym)
 	int	 i;
 
 	code = XKeysymToKeycode(X_Dpy, keysym);
-	if ((XKeycodeToKeysym(X_Dpy, code, 0) != keysym) &&
-	    (XKeycodeToKeysym(X_Dpy, code, 1) == keysym))
+	if ((XkbKeycodeToKeysym(X_Dpy, code, 0, 0) != keysym) &&
+	    (XkbKeycodeToKeysym(X_Dpy, code, 0, 1) == keysym))
 		mask |= ShiftMask;
 
 	for (i = 0; i < nitems(ign_mods); i++)
@@ -110,8 +110,8 @@ xu_key_ungrab(Window win, int mask, int keysym)
 	int	 i;
 
 	code = XKeysymToKeycode(X_Dpy, keysym);
-	if ((XKeycodeToKeysym(X_Dpy, code, 0) != keysym) &&
-	    (XKeycodeToKeysym(X_Dpy, code, 1) == keysym))
+	if ((XkbKeycodeToKeysym(X_Dpy, code, 0, 0) != keysym) &&
+	    (XkbKeycodeToKeysym(X_Dpy, code, 0, 1) == keysym))
 		mask |= ShiftMask;
 
 	for (i = 0; i < nitems(ign_mods); i++)

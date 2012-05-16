@@ -21,6 +21,7 @@
 #ifndef _CALMWM_H_
 #define _CALMWM_H_
 
+#include <X11/XKBlib.h>
 #include <X11/Xatom.h>
 #include <X11/Xft/Xft.h>
 #include <X11/Xlib.h>
