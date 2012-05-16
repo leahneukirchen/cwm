@@ -206,12 +206,10 @@ xev_handle_propertynotify(XEvent *ee)
 			if (sc->rootwin == e->window)
 				goto test;
 		return;
-
 test:
 		if (e->atom == _NET_DESKTOP_NAMES)
 			group_update_names(sc);
 	}
-
 }
 
 static void
