@@ -463,7 +463,9 @@ void			 xu_ptr_setpos(Window, int, int);
 void			 xu_ptr_ungrab(void);
 void			 xu_sendmsg(Window, Atom, long);
 void			 xu_setstate(struct client_ctx *, int);
-void			 xu_setwmname(struct screen_ctx *);
+
+void			 xu_ewmh_net_supported(struct screen_ctx *);
+void			 xu_ewmh_net_supported_wm_check(struct screen_ctx *);
 
 void			 u_exec(char *);
 void			 u_spawn(char *);
