@@ -228,7 +228,7 @@ client_setactive(struct client_ctx *cc, int fg)
 		 * If we're in the middle of alt-tabbing, don't change
 		 * the order please.
 		 */
-		if (!sc->altpersist)
+		if (!sc->cycling)
 			client_mtf(cc);
 	} else
 		client_leave(cc);
@@ -394,7 +394,7 @@ client_horizmaximize(struct client_ctx *cc)
 			cc->geom.height -= cc->bwidth * 2;
 		cc->flags &= ~CLIENT_HMAXIMIZED;
 		goto resize;
-	} 
+	}
 
 	cc->savegeom.x = cc->geom.x;
 	cc->savegeom.width = cc->geom.width;
@@ -613,7 +613,8 @@ client_cycle(struct screen_ctx *sc, int flags)
 		return;
 
 	if (oldcc == NULL)
-		oldcc = (flags & CWM_RCYCLE ? TAILQ_LAST(&sc->mruq, cycle_entry_q) :
+		oldcc = (flags & CWM_RCYCLE ? 
+		    TAILQ_LAST(&sc->mruq, cycle_entry_q) :
 		    TAILQ_FIRST(&sc->mruq));
 
 	newcc = oldcc;
@@ -637,10 +638,22 @@ client_cycle(struct screen_ctx *sc, int flags)
 		}
 	}
 
-	/* reset when alt is released. XXX I hate this hack */
-	sc->altpersist = 1;
+	/* reset when cycling mod is released. XXX I hate this hack */
+	sc->cycling = 1;
 	client_ptrsave(oldcc);
 	client_ptrwarp(newcc);
+}
+
+void
+client_cycle_leave(struct screen_ctx *sc, struct client_ctx *cc) 
+{
+	sc->cycling = 0;
+
+	client_mtf(NULL);
+	if (cc) {
+		group_sticky_toggle_exit(cc);
+		XUngrabKeyboard(X_Dpy, CurrentTime);
+	}
 }
 
 static struct client_ctx *
@@ -792,6 +805,7 @@ client_getsizehints(struct client_ctx *cc)
 			    cc->size->max_aspect.y;
 	}
 }
+
 void
 client_applysizehints(struct client_ctx *cc)
 {
@@ -911,13 +925,13 @@ client_snapcalc(int n, int dn, int nmax, int bwidth, int snapdist)
 	/* possible to snap in both directions */
 	if (s0 != 0 && s1 != 0)
 		if (abs(s0) < abs(s1))
-			return s0;
+			return (s0);
 		else
-			return s1;
+			return (s1);
 	else if (s0 != 0)
-		return s0;
+		return (s0);
 	else if (s1 != 0)
-		return s1;
+		return (s1);
 	else
-		return 0;
+		return (0);
 }

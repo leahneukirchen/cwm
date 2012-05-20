@@ -159,8 +159,12 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	XSetWindowAttributes	 rootattr;
 	int			 fake;
 	u_int			 nwins, i;
+
 	sc->which = which;
 	sc->rootwin = RootWindow(X_Dpy, sc->which);
+
+	xu_ewmh_net_supported(sc);
+	xu_ewmh_net_supported_wm_check(sc);
 
 	conf_gap(&Conf, sc);
 	screen_update_geometry(sc, DisplayWidth(X_Dpy, sc->which),
@@ -175,8 +179,6 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 
 	/* Initialize menu window. */
 	menu_init(sc);
-
-	xu_setwmname(sc);
 
 	rootattr.cursor = Cursor_normal;
 	rootattr.event_mask = CHILDMASK|PropertyChangeMask|EnterWindowMask|
@@ -221,6 +223,7 @@ x_wmerrorhandler(Display *dpy, XErrorEvent *e)
 
 	return (0);
 }
+
 static int
 x_errorhandler(Display *dpy, XErrorEvent *e)
 {

@@ -361,8 +361,10 @@ static struct {
 	{ "nogroup", kbfunc_client_nogroup, 0, {0} },
 	{ "cyclegroup", kbfunc_client_cyclegroup, 0, {.i = CWM_CYCLE} },
 	{ "rcyclegroup", kbfunc_client_cyclegroup, 0, {.i = CWM_RCYCLE} },
-	{ "cycleingroup", kbfunc_client_cycle, KBFLAG_NEEDCLIENT, {.i = CWM_CYCLE|CWM_INGROUP} },
-	{ "rcycleingroup", kbfunc_client_cycle, KBFLAG_NEEDCLIENT, {.i = CWM_RCYCLE|CWM_INGROUP} },
+	{ "cycleingroup", kbfunc_client_cycle, KBFLAG_NEEDCLIENT,
+	    {.i = CWM_CYCLE|CWM_INGROUP} },
+	{ "rcycleingroup", kbfunc_client_cycle, KBFLAG_NEEDCLIENT,
+	    {.i = CWM_RCYCLE|CWM_INGROUP} },
 	{ "grouptoggle", kbfunc_client_grouptoggle, KBFLAG_NEEDCLIENT, {0}},
 	{ "maximize", kbfunc_client_maximize, KBFLAG_NEEDCLIENT, {0} },
 	{ "vmaximize", kbfunc_client_vmaximize, KBFLAG_NEEDCLIENT, {0} },
@@ -640,7 +642,7 @@ conf_grab_mouse(struct client_ctx *cc)
 
 	TAILQ_FOREACH(mb, &Conf.mousebindingq, entry) {
 		if (mb->context != MOUSEBIND_CTX_WIN)
- 			continue;
+			continue;
 
 		switch(mb->button) {
 		case 1:

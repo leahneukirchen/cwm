@@ -151,8 +151,9 @@ group_init(struct screen_ctx *sc)
 
 	TAILQ_INIT(&sc->groupq);
 	sc->group_hideall = 0;
-	/* see if any group names have already been set and update the property
-	 * with ours if they'll have changed.
+	/* 
+	 * See if any group names have already been set and update the
+	 * property with ours if they'll have changed.
 	 */
 	group_update_names(sc);
 
@@ -481,7 +482,7 @@ group_update_names(struct screen_ctx *sc)
 	Atom		 type_ret;
 	int		 format_ret, i = 0, nstrings = 0, n, setnames = 0;
 	unsigned long	 bytes_after, num_ret;
-	
+
 	if (XGetWindowProperty(X_Dpy, sc->rootwin, _NET_DESKTOP_NAMES, 0,
 	    0xffffff, False, UTF8_STRING, &type_ret, &format_ret,
 	    &num_ret, &bytes_after, &prop_ret) == Success &&
@@ -543,7 +544,7 @@ group_set_names(struct screen_ctx *sc)
 		tlen -= slen;
 		q += slen;
 	}
-		
+
 	XChangeProperty(X_Dpy, sc->rootwin, _NET_DESKTOP_NAMES,
 	    UTF8_STRING, 8, PropModeReplace, p, len);
 }

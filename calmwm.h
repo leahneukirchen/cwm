@@ -33,6 +33,7 @@ long long strtonum(const char *, long long, long long, const char **);
 size_t strlcpy(char *, const char *, size_t);
 size_t strlcat(char *, const char *, size_t);
 
+#include <X11/XKBlib.h>
 #include <X11/Xatom.h>
 #include <X11/Xft/Xft.h>
 #include <X11/Xlib.h>
@@ -214,7 +215,7 @@ struct screen_ctx {
 	Window			 menuwin;
 	struct color		 color[CWM_COLOR_MAX];
 	GC			 gc;
-	int			 altpersist;
+	int			 cycling;
 	int			 xmax;
 	int			 ymax;
 	struct gap		 gap;
@@ -318,6 +319,7 @@ __dead void		 usage(void);
 void			 client_applysizehints(struct client_ctx *);
 struct client_ctx	*client_current(void);
 void			 client_cycle(struct screen_ctx *, int);
+void			 client_cycle_leave(struct screen_ctx *, struct client_ctx *);
 void			 client_delete(struct client_ctx *);
 void			 client_draw_border(struct client_ctx *);
 struct client_ctx	*client_find(Window);
@@ -473,7 +475,9 @@ void			 xu_ptr_setpos(Window, int, int);
 void			 xu_ptr_ungrab(void);
 void			 xu_sendmsg(Window, Atom, long);
 void			 xu_setstate(struct client_ctx *, int);
-void			 xu_setwmname(struct screen_ctx *);
+
+void			 xu_ewmh_net_supported(struct screen_ctx *);
+void			 xu_ewmh_net_supported_wm_check(struct screen_ctx *);
 
 void			 u_exec(char *);
 void			 u_spawn(char *);

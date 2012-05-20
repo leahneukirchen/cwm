@@ -94,8 +94,8 @@ xu_key_grab(Window win, int mask, int keysym)
 	int	 i;
 
 	code = XKeysymToKeycode(X_Dpy, keysym);
-	if ((XKeycodeToKeysym(X_Dpy, code, 0) != keysym) &&
-	    (XKeycodeToKeysym(X_Dpy, code, 1) == keysym))
+	if ((XkbKeycodeToKeysym(X_Dpy, code, 0, 0) != keysym) &&
+	    (XkbKeycodeToKeysym(X_Dpy, code, 0, 1) == keysym))
 		mask |= ShiftMask;
 
 	for (i = 0; i < nitems(ign_mods); i++)
@@ -110,8 +110,8 @@ xu_key_ungrab(Window win, int mask, int keysym)
 	int	 i;
 
 	code = XKeysymToKeycode(X_Dpy, keysym);
-	if ((XKeycodeToKeysym(X_Dpy, code, 0) != keysym) &&
-	    (XKeycodeToKeysym(X_Dpy, code, 1) == keysym))
+	if ((XkbKeycodeToKeysym(X_Dpy, code, 0, 0) != keysym) &&
+	    (XkbKeycodeToKeysym(X_Dpy, code, 0, 1) == keysym))
 		mask |= ShiftMask;
 
 	for (i = 0; i < nitems(ign_mods); i++)
@@ -260,27 +260,31 @@ xu_getatoms(void)
 }
 
 void
-xu_setwmname(struct screen_ctx *sc)
+xu_ewmh_net_supported(struct screen_ctx *sc)
 {
-	/*
-	 * set up the _NET_SUPPORTED hint with all netwm atoms that we
-	 * know about.
-	 */
 	XChangeProperty(X_Dpy, sc->rootwin, _NET_SUPPORTED, XA_ATOM, 32,
 	    PropModeReplace,  (unsigned char *)&_NET_SUPPORTED,
 	    CWM_NO_ATOMS - CWM_NETWM_START);
-	/*
-	 * netwm spec says that to prove that the hint is not stale you must
-	 * provide _NET_SUPPORTING_WM_CHECK containing a window (we use the
-	 * menu window). The property must be set on the root window and the
-	 * window itself, the window also must have _NET_WM_NAME set with the
-	 * window manager name.
-	 */
+}
+
+/*
+ * The netwm spec says that to prove that the hint is not stale, one
+ * must provide _NET_SUPPORTING_WM_CHECK containing a window created by
+ * the root window.  The property must be set on the root window and the
+ * window itself.  This child window also must have _NET_WM_NAME set with
+ * the window manager name.
+ */
+void
+xu_ewmh_net_supported_wm_check(struct screen_ctx *sc)
+{
+	Window	 w;
+
+	w = XCreateSimpleWindow(X_Dpy, sc->rootwin, -1, -1, 1, 1, 0, 0, 0);
 	XChangeProperty(X_Dpy, sc->rootwin, _NET_SUPPORTING_WM_CHECK,
-	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)&sc->menuwin, 1);
-	XChangeProperty(X_Dpy, sc->menuwin, _NET_SUPPORTING_WM_CHECK,
-	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)&sc->menuwin, 1);
-	XChangeProperty(X_Dpy, sc->menuwin, _NET_WM_NAME, UTF8_STRING,
+	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)&w, 1);
+	XChangeProperty(X_Dpy, w, _NET_SUPPORTING_WM_CHECK,
+	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)&w, 1);
+	XChangeProperty(X_Dpy, w, _NET_WM_NAME, UTF8_STRING,
 	    8, PropModeReplace, WMNAME, strlen(WMNAME));
 }
 
@@ -292,10 +296,10 @@ xu_getcolor(struct screen_ctx *sc, char *name)
 	if (!XAllocNamedColor(X_Dpy, DefaultColormap(X_Dpy, sc->which),
 	    name, &color, &tmp)) {
 		warnx("XAllocNamedColor error: '%s'", name);
-		return 0;
+		return (0);
 	}
 
-	return color.pixel;
+	return (color.pixel);
 }
 
 void
