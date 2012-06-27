@@ -75,6 +75,9 @@ size_t strlcat(char *, const char *, size_t);
 #define CWM_DOWN		0x0020
 #define CWM_LEFT		0x0040
 #define CWM_RIGHT		0x0080
+#define CWM_GROW		0x0100
+#define CWM_SHRINK		0x0200
+#define CWM_SNAP		0x0400
 
 /* exec */
 #define	CWM_EXEC_PROGRAM	0x0001

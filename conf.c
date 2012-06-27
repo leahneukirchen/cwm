@@ -169,6 +169,12 @@ static struct {
 	{ "CS-Down",	"bigptrmovedown" },
 	{ "CS-Up",	"bigptrmoveup" },
 	{ "CS-Right",	"bigptrmoveright" },
+	{ "4-Page_Up",	"grow" },
+	{ "4-Page_Down", "shrink" },
+	{ "4-Insert",	"snapleft" },
+	{ "4-Home",	"snapup" },
+	{ "4-Delete",	"snapdown" },
+	{ "4-End",	"snapright" },
 },
 m_binds[] = {
 	{ "1",		"menu_unhide" },
@@ -422,6 +428,18 @@ static struct {
 	    {.i = (CWM_LEFT|CWM_PTRMOVE|CWM_BIGMOVE)} },
 	{ "bigptrmoveright", kbfunc_moveresize, 0,
 	    {.i = (CWM_RIGHT|CWM_PTRMOVE|CWM_BIGMOVE)} },
+	{ "grow", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	    {.i = (CWM_GROW|CWM_SNAP)} },
+	{ "shrink", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	    {.i = (CWM_SHRINK|CWM_SNAP)} },
+	{ "snapup", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	    {.i = (CWM_UP|CWM_SNAP)} },
+	{ "snapdown", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	    {.i = (CWM_DOWN|CWM_SNAP)} },
+	{ "snapleft", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	    {.i = (CWM_LEFT|CWM_SNAP)} },
+	{ "snapright", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	    {.i = (CWM_RIGHT|CWM_SNAP)} },
 };
 
 /*
