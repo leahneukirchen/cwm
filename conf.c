@@ -201,6 +201,7 @@ conf_init(struct conf *c)
 	TAILQ_INIT(&c->cmdq);
 	TAILQ_INIT(&c->keybindingq);
 	TAILQ_INIT(&c->autogroupq);
+	TAILQ_INIT(&c->autostartq);
 	TAILQ_INIT(&c->mousebindingq);
 
 	for (i = 0; i < nitems(kb_binds); i++)
@@ -223,6 +224,7 @@ void
 conf_clear(struct conf *c)
 {
 	struct autogroupwin	*ag;
+	struct autostartcmd	*as;
 	struct keybinding	*kb;
 	struct winmatch		*wm;
 	struct cmd		*cmd;
@@ -245,6 +247,12 @@ conf_clear(struct conf *c)
 		if (ag->name)
 			xfree(ag->name);
 		xfree(ag);
+	}
+
+	while ((as = TAILQ_FIRST(&c->autostartq)) != NULL) {
+		TAILQ_REMOVE(&c->autostartq, as, entry);
+		xfree(as->cmd);
+		xfree(as);
 	}
 
 	while ((wm = TAILQ_FIRST(&c->ignoreq)) != NULL) {

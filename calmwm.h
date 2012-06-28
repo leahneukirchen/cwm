@@ -211,6 +211,13 @@ struct autogroupwin {
 };
 TAILQ_HEAD(autogroupwin_q, autogroupwin);
 
+struct autostartcmd {
+	TAILQ_ENTRY(autostartcmd)	 entry;
+	char				*cmd;
+	int 				 num;
+};
+TAILQ_HEAD(autostartcmd_q, autostartcmd);
+
 struct screen_ctx {
 	TAILQ_ENTRY(screen_ctx)	 entry;
 	u_int			 which;
@@ -285,6 +292,7 @@ TAILQ_HEAD(menu_q, menu);
 struct conf {
 	struct keybinding_q	 keybindingq;
 	struct autogroupwin_q	 autogroupq;
+	struct autostartcmd_q	 autostartq;
 	struct winmatch_q	 ignoreq;
 	char			 conf_path[MAXPATHLEN];
 	struct cmd_q		 cmdq;
@@ -357,6 +365,7 @@ void			 group_cycle(struct screen_ctx *, int);
 void			 group_hidetoggle(struct screen_ctx *, int);
 void			 group_init(struct screen_ctx *);
 void			 group_make_autogroup(struct conf *, char *, int);
+void			 group_make_autostart(struct conf *, char *, int);
 void			 group_menu(XButtonEvent *);
 void			 group_movetogroup(struct client_ctx *, int);
 void			 group_only(struct screen_ctx *, int);
@@ -536,3 +545,5 @@ extern int				 HasXinerama, HasRandr, Randr_ev;
 extern Atom				 cwm_atoms[CWM_NO_ATOMS];
 
 #endif /* _CALMWM_H_ */
+
+#define debug(x...) fprintf(stderr, x);

@@ -205,6 +205,18 @@ group_make_autogroup(struct conf *conf, char *val, int no)
 	TAILQ_INSERT_TAIL(&conf->autogroupq, aw, entry);
 }
 
+void
+group_make_autostart(struct conf *conf, char *cmd, int no)
+{
+	struct autostartcmd	*as;
+
+	as = xcalloc(1, sizeof(*as));
+	as->cmd = xstrdup(cmd);
+	as->num = no;
+
+	TAILQ_INSERT_TAIL(&conf->autostartq, as, entry);
+}
+
 static void
 group_setactive(struct screen_ctx *sc, long idx)
 {
@@ -288,7 +300,20 @@ group_hidetoggle(struct screen_ctx *sc, int idx)
 		err(1, "group_hidetoggle: index out of range (%d)", idx);
 
 	gc = &sc->groups[idx];
+
+	if ( TAILQ_EMPTY(&gc->clients) ) {
+		struct autostartcmd 	*as;
+		TAILQ_FOREACH(as, &Conf.autostartq, entry) {
+			if ( as->num == idx + 1 ) {
+				debug("run %s\n", as->cmd);
+				u_spawn(as->cmd);
+			}
+		}
+		//return;
+	}
+
 	group_fix_hidden_state(gc);
+	debug("group_hidetoggle %i\n", gc->hidden);
 
 	if (gc->hidden)
 		group_show(sc, gc);
