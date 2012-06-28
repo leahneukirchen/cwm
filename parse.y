@@ -132,7 +132,7 @@ main		: FONTNAME STRING		{
 			free($3);
 		}
 		| AUTOGROUP NUMBER STRING	{
-			if ($2 < 0 || $2 > 9) {
+			if ($2 < 0 || $2 > CALMWM_NGROUPS) {
 				free($3);
 				yyerror("autogroup number out of range: %d", $2);
 				YYERROR;
