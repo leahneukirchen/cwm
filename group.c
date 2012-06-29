@@ -551,7 +551,7 @@ group_update_names(struct screen_ctx *sc)
 	    nstrings) * sizeof(*strings));
 
 	i = n = 0;
-	p = prop_ret;
+	p = (char *) prop_ret;
 	while (n < nstrings) {
 		strings[n++] = xstrdup(p);
 		p += strlen(p) + 1;
@@ -592,7 +592,7 @@ group_set_names(struct screen_ctx *sc)
 	tlen = len;
 	for (i = 0; i < sc->group_nonames; i++) {
 		slen = strlen(sc->group_names[i]) + 1;
-		(void)strlcpy(q, sc->group_names[i], tlen);
+		(void)strlcpy((char *) q, sc->group_names[i], tlen);
 		tlen -= slen;
 		q += slen;
 	}

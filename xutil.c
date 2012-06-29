@@ -188,7 +188,7 @@ xu_getstrprop(Window win, Atom atm, char **text) {
 			XTextProperty    prop2;
 			if (Xutf8TextListToTextProperty(X_Dpy, list, nitems,
 			    XUTF8StringStyle, &prop2) == Success) {
-				*text = xstrdup(prop2.value);
+				*text = xstrdup((char *) prop2.value);
 				XFree(prop2.value);
 			}
 		} else {
@@ -285,7 +285,7 @@ xu_ewmh_net_supported_wm_check(struct screen_ctx *sc)
 	XChangeProperty(X_Dpy, w, _NET_SUPPORTING_WM_CHECK,
 	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)&w, 1);
 	XChangeProperty(X_Dpy, w, _NET_WM_NAME, UTF8_STRING,
-	    8, PropModeReplace, WMNAME, strlen(WMNAME));
+	    8, PropModeReplace, (unsigned char *) WMNAME, strlen(WMNAME));
 }
 
 unsigned long
