@@ -29,6 +29,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "calmwm.h"
 
@@ -212,6 +213,7 @@ group_make_autostart(struct conf *conf, char *cmd, int no)
 
 	as = xcalloc(1, sizeof(*as));
 	as->cmd = xstrdup(cmd);
+	as->lasttime = 0;
 	as->num = no;
 
 	TAILQ_INSERT_TAIL(&conf->autostartq, as, entry);
@@ -305,8 +307,14 @@ group_hidetoggle(struct screen_ctx *sc, int idx)
 		struct autostartcmd 	*as;
 		TAILQ_FOREACH(as, &Conf.autostartq, entry) {
 			if ( as->num == idx + 1 ) {
-				debug("run %s\n", as->cmd);
-				u_spawn(as->cmd);
+				time_t now = time(NULL);
+				if (as->lasttime < now - 5) {
+					debug("run %s\n", as->cmd);
+					as->lasttime = now;
+					u_spawn(as->cmd);
+				} else {
+					debug("still waiting for %s\n", as->cmd);
+				}
 			}
 		}
 		//return;

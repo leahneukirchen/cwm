@@ -214,6 +214,7 @@ TAILQ_HEAD(autogroupwin_q, autogroupwin);
 struct autostartcmd {
 	TAILQ_ENTRY(autostartcmd)	 entry;
 	char				*cmd;
+	time_t				 lasttime;
 	int 				 num;
 };
 TAILQ_HEAD(autostartcmd_q, autostartcmd);
