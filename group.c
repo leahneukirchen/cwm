@@ -483,9 +483,9 @@ group_autogroup(struct client_ctx *cc)
 		XFree(grpno);
 	} else {
 		TAILQ_FOREACH(aw, &Conf.autogroupq, entry) {
-			if (strcmp(aw->class, cc->app_class) == 0 &&
+			if (strcasecmp(aw->class, cc->app_class) == 0 &&
 			    (aw->name == NULL ||
-			    strcmp(aw->name, cc->app_name) == 0)) {
+			    strcasecmp(aw->name, cc->app_name) == 0)) {
 				no = aw->num;
 				break;
 			}
