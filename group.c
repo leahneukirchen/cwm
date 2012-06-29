@@ -465,6 +465,7 @@ group_autogroup(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
 	struct autogroupwin	*aw;
+	struct autostartcmd	*as;
 	struct group_ctx	*gc;
 	int			 no = -1;
 	long			*grpno;
@@ -489,6 +490,24 @@ group_autogroup(struct client_ctx *cc)
 				no = aw->num;
 				break;
 			}
+		}
+	}
+
+	TAILQ_FOREACH(as, &Conf.autostartq, entry) {
+		int end;
+		char* space = strchr(as->cmd, ' ');
+		if ( as->lasttime ==0 )
+			continue;
+		if ( space == NULL )
+			end = strlen(as->cmd);
+		else
+			end = space - as->cmd;
+		if (strncasecmp(as->cmd, cc->app_class, end) == 0 ||
+		    strncasecmp(as->cmd, cc->app_name, end) == 0) {
+			as->lasttime = 0;
+			debug("reset timer for autostart %i %s by app_class = %s, app_name = %s\n", 
+				as->num, as->cmd, cc->app_class, cc->app_name);
+			break;
 		}
 	}
 
