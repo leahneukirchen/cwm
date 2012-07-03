@@ -126,9 +126,8 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 
 	TAILQ_INSERT_TAIL(&sc->mruq, cc, mru_entry);
 	TAILQ_INSERT_TAIL(&Clientq, cc, entry);
-	/* append to the client list */
-	XChangeProperty(X_Dpy, sc->rootwin, _NET_CLIENT_LIST, XA_WINDOW, 32,
-	    PropModeAppend,  (unsigned char *)&cc->win, 1);
+
+	xu_ewmh_net_client_list(sc);
 
 	client_gethints(cc);
 	client_update(cc);
@@ -143,10 +142,7 @@ void
 client_delete(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
-	struct client_ctx	*tcc;
 	struct winname		*wn;
-	Window			*winlist;
-	int			 i, j;
 
 	group_client_delete(cc);
 
@@ -159,23 +155,8 @@ client_delete(struct client_ctx *cc)
 
 	TAILQ_REMOVE(&sc->mruq, cc, mru_entry);
 	TAILQ_REMOVE(&Clientq, cc, entry);
-	/*
-	 * Sadly we can't remove just one entry from a property, so we must
-	 * redo the whole thing from scratch. this is the stupid way, the other
-	 * way incurs many roundtrips to the server.
-	 */
-	i = j = 0;
-	TAILQ_FOREACH(tcc, &Clientq, entry)
-		i++;
-	if (i > 0) {
-		winlist = xmalloc(i * sizeof(*winlist));
-		TAILQ_FOREACH(tcc, &Clientq, entry)
-			winlist[j++] = tcc->win;
-		XChangeProperty(X_Dpy, sc->rootwin, _NET_CLIENT_LIST,
-		    XA_WINDOW, 32, PropModeReplace,
-		    (unsigned char *)winlist, i);
-		xfree(winlist);
-	}
+
+	xu_ewmh_net_client_list(sc);
 
 	if (_curcc == cc)
 		client_none(sc);
@@ -236,9 +217,7 @@ client_setactive(struct client_ctx *cc, int fg)
 	if (fg && _curcc != cc) {
 		client_setactive(NULL, 0);
 		_curcc = cc;
-		XChangeProperty(X_Dpy, sc->rootwin, _NET_ACTIVE_WINDOW,
-		    XA_WINDOW, 32, PropModeReplace,
-		    (unsigned char *)&cc->win, 1);
+		xu_ewmh_net_active_window(sc, cc->win);
 	}
 
 	cc->active = fg;
@@ -253,8 +232,8 @@ client_none(struct screen_ctx *sc)
 {
 	Window none = None;
 
-	XChangeProperty(X_Dpy, sc->rootwin, _NET_ACTIVE_WINDOW,
-	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)&none, 1);
+	xu_ewmh_net_active_window(sc, none);
+
 	_curcc = NULL;
 }
 
@@ -545,9 +524,9 @@ client_update(struct client_ctx *cc)
 		return;
 
 	for (i = 0; i < n; i++)
-		if (p[i] == WM_DELETE_WINDOW)
+		if (p[i] == cwmh[WM_DELETE_WINDOW].atom)
 			cc->xproto |= CLIENT_PROTO_DELETE;
-		else if (p[i] == WM_TAKE_FOCUS)
+		else if (p[i] == cwmh[WM_TAKE_FOCUS].atom)
 			cc->xproto |= CLIENT_PROTO_TAKEFOCUS;
 
 	XFree(p);
@@ -557,7 +536,8 @@ void
 client_send_delete(struct client_ctx *cc)
 {
 	if (cc->xproto & CLIENT_PROTO_DELETE)
-		xu_sendmsg(cc->win, WM_PROTOCOLS, WM_DELETE_WINDOW);
+		xu_sendmsg(cc->win,
+		    cwmh[WM_PROTOCOLS].atom, cwmh[WM_DELETE_WINDOW].atom);
 	else
 		XKillClient(X_Dpy, cc->win);
 }
@@ -568,7 +548,7 @@ client_setname(struct client_ctx *cc)
 	struct winname	*wn;
 	char		*newname;
 
-	if (!xu_getstrprop(cc->win, _NET_WM_NAME, &newname))
+	if (!xu_getstrprop(cc->win, ewmh[_NET_WM_NAME].atom, &newname))
 		if (!xu_getstrprop(cc->win, XA_WM_NAME, &newname))
 			newname = emptystring;
 
@@ -868,7 +848,7 @@ client_gethints(struct client_ctx *cc)
 			cc->app_class = xch.res_class;
 	}
 
-	if (xu_getprop(cc->win, _MOTIF_WM_HINTS, _MOTIF_WM_HINTS,
+	if (xu_getprop(cc->win, cwmh[_MOTIF_WM_HINTS].atom, _MOTIF_WM_HINTS,
 	    PROP_MWM_HINTS_ELEMENTS, (u_char **)&mwmh) == MWM_NUMHINTS)
 		if (mwmh->flags & MWM_HINTS_DECORATIONS &&
 		    !(mwmh->decorations & MWM_DECOR_ALL) &&

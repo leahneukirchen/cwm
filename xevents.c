@@ -207,7 +207,7 @@ xev_handle_propertynotify(XEvent *ee)
 				goto test;
 		return;
 test:
-		if (e->atom == _NET_DESKTOP_NAMES)
+		if (e->atom == ewmh[_NET_DESKTOP_NAMES].atom)
 			group_update_names(sc);
 	}
 }
