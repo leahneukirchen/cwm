@@ -519,7 +519,7 @@ client_update(struct client_ctx *cc)
 	int	 i;
 	long	 n;
 
-	if ((n = xu_getprop(cc->win, WM_PROTOCOLS,
+	if ((n = xu_getprop(cc->win, cwmh[WM_PROTOCOLS].atom,
 		 XA_ATOM, 20L, (u_char **)&p)) <= 0)
 		return;
 
