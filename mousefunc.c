@@ -137,6 +137,7 @@ mousefunc_window_move(struct client_ctx *cc, void *arg)
 {
 	XEvent			 ev;
 	Time			 ltime = 0;
+	struct screen_ctx	*sc = cc->sc;
 	int			 px, py;
 
 	client_raise(cc);
@@ -161,10 +162,10 @@ mousefunc_window_move(struct client_ctx *cc, void *arg)
 			cc->geom.y = ev.xmotion.y_root - py - cc->bwidth;
 
 			cc->geom.x += client_snapcalc(cc->geom.x,
-			    cc->geom.width, cc->sc->xmax,
+			    cc->geom.width, sc->xmax,
 			    cc->bwidth, Conf.snapdist);
 			cc->geom.y += client_snapcalc(cc->geom.y,
-			    cc->geom.height, cc->sc->ymax,
+			    cc->geom.height, sc->ymax,
 			    cc->bwidth, Conf.snapdist);
 
 			/* don't move more than 60 times / second */
@@ -217,13 +218,12 @@ mousefunc_menu_group(struct client_ctx *cc, void *arg)
 void
 mousefunc_menu_unhide(struct client_ctx *cc, void *arg)
 {
-	struct screen_ctx	*sc;
+	struct screen_ctx	*sc = cc->sc;
 	struct client_ctx	*old_cc;
 	struct menu		*mi;
 	struct menu_q		 menuq;
 	char			*wname;
 
-	sc = cc->sc;
 	old_cc = client_current();
 
 	TAILQ_INIT(&menuq);
@@ -261,12 +261,10 @@ mousefunc_menu_unhide(struct client_ctx *cc, void *arg)
 void
 mousefunc_menu_cmd(struct client_ctx *cc, void *arg)
 {
-	struct screen_ctx	*sc;
+	struct screen_ctx	*sc = cc->sc;
 	struct menu		*mi;
 	struct menu_q		 menuq;
 	struct cmd		*cmd;
-
-	sc = cc->sc;
 
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {

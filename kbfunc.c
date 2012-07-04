@@ -54,14 +54,13 @@ kbfunc_client_raise(struct client_ctx *cc, union arg *arg)
 void
 kbfunc_moveresize(struct client_ctx *cc, union arg *arg)
 {
-	struct screen_ctx	*sc;
+	struct screen_ctx	*sc = cc->sc;
 	int			 x, y, flags, amt;
 	u_int			 mx, my;
 
 	if (cc->flags & CLIENT_FREEZE)
 		return;
 
-	sc = cc->sc;
 	mx = my = 0;
 
 	flags = arg->i;
@@ -140,12 +139,11 @@ kbfunc_moveresize(struct client_ctx *cc, union arg *arg)
 void
 kbfunc_client_search(struct client_ctx *cc, union arg *arg)
 {
-	struct screen_ctx	*sc;
+	struct screen_ctx	*sc = cc->sc;
 	struct client_ctx	*old_cc;
 	struct menu		*mi;
 	struct menu_q		 menuq;
 
-	sc = cc->sc;
 	old_cc = client_current();
 
 	TAILQ_INIT(&menuq);
@@ -177,12 +175,11 @@ kbfunc_client_search(struct client_ctx *cc, union arg *arg)
 void
 kbfunc_menu_search(struct client_ctx *cc, union arg *arg)
 {
-	struct screen_ctx	*sc;
+	struct screen_ctx	*sc = cc->sc;
 	struct cmd		*cmd;
 	struct menu		*mi;
 	struct menu_q		 menuq;
 
-	sc = cc->sc;
 	TAILQ_INIT(&menuq);
 
 	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
@@ -205,9 +202,7 @@ kbfunc_menu_search(struct client_ctx *cc, union arg *arg)
 void
 kbfunc_client_cycle(struct client_ctx *cc, union arg *arg)
 {
-	struct screen_ctx	*sc;
-
-	sc = cc->sc;
+	struct screen_ctx	*sc = cc->sc;
 
 	/* XXX for X apps that ignore events */
 	XGrabKeyboard(X_Dpy, sc->rootwin, True,
@@ -244,7 +239,7 @@ void
 kbfunc_exec(struct client_ctx *cc, union arg *arg)
 {
 #define NPATHS 256
-	struct screen_ctx	*sc;
+	struct screen_ctx	*sc = cc->sc;
 	char			**ap, *paths[NPATHS], *path, *pathcpy, *label;
 	char			 tpath[MAXPATHLEN];
 	DIR			*dirp;
@@ -253,7 +248,6 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 	struct menu_q		 menuq;
 	int			 l, i, cmd = arg->i;
 
-	sc = cc->sc;
 	switch (cmd) {
 		case CWM_EXEC_PROGRAM:
 			label = "exec";
@@ -332,7 +326,7 @@ out:
 void
 kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 {
-	struct screen_ctx	*sc;
+	struct screen_ctx	*sc = cc->sc;
 	struct menu		*mi;
 	struct menu_q		 menuq;
 	FILE			*fp;
@@ -341,8 +335,6 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 	char			 cmd[256];
 	int			 l;
 	size_t			 len;
-
-	sc = cc->sc;
 
 	if ((home = getenv("HOME")) == NULL)
 		return;
