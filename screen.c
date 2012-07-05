@@ -109,10 +109,10 @@ screen_find_xinerama(struct screen_ctx *sc, int x, int y)
 }
 
 void
-screen_update_geometry(struct screen_ctx *sc, int width, int height)
+screen_update_geometry(struct screen_ctx *sc)
 {
-	sc->xmax = width;
-	sc->ymax = height;
+	sc->xmax = DisplayWidth(X_Dpy, sc->which);
+	sc->ymax = DisplayHeight(X_Dpy, sc->which);
 
 	xu_ewmh_net_desktop_geometry(sc);
 	xu_ewmh_net_workarea(sc);

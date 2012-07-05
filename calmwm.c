@@ -167,8 +167,8 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	xu_ewmh_net_supported_wm_check(sc);
 
 	conf_gap(&Conf, sc);
-	screen_update_geometry(sc, DisplayWidth(X_Dpy, sc->which),
-	    DisplayHeight(X_Dpy, sc->which));
+
+	screen_update_geometry(sc);
 
 	conf_color(&Conf, sc);
 

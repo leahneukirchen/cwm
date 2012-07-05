@@ -365,7 +365,7 @@ xev_handle_randr(XEvent *ee)
 	TAILQ_FOREACH(sc, &Screenq, entry) {
 		if (sc->which == (u_int)i) {
 			XRRUpdateConfiguration(ee);
-			screen_update_geometry(sc, rev->width, rev->height);
+			screen_update_geometry(sc);
 			screen_init_xinerama(sc);
 		}
 	}
