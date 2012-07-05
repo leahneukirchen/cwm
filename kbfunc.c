@@ -160,38 +160,48 @@ kbfunc_moveresize(struct client_ctx *cc, union arg *arg)
 			if (ox < 0) nx = 0;
 			else if (ox < (sw - ow - bw) / 2) nx = (sw - ow - bw) / 2;
 			else nx = sw - ow - bw;
-		} else if (flags & CWM_GROW) {
-			if ((cc->flags & CLIENT_MAXFLAGS) == CLIENT_MAXIMIZED) {
-			} else if (ow + bw < sw / 3) {
-				nw = sw / 3 - bw; 
-				nh = sh / 3 - bw;
-			} else if (ow + bw < sw / 2) {
-				nw = sw / 2 - bw; 
-				nh = sh / 2 - bw;
-			} else if (ow + bw < sw * 2 / 3) {
-				nw = sw * 2 / 3 - bw;
-				nh = sh * 2 / 3 - bw;
+		} else if (flags & ( CWM_GROW | CWM_SHRINK)) {
+			if (flags & CWM_GROW ) {
+				if ((cc->flags & CLIENT_MAXFLAGS) == CLIENT_MAXIMIZED) {
+				} else if (ow + bw < sw / 3) {
+					nw = sw / 3 - bw; 
+					nh = sh / 3 - bw;
+				} else if (ow + bw < sw / 2) {
+					nw = sw / 2 - bw; 
+					nh = sh / 2 - bw;
+				} else if (ow + bw < sw * 2 / 3) {
+					nw = sw * 2 / 3 - bw;
+					nh = sh * 2 / 3 - bw;
+				} else {
+					client_maximize(cc);
+					goto end;
+				}
 			} else {
-				client_maximize(cc);
-				goto end;
+				if ((cc->flags & CLIENT_MAXFLAGS) == CLIENT_MAXIMIZED) {
+					client_maximize(cc);
+					goto end;
+				} else if (ow + bw > sw * 2 / 3) {
+					nw = sw * 2 / 3 - bw; 
+					nh = sh * 2 / 3 - bw;
+				} else if (ow + bw> sw / 2) {
+					nw = sw / 2 - bw; 
+					nh = sh / 2 - bw;
+				} else if (ow + bw > sw / 3) {
+					nw = sw / 3 - bw;
+					nh = sh / 3 - bw;
+				}
 			}
-		} else if (flags & CWM_SHRINK) {
-			if ((cc->flags & CLIENT_MAXFLAGS) == CLIENT_MAXIMIZED) {
-				client_maximize(cc);
-				goto end;
-			} else if (ow + bw > sw * 2 / 3) {
-				nw = sw * 2 / 3 - bw; 
-				nh = sh * 2 / 3 - bw;
-			} else if (ow + bw> sw / 2) {
-				nw = sw / 2 - bw; 
-				nh = sh / 2 - bw;
-			} else if (ow + bw > sw / 3) {
-				nw = sw / 3 - bw;
-				nh = sh / 3 - bw;
-			}
+			nx += (ow - nw)/2;
+			ny += (oh - nh)/2;
+			if (abs(ox) < Conf.snapdist) nx = 0;
+			else if (abs(sw - bw - ox - ow) < Conf.snapdist) nx = sw - bw - nw;
+			if (abs(oy) < Conf.snapdist) ny = 0;
+			else if (abs(sh - bw - oy - oh) < Conf.snapdist) ny = sh - nh - bw;
+			if (nx < 0) nx = 0;
+			else if (nx + nw + bw > sw) nx = sw - nw - bw;
+			if (ny < 0) ny = 0;
+			else if (ny + nh + bw > sh) ny = sh - nh - bw;
 		}
-		nx += (ow - nw)/2;
-		ny += (oh - nh)/2;
 		client_ptrsave(cc);
 		client_resize(cc);
 		cc->ptr.x += (nw - ow)/2;
