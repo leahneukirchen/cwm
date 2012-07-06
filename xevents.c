@@ -366,7 +366,6 @@ xev_handle_randr(XEvent *ee)
 		if (sc->which == (u_int)i) {
 			XRRUpdateConfiguration(ee);
 			screen_update_geometry(sc);
-			screen_init_xinerama(sc);
 		}
 	}
 }

@@ -30,6 +30,8 @@
 
 #include "calmwm.h"
 
+static void	 screen_init_xinerama(struct screen_ctx *);
+
 struct screen_ctx *
 screen_fromroot(Window rootwin)
 {
@@ -65,6 +67,10 @@ screen_updatestackingorder(struct screen_ctx *sc)
 	XFree(wins);
 }
 
+/*
+ * If we're using RandR then we'll redo this whenever the screen
+ * changes since a CTRC may have been added or removed
+ */
 void
 screen_init_xinerama(struct screen_ctx *sc)
 {
@@ -113,6 +119,8 @@ screen_update_geometry(struct screen_ctx *sc)
 {
 	sc->xmax = DisplayWidth(X_Dpy, sc->which);
 	sc->ymax = DisplayHeight(X_Dpy, sc->which);
+
+	screen_init_xinerama(sc);
 
 	xu_ewmh_net_desktop_geometry(sc);
 	xu_ewmh_net_workarea(sc);

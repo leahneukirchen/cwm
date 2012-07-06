@@ -360,7 +360,6 @@ void			 search_print_client(struct menu *, int);
 
 XineramaScreenInfo	*screen_find_xinerama(struct screen_ctx *, int, int);
 struct screen_ctx	*screen_fromroot(Window);
-void			 screen_init_xinerama(struct screen_ctx *);
 void			 screen_update_geometry(struct screen_ctx *);
 void			 screen_updatestackingorder(struct screen_ctx *);
 
