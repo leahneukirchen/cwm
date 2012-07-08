@@ -227,7 +227,7 @@ xu_setstate(struct client_ctx *cc, int state)
 
 	cc->state = state;
 	XChangeProperty(X_Dpy, cc->win,
-	    cwmh[WM_STATE].atom, WM_STATE, 32,
+	    cwmh[WM_STATE].atom, cwmh[WM_STATE].atom, 32,
 	    PropModeReplace, (unsigned char *)dat, 2);
 }
 
