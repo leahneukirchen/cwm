@@ -459,7 +459,7 @@ group_update_names(struct screen_ctx *sc)
 	char		**strings, *p;
 	unsigned char	*prop_ret;
 	Atom		 type_ret;
-	int		 format_ret, i = 0, nstrings = 0, n, setnames = 0;
+	int		 format_ret, i = 0, nstrings = 0, n = 0, setnames = 0;
 	unsigned long	 bytes_after, num_ret;
 
 	if (XGetWindowProperty(X_Dpy, sc->rootwin,
@@ -478,7 +478,6 @@ group_update_names(struct screen_ctx *sc)
 	strings = xmalloc((nstrings < CALMWM_NGROUPS ? CALMWM_NGROUPS :
 	    nstrings) * sizeof(*strings));
 
-	i = n = 0;
 	p = prop_ret;
 	while (n < nstrings) {
 		strings[n++] = xstrdup(p);
