@@ -207,7 +207,7 @@ xu_getstate(struct client_ctx *cc, int *state)
 {
 	long	*p = NULL;
 
-	if (xu_getprop(cc->win, cwmh[WM_STATE].atom, WM_STATE, 2L,
+	if (xu_getprop(cc->win, cwmh[WM_STATE].atom, cwmh[WM_STATE].atom, 2L,
 	    (u_char **)&p) <= 0)
 		return (-1);
 
