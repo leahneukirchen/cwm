@@ -128,8 +128,8 @@ xu_configure(struct client_ctx *cc)
 	ce.window = cc->win;
 	ce.x = cc->geom.x;
 	ce.y = cc->geom.y;
-	ce.width = cc->geom.width;
-	ce.height = cc->geom.height;
+	ce.width = cc->geom.w;
+	ce.height = cc->geom.h;
 	ce.border_width = cc->bwidth;
 	ce.above = None;
 	ce.override_redirect = 0;

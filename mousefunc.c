@@ -37,17 +37,17 @@ static void	mousefunc_sweep_draw(struct client_ctx *);
 static int
 mousefunc_sweep_calc(struct client_ctx *cc, int x, int y, int mx, int my)
 {
-	int	 width = cc->geom.width, height = cc->geom.height;
+	int	 width = cc->geom.w, height = cc->geom.h;
 
-	cc->geom.width = abs(x - mx) - cc->bwidth;
-	cc->geom.height = abs(y - my) - cc->bwidth;
+	cc->geom.w = abs(x - mx) - cc->bwidth;
+	cc->geom.h = abs(y - my) - cc->bwidth;
 
 	client_applysizehints(cc);
 
-	cc->geom.x = x <= mx ? x : x - cc->geom.width;
-	cc->geom.y = y <= my ? y : y - cc->geom.height;
+	cc->geom.x = x <= mx ? x : x - cc->geom.w;
+	cc->geom.y = y <= my ? y : y - cc->geom.h;
 
-	return (width != cc->geom.width || height != cc->geom.height);
+	return (width != cc->geom.w || height != cc->geom.h);
 }
 
 static void
@@ -58,8 +58,8 @@ mousefunc_sweep_draw(struct client_ctx *cc)
 	int			 width, width_size, width_name;
 
 	(void)snprintf(asize, sizeof(asize), "%dx%d",
-	    (cc->geom.width - cc->hint.basew) / cc->hint.incw,
-	    (cc->geom.height - cc->hint.baseh) / cc->hint.inch);
+	    (cc->geom.w - cc->hint.basew) / cc->hint.incw,
+	    (cc->geom.h - cc->hint.baseh) / cc->hint.inch);
 	width_size = font_width(sc, asize, strlen(asize)) + 4;
 	width_name = font_width(sc, cc->name, strlen(cc->name)) + 4;
 	width = MAX(width_size, width_name);
@@ -91,7 +91,7 @@ mousefunc_window_resize(struct client_ctx *cc, void *arg)
 	if (xu_ptr_grab(cc->win, MOUSEMASK, Cursor_resize) < 0)
 		return;
 
-	xu_ptr_setpos(cc->win, cc->geom.width, cc->geom.height);
+	xu_ptr_setpos(cc->win, cc->geom.w, cc->geom.h);
 	mousefunc_sweep_draw(cc);
 
 	for (;;) {
@@ -121,10 +121,10 @@ mousefunc_window_resize(struct client_ctx *cc, void *arg)
 			xu_ptr_ungrab();
 
 			/* Make sure the pointer stays within the window. */
-			if (cc->ptr.x > cc->geom.width)
-				cc->ptr.x = cc->geom.width - cc->bwidth;
-			if (cc->ptr.y > cc->geom.height)
-				cc->ptr.y = cc->geom.height - cc->bwidth;
+			if (cc->ptr.x > cc->geom.w)
+				cc->ptr.x = cc->geom.w - cc->bwidth;
+			if (cc->ptr.y > cc->geom.h)
+				cc->ptr.y = cc->geom.h - cc->bwidth;
 			client_ptrwarp(cc);
 			return;
 		}
@@ -162,10 +162,10 @@ mousefunc_window_move(struct client_ctx *cc, void *arg)
 			cc->geom.y = ev.xmotion.y_root - py - cc->bwidth;
 
 			cc->geom.x += client_snapcalc(cc->geom.x,
-			    cc->geom.width, sc->view.w,
+			    cc->geom.w, sc->view.w,
 			    cc->bwidth, Conf.snapdist);
 			cc->geom.y += client_snapcalc(cc->geom.y,
-			    cc->geom.height, sc->view.h,
+			    cc->geom.h, sc->view.h,
 			    cc->bwidth, Conf.snapdist);
 
 			/* don't move more than 60 times / second */

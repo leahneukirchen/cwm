@@ -88,22 +88,22 @@ kbfunc_moveresize(struct client_ctx *cc, union arg *arg)
 	switch (flags & TYPEMASK) {
 	case CWM_MOVE:
 		cc->geom.y += my;
-		if (cc->geom.y + cc->geom.height < 0)
-			cc->geom.y = -cc->geom.height;
+		if (cc->geom.y + cc->geom.h < 0)
+			cc->geom.y = -cc->geom.h;
 		if (cc->geom.y > sc->view.h - 1)
 			cc->geom.y = sc->view.h - 1;
 
 		cc->geom.x += mx;
-		if (cc->geom.x + cc->geom.width < 0)
-			cc->geom.x = -cc->geom.width;
+		if (cc->geom.x + cc->geom.w < 0)
+			cc->geom.x = -cc->geom.w;
 		if (cc->geom.x > sc->view.w - 1)
 			cc->geom.x = sc->view.w - 1;
 
 		cc->geom.x += client_snapcalc(cc->geom.x,
-		    cc->geom.width, sc->view.w,
+		    cc->geom.w, sc->view.w,
 		    cc->bwidth, Conf.snapdist);
 		cc->geom.y += client_snapcalc(cc->geom.y,
-		    cc->geom.height, sc->view.h,
+		    cc->geom.h, sc->view.h,
 		    cc->bwidth, Conf.snapdist);
 
 		client_move(cc);
@@ -113,18 +113,18 @@ kbfunc_moveresize(struct client_ctx *cc, union arg *arg)
 		client_ptrwarp(cc);
 		break;
 	case CWM_RESIZE:
-		if ((cc->geom.height += my) < 1)
-			cc->geom.height = 1;
-		if ((cc->geom.width += mx) < 1)
-			cc->geom.width = 1;
+		if ((cc->geom.h += my) < 1)
+			cc->geom.h = 1;
+		if ((cc->geom.w += mx) < 1)
+			cc->geom.w = 1;
 		client_resize(cc);
 
 		/* Make sure the pointer stays within the window. */
 		xu_ptr_getpos(cc->win, &cc->ptr.x, &cc->ptr.y);
-		if (cc->ptr.x > cc->geom.width)
-			cc->ptr.x = cc->geom.width - cc->bwidth;
-		if (cc->ptr.y > cc->geom.height)
-			cc->ptr.y = cc->geom.height - cc->bwidth;
+		if (cc->ptr.x > cc->geom.w)
+			cc->ptr.x = cc->geom.w - cc->bwidth;
+		if (cc->ptr.y > cc->geom.h)
+			cc->ptr.y = cc->geom.h - cc->bwidth;
 		client_ptrwarp(cc);
 		break;
 	case CWM_PTRMOVE:

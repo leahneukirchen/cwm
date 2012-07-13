@@ -125,12 +125,7 @@ struct client_ctx {
 	XSizeHints		*size;
 	Colormap		 cmap;
 	u_int			 bwidth; /* border width */
-	struct {
-		int		 x;	/* x position */
-		int		 y;	/* y position */
-		int		 width;	/* width */
-		int		 height;/* height */
-	} geom, savegeom;
+	struct geom		 geom, savegeom;
 	struct {
 		int		 basew;	/* desired width */
 		int		 baseh;	/* desired height */
