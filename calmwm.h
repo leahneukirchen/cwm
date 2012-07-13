@@ -211,8 +211,6 @@ struct screen_ctx {
 	struct color		 color[CWM_COLOR_MAX];
 	GC			 gc;
 	int			 cycling;
-	int			 xmax;
-	int			 ymax;
 	struct geom		 view; /* viewable area */
 	struct geom		 work; /* workable area, gap-applied */
 	struct gap		 gap;

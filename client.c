@@ -256,7 +256,7 @@ void
 client_maximize(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
-	int			 xmax = sc->xmax, ymax = sc->ymax;
+	int			 xmax = sc->view.w, ymax = sc->view.h;
 	int			 x_org = 0, y_org = 0;
 
 	if (cc->flags & CLIENT_FREEZE)
@@ -312,7 +312,7 @@ void
 client_vertmaximize(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
-	int			 y_org = 0, ymax = sc->ymax;
+	int			 y_org = 0, ymax = sc->view.h;
 
 	if (cc->flags & CLIENT_FREEZE)
 		return;
@@ -360,7 +360,7 @@ void
 client_horizmaximize(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
-	int			 x_org = 0, xmax = sc->xmax;
+	int			 x_org = 0, xmax = sc->view.w;
 
 	if (cc->flags & CLIENT_FREEZE)
 		return;
@@ -670,8 +670,8 @@ client_placecalc(struct client_ctx *cc)
 		 * XRandR bits mean that {x,y}max shouldn't be outside what's
 		 * currently there.
 		 */
-		xslack = sc->xmax - cc->geom.width - cc->bwidth * 2;
-		yslack = sc->ymax - cc->geom.height - cc->bwidth * 2;
+		xslack = sc->view.w - cc->geom.width - cc->bwidth * 2;
+		yslack = sc->view.h - cc->geom.height - cc->bwidth * 2;
 		if (cc->size->x > 0)
 			cc->geom.x = MIN(cc->size->x, xslack);
 		if (cc->size->y > 0)
@@ -693,8 +693,8 @@ client_placecalc(struct client_ctx *cc)
 		} else {
 noxine:
 			xorig = yorig = 0;
-			xmax = sc->xmax;
-			ymax = sc->ymax;
+			xmax = sc->view.w;
+			ymax = sc->view.h;
 		}
 		xmouse = MAX(xmouse, xorig) - cc->geom.width / 2;
 		ymouse = MAX(ymouse, yorig) - cc->geom.height / 2;

@@ -117,9 +117,6 @@ screen_find_xinerama(struct screen_ctx *sc, int x, int y)
 void
 screen_update_geometry(struct screen_ctx *sc)
 {
-	sc->xmax = DisplayWidth(X_Dpy, sc->which);
-	sc->ymax = DisplayHeight(X_Dpy, sc->which);
-
 	sc->view.x = 0;
 	sc->view.y = 0;
 	sc->view.w = DisplayWidth(X_Dpy, sc->which);

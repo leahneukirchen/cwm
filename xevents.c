@@ -151,10 +151,10 @@ xev_handle_configurerequest(XEvent *ee)
 		if (e->value_mask & CWBorderWidth)
 			wc.border_width = e->border_width;
 
-		if (cc->geom.x == 0 && cc->geom.width >= sc->xmax)
+		if (cc->geom.x == 0 && cc->geom.width >= sc->view.w)
 			cc->geom.x -= cc->bwidth;
 
-		if (cc->geom.y == 0 && cc->geom.height >= sc->ymax)
+		if (cc->geom.y == 0 && cc->geom.height >= sc->view.h)
 			cc->geom.y -= cc->bwidth;
 
 		wc.x = cc->geom.x;

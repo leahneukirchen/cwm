@@ -298,7 +298,7 @@ xu_ewmh_net_supported_wm_check(struct screen_ctx *sc)
 void
 xu_ewmh_net_desktop_geometry(struct screen_ctx *sc)
 {
-	long	 geom[2] = { sc->xmax, sc->ymax };
+	long	 geom[2] = { sc->view.w, sc->view.h };
 
 	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_DESKTOP_GEOMETRY].atom,
 	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)geom , 2);
@@ -311,10 +311,10 @@ xu_ewmh_net_workarea(struct screen_ctx *sc)
 	int	 i;
 
 	for (i = 0; i < CALMWM_NGROUPS; i++) {
-		workareas[i][0] = sc->gap.left;
-		workareas[i][1] = sc->gap.top;
-		workareas[i][2] = sc->xmax - (sc->gap.left + sc->gap.right);
-		workareas[i][3] = sc->ymax - (sc->gap.top + sc->gap.bottom);
+		workareas[i][0] = sc->work.x;
+		workareas[i][1] = sc->work.y;
+		workareas[i][2] = sc->work.w;
+		workareas[i][3] = sc->work.h;
 	}
 
 	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_WORKAREA].atom,
