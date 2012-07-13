@@ -96,6 +96,13 @@ struct color {
 	unsigned long	 pixel;
 };
 
+struct geom {
+	int		 x;
+	int		 y;
+	int		 w;
+	int		 h;
+};
+
 struct gap {
 	int		 top;
 	int		 bottom;
@@ -206,6 +213,8 @@ struct screen_ctx {
 	int			 cycling;
 	int			 xmax;
 	int			 ymax;
+	struct geom		 view; /* viewable area */
+	struct geom		 work; /* workable area, gap-applied */
 	struct gap		 gap;
 	struct cycle_entry_q	 mruq;
 	XftColor		 xftcolor;
