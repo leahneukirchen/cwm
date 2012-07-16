@@ -258,6 +258,7 @@ client_maximize(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	int			 xmax = sc->view.w, ymax = sc->view.h;
 	int			 x_org = 0, y_org = 0;
+	XineramaScreenInfo	*xine;
 
 	if (cc->flags & CLIENT_FREEZE)
 		return;
@@ -279,24 +280,21 @@ client_maximize(struct client_ctx *cc)
 		cc->savegeom.x = cc->geom.x;
 	}
 
-	if (HasXinerama) {
-		XineramaScreenInfo *xine;
-		/*
-		 * pick screen that the middle of the window is on.
-		 * that's probably more fair than if just the origin of
-		 * a window is poking over a boundary
-		 */
-		xine = screen_find_xinerama(sc,
-		    cc->geom.x + cc->geom.w / 2,
-		    cc->geom.y + cc->geom.h / 2);
-		if (xine == NULL)
-			goto calc;
+	/*
+	 * pick screen that the middle of the window is on.
+	 * that's probably more fair than if just the origin of
+	 * a window is poking over a boundary
+	 */
+	xine = screen_find_xinerama(sc,
+	    cc->geom.x + cc->geom.w / 2,
+	    cc->geom.y + cc->geom.h / 2);
+	if (xine) {
 		x_org = xine->x_org;
 		y_org = xine->y_org;
 		xmax = xine->width;
 		ymax = xine->height;
 	}
-calc:
+
 	cc->geom.x = x_org + sc->gap.left;
 	cc->geom.y = y_org + sc->gap.top;
 	cc->geom.h = ymax - (sc->gap.top + sc->gap.bottom);
@@ -313,6 +311,7 @@ client_vertmaximize(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
 	int			 y_org = 0, ymax = sc->view.h;
+	XineramaScreenInfo	*xine;
 
 	if (cc->flags & CLIENT_FREEZE)
 		return;
@@ -336,17 +335,14 @@ client_vertmaximize(struct client_ctx *cc)
 		cc->bwidth = 0;
 	}
 
-	if (HasXinerama) {
-		XineramaScreenInfo *xine;
-		xine = screen_find_xinerama(sc,
-		    cc->geom.x + cc->geom.w / 2,
-		    cc->geom.y + cc->geom.h / 2);
-		if (xine == NULL)
-			goto calc;
+	xine = screen_find_xinerama(sc,
+	    cc->geom.x + cc->geom.w / 2,
+	    cc->geom.y + cc->geom.h / 2);
+	if (xine) {
 		y_org = xine->y_org;
 		ymax = xine->height;
 	}
-calc:
+
 	cc->geom.y = y_org + sc->gap.top;
 	cc->geom.h = ymax - (cc->bwidth * 2) - (sc->gap.top +
 	    sc->gap.bottom);
@@ -361,6 +357,7 @@ client_horizmaximize(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
 	int			 x_org = 0, xmax = sc->view.w;
+	XineramaScreenInfo	*xine;
 
 	if (cc->flags & CLIENT_FREEZE)
 		return;
@@ -384,17 +381,14 @@ client_horizmaximize(struct client_ctx *cc)
 		cc->bwidth = 0;
 	}
 
-	if (HasXinerama) {
-		XineramaScreenInfo *xine;
-		xine = screen_find_xinerama(sc,
-		    cc->geom.x + cc->geom.w / 2,
-		    cc->geom.y + cc->geom.h / 2);
-		if (xine == NULL)
-			goto calc;
+	xine = screen_find_xinerama(sc,
+	    cc->geom.x + cc->geom.w / 2,
+	    cc->geom.y + cc->geom.h / 2);
+	if (xine) {
 		x_org = xine->x_org;
 		xmax = xine->width;
 	}
-calc:
+
 	cc->geom.x = x_org + sc->gap.left;
 	cc->geom.w = xmax - (cc->bwidth * 2) - (sc->gap.left +
 	    sc->gap.right);
@@ -682,16 +676,13 @@ client_placecalc(struct client_ctx *cc)
 		int			 xmax, ymax;
 
 		xu_ptr_getpos(sc->rootwin, &xmouse, &ymouse);
-		if (HasXinerama) {
-			info = screen_find_xinerama(sc, xmouse, ymouse);
-			if (info == NULL)
-				goto noxine;
+		info = screen_find_xinerama(sc, xmouse, ymouse);
+		if (info) {
 			xorig = info->x_org;
 			yorig = info->y_org;
 			xmax = xorig + info->width;
 			ymax = yorig + info->height;
 		} else {
-noxine:
 			xorig = yorig = 0;
 			xmax = sc->view.w;
 			ymax = sc->view.h;
