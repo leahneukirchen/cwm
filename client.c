@@ -256,8 +256,7 @@ void
 client_maximize(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
-	int			 xmax = sc->view.w, ymax = sc->view.h;
-	int			 x_org = 0, y_org = 0;
+	int			 x_org, y_org, xmax, ymax;
 	XineramaScreenInfo	*xine;
 
 	if (cc->flags & CLIENT_FREEZE)
@@ -293,6 +292,10 @@ client_maximize(struct client_ctx *cc)
 		y_org = xine->y_org;
 		xmax = xine->width;
 		ymax = xine->height;
+	} else {
+		x_org = y_org = 0;
+		xmax = sc->view.w;
+		ymax = sc->view.h;
 	}
 
 	cc->geom.x = x_org + sc->gap.left;
@@ -310,7 +313,7 @@ void
 client_vertmaximize(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
-	int			 y_org = 0, ymax = sc->view.h;
+	int			 y_org, ymax;
 	XineramaScreenInfo	*xine;
 
 	if (cc->flags & CLIENT_FREEZE)
@@ -341,6 +344,9 @@ client_vertmaximize(struct client_ctx *cc)
 	if (xine) {
 		y_org = xine->y_org;
 		ymax = xine->height;
+	} else {
+		y_org = 0;
+		ymax = sc->view.h;
 	}
 
 	cc->geom.y = y_org + sc->gap.top;
@@ -356,7 +362,7 @@ void
 client_horizmaximize(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
-	int			 x_org = 0, xmax = sc->view.w;
+	int			 x_org, xmax;
 	XineramaScreenInfo	*xine;
 
 	if (cc->flags & CLIENT_FREEZE)
@@ -387,6 +393,9 @@ client_horizmaximize(struct client_ctx *cc)
 	if (xine) {
 		x_org = xine->x_org;
 		xmax = xine->width;
+	} else {
+		x_org = 0;
+		xmax = sc->view.w;
 	}
 
 	cc->geom.x = x_org + sc->gap.left;
