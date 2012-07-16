@@ -105,7 +105,7 @@ screen_find_xinerama(struct screen_ctx *sc, int x, int y)
 	XineramaScreenInfo	*info;
 	int			 i;
 
-	if (HasXinerama = 0)
+	if (HasXinerama == 0)
 		return (NULL);
 
 	for (i = 0; i < sc->xinerama_no; i++) {
