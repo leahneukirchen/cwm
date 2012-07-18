@@ -44,7 +44,7 @@ Cursor				 Cursor_resize;
 struct screen_ctx_q		 Screenq = TAILQ_HEAD_INITIALIZER(Screenq);
 struct client_ctx_q		 Clientq = TAILQ_HEAD_INITIALIZER(Clientq);
 
-int				 HasXinerama, HasRandr, Randr_ev;
+int				 HasRandr, Randr_ev;
 struct conf			 Conf;
 
 static void	sigchld_cb(int);
@@ -157,7 +157,6 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	Window			*wins, w0, w1;
 	XWindowAttributes	 winattr;
 	XSetWindowAttributes	 rootattr;
-	int			 fake;
 	u_int			 nwins, i;
 
 	sc->which = which;
@@ -167,8 +166,8 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 	xu_ewmh_net_supported_wm_check(sc);
 
 	conf_gap(&Conf, sc);
-	screen_update_geometry(sc, DisplayWidth(X_Dpy, sc->which),
-	    DisplayHeight(X_Dpy, sc->which));
+
+	screen_update_geometry(sc);
 
 	conf_color(&Conf, sc);
 
@@ -201,17 +200,8 @@ x_setupscreen(struct screen_ctx *sc, u_int which)
 
 	screen_updatestackingorder(sc);
 
-	if (XineramaQueryExtension(X_Dpy, &fake, &fake) == 1 &&
-	    ((HasXinerama = XineramaIsActive(X_Dpy)) == 1))
-		HasXinerama = 1;
 	if (HasRandr)
 		XRRSelectInput(X_Dpy, sc->rootwin, RRScreenChangeNotifyMask);
-	/*
-	 * initial setup of xinerama screens, if we're using RandR then we'll
-	 * redo this whenever the screen changes since a CTRC may have been
-	 * added or removed
-	 */
-	screen_init_xinerama(sc);
 
 	XSync(X_Dpy, False);
 }

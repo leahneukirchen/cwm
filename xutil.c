@@ -128,8 +128,8 @@ xu_configure(struct client_ctx *cc)
 	ce.window = cc->win;
 	ce.x = cc->geom.x;
 	ce.y = cc->geom.y;
-	ce.width = cc->geom.width;
-	ce.height = cc->geom.height;
+	ce.width = cc->geom.w;
+	ce.height = cc->geom.h;
 	ce.border_width = cc->bwidth;
 	ce.above = None;
 	ce.override_redirect = 0;
@@ -207,7 +207,8 @@ xu_getstate(struct client_ctx *cc, int *state)
 {
 	long	*p = NULL;
 
-	if (xu_getprop(cc->win, WM_STATE, WM_STATE, 2L, (u_char **)&p) <= 0)
+	if (xu_getprop(cc->win, cwmh[WM_STATE].atom, cwmh[WM_STATE].atom, 2L,
+	    (u_char **)&p) <= 0)
 		return (-1);
 
 	*state = (int)*p;
@@ -225,67 +226,194 @@ xu_setstate(struct client_ctx *cc, int state)
 	dat[1] = None;
 
 	cc->state = state;
-	XChangeProperty(X_Dpy, cc->win, WM_STATE, WM_STATE, 32,
+	XChangeProperty(X_Dpy, cc->win,
+	    cwmh[WM_STATE].atom, cwmh[WM_STATE].atom, 32,
 	    PropModeReplace, (unsigned char *)dat, 2);
 }
 
-Atom		cwm_atoms[CWM_NO_ATOMS];
-char 		*atoms[CWM_NO_ATOMS] = {
-	"WM_STATE",
-	"WM_DELETE_WINDOW",
-	"WM_TAKE_FOCUS",
-	"WM_PROTOCOLS",
-	"_MOTIF_WM_HINTS",
-	"UTF8_STRING",
-	"_NET_SUPPORTED",
-	"_NET_SUPPORTING_WM_CHECK",
-	"_NET_WM_NAME",
-	"_NET_ACTIVE_WINDOW",
-	"_NET_CLIENT_LIST",
-	"_NET_NUMBER_OF_DESKTOPS",
-	"_NET_CURRENT_DESKTOP",
-	"_NET_DESKTOP_VIEWPORT",
-	"_NET_DESKTOP_GEOMETRY",
-	"_NET_VIRTUAL_ROOTS",
-	"_NET_SHOWING_DESKTOP",
-	"_NET_DESKTOP_NAMES",
-	"_NET_WM_DESKTOP",
-	"_NET_WORKAREA",
+struct atom_ctx cwmh[CWMH_NITEMS] = {
+	{"WM_STATE",			None},
+	{"WM_DELETE_WINDOW",		None},
+	{"WM_TAKE_FOCUS",		None},
+	{"WM_PROTOCOLS",		None},
+	{"_MOTIF_WM_HINTS",		None},
+	{"UTF8_STRING",			None},
+};
+struct atom_ctx ewmh[EWMH_NITEMS] = {
+	{"_NET_SUPPORTED",		None},
+	{"_NET_SUPPORTING_WM_CHECK",	None},
+	{"_NET_ACTIVE_WINDOW",		None},
+	{"_NET_CLIENT_LIST",		None},
+	{"_NET_NUMBER_OF_DESKTOPS",	None},
+	{"_NET_CURRENT_DESKTOP",	None},
+	{"_NET_DESKTOP_VIEWPORT",	None},
+	{"_NET_DESKTOP_GEOMETRY",	None},
+	{"_NET_VIRTUAL_ROOTS",		None},
+	{"_NET_SHOWING_DESKTOP",	None},
+	{"_NET_DESKTOP_NAMES",		None},
+	{"_NET_WORKAREA",		None},
+	{"_NET_WM_NAME",		None},
+	{"_NET_WM_DESKTOP",		None},
 };
 
 void
 xu_getatoms(void)
 {
-	XInternAtoms(X_Dpy, atoms, CWM_NO_ATOMS, False, cwm_atoms);
+	int	 i;
+
+	for (i = 0; i < nitems(cwmh); i++)
+		cwmh[i].atom = XInternAtom(X_Dpy, cwmh[i].name, False);
+	for (i = 0; i < nitems(ewmh); i++)
+		ewmh[i].atom = XInternAtom(X_Dpy, ewmh[i].name, False);
 }
 
+/* Root Window Properties */
 void
 xu_ewmh_net_supported(struct screen_ctx *sc)
 {
-	XChangeProperty(X_Dpy, sc->rootwin, _NET_SUPPORTED, XA_ATOM, 32,
-	    PropModeReplace,  (unsigned char *)&_NET_SUPPORTED,
-	    CWM_NO_ATOMS - CWM_NETWM_START);
+	Atom	 atom[EWMH_NITEMS];
+	int	 i;
+
+	for (i = 0; i < nitems(ewmh); i++)
+		atom[i] = ewmh[i].atom;
+
+	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_SUPPORTED].atom,
+	    XA_ATOM, 32, PropModeReplace, (unsigned char *)atom, EWMH_NITEMS);
 }
 
-/*
- * The netwm spec says that to prove that the hint is not stale, one
- * must provide _NET_SUPPORTING_WM_CHECK containing a window created by
- * the root window.  The property must be set on the root window and the
- * window itself.  This child window also must have _NET_WM_NAME set with
- * the window manager name.
- */
 void
 xu_ewmh_net_supported_wm_check(struct screen_ctx *sc)
 {
 	Window	 w;
 
 	w = XCreateSimpleWindow(X_Dpy, sc->rootwin, -1, -1, 1, 1, 0, 0, 0);
-	XChangeProperty(X_Dpy, sc->rootwin, _NET_SUPPORTING_WM_CHECK,
+	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_SUPPORTING_WM_CHECK].atom,
 	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)&w, 1);
-	XChangeProperty(X_Dpy, w, _NET_SUPPORTING_WM_CHECK,
+	XChangeProperty(X_Dpy, w, ewmh[_NET_SUPPORTING_WM_CHECK].atom,
 	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)&w, 1);
-	XChangeProperty(X_Dpy, w, _NET_WM_NAME, UTF8_STRING,
-	    8, PropModeReplace, WMNAME, strlen(WMNAME));
+	XChangeProperty(X_Dpy, w, ewmh[_NET_WM_NAME].atom,
+	    XA_WM_NAME, 8, PropModeReplace, WMNAME, strlen(WMNAME));
+}
+
+void
+xu_ewmh_net_desktop_geometry(struct screen_ctx *sc)
+{
+	long	 geom[2] = { sc->view.w, sc->view.h };
+
+	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_DESKTOP_GEOMETRY].atom,
+	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)geom , 2);
+}
+
+void
+xu_ewmh_net_workarea(struct screen_ctx *sc)
+{
+	long	 workareas[CALMWM_NGROUPS][4];
+	int	 i;
+
+	for (i = 0; i < CALMWM_NGROUPS; i++) {
+		workareas[i][0] = sc->work.x;
+		workareas[i][1] = sc->work.y;
+		workareas[i][2] = sc->work.w;
+		workareas[i][3] = sc->work.h;
+	}
+
+	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_WORKAREA].atom,
+	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)workareas,
+	    CALMWM_NGROUPS * 4);
+}
+
+void
+xu_ewmh_net_client_list(struct screen_ctx *sc)
+{
+	struct client_ctx	*cc;
+	Window			*winlist;
+	int			 i = 0, j = 0;
+
+	TAILQ_FOREACH(cc, &Clientq, entry)
+		i++;
+	if (i == 0)
+		return;
+
+	winlist = xmalloc(i * sizeof(*winlist));
+	TAILQ_FOREACH(cc, &Clientq, entry)
+		winlist[j++] = cc->win;
+	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_CLIENT_LIST].atom,
+	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)winlist, i);
+	xfree(winlist);
+}
+
+void
+xu_ewmh_net_active_window(struct screen_ctx *sc, Window w)
+{
+	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_ACTIVE_WINDOW].atom,
+	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)&w, 1);
+}
+
+void
+xu_ewmh_net_wm_desktop_viewport(struct screen_ctx *sc)
+{
+	long	 viewports[2] = {0, 0};
+
+	/* We don't support large desktops, so this is (0, 0). */
+	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_DESKTOP_VIEWPORT].atom,
+	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)viewports, 2);
+}
+
+void
+xu_ewmh_net_wm_number_of_desktops(struct screen_ctx *sc)
+{
+	long	 ndesks = CALMWM_NGROUPS;
+
+	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_NUMBER_OF_DESKTOPS].atom,
+	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&ndesks, 1);
+}
+
+void
+xu_ewmh_net_showing_desktop(struct screen_ctx *sc)
+{
+	long	 zero = 0;
+
+	/* We don't support `showing desktop' mode, so this is zero.
+	 * Note that when we hide all groups, or when all groups are
+	 * hidden we could technically set this later on.
+	 */
+	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_SHOWING_DESKTOP].atom,
+	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&zero, 1);
+}
+
+void
+xu_ewmh_net_virtual_roots(struct screen_ctx *sc)
+{
+	/* We don't support virtual roots, so delete if set by previous wm. */
+	XDeleteProperty(X_Dpy, sc->rootwin, ewmh[_NET_VIRTUAL_ROOTS].atom);
+}
+
+void
+xu_ewmh_net_current_desktop(struct screen_ctx *sc, long idx)
+{
+	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_CURRENT_DESKTOP].atom,
+	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&idx, 1);
+}
+
+void
+xu_ewmh_net_desktop_names(struct screen_ctx *sc, unsigned char *data, int n)
+{
+	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_DESKTOP_NAMES].atom,
+	    cwmh[UTF8_STRING].atom, 8, PropModeReplace, data, n);
+}
+
+/* Application Window Properties */
+void
+xu_ewmh_net_wm_desktop(struct client_ctx *cc)
+{
+	struct group_ctx	*gc = cc->group;
+	long			 no = 0xffffffff;
+
+	if (gc)
+		no = gc->shortcut - 1;
+
+	XChangeProperty(X_Dpy, cc->win, ewmh[_NET_WM_DESKTOP].atom,
+	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&no, 1);
 }
 
 unsigned long

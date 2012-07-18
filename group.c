@@ -48,11 +48,8 @@ const char *shortcut_to_name[] = {
 static void
 group_add(struct group_ctx *gc, struct client_ctx *cc)
 {
-	long	no;
 	if (cc == NULL || gc == NULL)
 		errx(1, "group_add: a ctx is NULL");
-
-	no = gc->shortcut - 1;
 
 	if (cc->group == gc)
 		return;
@@ -60,26 +57,22 @@ group_add(struct group_ctx *gc, struct client_ctx *cc)
 	if (cc->group != NULL)
 		TAILQ_REMOVE(&cc->group->clients, cc, group_entry);
 
-	XChangeProperty(X_Dpy, cc->win, _NET_WM_DESKTOP, XA_CARDINAL,
-	    32, PropModeReplace, (unsigned char *)&no, 1);
-
 	TAILQ_INSERT_TAIL(&gc->clients, cc, group_entry);
 	cc->group = gc;
+
+	xu_ewmh_net_wm_desktop(cc);
 }
 
 static void
 group_remove(struct client_ctx *cc)
 {
-	long	no = 0xffffffff;
-
 	if (cc == NULL || cc->group == NULL)
 		errx(1, "group_remove: a ctx is NULL");
 
-	XChangeProperty(X_Dpy, cc->win, _NET_WM_DESKTOP, XA_CARDINAL,
-	    32, PropModeReplace, (unsigned char *)&no, 1);
-
 	TAILQ_REMOVE(&cc->group->clients, cc, group_entry);
 	cc->group = NULL;
+
+	xu_ewmh_net_wm_desktop(cc);
 }
 
 static void
@@ -146,8 +139,6 @@ void
 group_init(struct screen_ctx *sc)
 {
 	int	 i;
-	long	 viewports[2] = {0, 0};
-	long	 ndesks = CALMWM_NGROUPS, zero = 0;
 
 	TAILQ_INIT(&sc->groupq);
 	sc->group_hideall = 0;
@@ -164,23 +155,11 @@ group_init(struct screen_ctx *sc)
 		TAILQ_INSERT_TAIL(&sc->groupq, &sc->groups[i], entry);
 	}
 
-	/* we don't support large desktops, so this is always (0, 0) */
-	XChangeProperty(X_Dpy, sc->rootwin, _NET_DESKTOP_VIEWPORT,
-	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)viewports, 2);
-	XChangeProperty(X_Dpy, sc->rootwin, _NET_NUMBER_OF_DESKTOPS,
-	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&ndesks, 1);
-	/*
-	 * we don't use virtual roots, so make sure it's not there from a 
-	 * previous wm.
-	 */
-	XDeleteProperty(X_Dpy, sc->rootwin, _NET_VIRTUAL_ROOTS);
-	/*
-	 * We don't really have a ``showing desktop'' mode, so this is zero
-	 * always. XXX Note that when we hide all groups, or when all groups
-	 * are hidden we could technically set this later on.
-	 */
-	XChangeProperty(X_Dpy, sc->rootwin, _NET_SHOWING_DESKTOP,
-	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&zero, 1);
+	xu_ewmh_net_wm_desktop_viewport(sc);
+	xu_ewmh_net_wm_number_of_desktops(sc);
+	xu_ewmh_net_showing_desktop(sc);
+	xu_ewmh_net_virtual_roots(sc);
+
 	group_setactive(sc, 0);
 }
 
@@ -209,8 +188,8 @@ static void
 group_setactive(struct screen_ctx *sc, long idx)
 {
 	sc->group_active = &sc->groups[idx];
-	XChangeProperty(X_Dpy, sc->rootwin, _NET_CURRENT_DESKTOP,
-	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&idx, 1);
+
+	xu_ewmh_net_current_desktop(sc, idx);
 }
 
 void
@@ -439,8 +418,8 @@ group_autogroup(struct client_ctx *cc)
 	if (cc->app_class == NULL || cc->app_name == NULL)
 		return;
 
-	if (xu_getprop(cc->win, _NET_WM_DESKTOP, XA_CARDINAL,
-	    1, (unsigned char **)&grpno) > 0) {
+	if (xu_getprop(cc->win, ewmh[_NET_WM_DESKTOP].atom,
+	    XA_CARDINAL, 1, (unsigned char **)&grpno) > 0) {
 		if (*grpno == 0xffffffff)
 			no = 0;
 		else if (*grpno > CALMWM_NGROUPS || *grpno < 0)
@@ -480,11 +459,12 @@ group_update_names(struct screen_ctx *sc)
 	char		**strings, *p;
 	unsigned char	*prop_ret;
 	Atom		 type_ret;
-	int		 format_ret, i = 0, nstrings = 0, n, setnames = 0;
+	int		 format_ret, i = 0, nstrings = 0, n = 0, setnames = 0;
 	unsigned long	 bytes_after, num_ret;
 
-	if (XGetWindowProperty(X_Dpy, sc->rootwin, _NET_DESKTOP_NAMES, 0,
-	    0xffffff, False, UTF8_STRING, &type_ret, &format_ret,
+	if (XGetWindowProperty(X_Dpy, sc->rootwin,
+	    ewmh[_NET_DESKTOP_NAMES].atom, 0, 0xffffff, False,
+	    cwmh[UTF8_STRING].atom, &type_ret, &format_ret,
 	    &num_ret, &bytes_after, &prop_ret) == Success &&
 	    prop_ret != NULL && format_ret == 8) {
 		/* failure, just set defaults */
@@ -498,7 +478,6 @@ group_update_names(struct screen_ctx *sc)
 	strings = xmalloc((nstrings < CALMWM_NGROUPS ? CALMWM_NGROUPS :
 	    nstrings) * sizeof(*strings));
 
-	i = n = 0;
 	p = prop_ret;
 	while (n < nstrings) {
 		strings[n++] = xstrdup(p);
@@ -545,6 +524,5 @@ group_set_names(struct screen_ctx *sc)
 		q += slen;
 	}
 
-	XChangeProperty(X_Dpy, sc->rootwin, _NET_DESKTOP_NAMES,
-	    UTF8_STRING, 8, PropModeReplace, p, len);
+	xu_ewmh_net_desktop_names(sc, p, len);
 }

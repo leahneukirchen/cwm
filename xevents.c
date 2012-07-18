@@ -142,9 +142,9 @@ xev_handle_configurerequest(XEvent *ee)
 		sc = cc->sc;
 
 		if (e->value_mask & CWWidth)
-			cc->geom.width = e->width;
+			cc->geom.w = e->width;
 		if (e->value_mask & CWHeight)
-			cc->geom.height = e->height;
+			cc->geom.h = e->height;
 		if (e->value_mask & CWX)
 			cc->geom.x = e->x;
 		if (e->value_mask & CWY)
@@ -152,16 +152,16 @@ xev_handle_configurerequest(XEvent *ee)
 		if (e->value_mask & CWBorderWidth)
 			wc.border_width = e->border_width;
 
-		if (cc->geom.x == 0 && cc->geom.width >= sc->xmax)
+		if (cc->geom.x == 0 && cc->geom.w >= sc->view.w)
 			cc->geom.x -= cc->bwidth;
 
-		if (cc->geom.y == 0 && cc->geom.height >= sc->ymax)
+		if (cc->geom.y == 0 && cc->geom.h >= sc->view.h)
 			cc->geom.y -= cc->bwidth;
 
 		wc.x = cc->geom.x;
 		wc.y = cc->geom.y;
-		wc.width = cc->geom.width;
-		wc.height = cc->geom.height;
+		wc.width = cc->geom.w;
+		wc.height = cc->geom.h;
 		wc.border_width = cc->bwidth;
 
 		XConfigureWindow(X_Dpy, cc->win, e->value_mask, &wc);
@@ -208,7 +208,7 @@ xev_handle_propertynotify(XEvent *ee)
 				goto test;
 		return;
 test:
-		if (e->atom == _NET_DESKTOP_NAMES)
+		if (e->atom == ewmh[_NET_DESKTOP_NAMES].atom)
 			group_update_names(sc);
 	}
 }
@@ -366,8 +366,7 @@ xev_handle_randr(XEvent *ee)
 	TAILQ_FOREACH(sc, &Screenq, entry) {
 		if (sc->which == (u_int)i) {
 			XRRUpdateConfiguration(ee);
-			screen_update_geometry(sc, rev->width, rev->height);
-			screen_init_xinerama(sc);
+			screen_update_geometry(sc);
 		}
 	}
 }
