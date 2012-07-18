@@ -44,7 +44,7 @@ Cursor				 Cursor_resize;
 struct screen_ctx_q		 Screenq = TAILQ_HEAD_INITIALIZER(Screenq);
 struct client_ctx_q		 Clientq = TAILQ_HEAD_INITIALIZER(Clientq);
 
-int				 HasXinerama, HasRandr, Randr_ev;
+int				 HasRandr, Randr_ev;
 struct conf			 Conf;
 
 static void	sigchld_cb(int);
@@ -97,7 +97,7 @@ main(int argc, char **argv)
 static void
 dpy_init(const char *dpyname)
 {
-	int	i, fake;
+	int	i;
 
 	XSetErrorHandler(x_errorhandler);
 
@@ -110,9 +110,6 @@ dpy_init(const char *dpyname)
 	XSync(X_Dpy, False);
 	XSetErrorHandler(x_errorhandler);
 
-	if (XineramaQueryExtension(X_Dpy, &fake, &fake) == 1 &&
-	    ((HasXinerama = XineramaIsActive(X_Dpy)) == 1))
-		HasXinerama = 1;
 	HasRandr = XRRQueryExtension(X_Dpy, &Randr_ev, &i);
 }
 
