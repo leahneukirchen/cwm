@@ -349,8 +349,8 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 		ymax = xine->y_org + xine->height;
 	} else {
 		xmin = ymin = 0;
-		xmax = sc->xmax;
-		ymax = sc->ymax;
+		xmax = sc->view.w;
+		ymax = sc->view.h;
 	}
 
 	xsave = mc->x;

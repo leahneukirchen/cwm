@@ -30,6 +30,8 @@
 
 #include "calmwm.h"
 
+static void	 screen_init_xinerama(struct screen_ctx *);
+
 struct screen_ctx *
 screen_fromroot(Window rootwin)
 {
@@ -65,24 +67,18 @@ screen_updatestackingorder(struct screen_ctx *sc)
 	XFree(wins);
 }
 
+/*
+ * If we're using RandR then we'll redo this whenever the screen
+ * changes since a CTRC may have been added or removed
+ */
 void
 screen_init_xinerama(struct screen_ctx *sc)
 {
-	XineramaScreenInfo	*info;
-	int			 no;
+	XineramaScreenInfo	*info = NULL;
+	int			 no = 0;
 
-	if (HasXinerama == 0 || XineramaIsActive(X_Dpy) == 0) {
-		HasXinerama = 0;
-		sc->xinerama_no = 0;
-	}
-
-	info = XineramaQueryScreens(X_Dpy, &no);
-	if (info == NULL) {
-		/* Is xinerama actually off, instead of a malloc failure? */
-		if (sc->xinerama == NULL)
-			HasXinerama = 0;
-		return;
-	}
+	if (XineramaIsActive(X_Dpy))
+		info = XineramaQueryScreens(X_Dpy, &no);
 
 	if (sc->xinerama != NULL)
 		XFree(sc->xinerama);
@@ -99,6 +95,9 @@ screen_find_xinerama(struct screen_ctx *sc, int x, int y)
 	XineramaScreenInfo	*info;
 	int			 i;
 
+	if (sc->xinerama == NULL)
+		return (NULL);
+
 	for (i = 0; i < sc->xinerama_no; i++) {
 		info = &sc->xinerama[i];
 		if (x >= info->x_org && x < info->x_org + info->width &&
@@ -109,25 +108,20 @@ screen_find_xinerama(struct screen_ctx *sc, int x, int y)
 }
 
 void
-screen_update_geometry(struct screen_ctx *sc, int width, int height)
+screen_update_geometry(struct screen_ctx *sc)
 {
-	long	 geom[2], workareas[CALMWM_NGROUPS][4];
-	int	 i;
+	sc->view.x = 0;
+	sc->view.y = 0;
+	sc->view.w = DisplayWidth(X_Dpy, sc->which);
+	sc->view.h = DisplayHeight(X_Dpy, sc->which);
 
-	sc->xmax = geom[0] = width;
-	sc->ymax = geom[1] = height;
-	XChangeProperty(X_Dpy, sc->rootwin, _NET_DESKTOP_GEOMETRY,
-	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)geom , 2);
+	sc->work.x = sc->view.x + sc->gap.left;
+	sc->work.y = sc->view.y + sc->gap.top;
+	sc->work.w = sc->view.w - (sc->gap.left + sc->gap.right);
+	sc->work.h = sc->view.h - (sc->gap.top + sc->gap.bottom);
 
-	/* x, y, width, height. */
-	for (i = 0; i < CALMWM_NGROUPS; i++) {
-		workareas[i][0] = sc->gap.left;
-		workareas[i][1] = sc->gap.top;
-		workareas[i][2] = width - (sc->gap.left + sc->gap.right);
-		workareas[i][3] = height - (sc->gap.top + sc->gap.bottom);
-	}
+	screen_init_xinerama(sc);
 
-	XChangeProperty(X_Dpy, sc->rootwin, _NET_WORKAREA,
-	    XA_CARDINAL, 32, PropModeReplace,
-	    (unsigned char *)workareas, CALMWM_NGROUPS * 4);
+	xu_ewmh_net_desktop_geometry(sc);
+	xu_ewmh_net_workarea(sc);
 }

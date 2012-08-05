@@ -111,6 +111,13 @@ struct color {
 	unsigned long	 pixel;
 };
 
+struct geom {
+	int		 x;
+	int		 y;
+	int		 w;
+	int		 h;
+};
+
 struct gap {
 	int		 top;
 	int		 bottom;
@@ -133,12 +140,7 @@ struct client_ctx {
 	XSizeHints		*size;
 	Colormap		 cmap;
 	u_int			 bwidth; /* border width */
-	struct {
-		int		 x;	/* x position */
-		int		 y;	/* y position */
-		int		 width;	/* width */
-		int		 height;/* height */
-	} geom, savegeom;
+	struct geom		 geom, savegeom;
 	struct {
 		int		 basew;	/* desired width */
 		int		 baseh;	/* desired height */
@@ -227,8 +229,8 @@ struct screen_ctx {
 	struct color		 color[CWM_COLOR_MAX];
 	GC			 gc;
 	int			 cycling;
-	int			 xmax;
-	int			 ymax;
+	struct geom		 view; /* viewable area */
+	struct geom		 work; /* workable area, gap-applied */
 	struct gap		 gap;
 	struct cycle_entry_q	 mruq;
 	XftColor		 xftcolor;
@@ -385,8 +387,7 @@ void			 search_print_client(struct menu *, int);
 
 XineramaScreenInfo	*screen_find_xinerama(struct screen_ctx *, int, int);
 struct screen_ctx	*screen_fromroot(Window);
-void			 screen_init_xinerama(struct screen_ctx *);
-void			 screen_update_geometry(struct screen_ctx *, int, int);
+void			 screen_update_geometry(struct screen_ctx *);
 void			 screen_updatestackingorder(struct screen_ctx *);
 
 void			 kbfunc_client_cycle(struct client_ctx *, union arg *);
@@ -491,6 +492,19 @@ void			 xu_setstate(struct client_ctx *, int);
 
 void			 xu_ewmh_net_supported(struct screen_ctx *);
 void			 xu_ewmh_net_supported_wm_check(struct screen_ctx *);
+void			 xu_ewmh_net_desktop_geometry(struct screen_ctx *);
+void			 xu_ewmh_net_workarea(struct screen_ctx *);
+void			 xu_ewmh_net_client_list(struct screen_ctx *);
+void			 xu_ewmh_net_active_window(struct screen_ctx *, Window);
+void			 xu_ewmh_net_wm_desktop_viewport(struct screen_ctx *);
+void			 xu_ewmh_net_wm_number_of_desktops(struct screen_ctx *);
+void			 xu_ewmh_net_showing_desktop(struct screen_ctx *);
+void			 xu_ewmh_net_virtual_roots(struct screen_ctx *);
+void			 xu_ewmh_net_current_desktop(struct screen_ctx *, long);
+void			 xu_ewmh_net_desktop_names(struct screen_ctx *, unsigned char *, int);
+
+void			 xu_ewmh_net_wm_desktop(struct client_ctx *);
+
 
 void			 u_exec(char *);
 void			 u_spawn(char *);
@@ -515,35 +529,38 @@ extern struct conf			 Conf;
 
 extern int				 HasXinerama, HasRandr, Randr_ev;
 
-#define	WM_STATE			 cwm_atoms[0]
-#define WM_DELETE_WINDOW		 cwm_atoms[1]
-#define WM_TAKE_FOCUS			 cwm_atoms[2]
-#define WM_PROTOCOLS			 cwm_atoms[3]
-#define _MOTIF_WM_HINTS			 cwm_atoms[4]
-#define	UTF8_STRING			 cwm_atoms[5]
-/*
- * please make all hints below this point netwm hints, starting with
- * _NET_SUPPORTED. If you change other hints make sure you update
- * CWM_NETWM_START
- */
-#define	_NET_SUPPORTED			 cwm_atoms[6]
-#define	_NET_SUPPORTING_WM_CHECK	 cwm_atoms[7]
-#define	_NET_WM_NAME			 cwm_atoms[8]
-#define	_NET_ACTIVE_WINDOW		 cwm_atoms[9]
-#define	_NET_CLIENT_LIST		 cwm_atoms[10]
-#define	_NET_NUMBER_OF_DESKTOPS		 cwm_atoms[11]
-#define	_NET_CURRENT_DESKTOP		 cwm_atoms[12]
-#define	_NET_DESKTOP_VIEWPORT		 cwm_atoms[13]
-#define	_NET_DESKTOP_GEOMETRY		 cwm_atoms[14]
-#define	_NET_VIRTUAL_ROOTS		 cwm_atoms[15]
-#define	_NET_SHOWING_DESKTOP		 cwm_atoms[16]
-#define	_NET_DESKTOP_NAMES		 cwm_atoms[17]
-#define	_NET_WM_DESKTOP			 cwm_atoms[18]
-#define	_NET_WORKAREA			 cwm_atoms[19]
-#define CWM_NO_ATOMS			 20
-#define CWM_NETWM_START			 6
-
-extern Atom				 cwm_atoms[CWM_NO_ATOMS];
+enum {
+	WM_STATE,
+	WM_DELETE_WINDOW,
+	WM_TAKE_FOCUS,
+	WM_PROTOCOLS,
+	_MOTIF_WM_HINTS,
+	UTF8_STRING,
+	CWMH_NITEMS
+};
+enum {
+	_NET_SUPPORTED,
+	_NET_SUPPORTING_WM_CHECK,
+	_NET_ACTIVE_WINDOW,
+	_NET_CLIENT_LIST,
+	_NET_NUMBER_OF_DESKTOPS,
+	_NET_CURRENT_DESKTOP,
+	_NET_DESKTOP_VIEWPORT,
+	_NET_DESKTOP_GEOMETRY,
+	_NET_VIRTUAL_ROOTS,
+	_NET_SHOWING_DESKTOP,
+	_NET_DESKTOP_NAMES,
+	_NET_WORKAREA,
+	_NET_WM_NAME,
+	_NET_WM_DESKTOP,
+	EWMH_NITEMS
+};
+struct atom_ctx {
+	char	*name;
+	Atom	 atom;
+};
+extern struct atom_ctx			 cwmh[CWMH_NITEMS];
+extern struct atom_ctx			 ewmh[EWMH_NITEMS];
 
 #endif /* _CALMWM_H_ */
 
