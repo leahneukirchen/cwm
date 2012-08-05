@@ -483,7 +483,9 @@ group_autogroup(struct client_ctx *cc)
 			no = *grpno + 1;
 		XFree(grpno);
 	} else {
+		debug("search class:%s name:%s\n", cc->app_class, cc->app_name);
 		TAILQ_FOREACH(aw, &Conf.autogroupq, entry) {
+			debug("test class:%s name:%s\n", aw->class, aw->name);
 			if (strcasecmp(aw->class, cc->app_class) == 0 &&
 			    (aw->name == NULL ||
 			    strcasecmp(aw->name, cc->app_name) == 0)) {
