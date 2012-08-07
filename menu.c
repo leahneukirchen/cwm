@@ -68,7 +68,7 @@ static void		 menu_draw(struct screen_ctx *, struct menu_ctx *,
 			     struct menu_q *, struct menu_q *);
 static int		 menu_calc_entry(struct screen_ctx *, struct menu_ctx *,
 			     int, int);
-static int		 menu_keycode(KeyCode, u_int, enum ctltype *,
+static int		 menu_keycode(XKeyEvent *, enum ctltype *,
                              char *);
 
 void
@@ -208,16 +208,22 @@ menu_handle_key(XEvent *e, struct menu_ctx *mc, struct menu_q *menuq,
 {
 	struct menu	*mi;
 	enum ctltype	 ctl;
-	char		 chr;
+	char		 chr[32];
 	size_t		 len;
+	int 		 clen, i;
+	wchar_t 	 wc;
 
-	if (menu_keycode(e->xkey.keycode, e->xkey.state, &ctl, &chr) < 0)
+	if (menu_keycode(&e->xkey, &ctl, chr) < 0)
 		return (NULL);
 
 	switch (ctl) {
 	case CTL_ERASEONE:
 		if ((len = strlen(mc->searchstr)) > 0) {
-			mc->searchstr[len - 1] = '\0';
+			clen = 1;
+			while (mbtowc(&wc, &mc->searchstr[len-clen], MB_CUR_MAX) == -1)
+				clen++;
+			for (i = 1; i <= clen; i++)
+				mc->searchstr[len - i] = '\0';
 			mc->changed = 1;
 		}
 		break;
@@ -267,13 +273,9 @@ menu_handle_key(XEvent *e, struct menu_ctx *mc, struct menu_q *menuq,
 		break;
 	}
 
-	if (chr != '\0') {
-		char str[2];
-
-		str[0] = chr;
-		str[1] = '\0';
+	if (chr[0] != '\0') {
 		mc->changed = 1;
-		(void)strlcat(mc->searchstr, str, sizeof(mc->searchstr));
+		(void)strlcat(mc->searchstr, chr, sizeof(mc->searchstr));
 	}
 
 	mc->noresult = 0;
@@ -459,14 +461,16 @@ menu_calc_entry(struct screen_ctx *sc, struct menu_ctx *mc, int x, int y)
 }
 
 static int
-menu_keycode(KeyCode kc, u_int state, enum ctltype *ctl, char *chr)
+menu_keycode(XKeyEvent *ev, enum ctltype *ctl, char *chr)
 {
-	int	 ks;
+	KeySym	 ks;
+	u_int 	 state = ev->state;
 
 	*ctl = CTL_NONE;
-	*chr = '\0';
+	chr[0] = '\0';
 
-	ks = XkbKeycodeToKeysym(X_Dpy, kc, 0, (state & ShiftMask) ? 1 : 0);
+	ks = XkbKeycodeToKeysym(X_Dpy, ev->keycode, 0,
+	     (state & ShiftMask) ? 1 : 0);
 
 	/* Look for control characters. */
 	switch (ks) {
@@ -532,14 +536,8 @@ menu_keycode(KeyCode kc, u_int state, enum ctltype *ctl, char *chr)
 	if (*ctl != CTL_NONE)
 		return (0);
 
-	/*
-	 * For regular characters, only (part of, actually) Latin 1
-	 * for now.
-	 */
-	if (ks < 0x20 || ks > 0x07e)
+	if (XLookupString(ev, chr, 32, &ks, NULL) < 0)
 		return (-1);
-
-	*chr = (char)ks;
 
 	return (0);
 }
