@@ -306,7 +306,7 @@ client_maximize(struct client_ctx *cc)
 	cc->flags |= CLIENT_MAXIMIZED;
 
 resize:
-	client_resize(cc);
+	client_resize(cc, 0);
 }
 
 void
@@ -355,7 +355,7 @@ client_vertmaximize(struct client_ctx *cc)
 	cc->flags |= CLIENT_VMAXIMIZED;
 
 resize:
-	client_resize(cc);
+	client_resize(cc, 0);
 }
 
 void
@@ -404,12 +404,17 @@ client_horizmaximize(struct client_ctx *cc)
 	cc->flags |= CLIENT_HMAXIMIZED;
 
 resize:
-	client_resize(cc);
+	client_resize(cc, 0);
 }
 
 void
-client_resize(struct client_ctx *cc)
+client_resize(struct client_ctx *cc, int reset)
 {
+	if (reset) {
+		cc->flags &= ~CLIENT_MAXIMIZED;
+		cc->bwidth = Conf.bwidth;
+	}
+
 	client_draw_border(cc);
 
 	XMoveResizeWindow(X_Dpy, cc->win, cc->geom.x,

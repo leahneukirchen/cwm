@@ -110,12 +110,12 @@ mousefunc_window_resize(struct client_ctx *cc, void *arg)
 			/* don't resize more than 60 times / second */
 			if ((ev.xmotion.time - ltime) > (1000 / 60)) {
 				ltime = ev.xmotion.time;
-				client_resize(cc);
+				client_resize(cc, 1);
 			}
 			break;
 		case ButtonRelease:
 			if (ltime)
-				client_resize(cc);
+				client_resize(cc, 1);
 			XUnmapWindow(X_Dpy, sc->menuwin);
 			XReparentWindow(X_Dpy, sc->menuwin, sc->rootwin, 0, 0);
 			xu_ptr_ungrab();
