@@ -339,7 +339,7 @@ struct client_ctx	*client_new(Window, struct screen_ctx *, int);
 void			 client_ptrsave(struct client_ctx *);
 void			 client_ptrwarp(struct client_ctx *);
 void			 client_raise(struct client_ctx *);
-void			 client_resize(struct client_ctx *);
+void			 client_resize(struct client_ctx *, int);
 void			 client_send_delete(struct client_ctx *);
 void			 client_setactive(struct client_ctx *, int);
 void			 client_setname(struct client_ctx *);
