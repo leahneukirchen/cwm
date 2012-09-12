@@ -240,8 +240,8 @@ xev_handle_buttonpress(XEvent *ee)
 	sc = screen_fromroot(e->root);
 	cc = client_find(e->window);
 
-	/* only allow the ones we care about */
-	e->state &= (ControlMask | Mod1Mask | Mod4Mask | ShiftMask);
+	/* Ignore caps lock and numlock */
+	e->state &= ~(Mod2Mask | LockMask);
 
 	TAILQ_FOREACH(mb, &Conf.mousebindingq, entry) {
 		if (e->button == mb->button && e->state == mb->modmask)
@@ -282,8 +282,8 @@ xev_handle_keypress(XEvent *ee)
 	keysym = XkbKeycodeToKeysym(X_Dpy, e->keycode, 0, 0);
 	skeysym = XkbKeycodeToKeysym(X_Dpy, e->keycode, 0, 1);
 
-	/* only allow the ones we care about */
-	e->state &= (ControlMask | Mod1Mask | Mod4Mask | ShiftMask);
+	/* we don't care about caps lock and numlock here */
+	e->state &= ~(LockMask | Mod2Mask);
 
 	TAILQ_FOREACH(kb, &Conf.keybindingq, entry) {
 		if (keysym != kb->keysym && skeysym == kb->keysym)
