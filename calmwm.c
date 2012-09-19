@@ -25,6 +25,7 @@
 #include <err.h>
 #include <errno.h>
 #include <getopt.h>
+#include <locale.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
@@ -61,6 +62,10 @@ main(int argc, char **argv)
 	const char	*conf_file = NULL;
 	char		*display_name = NULL;
 	int		 ch;
+
+	if (!setlocale(LC_CTYPE, "") || !XSupportsLocale())
+		warnx("no locale support");
+	mbtowc(NULL, NULL, MB_CUR_MAX);
 
 	while ((ch = getopt(argc, argv, "c:d:")) != -1) {
 		switch (ch) {

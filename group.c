@@ -512,18 +512,12 @@ group_update_names(struct screen_ctx *sc)
 {
 	char		**strings, *p;
 	unsigned char	*prop_ret;
-	Atom		 type_ret;
-	int		 format_ret, i = 0, nstrings = 0, n = 0, setnames = 0;
-	unsigned long	 bytes_after, num_ret;
+	int		 i = 0, j = 0, nstrings = 0, n = 0, setnames = 0;
 
-	if (XGetWindowProperty(X_Dpy, sc->rootwin,
-	    ewmh[_NET_DESKTOP_NAMES].atom, 0, 0xffffff, False,
-	    cwmh[UTF8_STRING].atom, &type_ret, &format_ret,
-	    &num_ret, &bytes_after, &prop_ret) == Success &&
-	    prop_ret != NULL && format_ret == 8) {
-		/* failure, just set defaults */
-		prop_ret[num_ret - 1] = '\0'; /* paranoia */
-		while (i < num_ret) {
+	if ((j = xu_getprop(sc->rootwin, ewmh[_NET_DESKTOP_NAMES].atom,
+	    cwmh[UTF8_STRING].atom, 0xffffff, (u_char **)&prop_ret)) > 0) {
+		prop_ret[j - 1] = '\0'; /* paranoia */
+		while (i < j) {
 			if (prop_ret[i++] == '\0')
 				nstrings++;
 		}
