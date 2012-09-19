@@ -119,7 +119,7 @@ kbfunc_moveresize(struct client_ctx *cc, union arg *arg)
 			cc->geom.h = 1;
 		if ((cc->geom.w += mx) < 1)
 			cc->geom.w = 1;
-		client_resize(cc);
+		client_resize(cc, 1);
 
 		/* Make sure the pointer stays within the window. */
 		xu_ptr_getpos(cc->win, &cc->ptr.x, &cc->ptr.y);
