@@ -134,13 +134,13 @@ kbfunc_moveresize(struct client_ctx *cc, union arg *arg)
 		xu_ptr_setpos(sc->rootwin, x + mx, y + my);
 		break;
 	case CWM_SNAP:
-		ox = cc->geom.x; ow = cc->geom.width;
-		oy = cc->geom.y; oh = cc->geom.height;
-		#define sw cc->sc->xmax
-		#define sh cc->sc->ymax
+		ox = cc->geom.x; ow = cc->geom.w;
+		oy = cc->geom.y; oh = cc->geom.h;
+		#define sw cc->sc->work.w
+		#define sh cc->sc->work.h
 		#define bw 2 * cc->bwidth
-		#define nw cc->geom.width
-		#define nh cc->geom.height
+		#define nw cc->geom.w
+		#define nh cc->geom.h
 		#define nx cc->geom.x
 		#define ny cc->geom.y
 		if (flags & CWM_UP) {
@@ -202,7 +202,7 @@ kbfunc_moveresize(struct client_ctx *cc, union arg *arg)
 			else if (ny + nh + bw > sh) ny = sh - nh - bw;
 		}
 		client_ptrsave(cc);
-		client_resize(cc);
+		client_resize(cc, 0);
 		cc->ptr.x += (nw - ow)/2;
 		cc->ptr.y += (nh - oh)/2;
 		client_ptrwarp(cc);
