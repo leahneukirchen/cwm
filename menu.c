@@ -358,10 +358,12 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 	xsave = mc->x;
 	ysave = mc->y;
 
-	if (mc->x < xmin)
-		mc->x = xmin;
-	else if (mc->x + mc->width >= xmax)
+	if (mc->x + mc->width >= xmax)
 		mc->x = xmax - mc->width;
+	if (mc->x < xmin) {
+		mc->x = xmin;
+		mc->width = xmax - xmin;
+	}
 
 	if (mc->y + dy >= ymax)
 		mc->y = ymax - dy;
