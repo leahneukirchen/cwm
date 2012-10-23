@@ -51,6 +51,7 @@ struct menu_ctx {
 	int			 noresult;
 	int			 prev;
 	int			 entry;
+	int			 height;
 	int			 width;
 	int			 num;
 	int			 x;
@@ -301,7 +302,7 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 	struct menu		*mi;
 	XineramaScreenInfo	*xine;
 	int			 xmin, xmax, ymin, ymax;
-	int			 n, dy, xsave, ysave;
+	int			 n, xsave, ysave;
 
 	if (mc->list) {
 		if (TAILQ_EMPTY(resultq) && mc->list) {
@@ -317,12 +318,12 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 
 	mc->num = 0;
 	mc->width = 0;
-	dy = 0;
+	mc->height = 0;
 	if (mc->hasprompt) {
 		(void)snprintf(mc->dispstr, sizeof(mc->dispstr), "%s%s%s",
 		    mc->promptstr, mc->searchstr, PROMPT_ECHAR);
 		mc->width = font_width(sc, mc->dispstr, strlen(mc->dispstr));
-		dy = font_height(sc);
+		mc->height = font_height(sc);
 		mc->num = 1;
 	}
 
@@ -339,7 +340,7 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 
 		mc->width = MAX(mc->width, font_width(sc, text,
 		    MIN(strlen(text), MENU_MAXENTRY)));
-		dy += font_height(sc);
+		mc->height += font_height(sc);
 		mc->num++;
 	}
 
@@ -365,19 +366,20 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 		mc->width = xmax - xmin;
 	}
 
-	if (mc->y + dy >= ymax)
-		mc->y = ymax - dy;
+	if (mc->y + mc->height >= ymax)
+		mc->y = ymax - mc->height;
 	/* never hide the top of the menu */
 	if (mc->y < ymin) {
 		mc->y = ymin;
-		dy = ymax - ymin;
+		mc->height = ymax - ymin;
 	}
 
 	if (mc->x != xsave || mc->y != ysave)
 		xu_ptr_setpos(sc->rootwin, mc->x, mc->y);
 
 	XClearWindow(X_Dpy, sc->menuwin);
-	XMoveResizeWindow(X_Dpy, sc->menuwin, mc->x, mc->y, mc->width, dy);
+	XMoveResizeWindow(X_Dpy, sc->menuwin, mc->x, mc->y,
+	    mc->width, mc->height);
 
 	if (mc->hasprompt) {
 		font_draw(sc, mc->dispstr, strlen(mc->dispstr), sc->menuwin,
