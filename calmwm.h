@@ -273,7 +273,6 @@ struct conf {
 	struct keybinding_q	 keybindingq;
 	struct autogroupwin_q	 autogroupq;
 	struct winmatch_q	 ignoreq;
-	char			 conf_path[MAXPATHLEN];
 	struct cmd_q		 cmdq;
 	struct mousebinding_q	 mousebindingq;
 #define	CONF_STICKY_GROUPS		0x0001

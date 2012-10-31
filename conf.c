@@ -237,6 +237,7 @@ conf_clear(struct conf *c)
 void
 conf_setup(struct conf *c, const char *conf_file)
 {
+	char		 conf_path[MAXPATHLEN];
 	char		*home;
 	struct stat	 sb;
 	int		 parse = 0;
@@ -247,23 +248,22 @@ conf_setup(struct conf *c, const char *conf_file)
 		if ((home = getenv("HOME")) == NULL)
 			errx(1, "No HOME directory.");
 
-		(void)snprintf(c->conf_path, sizeof(c->conf_path), "%s/%s",
+		(void)snprintf(conf_path, sizeof(conf_path), "%s/%s",
 		    home, CONFFILE);
 
-		if (stat(c->conf_path, &sb) == 0 && (sb.st_mode & S_IFREG))
+		if (stat(conf_path, &sb) == 0 && (sb.st_mode & S_IFREG))
 			parse = 1;
 	} else {
 		if (stat(conf_file, &sb) == -1 || !(sb.st_mode & S_IFREG))
 			errx(1, "%s: %s", conf_file, strerror(errno));
 		else {
-			(void)strlcpy(c->conf_path, conf_file,
-			    sizeof(c->conf_path));
+			(void)strlcpy(conf_path, conf_file, sizeof(conf_path));
 			parse = 1;
 		}
 	}
 
-	if (parse && (parse_config(c->conf_path, c) == -1))
-		warnx("config file %s has errors, not loading", c->conf_path);
+	if (parse && (parse_config(conf_path, c) == -1))
+		warnx("config file %s has errors, not loading", conf_path);
 }
 
 void
