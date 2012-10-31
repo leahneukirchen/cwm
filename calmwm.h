@@ -397,7 +397,7 @@ void			 kbfunc_lock(struct client_ctx *, union arg *);
 void			 kbfunc_menu_search(struct client_ctx *, union arg *);
 void			 kbfunc_moveresize(struct client_ctx *, union arg *);
 void			 kbfunc_quit_wm(struct client_ctx *, union arg *);
-void			 kbfunc_reload(struct client_ctx *, union arg *);
+void			 kbfunc_restart(struct client_ctx *, union arg *);
 void			 kbfunc_ssh(struct client_ctx *, union arg *);
 void			 kbfunc_term(struct client_ctx *, union arg *);
 
@@ -431,7 +431,6 @@ void			 conf_grab(struct conf *, struct keybinding *);
 void			 conf_grab_mouse(struct client_ctx *);
 void			 conf_init(struct conf *);
 void			 conf_mousebind(struct conf *, char *, char *);
-void			 conf_reload(struct conf *);
 void			 conf_setup(struct conf *, const char *);
 void			 conf_ungrab(struct conf *, struct keybinding *);
 
@@ -449,7 +448,6 @@ void			 xev_loop(void);
 void			 xu_btn_grab(Window, int, u_int);
 void			 xu_btn_ungrab(Window, int, u_int);
 void			 xu_configure(struct client_ctx *);
-void			 xu_freecolor(struct screen_ctx *, unsigned long);
 void			 xu_getatoms(void);
 unsigned long		 xu_getcolor(struct screen_ctx *, char *);
 int			 xu_getprop(Window, Atom, Atom, long, u_char **);

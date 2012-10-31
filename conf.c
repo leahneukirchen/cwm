@@ -81,36 +81,8 @@ conf_color(struct conf *c, struct screen_ctx *sc)
 {
 	int	 i;
 
-	for (i = 0; i < CWM_COLOR_MAX; i++) {
-		xu_freecolor(sc, sc->color[i].pixel);
+	for (i = 0; i < CWM_COLOR_MAX; i++)
 		sc->color[i].pixel = xu_getcolor(sc, c->color[i].name);
-	}
-}
-
-void
-conf_reload(struct conf *c)
-{
-	struct screen_ctx	*sc;
-	struct client_ctx	*cc;
-
-	if (parse_config(c->conf_path, c) == -1) {
-		warnx("config file %s has errors, not reloading", c->conf_path);
-		return;
-	}
-
-	TAILQ_FOREACH(sc, &Screenq, entry) {
-		conf_gap(c, sc);
-		conf_color(c, sc);
-		conf_font(c, sc);
-		menu_init(sc);
-	}
-	TAILQ_FOREACH(cc, &Clientq, entry) {
-		conf_client(cc);
-		/* XXX Does not take hmax/vmax into account. */
-		if ((cc->flags & CLIENT_MAXFLAGS) == CLIENT_MAXIMIZED)
-			cc->bwidth = 0;
-		client_draw_border(cc);
-	}
 }
 
 static struct {
@@ -148,7 +120,7 @@ static struct {
 	{ "CM-equal",	"vmaximize" },
 	{ "CMS-equal",	"hmaximize" },
 	{ "CMS-f",	"freeze" },
-	{ "CMS-r",	"reload" },
+	{ "CMS-r",	"restart" },
 	{ "CMS-q",	"quit" },
 	{ "M-h",	"moveleft" },
 	{ "M-j",	"movedown" },
@@ -375,7 +347,7 @@ static struct {
 	{ "vmaximize", kbfunc_client_vmaximize, KBFLAG_NEEDCLIENT, {0} },
 	{ "hmaximize", kbfunc_client_hmaximize, KBFLAG_NEEDCLIENT, {0} },
 	{ "freeze", kbfunc_client_freeze, KBFLAG_NEEDCLIENT, {0} },
-	{ "reload", kbfunc_reload, 0, {0} },
+	{ "restart", kbfunc_restart, 0, {0} },
 	{ "quit", kbfunc_quit_wm, 0, {0} },
 	{ "exec", kbfunc_exec, 0, {.i = CWM_EXEC_PROGRAM} },
 	{ "exec_wm", kbfunc_exec, 0, {.i = CWM_EXEC_WM} },

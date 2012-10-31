@@ -429,9 +429,3 @@ xu_getcolor(struct screen_ctx *sc, char *name)
 
 	return (color.pixel);
 }
-
-void
-xu_freecolor(struct screen_ctx *sc, unsigned long pixel)
-{
-	XFreeColors(X_Dpy, DefaultColormap(X_Dpy, sc->which), &pixel, 1, 0L);
-}
