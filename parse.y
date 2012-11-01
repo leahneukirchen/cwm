@@ -518,8 +518,6 @@ parse_config(const char *filename, struct conf *xconf)
 		return (-1);
 	}
 
-	(void)strlcpy(conf->conf_path, filename, sizeof(conf->conf_path));
-
 	conf_init(conf);
 
 	yyparse();

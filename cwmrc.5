@@ -14,7 +14,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
-.Dd $Mdocdate: July 6 2012 $
+.Dd $Mdocdate: October 31 2012 $
 .Dt CWMRC 5
 .Os
 .Sh NAME
@@ -58,7 +58,8 @@ is 0, matching windows will not be added to any group; this may be
 used to override
 .Dq sticky group mode .
 .Pp
-The name and class values for existing windows may be obtained using
+The name and class values, respectively, for existing windows 
+may be obtained using
 .Xr xprop 1 .
 .Pp
 .It Ic bind Ar keys command
@@ -269,8 +270,9 @@ mousebind M-3	window_resize
 .Ed
 .Sh BIND COMMAND LIST
 .Bl -tag -width 18n -compact
-.It reload
-Reload configuration.
+.It restart
+Restart the running
+.Xr cwm 1 .
 .It quit
 Quit
 .Xr cwm 1 .
