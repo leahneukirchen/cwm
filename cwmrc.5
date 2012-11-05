@@ -14,7 +14,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
-.Dd $Mdocdate: November 6 2011 $
+.Dd $Mdocdate: October 31 2012 $
 .Dt CWMRC 5
 .Os
 .Sh NAME
@@ -41,16 +41,25 @@ The following options are accepted:
 .Bl -tag -width Ds -compact
 .It Ic autogroup Ar group windowclass
 .It Ic autogroup Ar group windowname,windowclass
-Control automatic window grouping, based on the name and/or class
-properties, where
+Automatically add new windows to
+.Ar group
+if their class property matches
+.Ar windowclass ,
+or if their name and class properties match
+.Ar windowname
+and
+.Ar windowclass ,
+respectively.
 .Ar group
 is a number between 0 and 9.
-If the group number is 0, then the window will not be grouped; this to
-allow for
-.Dq sticky
-windows in sticky group mode.
+If
+.Ar group
+is 0, matching windows will not be added to any group; this may be
+used to override
+.Dq sticky group mode .
 .Pp
-The name and class of a window may be obtained using
+The name and class values, respectively, for existing windows 
+may be obtained using
 .Xr xprop 1 .
 .Pp
 .It Ic bind Ar keys command
@@ -261,8 +270,9 @@ mousebind M-3	window_resize
 .Ed
 .Sh BIND COMMAND LIST
 .Bl -tag -width 18n -compact
-.It reload
-Reload configuration.
+.It restart
+Restart the running
+.Xr cwm 1 .
 .It quit
 Quit
 .Xr cwm 1 .

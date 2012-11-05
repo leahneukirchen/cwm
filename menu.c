@@ -51,6 +51,7 @@ struct menu_ctx {
 	int			 noresult;
 	int			 prev;
 	int			 entry;
+	int			 height;
 	int			 width;
 	int			 num;
 	int			 x;
@@ -76,8 +77,6 @@ menu_init(struct screen_ctx *sc)
 {
 	XGCValues	 gv;
 
-	if (sc->menuwin)
-		XDestroyWindow(X_Dpy, sc->menuwin);
 	sc->menuwin = XCreateSimpleWindow(X_Dpy, sc->rootwin, 0, 0, 1, 1,
 	    Conf.bwidth,
 	    sc->color[CWM_COLOR_FG_MENU].pixel,
@@ -88,8 +87,6 @@ menu_init(struct screen_ctx *sc)
 	gv.background = sc->color[CWM_COLOR_BG_MENU].pixel;
 	gv.function = GXxor;
 
-	if (sc->gc)
-		XFreeGC(X_Dpy, sc->gc);
 	sc->gc = XCreateGC(X_Dpy, sc->menuwin,
 	    GCForeground|GCBackground|GCFunction, &gv);
 }
@@ -301,7 +298,7 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 	struct menu		*mi;
 	XineramaScreenInfo	*xine;
 	int			 xmin, xmax, ymin, ymax;
-	int			 n, dy, xsave, ysave;
+	int			 n, xsave, ysave;
 
 	if (mc->list) {
 		if (TAILQ_EMPTY(resultq) && mc->list) {
@@ -317,12 +314,12 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 
 	mc->num = 0;
 	mc->width = 0;
-	dy = 0;
+	mc->height = 0;
 	if (mc->hasprompt) {
 		(void)snprintf(mc->dispstr, sizeof(mc->dispstr), "%s%s%s",
 		    mc->promptstr, mc->searchstr, PROMPT_ECHAR);
 		mc->width = font_width(sc, mc->dispstr, strlen(mc->dispstr));
-		dy = font_height(sc);
+		mc->height = font_height(sc);
 		mc->num = 1;
 	}
 
@@ -339,7 +336,7 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 
 		mc->width = MAX(mc->width, font_width(sc, text,
 		    MIN(strlen(text), MENU_MAXENTRY)));
-		dy += font_height(sc);
+		mc->height += font_height(sc);
 		mc->num++;
 	}
 
@@ -358,24 +355,26 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 	xsave = mc->x;
 	ysave = mc->y;
 
-	if (mc->x < xmin)
-		mc->x = xmin;
-	else if (mc->x + mc->width >= xmax)
+	/* Never hide the top, or left side, of the menu. */
+	if (mc->x + mc->width >= xmax)
 		mc->x = xmax - mc->width;
-
-	if (mc->y + dy >= ymax)
-		mc->y = ymax - dy;
-	/* never hide the top of the menu */
+	if (mc->x < xmin) {
+		mc->x = xmin;
+		mc->width = xmax - xmin;
+	}
+	if (mc->y + mc->height >= ymax)
+		mc->y = ymax - mc->height;
 	if (mc->y < ymin) {
 		mc->y = ymin;
-		dy = ymax - ymin;
+		mc->height = ymax - ymin;
 	}
 
 	if (mc->x != xsave || mc->y != ysave)
 		xu_ptr_setpos(sc->rootwin, mc->x, mc->y);
 
 	XClearWindow(X_Dpy, sc->menuwin);
-	XMoveResizeWindow(X_Dpy, sc->menuwin, mc->x, mc->y, mc->width, dy);
+	XMoveResizeWindow(X_Dpy, sc->menuwin, mc->x, mc->y,
+	    mc->width, mc->height);
 
 	if (mc->hasprompt) {
 		font_draw(sc, mc->dispstr, strlen(mc->dispstr), sc->menuwin,
@@ -387,9 +386,14 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 	TAILQ_FOREACH(mi, resultq, resultentry) {
 		char *text = mi->print[0] != '\0' ?
 		    mi->print : mi->text;
+		int y = n * font_height(sc) + font_ascent(sc) + 1;
+
+		/* Stop drawing when menu doesn't fit inside the screen. */
+		if (mc->y + y > ymax)
+			break;
 
 		font_draw(sc, text, MIN(strlen(text), MENU_MAXENTRY),
-		    sc->menuwin, 0, n * font_height(sc) + font_ascent(sc) + 1);
+		    sc->menuwin, 0, y);
 		n++;
 	}
 

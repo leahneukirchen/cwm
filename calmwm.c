@@ -34,6 +34,7 @@
 
 #include "calmwm.h"
 
+char				**cwm_argv;
 Display				*X_Dpy;
 
 Cursor				 Cursor_default;
@@ -67,6 +68,7 @@ main(int argc, char **argv)
 		warnx("no locale support");
 	mbtowc(NULL, NULL, MB_CUR_MAX);
 
+	cwm_argv = argv;
 	while ((ch = getopt(argc, argv, "c:d:")) != -1) {
 		switch (ch) {
 		case 'c':

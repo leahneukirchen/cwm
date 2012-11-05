@@ -36,6 +36,7 @@
 #define KNOWN_HOSTS	".ssh/known_hosts"
 #define HASH_MARKER	"|1|"
 
+extern char		**cwm_argv;
 extern sig_atomic_t	xev_quit;
 
 void
@@ -567,7 +568,8 @@ kbfunc_quit_wm(struct client_ctx *cc, union arg *arg)
 }
 
 void
-kbfunc_reload(struct client_ctx *cc, union arg *arg)
+kbfunc_restart(struct client_ctx *cc, union arg *arg)
 {
-	conf_reload(&Conf);
+	(void)setsid();
+	(void)execvp(cwm_argv[0], cwm_argv);
 }
