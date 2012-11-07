@@ -74,8 +74,8 @@
 #define CWM_INGROUP		0x0004
 
 /* menu */
-#define CWM_MENU_DUMMY 	0x0001
-#define CWM_MENU_FILE 		0x0002
+#define CWM_MENU_DUMMY		0x0001
+#define CWM_MENU_FILE		0x0002
 
 #define KBTOGROUP(X) ((X) - 1)
 
