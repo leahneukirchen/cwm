@@ -28,6 +28,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <ctype.h>
 
 #include "calmwm.h"
 
@@ -37,10 +38,11 @@
 enum ctltype {
 	CTL_NONE = -1,
 	CTL_ERASEONE = 0, CTL_WIPE, CTL_UP, CTL_DOWN, CTL_RETURN,
-	CTL_ABORT, CTL_ALL
+	CTL_TAB, CTL_ABORT, CTL_ALL
 };
 
 struct menu_ctx {
+	struct screen_ctx 	*sc;
 	char			 searchstr[MENU_MAXENTRY + 1];
 	char			 dispstr[MENU_MAXENTRY*2 + 1];
 	char			 promptstr[MENU_MAXENTRY + 1];
@@ -54,6 +56,7 @@ struct menu_ctx {
 	int			 height;
 	int			 width;
 	int			 num;
+	int 			 flags;
 	int			 x;
 	int			 y;
     	void (*match)(struct menu_q *, struct menu_q *, char *);
@@ -93,7 +96,7 @@ menu_init(struct screen_ctx *sc)
 
 struct menu *
 menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
-    char *initial, int dummy,
+    char *initial, int flags, 
     void (*match)(struct menu_q *, struct menu_q *, char *),
     void (*print)(struct menu *, int))
 {
@@ -114,6 +117,8 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
 	xsave = mc.x;
 	ysave = mc.y;
 
+	mc.sc = sc;
+	mc.flags = flags;
 	if (prompt == NULL) {
 		evmask = MENUMASK;
 		mc.promptstr[0] = '\0';
@@ -181,7 +186,8 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
 		}
 	}
 out:
-	if (dummy == 0 && mi->dummy) { /* no mouse based match */
+	if ((mc.flags & CWM_MENU_DUMMY) == 0 && mi->dummy) {
+	       	/* no mouse based match */
 		xfree(mi);
 		mi = NULL;
 	}
@@ -197,6 +203,38 @@ out:
 	XUngrabKeyboard(X_Dpy, CurrentTime);
 
 	return (mi);
+}
+
+static struct menu *
+menu_complete_path(struct menu_ctx *mc)
+{
+	struct menu		*mi, *mr;
+	struct menu_q		 menuq;
+	char *path = NULL;
+
+	path = xcalloc(1, sizeof(mr->text));
+	mr = xcalloc(1, sizeof(*mr));
+
+	TAILQ_INIT(&menuq);
+	if ((mi = menu_filter(mc->sc, &menuq, mc->searchstr, NULL,
+	    CWM_MENU_DUMMY, search_match_path_any, NULL)) != NULL) {
+		mr->abort = mi->abort;
+		mr->dummy = mi->dummy;
+		strlcpy(path, mi->text, sizeof(mi->text));
+	}
+	
+	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
+		TAILQ_REMOVE(&menuq, mi, entry);
+		xfree(mi);
+	}
+
+	if (path[0] != '\0') 
+		snprintf(mr->text, sizeof(mr->text), "%s \"%s\"",
+			mc->searchstr, path);
+	else if (!mr->abort)
+		strlcpy(mr->text,  mc->searchstr, sizeof(mr->text));
+	xfree(path);
+	return (mr);
 }
 
 static struct menu *
@@ -256,6 +294,35 @@ menu_handle_key(XEvent *e, struct menu_ctx *mc, struct menu_q *menuq,
 	case CTL_WIPE:
 		mc->searchstr[0] = '\0';
 		mc->changed = 1;
+		break;
+	case CTL_TAB:
+		if ((mi = TAILQ_FIRST(resultq)) != NULL) {
+			/* 
+			 * - We are in exec_path menu mode
+			 * - There's only one result
+			 * - It is equal to the input
+			 * We got a command, launch the file menu
+			 */
+			if ((mc->flags & CWM_MENU_FILE) &&
+			    (TAILQ_NEXT(mi, resultentry) == NULL) &&
+			    (strncmp(mc->searchstr, mi->text,
+					strlen(mi->text))) == 0)
+				return (menu_complete_path(mc));
+
+			/* 
+			 * Put common prefix of the results into searchstr
+			 */
+			(void)strlcpy(mc->searchstr,
+					mi->text, sizeof(mc->searchstr));
+			while ((mi = TAILQ_NEXT(mi, resultentry)) != NULL) {
+				i = 0;
+				while (tolower(mc->searchstr[i]) ==
+					       tolower(mi->text[i]))
+					i++;
+				mc->searchstr[i] = '\0';
+			}
+			mc->changed = 1;
+		}
 		break;
 	case CTL_ALL:
 		mc->list = !mc->list;
@@ -483,6 +550,9 @@ menu_keycode(XKeyEvent *ev, enum ctltype *ctl, char *chr)
 		break;
 	case XK_Return:
 		*ctl = CTL_RETURN;
+		break;
+	case XK_Tab:
+		*ctl = CTL_TAB;
 		break;
 	case XK_Up:
 		*ctl = CTL_UP;

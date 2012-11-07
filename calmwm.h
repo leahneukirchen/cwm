@@ -73,6 +73,10 @@
 #define CWM_RCYCLE		0x0002
 #define CWM_INGROUP		0x0004
 
+/* menu */
+#define CWM_MENU_DUMMY 	0x0001
+#define CWM_MENU_FILE 		0x0002
+
 #define KBTOGROUP(X) ((X) - 1)
 
 union arg {
@@ -260,7 +264,7 @@ TAILQ_HEAD(cmd_q, cmd);
 struct menu {
 	TAILQ_ENTRY(menu)	 entry;
 	TAILQ_ENTRY(menu)	 resultentry;
-#define MENU_MAXENTRY		 50
+#define MENU_MAXENTRY		 200
 	char			 text[MENU_MAXENTRY + 1];
 	char			 print[MENU_MAXENTRY + 1];
 	void			*ctx;
@@ -354,6 +358,10 @@ void			 group_update_names(struct screen_ctx *);
 void			 search_match_client(struct menu_q *, struct menu_q *,
 			     char *);
 void			 search_match_exec(struct menu_q *, struct menu_q *,
+			     char *);
+void			 search_match_exec_path(struct menu_q *, struct menu_q *,
+			     char *);
+void			 search_match_path_any(struct menu_q *, struct menu_q *,
 			     char *);
 void			 search_match_text(struct menu_q *, struct menu_q *,
 			     char *);
