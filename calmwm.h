@@ -490,7 +490,6 @@ void			 u_exec(char *);
 void			 u_spawn(char *);
 
 void			*xcalloc(size_t, size_t);
-void			 xfree(void *);
 void			*xmalloc(size_t);
 char			*xstrdup(const char *);
 

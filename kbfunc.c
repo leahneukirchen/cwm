@@ -170,7 +170,7 @@ kbfunc_client_search(struct client_ctx *cc, union arg *arg)
 
 	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
 		TAILQ_REMOVE(&menuq, mi, entry);
-		xfree(mi);
+		free(mi);
 	}
 }
 
@@ -197,7 +197,7 @@ kbfunc_menu_search(struct client_ctx *cc, union arg *arg)
 
 	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
 		TAILQ_REMOVE(&menuq, mi, entry);
-		xfree(mi);
+		free(mi);
 	}
 }
 
@@ -297,7 +297,7 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 		}
 		(void)closedir(dirp);
 	}
-	xfree(path);
+	free(path);
 
 	if ((mi = menu_filter(sc, &menuq, label, NULL,
 	    CWM_MENU_DUMMY | CWM_MENU_FILE,
@@ -319,10 +319,10 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 	}
 out:
 	if (mi != NULL && mi->dummy)
-		xfree(mi);
+		free(mi);
 	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
 		TAILQ_REMOVE(&menuq, mi, entry);
-		xfree(mi);
+		free(mi);
 	}
 }
 
@@ -375,7 +375,7 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 		(void)strlcpy(mi->text, hostbuf, sizeof(mi->text));
 		TAILQ_INSERT_TAIL(&menuq, mi, entry);
 	}
-	xfree(lbuf);
+	free(lbuf);
 	(void)fclose(fp);
 
 	if ((mi = menu_filter(sc, &menuq, "ssh", NULL, CWM_MENU_DUMMY,
@@ -389,10 +389,10 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 	}
 out:
 	if (mi != NULL && mi->dummy)
-		xfree(mi);
+		free(mi);
 	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
 		TAILQ_REMOVE(&menuq, mi, entry);
-		xfree(mi);
+		free(mi);
 	}
 }
 
@@ -409,11 +409,10 @@ kbfunc_client_label(struct client_ctx *cc, union arg *arg)
 	    search_match_text, NULL);
 
 	if (!mi->abort) {
-		if (cc->label != NULL)
-			xfree(cc->label);
+		free(cc->label);
 		cc->label = xstrdup(mi->text);
 	}
-	xfree(mi);
+	free(mi);
 }
 
 void

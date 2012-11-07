@@ -52,12 +52,6 @@ xcalloc(size_t no, size_t siz)
 	return (p);
 }
 
-void
-xfree(void *p)
-{
-	free(p);
-}
-
 char *
 xstrdup(const char *str)
 {

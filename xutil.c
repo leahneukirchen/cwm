@@ -339,7 +339,7 @@ xu_ewmh_net_client_list(struct screen_ctx *sc)
 		winlist[j++] = cc->win;
 	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_CLIENT_LIST].atom,
 	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)winlist, i);
-	xfree(winlist);
+	free(winlist);
 }
 
 void

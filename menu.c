@@ -188,7 +188,7 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
 out:
 	if ((mc.flags & CWM_MENU_DUMMY) == 0 && mi->dummy) {
 	       	/* no mouse based match */
-		xfree(mi);
+		free(mi);
 		mi = NULL;
 	}
 
@@ -225,7 +225,7 @@ menu_complete_path(struct menu_ctx *mc)
 	
 	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
 		TAILQ_REMOVE(&menuq, mi, entry);
-		xfree(mi);
+		free(mi);
 	}
 
 	if (path[0] != '\0') 
@@ -233,7 +233,7 @@ menu_complete_path(struct menu_ctx *mc)
 			mc->searchstr, path);
 	else if (!mr->abort)
 		strlcpy(mr->text,  mc->searchstr, sizeof(mr->text));
-	xfree(path);
+	free(path);
 	return (mr);
 }
 

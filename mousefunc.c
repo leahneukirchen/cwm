@@ -253,7 +253,7 @@ mousefunc_menu_unhide(struct client_ctx *cc, void *arg)
 	} else {
 		while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
 			TAILQ_REMOVE(&menuq, mi, entry);
-			xfree(mi);
+			free(mi);
 		}
 	}
 }
@@ -282,6 +282,6 @@ mousefunc_menu_cmd(struct client_ctx *cc, void *arg)
 	else
 		while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
 			TAILQ_REMOVE(&menuq, mi, entry);
-			xfree(mi);
+			free(mi);
 		}
 }

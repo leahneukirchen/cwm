@@ -202,36 +202,35 @@ conf_clear(struct conf *c)
 
 	while ((cmd = TAILQ_FIRST(&c->cmdq)) != NULL) {
 		TAILQ_REMOVE(&c->cmdq, cmd, entry);
-		xfree(cmd);
+		free(cmd);
 	}
 
 	while ((kb = TAILQ_FIRST(&c->keybindingq)) != NULL) {
 		TAILQ_REMOVE(&c->keybindingq, kb, entry);
-		xfree(kb);
+		free(kb);
 	}
 
 	while ((ag = TAILQ_FIRST(&c->autogroupq)) != NULL) {
 		TAILQ_REMOVE(&c->autogroupq, ag, entry);
-		xfree(ag->class);
-		if (ag->name)
-			xfree(ag->name);
-		xfree(ag);
+		free(ag->class);
+		free(ag->name);
+		free(ag);
 	}
 
 	while ((wm = TAILQ_FIRST(&c->ignoreq)) != NULL) {
 		TAILQ_REMOVE(&c->ignoreq, wm, entry);
-		xfree(wm);
+		free(wm);
 	}
 
 	while ((mb = TAILQ_FIRST(&c->mousebindingq)) != NULL) {
 		TAILQ_REMOVE(&c->mousebindingq, mb, entry);
-		xfree(mb);
+		free(mb);
 	}
 
 	for (i = 0; i < CWM_COLOR_MAX; i++)
-		xfree(c->color[i].name);
+		free(c->color[i].name);
 
-	xfree(c->font);
+	free(c->font);
 }
 
 void
@@ -477,7 +476,7 @@ conf_bindname(struct conf *c, char *name, char *binding)
 
 	if (current_binding->keysym == NoSymbol &&
 	    current_binding->keycode == 0) {
-		xfree(current_binding);
+		free(current_binding);
 		return;
 	}
 
@@ -523,7 +522,7 @@ conf_unbind(struct conf *c, struct keybinding *unbind)
 		    key->keysym == unbind->keysym) {
 			conf_ungrab(c, key);
 			TAILQ_REMOVE(&c->keybindingq, key, entry);
-			xfree(key);
+			free(key);
 		}
 	}
 }
@@ -603,7 +602,7 @@ conf_mouseunbind(struct conf *c, struct mousebinding *unbind)
 
 		if (mb->button == unbind->button) {
 			TAILQ_REMOVE(&c->mousebindingq, mb, entry);
-			xfree(mb);
+			free(mb);
 		}
 	}
 }
