@@ -461,9 +461,8 @@ conf_bindname(struct conf *c, char *name, char *binding)
 
 		/* skip past the modifiers */
 		substring++;
-	} else {
+	} else
 		substring = name;
-	}
 
 	if (substring[0] == '[' &&
 	    substring[strlen(substring)-1] == ']') {
