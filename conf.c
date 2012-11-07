@@ -571,6 +571,7 @@ conf_mousebind(struct conf *c, char *name, char *binding)
 	if (errstr)
 		warnx("number of buttons is %s: %s", errstr, substring);
 
+	/* We now have the correct binding, remove duplicates. */
 	conf_mouseunbind(c, current_binding);
 
 	if (strcmp("unmap", binding) == 0) {
