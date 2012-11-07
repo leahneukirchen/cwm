@@ -25,6 +25,7 @@
 #include <err.h>
 #include <errno.h>
 #include <paths.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
