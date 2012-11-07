@@ -512,10 +512,7 @@ conf_unbind(struct conf *c, struct keybinding *unbind)
 {
 	struct keybinding	*key = NULL, *keynxt;
 
-	for (key = TAILQ_FIRST(&c->keybindingq);
-	    key != TAILQ_END(&c->keybindingq); key = keynxt) {
-		keynxt = TAILQ_NEXT(key, entry);
-
+	TAILQ_FOREACH_SAFE(key, &c->keybindingq, entry, keynxt) {
 		if (key->modmask != unbind->modmask)
 			continue;
 
@@ -597,10 +594,7 @@ conf_mouseunbind(struct conf *c, struct mousebinding *unbind)
 {
 	struct mousebinding	*mb = NULL, *mbnxt;
 
-	for (mb = TAILQ_FIRST(&c->mousebindingq);
-	    mb != TAILQ_END(&c->mousebindingq); mb = mbnxt) {
-		mbnxt = TAILQ_NEXT(mb, entry);
-
+	TAILQ_FOREACH_SAFE(mb, &c->mousebindingq, entry, mbnxt) {
 		if (mb->modmask != unbind->modmask)
 			continue;
 
