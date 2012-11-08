@@ -188,7 +188,7 @@ xu_getstrprop(Window win, Atom atm, char **text) {
 			XTextProperty    prop2;
 			if (Xutf8TextListToTextProperty(X_Dpy, list, nitems,
 			    XUTF8StringStyle, &prop2) == Success) {
-				*text = xstrdup(prop2.value);
+				*text = xstrdup((const char *)prop2.value);
 				XFree(prop2.value);
 			}
 		} else {
@@ -292,7 +292,8 @@ xu_ewmh_net_supported_wm_check(struct screen_ctx *sc)
 	XChangeProperty(X_Dpy, w, ewmh[_NET_SUPPORTING_WM_CHECK].atom,
 	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)&w, 1);
 	XChangeProperty(X_Dpy, w, ewmh[_NET_WM_NAME].atom,
-	    XA_WM_NAME, 8, PropModeReplace, WMNAME, strlen(WMNAME));
+	    XA_WM_NAME, 8, PropModeReplace, (unsigned char *)WMNAME,
+	    strlen(WMNAME));
 }
 
 void
@@ -396,10 +397,10 @@ xu_ewmh_net_current_desktop(struct screen_ctx *sc, long idx)
 }
 
 void
-xu_ewmh_net_desktop_names(struct screen_ctx *sc, unsigned char *data, int n)
+xu_ewmh_net_desktop_names(struct screen_ctx *sc, char *data, int n)
 {
 	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_DESKTOP_NAMES].atom,
-	    cwmh[UTF8_STRING].atom, 8, PropModeReplace, data, n);
+	    cwmh[UTF8_STRING].atom, 8, PropModeReplace, (unsigned char *)data, n);
 }
 
 /* Application Window Properties */
