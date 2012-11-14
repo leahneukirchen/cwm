@@ -446,16 +446,15 @@ conf_bindname(struct conf *c, char *name, char *binding)
 {
 	struct keybinding	*current_binding;
 	char			*substring, *tmp;
-	int			 iter;
+	int			 i;
 
 	current_binding = xcalloc(1, sizeof(*current_binding));
 
 	if ((substring = strchr(name, '-')) != NULL) {
-		for (iter = 0; iter < nitems(bind_mods); iter++) {
-			if ((tmp = strchr(name, bind_mods[iter].chr)) !=
+		for (i = 0; i < nitems(bind_mods); i++) {
+			if ((tmp = strchr(name, bind_mods[i].chr)) !=
 			    NULL && tmp < substring) {
-				current_binding->modmask |=
-				    bind_mods[iter].mask;
+				current_binding->modmask |= bind_mods[i].mask;
 			}
 		}
 
@@ -487,13 +486,13 @@ conf_bindname(struct conf *c, char *name, char *binding)
 		return;
 	}
 
-	for (iter = 0; iter < nitems(name_to_kbfunc); iter++) {
-		if (strcmp(name_to_kbfunc[iter].tag, binding) != 0)
+	for (i = 0; i < nitems(name_to_kbfunc); i++) {
+		if (strcmp(name_to_kbfunc[i].tag, binding) != 0)
 			continue;
 
-		current_binding->callback = name_to_kbfunc[iter].handler;
-		current_binding->flags = name_to_kbfunc[iter].flags;
-		current_binding->argument = name_to_kbfunc[iter].argument;
+		current_binding->callback = name_to_kbfunc[i].handler;
+		current_binding->flags = name_to_kbfunc[i].flags;
+		current_binding->argument = name_to_kbfunc[i].argument;
 		conf_grab(c, current_binding);
 		TAILQ_INSERT_TAIL(&c->keybindingq, current_binding, entry);
 		return;
@@ -548,16 +547,15 @@ conf_mousebind(struct conf *c, char *name, char *binding)
 	struct mousebinding	*current_binding;
 	char			*substring, *tmp;
 	const char		*errstr;
-	int			 iter;
+	int			 i;
 
 	current_binding = xcalloc(1, sizeof(*current_binding));
 
 	if ((substring = strchr(name, '-')) != NULL) {
-		for (iter = 0; iter < nitems(bind_mods); iter++) {
-			if ((tmp = strchr(name, bind_mods[iter].chr)) !=
+		for (i = 0; i < nitems(bind_mods); i++) {
+			if ((tmp = strchr(name, bind_mods[i].chr)) !=
 			    NULL && tmp < substring) {
-				current_binding->modmask |=
-				    bind_mods[iter].mask;
+				current_binding->modmask |= bind_mods[i].mask;
 			}
 		}
 
@@ -578,12 +576,12 @@ conf_mousebind(struct conf *c, char *name, char *binding)
 		return;
 	}
 
-	for (iter = 0; iter < nitems(name_to_mousefunc); iter++) {
-		if (strcmp(name_to_mousefunc[iter].tag, binding) != 0)
+	for (i = 0; i < nitems(name_to_mousefunc); i++) {
+		if (strcmp(name_to_mousefunc[i].tag, binding) != 0)
 			continue;
 
-		current_binding->context = name_to_mousefunc[iter].context;
-		current_binding->callback = name_to_mousefunc[iter].handler;
+		current_binding->context = name_to_mousefunc[i].context;
+		current_binding->callback = name_to_mousefunc[i].handler;
 		TAILQ_INSERT_TAIL(&c->mousebindingq, current_binding, entry);
 		return;
 	}
