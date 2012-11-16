@@ -23,6 +23,7 @@
 
 #include <err.h>
 #include <errno.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,6 +36,8 @@ xmalloc(size_t siz)
 {
 	void	*p;
 
+	if (siz == 0)
+		errx(1, "xmalloc: zero size");
 	if ((p = malloc(siz)) == NULL)
 		err(1, "malloc");
 
@@ -46,6 +49,10 @@ xcalloc(size_t no, size_t siz)
 {
 	void	*p;
 
+	if (siz == 0 || no == 0)
+		errx(1, "xcalloc: zero size");
+	if (SIZE_MAX / no < siz)
+		errx(1, "xcalloc: no * siz > SIZE_MAX");
 	if ((p = calloc(no, siz)) == NULL)
 		err(1, "calloc");
 
