@@ -19,7 +19,7 @@
  */
 
 #include <sys/param.h>
-#include <sys/queue.h>
+#include "queue.h"
 
 #include <assert.h>
 #include <err.h>
