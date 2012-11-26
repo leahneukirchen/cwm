@@ -25,12 +25,15 @@
 #include <err.h>
 #include <errno.h>
 #include <fnmatch.h>
+#include <glob.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 #include <unistd.h>
 
 #include "calmwm.h"
+
+#define PATH_EXEC 	0x1
 
 static int	strsubmatch(char *, char *, int);
 
@@ -161,6 +164,43 @@ search_print_client(struct menu *mi, int list)
 	}
 }
 
+static void
+search_match_path(struct menu_q *menuq, struct menu_q *resultq, char *search, int flag)
+{
+	struct menu	*mi;
+	char 		 pattern[MAXPATHLEN];
+	glob_t		 g;
+	int		 i;
+
+	TAILQ_INIT(resultq);
+
+	(void)strlcpy(pattern, search, sizeof(pattern));
+	(void)strlcat(pattern, "*", sizeof(pattern));
+
+	if (glob(pattern, GLOB_MARK, NULL, &g) != 0)
+		return;
+	for (i = 0; i < g.gl_pathc; i++) {
+		if ((flag & PATH_EXEC) && access(g.gl_pathv[i], X_OK))
+			continue;
+		mi = xcalloc(1, sizeof(*mi));
+		(void)strlcpy(mi->text, g.gl_pathv[i], sizeof(mi->text));
+		TAILQ_INSERT_TAIL(resultq, mi, resultentry);
+	}
+	globfree(&g);
+}
+
+void 
+search_match_path_exec(struct menu_q *menuq, struct menu_q *resultq, char *search)
+{
+	return (search_match_path(menuq, resultq, search, PATH_EXEC));
+}
+
+void 
+search_match_path_any(struct menu_q *menuq, struct menu_q *resultq, char *search)
+{
+	return (search_match_path(menuq, resultq, search, 0));
+}
+
 void
 search_match_text(struct menu_q *menuq, struct menu_q *resultq, char *search)
 {
@@ -194,6 +234,14 @@ search_match_exec(struct menu_q *menuq, struct menu_q *resultq, char *search)
 		if (mj == NULL)
 			TAILQ_INSERT_TAIL(resultq, mi, resultentry);
 	}
+}
+
+void
+search_match_exec_path(struct menu_q *menuq, struct menu_q *resultq, char *search)
+{
+	search_match_exec(menuq, resultq, search);
+	if (TAILQ_EMPTY(resultq))
+		search_match_path_exec(menuq, resultq, search);
 }
 
 static int
