@@ -458,9 +458,9 @@ int			 font_descent(struct screen_ctx *);
 void			 font_draw(struct screen_ctx *, const char *, int,
 			     Drawable, int, int);
 u_int			 font_height(struct screen_ctx *);
-void			 font_init(struct screen_ctx *, const char *);
+void			 font_init(struct screen_ctx *, const char *,
+			     const char *);
 int			 font_width(struct screen_ctx *, const char *, int);
-XftFont			*font_make(struct screen_ctx *, const char *);
 
 void			 xev_loop(void);
 
@@ -504,6 +504,9 @@ void			 u_spawn(char *);
 void			*xcalloc(size_t, size_t);
 void			*xmalloc(size_t);
 char			*xstrdup(const char *);
+int			 xasprintf(char **, const char *, ...)
+			    __attribute__((__format__ (printf, 2, 3)))
+			    __attribute__((__nonnull__ (2)));
 
 /* Externs */
 extern Display				*X_Dpy;
