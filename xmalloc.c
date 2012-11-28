@@ -69,3 +69,19 @@ xstrdup(const char *str)
 
 	return (p);
 }
+
+int
+xasprintf(char **ret, const char *fmt, ...)
+{
+	va_list	 ap;
+	int	 i;
+
+	va_start(ap, fmt);
+	i = vasprintf(ret, fmt, ap);
+	va_end(ap);
+
+	if (i < 0 || *ret == NULL)
+		err(1, "asprintf");
+
+	return (i);
+}
