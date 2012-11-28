@@ -446,9 +446,9 @@ int			 font_descent(struct screen_ctx *);
 void			 font_draw(struct screen_ctx *, const char *, int,
 			     Drawable, int, int);
 u_int			 font_height(struct screen_ctx *);
-void			 font_init(struct screen_ctx *, const char *);
+void			 font_init(struct screen_ctx *, const char *,
+			     const char *);
 int			 font_width(struct screen_ctx *, const char *, int);
-XftFont			*font_make(struct screen_ctx *, const char *);
 
 void			 xev_loop(void);
 
