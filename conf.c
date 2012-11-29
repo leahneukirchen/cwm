@@ -226,8 +226,8 @@ conf_clear(struct conf *c)
 
 	while ((as = TAILQ_FIRST(&c->autostartq)) != NULL) {
 		TAILQ_REMOVE(&c->autostartq, as, entry);
-		xfree(as->cmd);
-		xfree(as);
+		free(as->cmd);
+		free(as);
 	}
 
 	while ((wm = TAILQ_FIRST(&c->ignoreq)) != NULL) {
