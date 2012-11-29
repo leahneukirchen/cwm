@@ -92,9 +92,7 @@ main(int argc, char **argv)
 	conf_setup(&Conf, conf_file);
 	xu_getatoms();
 	x_setup();
-
 	xev_loop();
-
 	x_teardown();
 
 	return (0);
