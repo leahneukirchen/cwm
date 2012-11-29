@@ -509,7 +509,7 @@ extern struct screen_ctx_q		 Screenq;
 extern struct client_ctx_q		 Clientq;
 extern struct conf			 Conf;
 
-extern int				 HasXinerama, HasRandr, Randr_ev;
+extern int				 HasRandr, Randr_ev;
 
 enum {
 	WM_STATE,
