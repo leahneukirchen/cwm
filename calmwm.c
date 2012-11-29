@@ -54,7 +54,6 @@ static void	dpy_init(const char *);
 static int	x_errorhandler(Display *, XErrorEvent *);
 static int	x_wmerrorhandler(Display *, XErrorEvent *);
 static void	x_setup(void);
-static void	x_setupscreen(struct screen_ctx *, u_int);
 static void	x_teardown(void);
 
 int
@@ -135,7 +134,7 @@ x_setup(void)
 
 	for (i = 0; i < ScreenCount(X_Dpy); i++) {
 		sc = xcalloc(1, sizeof(*sc));
-		x_setupscreen(sc, i);
+		screen_init(sc, i);
 		TAILQ_INSERT_TAIL(&Screenq, sc, entry);
 	}
 
@@ -156,61 +155,6 @@ x_teardown(void)
 		XFreeGC(X_Dpy, sc->gc);
 
 	XCloseDisplay(X_Dpy);
-}
-
-static void
-x_setupscreen(struct screen_ctx *sc, u_int which)
-{
-	Window			*wins, w0, w1;
-	XWindowAttributes	 winattr;
-	XSetWindowAttributes	 rootattr;
-	u_int			 nwins, i;
-
-	sc->which = which;
-	sc->rootwin = RootWindow(X_Dpy, sc->which);
-
-	xu_ewmh_net_supported(sc);
-	xu_ewmh_net_supported_wm_check(sc);
-
-	conf_gap(&Conf, sc);
-
-	screen_update_geometry(sc);
-
-	conf_color(&Conf, sc);
-
-	group_init(sc);
-	conf_font(&Conf, sc);
-
-	TAILQ_INIT(&sc->mruq);
-
-	/* Initialize menu window. */
-	menu_init(sc);
-
-	rootattr.cursor = Cursor_normal;
-	rootattr.event_mask = CHILDMASK|PropertyChangeMask|EnterWindowMask|
-	    LeaveWindowMask|ColormapChangeMask|BUTTONMASK;
-
-	XChangeWindowAttributes(X_Dpy, sc->rootwin,
-	    CWEventMask|CWCursor, &rootattr);
-
-	/* Deal with existing clients. */
-	XQueryTree(X_Dpy, sc->rootwin, &w0, &w1, &wins, &nwins);
-
-	for (i = 0; i < nwins; i++) {
-		XGetWindowAttributes(X_Dpy, wins[i], &winattr);
-		if (winattr.override_redirect ||
-		    winattr.map_state != IsViewable)
-			continue;
-		(void)client_new(wins[i], sc, winattr.map_state != IsUnmapped);
-	}
-	XFree(wins);
-
-	screen_updatestackingorder(sc);
-
-	if (HasRandr)
-		XRRSelectInput(X_Dpy, sc->rootwin, RRScreenChangeNotifyMask);
-
-	XSync(X_Dpy, False);
 }
 
 static int
