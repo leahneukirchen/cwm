@@ -19,13 +19,13 @@
  */
 
 #include <sys/param.h>
-#include <sys/queue.h>
+#include "queue.h"
 
 #include <err.h>
 #include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 #include <unistd.h>
 
 #include "calmwm.h"
@@ -49,7 +49,7 @@ font_height(struct screen_ctx *sc)
 }
 
 void
-font_init(struct screen_ctx *sc, const char *color)
+font_init(struct screen_ctx *sc, const char *name, const char *color)
 {
 	sc->xftdraw = XftDrawCreate(X_Dpy, sc->rootwin,
 	    DefaultVisual(X_Dpy, sc->which), DefaultColormap(X_Dpy, sc->which));
@@ -59,6 +59,10 @@ font_init(struct screen_ctx *sc, const char *color)
 	if (!XftColorAllocName(X_Dpy, DefaultVisual(X_Dpy, sc->which),
 	    DefaultColormap(X_Dpy, sc->which), color, &sc->xftcolor))
 		errx(1, "XftColorAllocName");
+
+	sc->font = XftFontOpenName(X_Dpy, sc->which, name);
+	if (sc->font == NULL)
+		errx(1, "XftFontOpenName");
 }
 
 int
@@ -79,22 +83,4 @@ font_draw(struct screen_ctx *sc, const char *text, int len,
 	XftDrawChange(sc->xftdraw, d);
 	XftDrawStringUtf8(sc->xftdraw, &sc->xftcolor, sc->font, x, y,
 	    (const FcChar8*)text, len);
-}
-
-XftFont *
-font_make(struct screen_ctx *sc, const char *name)
-{
-	XftFont		*fn = NULL;
-	FcPattern	*pat, *patx;
-	XftResult	 res;
-
-	if ((pat = FcNameParse((const FcChar8*)name)) == NULL)
-		return (NULL);
-
-	if ((patx = XftFontMatch(X_Dpy, sc->which, pat, &res)) != NULL)
-		fn = XftFontOpenPattern(X_Dpy, patx);
-
-	FcPatternDestroy(pat);
-
-	return (fn);
 }

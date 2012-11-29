@@ -19,14 +19,14 @@
  */
 
 #include <sys/param.h>
-#include <sys/queue.h>
+#include "queue.h"
 
 #include <assert.h>
 #include <err.h>
 #include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 #include <unistd.h>
 
 #include "calmwm.h"
@@ -166,12 +166,12 @@ client_delete(struct client_ctx *cc)
 	while ((wn = TAILQ_FIRST(&cc->nameq)) != NULL) {
 		TAILQ_REMOVE(&cc->nameq, wn, entry);
 		if (wn->name != emptystring)
-			xfree(wn->name);
-		xfree(wn);
+			free(wn->name);
+		free(wn);
 	}
 
 	client_freehints(cc);
-	xfree(cc);
+	free(cc);
 }
 
 void
@@ -582,8 +582,8 @@ match:
 		assert(wn != NULL);
 		TAILQ_REMOVE(&cc->nameq, wn, entry);
 		if (wn->name != emptystring)
-			xfree(wn->name);
-		xfree(wn);
+			free(wn->name);
+		free(wn);
 		cc->nameqlen--;
 	}
 }

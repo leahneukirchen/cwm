@@ -19,14 +19,14 @@
  */
 
 #include <sys/param.h>
-#include <sys/queue.h>
+#include "queue.h"
 #include <sys/stat.h>
 
 #include <err.h>
 #include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 #include <unistd.h>
 
 #include "calmwm.h"
@@ -62,8 +62,7 @@ conf_gap(struct conf *c, struct screen_ctx *sc)
 void
 conf_font(struct conf *c, struct screen_ctx *sc)
 {
-	font_init(sc, c->color[CWM_COLOR_FONT].name);
-	sc->font = font_make(sc, c->font);
+	font_init(sc, c->font, c->color[CWM_COLOR_FONT].name);
 }
 
 static struct color color_binds[] = {
@@ -210,20 +209,19 @@ conf_clear(struct conf *c)
 
 	while ((cmd = TAILQ_FIRST(&c->cmdq)) != NULL) {
 		TAILQ_REMOVE(&c->cmdq, cmd, entry);
-		xfree(cmd);
+		free(cmd);
 	}
 
 	while ((kb = TAILQ_FIRST(&c->keybindingq)) != NULL) {
 		TAILQ_REMOVE(&c->keybindingq, kb, entry);
-		xfree(kb);
+		free(kb);
 	}
 
 	while ((ag = TAILQ_FIRST(&c->autogroupq)) != NULL) {
 		TAILQ_REMOVE(&c->autogroupq, ag, entry);
-		xfree(ag->class);
-		if (ag->name)
-			xfree(ag->name);
-		xfree(ag);
+		free(ag->class);
+		free(ag->name);
+		free(ag);
 	}
 
 	while ((as = TAILQ_FIRST(&c->autostartq)) != NULL) {
@@ -234,18 +232,18 @@ conf_clear(struct conf *c)
 
 	while ((wm = TAILQ_FIRST(&c->ignoreq)) != NULL) {
 		TAILQ_REMOVE(&c->ignoreq, wm, entry);
-		xfree(wm);
+		free(wm);
 	}
 
 	while ((mb = TAILQ_FIRST(&c->mousebindingq)) != NULL) {
 		TAILQ_REMOVE(&c->mousebindingq, mb, entry);
-		xfree(mb);
+		free(mb);
 	}
 
 	for (i = 0; i < CWM_COLOR_MAX; i++)
-		xfree(c->color[i].name);
+		free(c->color[i].name);
 
-	xfree(c->font);
+	free(c->font);
 }
 
 void
@@ -473,24 +471,22 @@ conf_bindname(struct conf *c, char *name, char *binding)
 {
 	struct keybinding	*current_binding;
 	char			*substring, *tmp;
-	int			 iter;
+	int			 i;
 
 	current_binding = xcalloc(1, sizeof(*current_binding));
 
 	if ((substring = strchr(name, '-')) != NULL) {
-		for (iter = 0; iter < nitems(bind_mods); iter++) {
-			if ((tmp = strchr(name, bind_mods[iter].chr)) !=
+		for (i = 0; i < nitems(bind_mods); i++) {
+			if ((tmp = strchr(name, bind_mods[i].chr)) !=
 			    NULL && tmp < substring) {
-				current_binding->modmask |=
-				    bind_mods[iter].mask;
+				current_binding->modmask |= bind_mods[i].mask;
 			}
 		}
 
 		/* skip past the modifiers */
 		substring++;
-	} else {
+	} else
 		substring = name;
-	}
 
 	if (substring[0] == '[' &&
 	    substring[strlen(substring)-1] == ']') {
@@ -503,23 +499,25 @@ conf_bindname(struct conf *c, char *name, char *binding)
 
 	if (current_binding->keysym == NoSymbol &&
 	    current_binding->keycode == 0) {
-		xfree(current_binding);
+		free(current_binding);
 		return;
 	}
 
 	/* We now have the correct binding, remove duplicates. */
 	conf_unbind(c, current_binding);
 
-	if (strcmp("unmap", binding) == 0)
+	if (strcmp("unmap", binding) == 0) {
+		free(current_binding);
 		return;
+	}
 
-	for (iter = 0; iter < nitems(name_to_kbfunc); iter++) {
-		if (strcmp(name_to_kbfunc[iter].tag, binding) != 0)
+	for (i = 0; i < nitems(name_to_kbfunc); i++) {
+		if (strcmp(name_to_kbfunc[i].tag, binding) != 0)
 			continue;
 
-		current_binding->callback = name_to_kbfunc[iter].handler;
-		current_binding->flags = name_to_kbfunc[iter].flags;
-		current_binding->argument = name_to_kbfunc[iter].argument;
+		current_binding->callback = name_to_kbfunc[i].handler;
+		current_binding->flags = name_to_kbfunc[i].flags;
+		current_binding->argument = name_to_kbfunc[i].argument;
 		conf_grab(c, current_binding);
 		TAILQ_INSERT_TAIL(&c->keybindingq, current_binding, entry);
 		return;
@@ -537,10 +535,7 @@ conf_unbind(struct conf *c, struct keybinding *unbind)
 {
 	struct keybinding	*key = NULL, *keynxt;
 
-	for (key = TAILQ_FIRST(&c->keybindingq);
-	    key != TAILQ_END(&c->keybindingq); key = keynxt) {
-		keynxt = TAILQ_NEXT(key, entry);
-
+	TAILQ_FOREACH_SAFE(key, &c->keybindingq, entry, keynxt) {
 		if (key->modmask != unbind->modmask)
 			continue;
 
@@ -549,7 +544,7 @@ conf_unbind(struct conf *c, struct keybinding *unbind)
 		    key->keysym == unbind->keysym) {
 			conf_ungrab(c, key);
 			TAILQ_REMOVE(&c->keybindingq, key, entry);
-			xfree(key);
+			free(key);
 		}
 	}
 }
@@ -577,16 +572,15 @@ conf_mousebind(struct conf *c, char *name, char *binding)
 	struct mousebinding	*current_binding;
 	char			*substring, *tmp;
 	const char		*errstr;
-	int			 iter;
+	int			 i;
 
 	current_binding = xcalloc(1, sizeof(*current_binding));
 
 	if ((substring = strchr(name, '-')) != NULL) {
-		for (iter = 0; iter < nitems(bind_mods); iter++) {
-			if ((tmp = strchr(name, bind_mods[iter].chr)) !=
+		for (i = 0; i < nitems(bind_mods); i++) {
+			if ((tmp = strchr(name, bind_mods[i].chr)) !=
 			    NULL && tmp < substring) {
-				current_binding->modmask |=
-				    bind_mods[iter].mask;
+				current_binding->modmask |= bind_mods[i].mask;
 			}
 		}
 
@@ -599,17 +593,20 @@ conf_mousebind(struct conf *c, char *name, char *binding)
 	if (errstr)
 		warnx("number of buttons is %s: %s", errstr, substring);
 
+	/* We now have the correct binding, remove duplicates. */
 	conf_mouseunbind(c, current_binding);
 
-	if (strcmp("unmap", binding) == 0)
+	if (strcmp("unmap", binding) == 0) {
+		free(current_binding);
 		return;
+	}
 
-	for (iter = 0; iter < nitems(name_to_mousefunc); iter++) {
-		if (strcmp(name_to_mousefunc[iter].tag, binding) != 0)
+	for (i = 0; i < nitems(name_to_mousefunc); i++) {
+		if (strcmp(name_to_mousefunc[i].tag, binding) != 0)
 			continue;
 
-		current_binding->context = name_to_mousefunc[iter].context;
-		current_binding->callback = name_to_mousefunc[iter].handler;
+		current_binding->context = name_to_mousefunc[i].context;
+		current_binding->callback = name_to_mousefunc[i].handler;
 		TAILQ_INSERT_TAIL(&c->mousebindingq, current_binding, entry);
 		return;
 	}
@@ -620,16 +617,13 @@ conf_mouseunbind(struct conf *c, struct mousebinding *unbind)
 {
 	struct mousebinding	*mb = NULL, *mbnxt;
 
-	for (mb = TAILQ_FIRST(&c->mousebindingq);
-	    mb != TAILQ_END(&c->mousebindingq); mb = mbnxt) {
-		mbnxt = TAILQ_NEXT(mb, entry);
-
+	TAILQ_FOREACH_SAFE(mb, &c->mousebindingq, entry, mbnxt) {
 		if (mb->modmask != unbind->modmask)
 			continue;
 
 		if (mb->button == unbind->button) {
 			TAILQ_REMOVE(&c->mousebindingq, mb, entry);
-			xfree(mb);
+			free(mb);
 		}
 	}
 }

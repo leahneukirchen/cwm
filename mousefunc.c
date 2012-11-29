@@ -20,13 +20,13 @@
  */
 
 #include <sys/param.h>
-#include <sys/queue.h>
+#include "queue.h"
 
 #include <err.h>
 #include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 #include <unistd.h>
 
 #include "calmwm.h"
@@ -253,7 +253,7 @@ mousefunc_menu_unhide(struct client_ctx *cc, void *arg)
 	} else {
 		while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
 			TAILQ_REMOVE(&menuq, mi, entry);
-			xfree(mi);
+			free(mi);
 		}
 	}
 }
@@ -282,6 +282,6 @@ mousefunc_menu_cmd(struct client_ctx *cc, void *arg)
 	else
 		while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
 			TAILQ_REMOVE(&menuq, mi, entry);
-			xfree(mi);
+			free(mi);
 		}
 }

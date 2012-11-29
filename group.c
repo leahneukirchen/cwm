@@ -20,11 +20,12 @@
  */
 
 #include <sys/param.h>
-#include <sys/queue.h>
+#include "queue.h"
 
 #include <assert.h>
 #include <err.h>
 #include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -130,7 +131,7 @@ group_show(struct screen_ctx *sc, struct group_ctx *gc)
 	}
 
 	XRestackWindows(X_Dpy, winlist, gc->nhidden);
-	xfree(winlist);
+	free(winlist);
 
 	gc->hidden = 0;
 	group_setactive(sc, gc->shortcut - 1);
@@ -420,7 +421,7 @@ group_menu(XButtonEvent *e)
 cleanup:
 	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
 		TAILQ_REMOVE(&menuq, mi, entry);
-		xfree(mi);
+		free(mi);
 	}
 }
 
@@ -526,7 +527,7 @@ group_update_names(struct screen_ctx *sc)
 	strings = xmalloc((nstrings < CALMWM_NGROUPS ? CALMWM_NGROUPS :
 	    nstrings) * sizeof(*strings));
 
-	p = (char *) prop_ret;
+	p = (char *)prop_ret;
 	while (n < nstrings) {
 		strings[n++] = xstrdup(p);
 		p += strlen(p) + 1;
@@ -545,7 +546,7 @@ group_update_names(struct screen_ctx *sc)
 	if (prop_ret != NULL)
 		XFree(prop_ret);
 	if (sc->group_nonames != 0)
-		xfree(sc->group_names);
+		free(sc->group_names);
 
 	sc->group_names = strings;
 	sc->group_nonames = n;
@@ -556,7 +557,7 @@ group_update_names(struct screen_ctx *sc)
 static void
 group_set_names(struct screen_ctx *sc)
 {
-	unsigned char	*p, *q;
+	char		*p, *q;
 	size_t		 len = 0, tlen, slen;
 	int		 i;
 
@@ -567,7 +568,7 @@ group_set_names(struct screen_ctx *sc)
 	tlen = len;
 	for (i = 0; i < sc->group_nonames; i++) {
 		slen = strlen(sc->group_names[i]) + 1;
-		(void)strlcpy((char *) q, sc->group_names[i], tlen);
+		(void)strlcpy(q, sc->group_names[i], tlen);
 		tlen -= slen;
 		q += slen;
 	}

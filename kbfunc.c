@@ -19,16 +19,16 @@
  */
 
 #include <sys/param.h>
-#include <sys/queue.h>
+#include "queue.h"
 
 #include <dirent.h>
 #include <err.h>
 #include <errno.h>
 #include <paths.h>
 #include <signal.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 #include <unistd.h>
 
 #include "calmwm.h"
@@ -246,7 +246,7 @@ kbfunc_client_search(struct client_ctx *cc, union arg *arg)
 
 	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
 		TAILQ_REMOVE(&menuq, mi, entry);
-		xfree(mi);
+		free(mi);
 	}
 }
 
@@ -273,7 +273,7 @@ kbfunc_menu_search(struct client_ctx *cc, union arg *arg)
 
 	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
 		TAILQ_REMOVE(&menuq, mi, entry);
-		xfree(mi);
+		free(mi);
 	}
 }
 
@@ -373,10 +373,11 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 		}
 		(void)closedir(dirp);
 	}
-	xfree(path);
+	free(path);
 
-	if ((mi = menu_filter(sc, &menuq, label, NULL, 1,
-	    search_match_exec, NULL)) != NULL) {
+	if ((mi = menu_filter(sc, &menuq, label, NULL,
+	    CWM_MENU_DUMMY | CWM_MENU_FILE,
+	    search_match_exec_path, NULL)) != NULL) {
 		if (mi->text[0] == '\0')
 			goto out;
 		switch (cmd) {
@@ -394,10 +395,10 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 	}
 out:
 	if (mi != NULL && mi->dummy)
-		xfree(mi);
+		free(mi);
 	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
 		TAILQ_REMOVE(&menuq, mi, entry);
-		xfree(mi);
+		free(mi);
 	}
 }
 
@@ -450,10 +451,10 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 		(void)strlcpy(mi->text, hostbuf, sizeof(mi->text));
 		TAILQ_INSERT_TAIL(&menuq, mi, entry);
 	}
-	xfree(lbuf);
+	free(lbuf);
 	(void)fclose(fp);
 
-	if ((mi = menu_filter(sc, &menuq, "ssh", NULL, 1,
+	if ((mi = menu_filter(sc, &menuq, "ssh", NULL, CWM_MENU_DUMMY,
 	    search_match_exec, NULL)) != NULL) {
 		if (mi->text[0] == '\0')
 			goto out;
@@ -464,10 +465,10 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 	}
 out:
 	if (mi != NULL && mi->dummy)
-		xfree(mi);
+		free(mi);
 	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
 		TAILQ_REMOVE(&menuq, mi, entry);
-		xfree(mi);
+		free(mi);
 	}
 }
 
@@ -480,15 +481,14 @@ kbfunc_client_label(struct client_ctx *cc, union arg *arg)
 	TAILQ_INIT(&menuq);
 
 	/* dummy is set, so this will always return */
-	mi = menu_filter(cc->sc, &menuq, "label", cc->label, 1,
+	mi = menu_filter(cc->sc, &menuq, "label", cc->label, CWM_MENU_DUMMY,
 	    search_match_text, NULL);
 
 	if (!mi->abort) {
-		if (cc->label != NULL)
-			xfree(cc->label);
+		free(cc->label);
 		cc->label = xstrdup(mi->text);
 	}
-	xfree(mi);
+	free(mi);
 }
 
 void
