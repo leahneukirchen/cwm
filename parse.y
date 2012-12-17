@@ -582,7 +582,7 @@ parse_config(const char *filename, struct conf *xconf)
 			xconf->color[i].name = conf->color[i].name;
 
 		for (i = 0; i < CWM_COLOR_MENU_MAX; i++)
-			xconf->menucolor[i]= conf->menucolor[i];
+			xconf->menucolor[i] = conf->menucolor[i];
 
 		xconf->font = conf->font;
 	}

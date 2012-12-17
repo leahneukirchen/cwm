@@ -51,8 +51,8 @@ font_height(struct screen_ctx *sc)
 void
 font_init(struct screen_ctx *sc, const char *name, const char **color)
 {
-	int i;
-	XRenderColor c;
+	int		 i;
+	XRenderColor	 c;
 
 	sc->xftdraw = XftDrawCreate(X_Dpy, sc->rootwin,
 	    DefaultVisual(X_Dpy, sc->which), DefaultColormap(X_Dpy, sc->which));
@@ -62,7 +62,8 @@ font_init(struct screen_ctx *sc, const char *name, const char **color)
 	sc->font = XftFontOpenName(X_Dpy, sc->which, name);
 	if (sc->font == NULL)
 		errx(1, "XftFontOpenName");
-	for(i = 0; i < CWM_COLOR_MENU_MAX; i++) {
+
+	for (i = 0; i < CWM_COLOR_MENU_MAX; i++) {
 		if (*color[i] == '\0')
 			break;
 		if (!XftColorAllocName(X_Dpy, DefaultVisual(X_Dpy, sc->which),
@@ -74,11 +75,11 @@ font_init(struct screen_ctx *sc, const char *name, const char **color)
 		return;
 
 	xu_xorcolor(sc->xftcolor[CWM_COLOR_MENU_BG].color,
-			sc->xftcolor[CWM_COLOR_MENU_FG].color, &c);
+		    sc->xftcolor[CWM_COLOR_MENU_FG].color, &c);
 	xu_xorcolor(sc->xftcolor[CWM_COLOR_MENU_FONT].color, c, &c);
 	if (!XftColorAllocValue(X_Dpy, DefaultVisual(X_Dpy, sc->which),
-				DefaultColormap(X_Dpy, sc->which), &c,
-				&sc->xftcolor[CWM_COLOR_MENU_FONT_SEL]))
+		DefaultColormap(X_Dpy, sc->which), &c,
+		&sc->xftcolor[CWM_COLOR_MENU_FONT_SEL]))
 		errx(1, "XftColorAllocValue");
 }
 
@@ -97,7 +98,7 @@ void
 font_draw(struct screen_ctx *sc, const char *text, int len,
     Drawable d, int active, int x, int y)
 {
-	int color;
+	int	 color;
 
 	color = active ? CWM_COLOR_MENU_FONT_SEL : CWM_COLOR_MENU_FONT;
 	XftDrawChange(sc->xftdraw, d);

@@ -317,7 +317,8 @@ __dead void		 usage(void);
 void			 client_applysizehints(struct client_ctx *);
 struct client_ctx	*client_current(void);
 void			 client_cycle(struct screen_ctx *, int);
-void			 client_cycle_leave(struct screen_ctx *, struct client_ctx *);
+void			 client_cycle_leave(struct screen_ctx *,
+			     struct client_ctx *);
 void			 client_delete(struct client_ctx *);
 void			 client_draw_border(struct client_ctx *);
 struct client_ctx	*client_find(Window);
@@ -364,8 +365,8 @@ void			 search_match_client(struct menu_q *, struct menu_q *,
 			     char *);
 void			 search_match_exec(struct menu_q *, struct menu_q *,
 			     char *);
-void			 search_match_exec_path(struct menu_q *, struct menu_q *,
-			     char *);
+void			 search_match_exec_path(struct menu_q *,
+			     struct menu_q *, char *);
 void			 search_match_path_any(struct menu_q *, struct menu_q *,
 			     char *);
 void			 search_match_text(struct menu_q *, struct menu_q *,
@@ -475,6 +476,8 @@ void			 xu_ptr_setpos(Window, int, int);
 void			 xu_ptr_ungrab(void);
 void			 xu_sendmsg(Window, Atom, long);
 void			 xu_setstate(struct client_ctx *, int);
+void 			 xu_xorcolor(XRenderColor, XRenderColor,
+			     XRenderColor *);
 
 void			 xu_ewmh_net_supported(struct screen_ctx *);
 void			 xu_ewmh_net_supported_wm_check(struct screen_ctx *);
@@ -487,11 +490,10 @@ void			 xu_ewmh_net_wm_number_of_desktops(struct screen_ctx *);
 void			 xu_ewmh_net_showing_desktop(struct screen_ctx *);
 void			 xu_ewmh_net_virtual_roots(struct screen_ctx *);
 void			 xu_ewmh_net_current_desktop(struct screen_ctx *, long);
-void			 xu_ewmh_net_desktop_names(struct screen_ctx *, char *, int);
+void			 xu_ewmh_net_desktop_names(struct screen_ctx *, char *,
+			     int);
 
 void			 xu_ewmh_net_wm_desktop(struct client_ctx *);
-
-void 			 xu_xorcolor(XRenderColor, XRenderColor, XRenderColor *);
 
 void			 u_exec(char *);
 void			 u_spawn(char *);
