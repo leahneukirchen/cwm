@@ -430,3 +430,12 @@ xu_getcolor(struct screen_ctx *sc, char *name)
 
 	return (color.pixel);
 }
+
+void
+xu_xorcolor(XRenderColor a, XRenderColor b, XRenderColor *r)
+{
+	r->red = a.red ^ b.red;
+	r->green = a.green ^ b.green;
+	r->blue = a.blue ^ b.blue;
+	r->alpha = 0xffff;
+}

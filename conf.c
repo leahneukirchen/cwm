@@ -62,17 +62,21 @@ conf_gap(struct conf *c, struct screen_ctx *sc)
 void
 conf_font(struct conf *c, struct screen_ctx *sc)
 {
-	font_init(sc, c->font, c->color[CWM_COLOR_FONT].name);
+	font_init(sc, c->font, (const char**)c->menucolor);
 }
 
-static struct color color_binds[] = {
+static char *menu_color_binds[CWM_COLOR_MENU_MAX] = {
+	"black",  /* CWM_COLOR_MENU_FG */
+	"white",  /* CWM_COLOR_MENU_BG */
+	"black",  /* CWM_COLOR_MENU_FONT */
+	"",  	  /* CWM_COLOR_MENU_FONT_SEL */
+};
+
+static struct color color_binds[CWM_COLOR_MAX] = {
 	{ "#CCCCCC",	0 }, /* CWM_COLOR_BORDER_ACTIVE */
 	{ "#666666",	0 }, /* CWM_COLOR_BORDER_INACTIVE */
 	{ "blue",	0 }, /* CWM_COLOR_BORDER_GROUP */
 	{ "red",	0 }, /* CWM_COLOR_BORDER_UNGROUP */
-	{ "black",	0 }, /* CWM_COLOR_FG_MENU */
-	{ "white",	0 }, /* CWM_COLOR_BG_MENU */
-	{ "black",	0 }, /* CWM_COLOR_FONT */
 };
 
 void
@@ -181,6 +185,9 @@ conf_init(struct conf *c)
 
 	for (i = 0; i < nitems(color_binds); i++)
 		c->color[i].name = xstrdup(color_binds[i].name);
+
+	for (i = 0; i < nitems(menu_color_binds); i++)
+		c->menucolor[i] = xstrdup(menu_color_binds[i]);
 
 	/* Default term/lock */
 	(void)strlcpy(c->termpath, "xterm", sizeof(c->termpath));
