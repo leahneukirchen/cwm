@@ -490,7 +490,6 @@ client_unhide(struct client_ctx *cc)
 {
 	XMapRaised(X_Dpy, cc->win);
 
-	cc->highlight = 0;
 	cc->flags &= ~CLIENT_HIDDEN;
 	xu_setstate(cc, NormalState);
 	client_draw_border(cc);
@@ -503,11 +502,11 @@ client_draw_border(struct client_ctx *cc)
 	unsigned long		 pixel;
 
 	if (cc->active)
-		switch (cc->highlight) {
-		case CLIENT_HIGHLIGHT_GROUP:
+		switch (cc->flags & CLIENT_HIGHLIGHT) {
+		case CLIENT_GROUP:
 			pixel = sc->color[CWM_COLOR_BORDER_GROUP].pixel;
 			break;
-		case CLIENT_HIGHLIGHT_UNGROUP:
+		case CLIENT_UNGROUP:
 			pixel = sc->color[CWM_COLOR_BORDER_UNGROUP].pixel;
 			break;
 		default:

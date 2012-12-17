@@ -159,16 +159,16 @@ struct client_ctx {
 #define CLIENT_VMAXIMIZED		0x0004
 #define CLIENT_HMAXIMIZED		0x0008
 #define CLIENT_FREEZE			0x0010
+#define CLIENT_GROUP			0x0020
+#define CLIENT_UNGROUP			0x0040
 
+#define CLIENT_HIGHLIGHT		(CLIENT_GROUP | CLIENT_UNGROUP)
 #define CLIENT_MAXFLAGS			(CLIENT_VMAXIMIZED | CLIENT_HMAXIMIZED)
 #define CLIENT_MAXIMIZED		(CLIENT_VMAXIMIZED | CLIENT_HMAXIMIZED)
 	int			 flags;
 	int			 state;
 	int			 active;
 	int			 stackingorder;
-#define CLIENT_HIGHLIGHT_GROUP		0x0001
-#define CLIENT_HIGHLIGHT_UNGROUP	0x0002
-	int			 highlight;
 	struct winname_q	 nameq;
 #define CLIENT_MAXNAMEQLEN		5
 	int			 nameqlen;

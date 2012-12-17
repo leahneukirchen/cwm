@@ -218,16 +218,14 @@ void
 group_sticky_toggle_enter(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
-	struct group_ctx	*gc;
-
-	gc = sc->group_active;
+	struct group_ctx	*gc = sc->group_active;
 
 	if (gc == cc->group) {
 		group_remove(cc);
-		cc->highlight = CLIENT_HIGHLIGHT_UNGROUP;
+		cc->flags |= CLIENT_UNGROUP;
 	} else {
 		group_add(gc, cc);
-		cc->highlight = CLIENT_HIGHLIGHT_GROUP;
+		cc->flags |= CLIENT_GROUP;
 	}
 
 	client_draw_border(cc);
@@ -236,7 +234,7 @@ group_sticky_toggle_enter(struct client_ctx *cc)
 void
 group_sticky_toggle_exit(struct client_ctx *cc)
 {
-	cc->highlight = 0;
+	cc->flags &= ~CLIENT_HIGHLIGHT;
 	client_draw_border(cc);
 }
 
