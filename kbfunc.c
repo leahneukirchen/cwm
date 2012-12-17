@@ -168,10 +168,7 @@ kbfunc_client_search(struct client_ctx *cc, union arg *arg)
 		client_ptrwarp(cc);
 	}
 
-	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
-		TAILQ_REMOVE(&menuq, mi, entry);
-		free(mi);
-	}
+	menuq_clear(&menuq);
 }
 
 void
@@ -195,10 +192,7 @@ kbfunc_menu_search(struct client_ctx *cc, union arg *arg)
 	    search_match_text, NULL)) != NULL)
 		u_spawn(((struct cmd *)mi->ctx)->image);
 
-	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
-		TAILQ_REMOVE(&menuq, mi, entry);
-		free(mi);
-	}
+	menuq_clear(&menuq);
 }
 
 void
@@ -320,10 +314,7 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 out:
 	if (mi != NULL && mi->dummy)
 		free(mi);
-	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
-		TAILQ_REMOVE(&menuq, mi, entry);
-		free(mi);
-	}
+	menuq_clear(&menuq);
 }
 
 void
@@ -390,10 +381,7 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 out:
 	if (mi != NULL && mi->dummy)
 		free(mi);
-	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
-		TAILQ_REMOVE(&menuq, mi, entry);
-		free(mi);
-	}
+	menuq_clear(&menuq);
 }
 
 void

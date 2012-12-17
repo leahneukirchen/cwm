@@ -431,6 +431,7 @@ struct menu  		*menu_filter(struct screen_ctx *, struct menu_q *,
 			     void (*)(struct menu_q *, struct menu_q *, char *),
 			     void (*)(struct menu *, int));
 void			 menu_init(struct screen_ctx *);
+void			 menuq_clear(struct menu_q *);
 
 int			 parse_config(const char *, struct conf *);
 

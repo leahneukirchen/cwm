@@ -215,10 +215,7 @@ menu_complete_path(struct menu_ctx *mc)
 		strlcpy(path, mi->text, sizeof(mi->text));
 	}
 	
-	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
-		TAILQ_REMOVE(&menuq, mi, entry);
-		free(mi);
-	}
+	menuq_clear(&menuq);
 
 	if (path[0] != '\0') 
 		snprintf(mr->text, sizeof(mr->text), "%s \"%s\"",
@@ -631,4 +628,15 @@ menu_keycode(XKeyEvent *ev, enum ctltype *ctl, char *chr)
 		return (-1);
 
 	return (0);
+}
+
+void
+menuq_clear(struct menu_q *mq)
+{
+	struct menu	*mi;
+
+	while ((mi = TAILQ_FIRST(mq)) != NULL) {
+		TAILQ_REMOVE(mq, mi, entry);
+		free(mi);
+	}
 }

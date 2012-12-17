@@ -385,10 +385,7 @@ group_menu(XButtonEvent *e)
 	(gc->hidden) ? group_show(sc, gc) : group_hide(sc, gc);
 
 cleanup:
-	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
-		TAILQ_REMOVE(&menuq, mi, entry);
-		free(mi);
-	}
+	menuq_clear(&menuq);
 }
 
 void

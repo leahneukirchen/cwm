@@ -250,12 +250,8 @@ mousefunc_menu_unhide(struct client_ctx *cc, void *arg)
 		if (old_cc != NULL)
 			client_ptrsave(old_cc);
 		client_ptrwarp(cc);
-	} else {
-		while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
-			TAILQ_REMOVE(&menuq, mi, entry);
-			free(mi);
-		}
-	}
+	} else
+		menuq_clear(&menuq);
 }
 
 void
@@ -280,8 +276,5 @@ mousefunc_menu_cmd(struct client_ctx *cc, void *arg)
 	if (mi != NULL)
 		u_spawn(((struct cmd *)mi->ctx)->image);
 	else
-		while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
-			TAILQ_REMOVE(&menuq, mi, entry);
-			free(mi);
-		}
+		menuq_clear(&menuq);
 }
