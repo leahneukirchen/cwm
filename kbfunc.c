@@ -324,16 +324,13 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 	struct menu		*mi;
 	struct menu_q		 menuq;
 	FILE			*fp;
-	char			*buf, *lbuf, *p, *home;
+	char			*buf, *lbuf, *p;
 	char			 hostbuf[MAXHOSTNAMELEN], filename[MAXPATHLEN];
 	char			 cmd[256];
 	int			 l;
 	size_t			 len;
 
-	if ((home = getenv("HOME")) == NULL)
-		return;
-
-	l = snprintf(filename, sizeof(filename), "%s/%s", home, KNOWN_HOSTS);
+	l = snprintf(filename, sizeof(filename), "%s/%s", homedir, KNOWN_HOSTS);
 	if (l == -1 || l >= sizeof(filename))
 		return;
 

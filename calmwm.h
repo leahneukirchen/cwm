@@ -519,6 +519,7 @@ extern Cursor				 Cursor_resize;
 extern struct screen_ctx_q		 Screenq;
 extern struct client_ctx_q		 Clientq;
 extern struct conf			 Conf;
+extern char				*homedir;
 
 extern int				 HasRandr, Randr_ev;
 

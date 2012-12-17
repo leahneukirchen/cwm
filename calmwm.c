@@ -26,6 +26,7 @@
 #include <errno.h>
 #include <getopt.h>
 #include <locale.h>
+#include <pwd.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,6 +49,7 @@ struct client_ctx_q		 Clientq = TAILQ_HEAD_INITIALIZER(Clientq);
 
 int				 HasRandr, Randr_ev;
 struct conf			 Conf;
+char				*homedir;
 
 static void	sigchld_cb(int);
 static void	dpy_init(const char *);
@@ -62,6 +64,7 @@ main(int argc, char **argv)
 	const char	*conf_file = NULL;
 	char		*display_name = NULL;
 	int		 ch;
+	struct passwd	*pw;
 
 	if (!setlocale(LC_CTYPE, "") || !XSupportsLocale())
 		warnx("no locale support");
@@ -85,6 +88,14 @@ main(int argc, char **argv)
 
 	if (signal(SIGCHLD, sigchld_cb) == SIG_ERR)
 		err(1, "signal");
+
+	if ((homedir = getenv("HOME")) == NULL || *homedir == '\0') {
+		pw = getpwuid(getuid());
+		if (pw != NULL && pw->pw_dir != NULL && *pw->pw_dir != '\0')
+			homedir = pw->pw_dir;
+		else
+			homedir = "/";
+	}
 
 	dpy_init(display_name);
 
