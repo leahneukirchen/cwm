@@ -158,7 +158,7 @@ client_delete(struct client_ctx *cc)
 
 	xu_ewmh_net_client_list(sc);
 
-	if (_curcc == cc)
+	if (cc == client_current())
 		client_none(sc);
 
 	XFree(cc->size);
@@ -180,7 +180,7 @@ client_leave(struct client_ctx *cc)
 	struct screen_ctx	*sc;
 
 	if (cc == NULL)
-		cc = _curcc;
+		cc = client_current();
 	if (cc == NULL)
 		return;
 
@@ -194,7 +194,7 @@ client_setactive(struct client_ctx *cc, int fg)
 	struct screen_ctx	*sc;
 
 	if (cc == NULL)
-		cc = _curcc;
+		cc = client_current();
 	if (cc == NULL)
 		return;
 
@@ -214,7 +214,7 @@ client_setactive(struct client_ctx *cc, int fg)
 	} else
 		client_leave(cc);
 
-	if (fg && _curcc != cc) {
+	if (fg && cc != client_current()) {
 		client_setactive(NULL, 0);
 		_curcc = cc;
 		xu_ewmh_net_active_window(sc, cc->win);
@@ -480,7 +480,7 @@ client_hide(struct client_ctx *cc)
 	cc->flags |= CLIENT_HIDDEN;
 	xu_setstate(cc, IconicState);
 
-	if (cc == _curcc)
+	if (cc == client_current())
 		client_none(cc->sc);
 }
 
@@ -737,7 +737,7 @@ client_mtf(struct client_ctx *cc)
 	struct screen_ctx	*sc;
 
 	if (cc == NULL)
-		cc = _curcc;
+		cc = client_current();
 	if (cc == NULL)
 		return;
 
