@@ -92,7 +92,7 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	cc->geom.y = wattr.y;
 	cc->geom.w = wattr.width;
 	cc->geom.h = wattr.height;
-	cc->cmap = wattr.colormap;
+	cc->colormap = wattr.colormap;
 
 	if (wattr.map_state != IsViewable) {
 		client_placecalc(cc);
@@ -202,7 +202,7 @@ client_setactive(struct client_ctx *cc, int fg)
 	sc = cc->sc;
 
 	if (fg) {
-		XInstallColormap(X_Dpy, cc->cmap);
+		XInstallColormap(X_Dpy, cc->colormap);
 		XSetInputFocus(X_Dpy, cc->win,
 		    RevertToPointerRoot, CurrentTime);
 		conf_grab_mouse(cc);

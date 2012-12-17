@@ -132,7 +132,7 @@ struct client_ctx {
 	struct screen_ctx	*sc;
 	Window			 win;
 	XSizeHints		*size;
-	Colormap		 cmap;
+	Colormap		 colormap;
 	u_int			 bwidth; /* border width */
 	struct geom		 geom, savegeom;
 	struct {
