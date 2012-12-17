@@ -33,7 +33,6 @@
 
 #include "calmwm.h"
 
-#define KNOWN_HOSTS	".ssh/known_hosts"
 #define HASH_MARKER	"|1|"
 
 extern char		**cwm_argv;
@@ -325,17 +324,15 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 	struct menu_q		 menuq;
 	FILE			*fp;
 	char			*buf, *lbuf, *p;
-	char			 hostbuf[MAXHOSTNAMELEN], filename[MAXPATHLEN];
+	char			 hostbuf[MAXHOSTNAMELEN];
 	char			 cmd[256];
 	int			 l;
 	size_t			 len;
 
-	l = snprintf(filename, sizeof(filename), "%s/%s", homedir, KNOWN_HOSTS);
-	if (l == -1 || l >= sizeof(filename))
+	if ((fp = fopen(Conf.known_hosts, "r")) == NULL) {
+		warn("kbfunc_ssh: %s", Conf.known_hosts);
 		return;
-
-	if ((fp = fopen(filename, "r")) == NULL)
-		return;
+	}
 
 	TAILQ_INIT(&menuq);
 	lbuf = NULL;

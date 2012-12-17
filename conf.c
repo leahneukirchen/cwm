@@ -193,6 +193,9 @@ conf_init(struct conf *c)
 	(void)strlcpy(c->termpath, "xterm", sizeof(c->termpath));
 	(void)strlcpy(c->lockpath, "xlock", sizeof(c->lockpath));
 
+	(void)snprintf(c->known_hosts, sizeof(c->known_hosts), "%s/%s",
+	    homedir, ".ssh/known_hosts");
+
 	c->font = xstrdup(CONF_FONT);
 }
 
