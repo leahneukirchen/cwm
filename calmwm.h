@@ -220,7 +220,7 @@ struct screen_ctx {
 	struct cycle_entry_q	 mruq;
 	XftColor		 xftcolor[CWM_COLOR_MENU_MAX];
 	XftDraw			*xftdraw;
-	XftFont			*font;
+	XftFont			*xftfont;
 	int			 xinerama_no;
 	XineramaScreenInfo	*xinerama;
 #define CALMWM_NGROUPS		 9

@@ -33,19 +33,19 @@
 int
 font_ascent(struct screen_ctx *sc)
 {
-	return (sc->font->ascent);
+	return (sc->xftfont->ascent);
 }
 
 int
 font_descent(struct screen_ctx *sc)
 {
-	return (sc->font->descent);
+	return (sc->xftfont->descent);
 }
 
 u_int
 font_height(struct screen_ctx *sc)
 {
-	return (sc->font->height + 1);
+	return (sc->xftfont->height + 1);
 }
 
 void
@@ -59,8 +59,8 @@ font_init(struct screen_ctx *sc, const char *name, const char **color)
 	if (sc->xftdraw == NULL)
 		errx(1, "XftDrawCreate");
 
-	sc->font = XftFontOpenName(X_Dpy, sc->which, name);
-	if (sc->font == NULL)
+	sc->xftfont = XftFontOpenName(X_Dpy, sc->which, name);
+	if (sc->xftfont == NULL)
 		errx(1, "XftFontOpenName");
 
 	for (i = 0; i < CWM_COLOR_MENU_MAX; i++) {
@@ -88,7 +88,7 @@ font_width(struct screen_ctx *sc, const char *text, int len)
 {
 	XGlyphInfo	 extents;
 
-	XftTextExtentsUtf8(X_Dpy, sc->font, (const FcChar8*)text,
+	XftTextExtentsUtf8(X_Dpy, sc->xftfont, (const FcChar8*)text,
 	    len, &extents);
 
 	return (extents.xOff);
@@ -102,6 +102,6 @@ font_draw(struct screen_ctx *sc, const char *text, int len,
 
 	color = active ? CWM_COLOR_MENU_FONT_SEL : CWM_COLOR_MENU_FONT;
 	XftDrawChange(sc->xftdraw, d);
-	XftDrawStringUtf8(sc->xftdraw, &sc->xftcolor[color], sc->font, x, y,
+	XftDrawStringUtf8(sc->xftdraw, &sc->xftcolor[color], sc->xftfont, x, y,
 	    (const FcChar8*)text, len);
 }
