@@ -33,6 +33,7 @@
 
 static struct client_ctx	*client_mrunext(struct client_ctx *);
 static struct client_ctx	*client_mruprev(struct client_ctx *);
+static void			 client_mtf(struct client_ctx *);
 static void			 client_none(struct screen_ctx *);
 static void			 client_placecalc(struct client_ctx *);
 static void			 client_update(struct client_ctx *);
@@ -731,7 +732,7 @@ client_placecalc(struct client_ctx *cc)
 	}
 }
 
-void
+static void
 client_mtf(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc;
@@ -742,8 +743,6 @@ client_mtf(struct client_ctx *cc)
 		return;
 
 	sc = cc->sc;
-
-	/* Move to front. */
 	TAILQ_REMOVE(&sc->mruq, cc, mru_entry);
 	TAILQ_INSERT_HEAD(&sc->mruq, cc, mru_entry);
 }
