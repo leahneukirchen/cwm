@@ -41,6 +41,8 @@ screen_init(struct screen_ctx *sc, u_int which)
 	u_int			 nwins, i;
 
 	sc->which = which;
+	sc->visual = DefaultVisual(X_Dpy, sc->which);
+	sc->colormap = DefaultColormap(X_Dpy, sc->which);
 	sc->rootwin = RootWindow(X_Dpy, sc->which);
 
 	xu_ewmh_net_supported(sc);

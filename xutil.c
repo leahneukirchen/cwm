@@ -422,8 +422,7 @@ xu_getcolor(struct screen_ctx *sc, char *name)
 {
 	XColor	 color, tmp;
 
-	if (!XAllocNamedColor(X_Dpy, DefaultColormap(X_Dpy, sc->which),
-	    name, &color, &tmp)) {
+	if (!XAllocNamedColor(X_Dpy, sc->colormap, name, &color, &tmp)) {
 		warnx("XAllocNamedColor error: '%s'", name);
 		return (0);
 	}

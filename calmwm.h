@@ -210,6 +210,8 @@ TAILQ_HEAD(autogroupwin_q, autogroupwin);
 struct screen_ctx {
 	TAILQ_ENTRY(screen_ctx)	 entry;
 	u_int			 which;
+	Visual			*visual;
+	Colormap		 colormap;
 	Window			 rootwin;
 	Window			 menuwin;
 	struct color		 color[CWM_COLOR_MAX];
