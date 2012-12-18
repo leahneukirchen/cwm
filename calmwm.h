@@ -448,7 +448,6 @@ void			 conf_grab(struct conf *, struct keybinding *);
 void			 conf_grab_mouse(struct client_ctx *);
 void			 conf_init(struct conf *);
 void			 conf_mousebind(struct conf *, char *, char *);
-void			 conf_setup(struct conf *, const char *);
 void			 conf_ungrab(struct conf *, struct keybinding *);
 
 int			 font_ascent(struct screen_ctx *);

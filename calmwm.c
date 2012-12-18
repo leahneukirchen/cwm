@@ -62,7 +62,7 @@ int
 main(int argc, char **argv)
 {
 	const char	*conf_file = NULL;
-	char		*display_name = NULL;
+	char		*conf_path, *display_name = NULL;
 	int		 ch;
 	struct passwd	*pw;
 
@@ -97,10 +97,25 @@ main(int argc, char **argv)
 			homedir = "/";
 	}
 
+	if (conf_file == NULL)
+		xasprintf(&conf_path, "%s/%s", homedir, CONFFILE);
+	else
+		conf_path = xstrdup(conf_file);
+
+	if (access(conf_path, R_OK) != 0) {
+		if (conf_file != NULL)
+			warn("%s", conf_file);
+		free(conf_path);
+		conf_path = NULL;
+	}
+
 	dpy_init(display_name);
 
-	bzero(&Conf, sizeof(Conf));
-	conf_setup(&Conf, conf_file);
+	conf_init(&Conf);
+	if (conf_path && (parse_config(conf_path, &Conf) == -1))
+		warnx("config file %s has errors, not loading", conf_path);
+	free(conf_path);
+
 	xu_getatoms();
 	x_setup();
 	xev_loop();

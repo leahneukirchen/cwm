@@ -166,7 +166,8 @@ conf_init(struct conf *c)
 {
 	int	i;
 
-	c->flags = 0;
+	bzero(c, sizeof(*c));
+
 	c->bwidth = CONF_BWIDTH;
 	c->mamount = CONF_MAMOUNT;
 	c->snapdist = CONF_SNAPDIST;
@@ -240,34 +241,6 @@ conf_clear(struct conf *c)
 		free(c->color[i].name);
 
 	free(c->font);
-}
-
-void
-conf_setup(struct conf *c, const char *conf_file)
-{
-	char		 conf_path[MAXPATHLEN];
-	struct stat	 sb;
-	int		 parse = 0;
-
-	conf_init(c);
-
-	if (conf_file == NULL) {
-		(void)snprintf(conf_path, sizeof(conf_path), "%s/%s",
-		    homedir, CONFFILE);
-
-		if (stat(conf_path, &sb) == 0 && (sb.st_mode & S_IFREG))
-			parse = 1;
-	} else {
-		if (stat(conf_file, &sb) == -1 || !(sb.st_mode & S_IFREG))
-			errx(1, "%s: %s", conf_file, strerror(errno));
-		else {
-			(void)strlcpy(conf_path, conf_file, sizeof(conf_path));
-			parse = 1;
-		}
-	}
-
-	if (parse && (parse_config(conf_path, c) == -1))
-		warnx("config file %s has errors, not loading", conf_path);
 }
 
 void
