@@ -62,8 +62,9 @@ screen_init(struct screen_ctx *sc, u_int which)
 	menu_init(sc);
 
 	rootattr.cursor = Cursor_normal;
-	rootattr.event_mask = CHILDMASK|PropertyChangeMask|EnterWindowMask|
-	    LeaveWindowMask|ColormapChangeMask|BUTTONMASK;
+	rootattr.event_mask = SubstructureRedirectMask|SubstructureNotifyMask|
+	    PropertyChangeMask|EnterWindowMask|LeaveWindowMask|
+	    ColormapChangeMask|BUTTONMASK;
 
 	XChangeWindowAttributes(X_Dpy, sc->rootwin,
 	    CWEventMask|CWCursor, &rootattr);

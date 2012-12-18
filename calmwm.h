@@ -44,7 +44,6 @@
 #define	CONFFILE	".cwmrc"
 #define	WMNAME	 	"CWM"
 
-#define CHILDMASK	(SubstructureRedirectMask|SubstructureNotifyMask)
 #define BUTTONMASK	(ButtonPressMask|ButtonReleaseMask)
 #define MOUSEMASK	(BUTTONMASK|PointerMotionMask)
 #define MENUMASK 	(MOUSEMASK|ButtonMotionMask|ExposureMask)
