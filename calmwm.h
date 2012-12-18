@@ -47,11 +47,9 @@
 #define CHILDMASK	(SubstructureRedirectMask|SubstructureNotifyMask)
 #define BUTTONMASK	(ButtonPressMask|ButtonReleaseMask)
 #define MOUSEMASK	(BUTTONMASK|PointerMotionMask)
+#define MENUMASK 	(MOUSEMASK|ButtonMotionMask|ExposureMask)
+#define MENUGRABMASK	(MOUSEMASK|ButtonMotionMask|StructureNotifyMask)
 #define KEYMASK		(KeyPressMask|ExposureMask)
-#define MENUMASK 	(BUTTONMASK|ButtonMotionMask|ExposureMask| \
-			PointerMotionMask)
-#define MENUGRABMASK	(BUTTONMASK|ButtonMotionMask|StructureNotifyMask|\
-			PointerMotionMask)
 #define IGNOREMODMASK	(LockMask|Mod2Mask)
 
 /* kb movement */
