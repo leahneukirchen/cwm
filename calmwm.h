@@ -52,7 +52,6 @@
 			PointerMotionMask)
 #define MENUGRABMASK	(BUTTONMASK|ButtonMotionMask|StructureNotifyMask|\
 			PointerMotionMask)
-#define SEARCHMASK	(KeyPressMask|ExposureMask)
 #define IGNOREMODMASK	(LockMask|Mod2Mask)
 
 /* kb movement */
