@@ -126,7 +126,7 @@ main		: FONTNAME STRING		{
 			conf->snapdist = $2;
 		}
 		| COMMAND STRING string		{
-			conf_cmd_add(conf, $3, $2, 0);
+			conf_cmd_add(conf, $3, $2);
 			free($2);
 			free($3);
 		}

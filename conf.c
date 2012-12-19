@@ -36,7 +36,7 @@ static void	 conf_unbind(struct conf *, struct keybinding *);
 
 /* Add an command menu entry to the end of the menu */
 void
-conf_cmd_add(struct conf *c, char *image, char *label, int flags)
+conf_cmd_add(struct conf *c, char *image, char *label)
 {
 	/* "term" and "lock" have special meanings. */
 
@@ -46,7 +46,6 @@ conf_cmd_add(struct conf *c, char *image, char *label, int flags)
 		(void)strlcpy(c->lockpath, image, sizeof(c->lockpath));
 	else {
 		struct cmd *cmd = xmalloc(sizeof(*cmd));
-		cmd->flags = flags;
 		(void)strlcpy(cmd->image, image, sizeof(cmd->image));
 		(void)strlcpy(cmd->label, label, sizeof(cmd->label));
 		TAILQ_INSERT_TAIL(&c->cmdq, cmd, entry);

@@ -257,7 +257,6 @@ TAILQ_HEAD(mousebinding_q, mousebinding);
 
 struct cmd {
 	TAILQ_ENTRY(cmd)	entry;
-	int			flags;
 	char			image[MAXPATHLEN];
 #define CMD_MAXLABELLEN		256
 	char			label[CMD_MAXLABELLEN];
@@ -437,7 +436,7 @@ int			 parse_config(const char *, struct conf *);
 void			 conf_bindname(struct conf *, char *, char *);
 void			 conf_clear(struct conf *);
 void			 conf_client(struct client_ctx *);
-void			 conf_cmd_add(struct conf *, char *, char *, int);
+void			 conf_cmd_add(struct conf *, char *, char *);
 void			 conf_color(struct conf *, struct screen_ctx *);
 void			 conf_font(struct conf *, struct screen_ctx *);
 void			 conf_gap(struct conf *, struct screen_ctx *);
