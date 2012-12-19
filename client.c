@@ -33,6 +33,7 @@
 
 static struct client_ctx	*client_mrunext(struct client_ctx *);
 static struct client_ctx	*client_mruprev(struct client_ctx *);
+static void			 client_mtf(struct client_ctx *);
 static void			 client_none(struct screen_ctx *);
 static void			 client_placecalc(struct client_ctx *);
 static void			 client_update(struct client_ctx *);
@@ -91,7 +92,7 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	cc->geom.y = wattr.y;
 	cc->geom.w = wattr.width;
 	cc->geom.h = wattr.height;
-	cc->cmap = wattr.colormap;
+	cc->colormap = wattr.colormap;
 
 	if (wattr.map_state != IsViewable) {
 		client_placecalc(cc);
@@ -158,7 +159,7 @@ client_delete(struct client_ctx *cc)
 
 	xu_ewmh_net_client_list(sc);
 
-	if (_curcc == cc)
+	if (cc == client_current())
 		client_none(sc);
 
 	XFree(cc->size);
@@ -180,7 +181,7 @@ client_leave(struct client_ctx *cc)
 	struct screen_ctx	*sc;
 
 	if (cc == NULL)
-		cc = _curcc;
+		cc = client_current();
 	if (cc == NULL)
 		return;
 
@@ -194,14 +195,14 @@ client_setactive(struct client_ctx *cc, int fg)
 	struct screen_ctx	*sc;
 
 	if (cc == NULL)
-		cc = _curcc;
+		cc = client_current();
 	if (cc == NULL)
 		return;
 
 	sc = cc->sc;
 
 	if (fg) {
-		XInstallColormap(X_Dpy, cc->cmap);
+		XInstallColormap(X_Dpy, cc->colormap);
 		XSetInputFocus(X_Dpy, cc->win,
 		    RevertToPointerRoot, CurrentTime);
 		conf_grab_mouse(cc);
@@ -214,7 +215,7 @@ client_setactive(struct client_ctx *cc, int fg)
 	} else
 		client_leave(cc);
 
-	if (fg && _curcc != cc) {
+	if (fg && cc != client_current()) {
 		client_setactive(NULL, 0);
 		_curcc = cc;
 		xu_ewmh_net_active_window(sc, cc->win);
@@ -480,7 +481,7 @@ client_hide(struct client_ctx *cc)
 	cc->flags |= CLIENT_HIDDEN;
 	xu_setstate(cc, IconicState);
 
-	if (cc == _curcc)
+	if (cc == client_current())
 		client_none(cc->sc);
 }
 
@@ -489,7 +490,6 @@ client_unhide(struct client_ctx *cc)
 {
 	XMapRaised(X_Dpy, cc->win);
 
-	cc->highlight = 0;
 	cc->flags &= ~CLIENT_HIDDEN;
 	xu_setstate(cc, NormalState);
 	client_draw_border(cc);
@@ -502,11 +502,11 @@ client_draw_border(struct client_ctx *cc)
 	unsigned long		 pixel;
 
 	if (cc->active)
-		switch (cc->highlight) {
-		case CLIENT_HIGHLIGHT_GROUP:
+		switch (cc->flags & CLIENT_HIGHLIGHT) {
+		case CLIENT_GROUP:
 			pixel = sc->color[CWM_COLOR_BORDER_GROUP].pixel;
 			break;
-		case CLIENT_HIGHLIGHT_UNGROUP:
+		case CLIENT_UNGROUP:
 			pixel = sc->color[CWM_COLOR_BORDER_UNGROUP].pixel;
 			break;
 		default:
@@ -731,19 +731,17 @@ client_placecalc(struct client_ctx *cc)
 	}
 }
 
-void
+static void
 client_mtf(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc;
 
 	if (cc == NULL)
-		cc = _curcc;
+		cc = client_current();
 	if (cc == NULL)
 		return;
 
 	sc = cc->sc;
-
-	/* Move to front. */
 	TAILQ_REMOVE(&sc->mruq, cc, mru_entry);
 	TAILQ_INSERT_HEAD(&sc->mruq, cc, mru_entry);
 }

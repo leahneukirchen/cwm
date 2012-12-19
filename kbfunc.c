@@ -33,7 +33,6 @@
 
 #include "calmwm.h"
 
-#define KNOWN_HOSTS	".ssh/known_hosts"
 #define HASH_MARKER	"|1|"
 
 extern char		**cwm_argv;
@@ -168,10 +167,7 @@ kbfunc_client_search(struct client_ctx *cc, union arg *arg)
 		client_ptrwarp(cc);
 	}
 
-	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
-		TAILQ_REMOVE(&menuq, mi, entry);
-		free(mi);
-	}
+	menuq_clear(&menuq);
 }
 
 void
@@ -195,10 +191,7 @@ kbfunc_menu_search(struct client_ctx *cc, union arg *arg)
 	    search_match_text, NULL)) != NULL)
 		u_spawn(((struct cmd *)mi->ctx)->image);
 
-	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
-		TAILQ_REMOVE(&menuq, mi, entry);
-		free(mi);
-	}
+	menuq_clear(&menuq);
 }
 
 void
@@ -320,10 +313,7 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 out:
 	if (mi != NULL && mi->dummy)
 		free(mi);
-	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
-		TAILQ_REMOVE(&menuq, mi, entry);
-		free(mi);
-	}
+	menuq_clear(&menuq);
 }
 
 void
@@ -333,21 +323,16 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 	struct menu		*mi;
 	struct menu_q		 menuq;
 	FILE			*fp;
-	char			*buf, *lbuf, *p, *home;
-	char			 hostbuf[MAXHOSTNAMELEN], filename[MAXPATHLEN];
+	char			*buf, *lbuf, *p;
+	char			 hostbuf[MAXHOSTNAMELEN];
 	char			 cmd[256];
 	int			 l;
 	size_t			 len;
 
-	if ((home = getenv("HOME")) == NULL)
+	if ((fp = fopen(Conf.known_hosts, "r")) == NULL) {
+		warn("kbfunc_ssh: %s", Conf.known_hosts);
 		return;
-
-	l = snprintf(filename, sizeof(filename), "%s/%s", home, KNOWN_HOSTS);
-	if (l == -1 || l >= sizeof(filename))
-		return;
-
-	if ((fp = fopen(filename, "r")) == NULL)
-		return;
+	}
 
 	TAILQ_INIT(&menuq);
 	lbuf = NULL;
@@ -390,10 +375,7 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 out:
 	if (mi != NULL && mi->dummy)
 		free(mi);
-	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
-		TAILQ_REMOVE(&menuq, mi, entry);
-		free(mi);
-	}
+	menuq_clear(&menuq);
 }
 
 void

@@ -36,7 +36,7 @@ static void	 conf_unbind(struct conf *, struct keybinding *);
 
 /* Add an command menu entry to the end of the menu */
 void
-conf_cmd_add(struct conf *c, char *image, char *label, int flags)
+conf_cmd_add(struct conf *c, char *image, char *label)
 {
 	/* "term" and "lock" have special meanings. */
 
@@ -46,7 +46,6 @@ conf_cmd_add(struct conf *c, char *image, char *label, int flags)
 		(void)strlcpy(c->lockpath, image, sizeof(c->lockpath));
 	else {
 		struct cmd *cmd = xmalloc(sizeof(*cmd));
-		cmd->flags = flags;
 		(void)strlcpy(cmd->image, image, sizeof(cmd->image));
 		(void)strlcpy(cmd->label, label, sizeof(cmd->label));
 		TAILQ_INSERT_TAIL(&c->cmdq, cmd, entry);
@@ -62,17 +61,21 @@ conf_gap(struct conf *c, struct screen_ctx *sc)
 void
 conf_font(struct conf *c, struct screen_ctx *sc)
 {
-	font_init(sc, c->font, c->color[CWM_COLOR_FONT].name);
+	font_init(sc, c->font, (const char **)c->menucolor);
 }
 
-static struct color color_binds[] = {
+static char *menu_color_binds[CWM_COLOR_MENU_MAX] = {
+	"black", /* CWM_COLOR_MENU_FG */
+	"white", /* CWM_COLOR_MENU_BG */
+	"black", /* CWM_COLOR_MENU_FONT */
+	"",  	 /* CWM_COLOR_MENU_FONT_SEL */
+};
+
+static struct color color_binds[CWM_COLOR_MAX] = {
 	{ "#CCCCCC",	0 }, /* CWM_COLOR_BORDER_ACTIVE */
 	{ "#666666",	0 }, /* CWM_COLOR_BORDER_INACTIVE */
 	{ "blue",	0 }, /* CWM_COLOR_BORDER_GROUP */
 	{ "red",	0 }, /* CWM_COLOR_BORDER_UNGROUP */
-	{ "black",	0 }, /* CWM_COLOR_FG_MENU */
-	{ "white",	0 }, /* CWM_COLOR_BG_MENU */
-	{ "black",	0 }, /* CWM_COLOR_FONT */
 };
 
 void
@@ -162,7 +165,8 @@ conf_init(struct conf *c)
 {
 	int	i;
 
-	c->flags = 0;
+	bzero(c, sizeof(*c));
+
 	c->bwidth = CONF_BWIDTH;
 	c->mamount = CONF_MAMOUNT;
 	c->snapdist = CONF_SNAPDIST;
@@ -182,9 +186,15 @@ conf_init(struct conf *c)
 	for (i = 0; i < nitems(color_binds); i++)
 		c->color[i].name = xstrdup(color_binds[i].name);
 
+	for (i = 0; i < nitems(menu_color_binds); i++)
+		c->menucolor[i] = xstrdup(menu_color_binds[i]);
+
 	/* Default term/lock */
 	(void)strlcpy(c->termpath, "xterm", sizeof(c->termpath));
 	(void)strlcpy(c->lockpath, "xlock", sizeof(c->lockpath));
+
+	(void)snprintf(c->known_hosts, sizeof(c->known_hosts), "%s/%s",
+	    homedir, ".ssh/known_hosts");
 
 	c->font = xstrdup(CONF_FONT);
 }
@@ -230,38 +240,6 @@ conf_clear(struct conf *c)
 		free(c->color[i].name);
 
 	free(c->font);
-}
-
-void
-conf_setup(struct conf *c, const char *conf_file)
-{
-	char		 conf_path[MAXPATHLEN];
-	char		*home;
-	struct stat	 sb;
-	int		 parse = 0;
-
-	conf_init(c);
-
-	if (conf_file == NULL) {
-		if ((home = getenv("HOME")) == NULL)
-			errx(1, "No HOME directory.");
-
-		(void)snprintf(conf_path, sizeof(conf_path), "%s/%s",
-		    home, CONFFILE);
-
-		if (stat(conf_path, &sb) == 0 && (sb.st_mode & S_IFREG))
-			parse = 1;
-	} else {
-		if (stat(conf_file, &sb) == -1 || !(sb.st_mode & S_IFREG))
-			errx(1, "%s: %s", conf_file, strerror(errno));
-		else {
-			(void)strlcpy(conf_path, conf_file, sizeof(conf_path));
-			parse = 1;
-		}
-	}
-
-	if (parse && (parse_config(conf_path, c) == -1))
-		warnx("config file %s has errors, not loading", conf_path);
 }
 
 void

@@ -422,11 +422,19 @@ xu_getcolor(struct screen_ctx *sc, char *name)
 {
 	XColor	 color, tmp;
 
-	if (!XAllocNamedColor(X_Dpy, DefaultColormap(X_Dpy, sc->which),
-	    name, &color, &tmp)) {
+	if (!XAllocNamedColor(X_Dpy, sc->colormap, name, &color, &tmp)) {
 		warnx("XAllocNamedColor error: '%s'", name);
 		return (0);
 	}
 
 	return (color.pixel);
+}
+
+void
+xu_xorcolor(XRenderColor a, XRenderColor b, XRenderColor *r)
+{
+	r->red = a.red ^ b.red;
+	r->green = a.green ^ b.green;
+	r->blue = a.blue ^ b.blue;
+	r->alpha = 0xffff;
 }

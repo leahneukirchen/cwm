@@ -218,16 +218,14 @@ void
 group_sticky_toggle_enter(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
-	struct group_ctx	*gc;
-
-	gc = sc->group_active;
+	struct group_ctx	*gc = sc->group_active;
 
 	if (gc == cc->group) {
 		group_remove(cc);
-		cc->highlight = CLIENT_HIGHLIGHT_UNGROUP;
+		cc->flags |= CLIENT_UNGROUP;
 	} else {
 		group_add(gc, cc);
-		cc->highlight = CLIENT_HIGHLIGHT_GROUP;
+		cc->flags |= CLIENT_GROUP;
 	}
 
 	client_draw_border(cc);
@@ -236,7 +234,7 @@ group_sticky_toggle_enter(struct client_ctx *cc)
 void
 group_sticky_toggle_exit(struct client_ctx *cc)
 {
-	cc->highlight = 0;
+	cc->flags &= ~CLIENT_HIGHLIGHT;
 	client_draw_border(cc);
 }
 
@@ -385,10 +383,7 @@ group_menu(XButtonEvent *e)
 	(gc->hidden) ? group_show(sc, gc) : group_hide(sc, gc);
 
 cleanup:
-	while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
-		TAILQ_REMOVE(&menuq, mi, entry);
-		free(mi);
-	}
+	menuq_clear(&menuq);
 }
 
 void
@@ -412,7 +407,7 @@ group_autogroup(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	struct autogroupwin	*aw;
 	struct group_ctx	*gc;
-	int			 no = -1;
+	int			 no = -1, both_match = 0;
 	long			*grpno;
 
 	if (cc->app_class == NULL || cc->app_name == NULL)
@@ -429,11 +424,13 @@ group_autogroup(struct client_ctx *cc)
 		XFree(grpno);
 	} else {
 		TAILQ_FOREACH(aw, &Conf.autogroupq, entry) {
-			if (strcmp(aw->class, cc->app_class) == 0 &&
-			    (aw->name == NULL ||
-			    strcmp(aw->name, cc->app_name) == 0)) {
-				no = aw->num;
-				break;
+			if (strcmp(aw->class, cc->app_class) == 0) {
+				if ((aw->name != NULL) &&
+				    (strcmp(aw->name, cc->app_name) == 0)) {
+					no = aw->num;
+					both_match = 1;
+				} else if (aw->name == NULL && !both_match)
+					no = aw->num;
 			}
 		}
 	}

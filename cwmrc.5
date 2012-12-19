@@ -14,7 +14,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
-.Dd $Mdocdate: November 7 2012 $
+.Dd $Mdocdate: November 29 2012 $
 .Dt CWMRC 5
 .Os
 .Sh NAME
@@ -50,6 +50,7 @@ or if their name and class properties match
 and
 .Ar windowclass ,
 respectively.
+The more specific last match wins.
 .Ar group
 is a number between 0 and 9.
 If
@@ -110,6 +111,9 @@ Set the color of the active border.
 .Pp
 .It Ic color font Ar color
 Set menu font color.
+.Pp
+.It Ic color selfont Ar color
+Set font color for selected menu item.
 .Pp
 .It Ic color groupborder Ar color
 Set the color of the border while grouping a window.
