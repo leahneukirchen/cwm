@@ -41,7 +41,6 @@ static void			 client_gethints(struct client_ctx *);
 static void			 client_freehints(struct client_ctx *);
 static int			 client_inbound(struct client_ctx *, int, int);
 
-static char		 emptystring[] = "";
 struct client_ctx	*_curcc = NULL;
 
 struct client_ctx *
@@ -166,8 +165,7 @@ client_delete(struct client_ctx *cc)
 
 	while ((wn = TAILQ_FIRST(&cc->nameq)) != NULL) {
 		TAILQ_REMOVE(&cc->nameq, wn, entry);
-		if (wn->name != emptystring)
-			free(wn->name);
+		free(wn->name);
 		free(wn);
 	}
 
@@ -558,7 +556,7 @@ client_setname(struct client_ctx *cc)
 
 	if (!xu_getstrprop(cc->win, ewmh[_NET_WM_NAME].atom, &newname))
 		if (!xu_getstrprop(cc->win, XA_WM_NAME, &newname))
-			newname = emptystring;
+			newname = xstrdup("");
 
 	TAILQ_FOREACH(wn, &cc->nameq, entry)
 		if (strcmp(wn->name, newname) == 0) {
@@ -581,8 +579,7 @@ match:
 		wn = TAILQ_FIRST(&cc->nameq);
 		assert(wn != NULL);
 		TAILQ_REMOVE(&cc->nameq, wn, entry);
-		if (wn->name != emptystring)
-			free(wn->name);
+		free(wn->name);
 		free(wn);
 		cc->nameqlen--;
 	}
