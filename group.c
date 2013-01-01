@@ -132,7 +132,7 @@ group_show(struct screen_ctx *sc, struct group_ctx *gc)
 	free(winlist);
 
 	gc->hidden = 0;
-	group_setactive(sc, gc->shortcut - 1);
+	group_setactive(sc, gc->shortcut);
 }
 
 void
@@ -151,7 +151,7 @@ group_init(struct screen_ctx *sc)
 	for (i = 0; i < CALMWM_NGROUPS; i++) {
 		TAILQ_INIT(&sc->groups[i].clients);
 		sc->groups[i].hidden = 0;
-		sc->groups[i].shortcut = i + 1;
+		sc->groups[i].shortcut = i;
 		TAILQ_INSERT_TAIL(&sc->groupq, &sc->groups[i], entry);
 	}
 
@@ -327,7 +327,7 @@ group_cycle(struct screen_ctx *sc, int flags)
 	if (showgroup->hidden)
 		group_show(sc, showgroup);
 	else
-		group_setactive(sc, showgroup->shortcut - 1);
+		group_setactive(sc, showgroup->shortcut);
 }
 
 /* called when a client is deleted */
@@ -420,7 +420,7 @@ group_autogroup(struct client_ctx *cc)
 		else if (*grpno > CALMWM_NGROUPS || *grpno < 0)
 			no = CALMWM_NGROUPS - 1;
 		else
-			no = *grpno + 1;
+			no = *grpno;
 		XFree(grpno);
 	} else {
 		TAILQ_FOREACH(aw, &Conf.autogroupq, entry) {
@@ -480,7 +480,7 @@ group_update_names(struct screen_ctx *sc)
 	 */
 	if (n < CALMWM_NGROUPS) {
 		setnames = 1;
-		i = 1;
+		i = 0;
 		while (n < CALMWM_NGROUPS)
 			strings[n++] = xstrdup(shortcut_to_name[i++]);
 	}

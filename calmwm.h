@@ -74,8 +74,6 @@
 #define CWM_MENU_DUMMY		0x0001
 #define CWM_MENU_FILE		0x0002
 
-#define KBTOGROUP(X) ((X) - 1)
-
 union arg {
 	char	*c;
 	int	 i;
@@ -222,7 +220,7 @@ struct screen_ctx {
 	XftFont			*xftfont;
 	int			 xinerama_no;
 	XineramaScreenInfo	*xinerama;
-#define CALMWM_NGROUPS		 9
+#define CALMWM_NGROUPS		 10
 	struct group_ctx	 groups[CALMWM_NGROUPS];
 	struct group_ctx_q	 groupq;
 	int			 group_hideall;

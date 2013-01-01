@@ -406,13 +406,13 @@ kbfunc_client_delete(struct client_ctx *cc, union arg *arg)
 void
 kbfunc_client_group(struct client_ctx *cc, union arg *arg)
 {
-	group_hidetoggle(cc->sc, KBTOGROUP(arg->i));
+	group_hidetoggle(cc->sc, arg->i);
 }
 
 void
 kbfunc_client_grouponly(struct client_ctx *cc, union arg *arg)
 {
-	group_only(cc->sc, KBTOGROUP(arg->i));
+	group_only(cc->sc, arg->i);
 }
 
 void
@@ -440,7 +440,7 @@ kbfunc_client_grouptoggle(struct client_ctx *cc, union arg *arg)
 void
 kbfunc_client_movetogroup(struct client_ctx *cc, union arg *arg)
 {
-	group_movetogroup(cc, KBTOGROUP(arg->i));
+	group_movetogroup(cc, arg->i);
 }
 
 void

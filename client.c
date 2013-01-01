@@ -876,7 +876,7 @@ client_transient(struct client_ctx *cc)
 
 	if (XGetTransientForHint(X_Dpy, cc->win, &trans)) {
 		if ((tc = client_find(trans)) && tc->group) {
-			group_movetogroup(cc, tc->group->shortcut - 1);
+			group_movetogroup(cc, tc->group->shortcut);
 			if (tc->flags & CLIENT_IGNORE)
 				cc->flags |= CLIENT_IGNORE;
 		}
