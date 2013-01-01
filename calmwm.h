@@ -74,6 +74,8 @@
 #define CWM_MENU_DUMMY		0x0001
 #define CWM_MENU_FILE		0x0002
 
+#define ARG_CHAR		0x0001
+#define ARG_INT			0x0002
 union arg {
 	char	*c;
 	int	 i;
@@ -239,6 +241,7 @@ struct keybinding {
 	int			 keycode;
 #define KBFLAG_NEEDCLIENT	 0x0001
 	int			 flags;
+	int			 argtype;
 };
 TAILQ_HEAD(keybinding_q, keybinding);
 
