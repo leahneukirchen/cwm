@@ -269,12 +269,8 @@ group_hidetoggle(struct screen_ctx *sc, int idx)
 
 	if (gc->hidden)
 		group_show(sc, gc);
-	else {
+	else
 		group_hide(sc, gc);
-		/* XXX wtf? */
-		if (TAILQ_EMPTY(&gc->clients))
-			group_setactive(sc, idx);
-	}
 }
 
 void
