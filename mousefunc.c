@@ -162,11 +162,11 @@ mousefunc_window_move(struct client_ctx *cc, void *arg)
 			cc->geom.y = ev.xmotion.y_root - py - cc->bwidth;
 
 			cc->geom.x += client_snapcalc(cc->geom.x,
-			    cc->geom.w, sc->view.w,
-			    cc->bwidth, Conf.snapdist);
+			    cc->geom.x + cc->geom.w + (cc->bwidth * 2),
+			    sc->view.x, sc->view.w, Conf.snapdist);
 			cc->geom.y += client_snapcalc(cc->geom.y,
-			    cc->geom.h, sc->view.h,
-			    cc->bwidth, Conf.snapdist);
+			    cc->geom.y + cc->geom.h + (cc->bwidth * 2),
+			    sc->view.y, sc->view.h, Conf.snapdist);
 
 			/* don't move more than 60 times / second */
 			if ((ev.xmotion.time - ltime) > (1000 / 60)) {

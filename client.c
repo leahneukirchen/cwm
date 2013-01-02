@@ -850,19 +850,17 @@ client_inbound(struct client_ctx *cc, int x, int y)
 }
 
 int
-client_snapcalc(int n, int dn, int nmax, int bwidth, int snapdist)
+client_snapcalc(int n0, int n1, int e0, int e1, int snapdist)
 {
-	int	 n0, n1, s0, s1;
+	int	 s0, s1;
 
 	s0 = s1 = 0;
-	n0 = n;
-	n1 = n + dn + (bwidth * 2);
 
-	if (abs(n0) <= snapdist)
-		s0 = -n0;
+	if (abs(e0 - n0) <= snapdist)
+		s0 = e0 - n0;
 
-	if (nmax - snapdist <= n1 && n1 <= nmax + snapdist)
-		s1 = nmax - n1;
+	if (abs(e1 - n1) <= snapdist)
+		s1 = e1 - n1;
 
 	/* possible to snap in both directions */
 	if (s0 != 0 && s1 != 0)
