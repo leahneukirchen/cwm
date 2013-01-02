@@ -255,8 +255,8 @@ void
 client_maximize(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
-	int			 x_org, y_org, xmax, ymax;
 	XineramaScreenInfo	*xine;
+	int			 x_org, y_org, xmax, ymax;
 
 	if (cc->flags & CLIENT_FREEZE)
 		return;
@@ -312,8 +312,8 @@ void
 client_vertmaximize(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
-	int			 y_org, ymax;
 	XineramaScreenInfo	*xine;
+	int			 y_org, ymax;
 
 	if (cc->flags & CLIENT_FREEZE)
 		return;
@@ -361,8 +361,8 @@ void
 client_horizmaximize(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
-	int			 x_org, xmax;
 	XineramaScreenInfo	*xine;
+	int			 x_org, xmax;
 
 	if (cc->flags & CLIENT_FREEZE)
 		return;
@@ -683,46 +683,46 @@ client_placecalc(struct client_ctx *cc)
 			cc->geom.y = MIN(cc->size->y, yslack);
 	} else {
 		XineramaScreenInfo	*xine;
-		int			 xmouse, ymouse, xorig, yorig;
-		int			 xmax, ymax;
+		int			 x_org, y_org, xmax, ymax;
+		int			 xmouse, ymouse;
 
 		xu_ptr_getpos(sc->rootwin, &xmouse, &ymouse);
 		xine = screen_find_xinerama(sc, xmouse, ymouse);
 		if (xine) {
-			xorig = xine->x_org;
-			yorig = xine->y_org;
-			xmax = xorig + xine->width;
-			ymax = yorig + xine->height;
+			x_org = xine->x_org;
+			y_org = xine->y_org;
+			xmax = xine->x_org + xine->width;
+			ymax = xine->y_org + xine->height;
 		} else {
-			xorig = yorig = 0;
+			x_org = y_org = 0;
 			xmax = sc->view.w;
 			ymax = sc->view.h;
 		}
-		xmouse = MAX(xmouse, xorig) - cc->geom.w / 2;
-		ymouse = MAX(ymouse, yorig) - cc->geom.h / 2;
+		xmouse = MAX(xmouse, x_org) - cc->geom.w / 2;
+		ymouse = MAX(ymouse, y_org) - cc->geom.h / 2;
 
-		xmouse = MAX(xmouse, xorig);
-		ymouse = MAX(ymouse, yorig);
+		xmouse = MAX(xmouse, x_org);
+		ymouse = MAX(ymouse, y_org);
 
 		xslack = xmax - cc->geom.w - cc->bwidth * 2;
 		yslack = ymax - cc->geom.h - cc->bwidth * 2;
 
-		if (xslack >= xorig) {
+		if (xslack >= x_org) {
 			cc->geom.x = MAX(MIN(xmouse, xslack),
-			    xorig + sc->gap.left);
+			    x_org + sc->gap.left);
 			if (cc->geom.x > (xslack - sc->gap.right))
 				cc->geom.x -= sc->gap.right;
 		} else {
-			cc->geom.x = xorig + sc->gap.left;
+			cc->geom.x = x_org + sc->gap.left;
 			cc->geom.w = xmax - sc->gap.left;
 		}
-		if (yslack >= yorig) {
+		if (yslack >= y_org) {
 			cc->geom.y = MAX(MIN(ymouse, yslack),
-			    yorig + sc->gap.top);
+			    y_org + sc->gap.top);
 			if (cc->geom.y > (yslack - sc->gap.bottom))
 				cc->geom.y -= sc->gap.bottom;
 		} else {
-			cc->geom.y = yorig + sc->gap.top;
+			cc->geom.y = y_org + sc->gap.top;
 			cc->geom.h = ymax - sc->gap.top;
 		}
 	}

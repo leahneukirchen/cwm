@@ -351,7 +351,7 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 {
 	struct menu		*mi;
 	XineramaScreenInfo	*xine;
-	int			 xmin, xmax, ymin, ymax;
+	int			 x_org, y_org, xmax, ymax;
 	int			 n, xsave, ysave;
 
 	if (mc->list) {
@@ -396,12 +396,12 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 
 	xine = screen_find_xinerama(sc, mc->x, mc->y);
 	if (xine) {
-		xmin = xine->x_org;
+		x_org = xine->x_org;
+		y_org = xine->y_org;
 		xmax = xine->x_org + xine->width;
-		ymin = xine->y_org;
 		ymax = xine->y_org + xine->height;
 	} else {
-		xmin = ymin = 0;
+		x_org = y_org = 0;
 		xmax = sc->view.w;
 		ymax = sc->view.h;
 	}
@@ -412,15 +412,15 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 	/* Never hide the top, or left side, of the menu. */
 	if (mc->x + mc->width >= xmax)
 		mc->x = xmax - mc->width;
-	if (mc->x < xmin) {
-		mc->x = xmin;
-		mc->width = xmax - xmin;
+	if (mc->x < x_org) {
+		mc->x = x_org;
+		mc->width = xmax - x_org;
 	}
 	if (mc->y + mc->height >= ymax)
 		mc->y = ymax - mc->height;
-	if (mc->y < ymin) {
-		mc->y = ymin;
-		mc->height = ymax - ymin;
+	if (mc->y < y_org) {
+		mc->y = y_org;
+		mc->height = ymax - y_org;
 	}
 
 	if (mc->x != xsave || mc->y != ysave)
