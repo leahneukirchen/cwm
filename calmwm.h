@@ -372,7 +372,7 @@ void			 search_match_text(struct menu_q *, struct menu_q *,
 			     char *);
 void			 search_print_client(struct menu *, int);
 
-XineramaScreenInfo	*screen_find_xinerama(struct screen_ctx *, int, int);
+struct geom		 screen_find_xinerama(struct screen_ctx *, int, int);
 struct screen_ctx	*screen_fromroot(Window);
 void			 screen_init(struct screen_ctx *, u_int);
 void			 screen_update_geometry(struct screen_ctx *);
