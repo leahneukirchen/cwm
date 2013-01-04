@@ -452,13 +452,13 @@ kbfunc_client_maximize(struct client_ctx *cc, union arg *arg)
 void
 kbfunc_client_vmaximize(struct client_ctx *cc, union arg *arg)
 {
-	client_vertmaximize(cc);
+	client_vmaximize(cc);
 }
 
 void
 kbfunc_client_hmaximize(struct client_ctx *cc, union arg *arg)
 {
-	client_horizmaximize(cc);
+	client_hmaximize(cc);
 }
 
 void

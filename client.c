@@ -298,7 +298,7 @@ resize:
 }
 
 void
-client_vertmaximize(struct client_ctx *cc)
+client_vmaximize(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
 	struct geom		 xine;
@@ -339,7 +339,7 @@ resize:
 }
 
 void
-client_horizmaximize(struct client_ctx *cc)
+client_hmaximize(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
 	struct geom		 xine;
