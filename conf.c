@@ -71,11 +71,11 @@ static char *menu_color_binds[CWM_COLOR_MENU_MAX] = {
 	"",  	 /* CWM_COLOR_MENU_FONT_SEL */
 };
 
-static struct color color_binds[CWM_COLOR_MAX] = {
-	{ "#CCCCCC",	0 }, /* CWM_COLOR_BORDER_ACTIVE */
-	{ "#666666",	0 }, /* CWM_COLOR_BORDER_INACTIVE */
-	{ "blue",	0 }, /* CWM_COLOR_BORDER_GROUP */
-	{ "red",	0 }, /* CWM_COLOR_BORDER_UNGROUP */
+static char *color_binds[CWM_COLOR_MAX] = {
+	"#CCCCCC", /* CWM_COLOR_BORDER_ACTIVE */
+	"#666666", /* CWM_COLOR_BORDER_INACTIVE */
+	"blue",	   /* CWM_COLOR_BORDER_GROUP */
+	"red",	   /* CWM_COLOR_BORDER_UNGROUP */
 };
 
 void
@@ -84,7 +84,7 @@ conf_color(struct conf *c, struct screen_ctx *sc)
 	int	 i;
 
 	for (i = 0; i < CWM_COLOR_MAX; i++)
-		sc->color[i].pixel = xu_getcolor(sc, c->color[i].name);
+		sc->color[i] = xu_getcolor(sc, c->color[i]);
 }
 
 static struct {
@@ -184,7 +184,7 @@ conf_init(struct conf *c)
 		conf_mousebind(c, m_binds[i].key, m_binds[i].func);
 
 	for (i = 0; i < nitems(color_binds); i++)
-		c->color[i].name = xstrdup(color_binds[i].name);
+		c->color[i] = xstrdup(color_binds[i]);
 
 	for (i = 0; i < nitems(menu_color_binds); i++)
 		c->menucolor[i] = xstrdup(menu_color_binds[i]);
@@ -237,7 +237,7 @@ conf_clear(struct conf *c)
 	}
 
 	for (i = 0; i < CWM_COLOR_MAX; i++)
-		free(c->color[i].name);
+		free(c->color[i]);
 
 	free(c->font);
 }

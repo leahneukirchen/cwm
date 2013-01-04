@@ -171,20 +171,20 @@ color		: COLOR colors
 		;
 
 colors		: ACTIVEBORDER STRING {
-			free(conf->color[CWM_COLOR_BORDER_ACTIVE].name);
-			conf->color[CWM_COLOR_BORDER_ACTIVE].name = $2;
+			free(conf->color[CWM_COLOR_BORDER_ACTIVE]);
+			conf->color[CWM_COLOR_BORDER_ACTIVE] = $2;
 		}
 		| INACTIVEBORDER STRING {
-			free(conf->color[CWM_COLOR_BORDER_INACTIVE].name);
-			conf->color[CWM_COLOR_BORDER_INACTIVE].name = $2;
+			free(conf->color[CWM_COLOR_BORDER_INACTIVE]);
+			conf->color[CWM_COLOR_BORDER_INACTIVE] = $2;
 		}
 		| GROUPBORDER STRING {
-			free(conf->color[CWM_COLOR_BORDER_GROUP].name);
-			conf->color[CWM_COLOR_BORDER_GROUP].name = $2;
+			free(conf->color[CWM_COLOR_BORDER_GROUP]);
+			conf->color[CWM_COLOR_BORDER_GROUP] = $2;
 		}
 		| UNGROUPBORDER STRING {
-			free(conf->color[CWM_COLOR_BORDER_UNGROUP].name);
-			conf->color[CWM_COLOR_BORDER_UNGROUP].name = $2;
+			free(conf->color[CWM_COLOR_BORDER_UNGROUP]);
+			conf->color[CWM_COLOR_BORDER_UNGROUP] = $2;
 		}
 		| MENUBG STRING {
 			free(conf->menucolor[CWM_COLOR_MENU_BG]);
@@ -579,7 +579,7 @@ parse_config(const char *filename, struct conf *xconf)
 		    sizeof(xconf->lockpath));
 
 		for (i = 0; i < CWM_COLOR_MAX; i++)
-			xconf->color[i].name = conf->color[i].name;
+			xconf->color[i] = conf->color[i];
 
 		for (i = 0; i < CWM_COLOR_MENU_MAX; i++)
 			xconf->menucolor[i] = conf->menucolor[i];
