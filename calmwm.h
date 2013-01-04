@@ -89,12 +89,12 @@ enum menucolor {
 	CWM_COLOR_MENU_MAX
 };
 
-enum cwmcolor {
+enum bordercolor {
 	CWM_COLOR_BORDER_ACTIVE,
 	CWM_COLOR_BORDER_INACTIVE,
 	CWM_COLOR_BORDER_GROUP,
 	CWM_COLOR_BORDER_UNGROUP,
-	CWM_COLOR_MAX
+	CWM_COLOR_BORDER_MAX
 };
 
 struct geom {
@@ -206,7 +206,7 @@ struct screen_ctx {
 	Colormap		 colormap;
 	Window			 rootwin;
 	Window			 menuwin;
-	unsigned long		 color[CWM_COLOR_MAX];
+	unsigned long		 color[CWM_COLOR_BORDER_MAX];
 	int			 cycling;
 	struct geom		 view; /* viewable area */
 	struct geom		 work; /* workable area, gap-applied */
@@ -286,7 +286,7 @@ struct conf {
 #define	CONF_SNAPDIST			0
 	int			 snapdist;
 	struct gap		 gap;
-	char			*color[CWM_COLOR_MAX];
+	char			*color[CWM_COLOR_BORDER_MAX];
 	char		 	*menucolor[CWM_COLOR_MENU_MAX];
 	char			 termpath[MAXPATHLEN];
 	char			 lockpath[MAXPATHLEN];

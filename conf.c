@@ -71,7 +71,7 @@ static char *menu_color_binds[CWM_COLOR_MENU_MAX] = {
 	"",		/* CWM_COLOR_MENU_FONT_SEL */
 };
 
-static char *color_binds[CWM_COLOR_MAX] = {
+static char *color_binds[CWM_COLOR_BORDER_MAX] = {
 	"#CCCCCC",	/* CWM_COLOR_BORDER_ACTIVE */
 	"#666666",	/* CWM_COLOR_BORDER_INACTIVE */
 	"blue",		/* CWM_COLOR_BORDER_GROUP */
@@ -83,7 +83,7 @@ conf_color(struct conf *c, struct screen_ctx *sc)
 {
 	int	 i;
 
-	for (i = 0; i < CWM_COLOR_MAX; i++)
+	for (i = 0; i < CWM_COLOR_BORDER_MAX; i++)
 		sc->color[i] = xu_getcolor(sc, c->color[i]);
 }
 
@@ -236,7 +236,7 @@ conf_clear(struct conf *c)
 		free(mb);
 	}
 
-	for (i = 0; i < CWM_COLOR_MAX; i++)
+	for (i = 0; i < CWM_COLOR_BORDER_MAX; i++)
 		free(c->color[i]);
 
 	free(c->font);
