@@ -321,7 +321,7 @@ client_vmaximize(struct client_ctx *cc)
 
 	/* if this will make us fully maximized then remove boundary */
 	if ((cc->flags & CLIENT_MAXFLAGS) == CLIENT_HMAXIMIZED) {
-		cc->geom.w += Conf.bwidth * 2;
+		cc->geom.w += cc->bwidth * 2;
 		cc->bwidth = 0;
 	}
 
