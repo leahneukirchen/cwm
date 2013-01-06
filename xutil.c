@@ -411,7 +411,7 @@ xu_ewmh_net_wm_desktop(struct client_ctx *cc)
 	long			 no = 0xffffffff;
 
 	if (gc)
-		no = gc->shortcut - 1;
+		no = gc->shortcut;
 
 	XChangeProperty(X_Dpy, cc->win, ewmh[_NET_WM_DESKTOP].atom,
 	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&no, 1);
