@@ -660,6 +660,8 @@ client_placecalc(struct client_ctx *cc)
 
 		xu_ptr_getpos(sc->rootwin, &xmouse, &ymouse);
 		xine = screen_find_xinerama(sc, xmouse, ymouse);
+		xine.w += xine.x;
+		xine.h += xine.y;
 		xmouse = MAX(xmouse, xine.x) - cc->geom.w / 2;
 		ymouse = MAX(ymouse, xine.y) - cc->geom.h / 2;
 
