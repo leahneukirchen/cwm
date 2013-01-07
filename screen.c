@@ -143,8 +143,8 @@ screen_find_xinerama(struct screen_ctx *sc, int x, int y)
 		    y >= info->y_org && y < info->y_org + info->height) {
 			geom.x = info->x_org;
 			geom.y = info->y_org;
-			geom.w = info->x_org + info->width;
-			geom.h = info->y_org + info->height;
+			geom.w = info->width;
+			geom.h = info->height;
 			break;
 		}
 	}
