@@ -866,3 +866,121 @@ client_snapcalc(int n0, int n1, int e0, int e1, int snapdist)
 	else
 		return (0);
 }
+
+void
+client_htile(struct client_ctx *cc)
+{
+	struct client_ctx	*ci;
+	struct group_ctx 	*gc = cc->group;
+	struct screen_ctx 	*sc = cc->sc;
+	struct geom 		 xine;
+	int 			 i, n, mh, x, h, w;
+
+	if (!gc)
+		return;
+	i = n = 0;
+
+	TAILQ_FOREACH(ci, &gc->clients, group_entry) {
+		if (ci->flags & CLIENT_HIDDEN ||
+		    ci->flags & CLIENT_IGNORE || (ci == cc))
+			continue;
+		n++;
+	}
+	if (n == 0)
+		return;
+
+	xine = screen_find_xinerama(sc,
+	    cc->geom.x + cc->geom.w / 2,
+	    cc->geom.y + cc->geom.h / 2);
+
+	if (cc->flags & CLIENT_VMAXIMIZED ||
+	    cc->geom.h + (cc->bwidth * 2) >= xine.h)
+		return;
+
+	cc->flags &= ~CLIENT_HMAXIMIZED;
+	cc->geom.x = xine.x;
+	cc->geom.y = xine.y;
+	cc->geom.w = xine.w - (cc->bwidth * 2);
+	client_resize(cc, 1);
+	client_ptrwarp(cc);
+
+	mh = cc->geom.h + (cc->bwidth * 2);
+	x = xine.x;
+	w = xine.w / n;
+	h = xine.h - mh;
+	TAILQ_FOREACH(ci, &gc->clients, group_entry) {
+		if (ci->flags & CLIENT_HIDDEN ||
+		    ci->flags & CLIENT_IGNORE || (ci == cc))
+			continue;
+		ci->bwidth = Conf.bwidth;
+		ci->geom.y = xine.y + mh;
+		ci->geom.x = x;
+		ci->geom.h = h - (ci->bwidth * 2);
+		ci->geom.w = w - (ci->bwidth * 2);
+		if (i + 1 == n)
+			ci->geom.w = xine.x + xine.w -
+			    ci->geom.x - (ci->bwidth * 2);
+		x += w;
+		client_resize(ci, 1);
+		i++;
+	}
+}
+
+void
+client_vtile(struct client_ctx *cc)
+{
+	struct client_ctx	*ci;
+	struct group_ctx 	*gc = cc->group;
+	struct screen_ctx 	*sc = cc->sc;
+	struct geom 		 xine;
+	int 			 i, n, mw, y, h, w;
+
+	if (!gc)
+		return;
+	i = n = 0;
+
+	TAILQ_FOREACH(ci, &gc->clients, group_entry) {
+		if (ci->flags & CLIENT_HIDDEN ||
+		    ci->flags & CLIENT_IGNORE || (ci == cc))
+			continue;
+		n++;
+	}
+	if (n == 0)
+		return;
+
+	xine = screen_find_xinerama(sc,
+	    cc->geom.x + cc->geom.w / 2,
+	    cc->geom.y + cc->geom.h / 2);
+
+	if (cc->flags & CLIENT_HMAXIMIZED ||
+	    cc->geom.w + (cc->bwidth * 2) >= xine.w)
+		return;
+
+	cc->flags &= ~CLIENT_VMAXIMIZED;
+	cc->geom.x = xine.x;
+	cc->geom.y = xine.y;
+	cc->geom.h = xine.h - (cc->bwidth * 2);
+	client_resize(cc, 1);
+	client_ptrwarp(cc);
+
+	mw = cc->geom.w + (cc->bwidth * 2);
+	y = xine.y;
+	h = xine.h / n;
+	w = xine.w - mw;
+	TAILQ_FOREACH(ci, &gc->clients, group_entry) {
+		if (ci->flags & CLIENT_HIDDEN ||
+		    ci->flags & CLIENT_IGNORE || (ci == cc))
+			continue;
+		ci->bwidth = Conf.bwidth;
+		ci->geom.y = y;
+		ci->geom.x = xine.x + mw;
+		ci->geom.h = h - (ci->bwidth * 2);
+		ci->geom.w = w - (ci->bwidth * 2);
+		if (i + 1 == n)
+			ci->geom.h = xine.y + xine.h -
+			    ci->geom.y - (ci->bwidth * 2);
+		y += h;
+		client_resize(ci, 1);
+		i++;
+	}
+}

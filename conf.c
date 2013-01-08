@@ -375,6 +375,10 @@ static struct {
 	    {.i = (CWM_LEFT|CWM_PTRMOVE|CWM_BIGMOVE)} },
 	{ "bigptrmoveright", kbfunc_moveresize, 0,
 	    {.i = (CWM_RIGHT|CWM_PTRMOVE|CWM_BIGMOVE)} },
+	{ "htile", kbfunc_tile, KBFLAG_NEEDCLIENT,
+	    {.i = CWM_TILE_HORIZ } },
+	{ "vtile", kbfunc_tile, KBFLAG_NEEDCLIENT,
+	    {.i = CWM_TILE_VERT } },
 };
 
 /*
