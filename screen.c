@@ -132,7 +132,7 @@ screen_find_xinerama(struct screen_ctx *sc, int x, int y)
 	struct geom		 geom;
 	int			 i;
 
-	geom = sc->view;
+	geom = sc->work;
 
 	if (sc->xinerama == NULL)
 		return (geom);
@@ -141,10 +141,10 @@ screen_find_xinerama(struct screen_ctx *sc, int x, int y)
 		info = &sc->xinerama[i];
 		if (x >= info->x_org && x < info->x_org + info->width &&
 		    y >= info->y_org && y < info->y_org + info->height) {
-			geom.x = info->x_org;
-			geom.y = info->y_org;
-			geom.w = info->width;
-			geom.h = info->height;
+			geom.x = info->x_org + sc->gap.left;
+			geom.y = info->y_org + sc->gap.top;
+			geom.w = info->width - (sc->gap.left + sc->gap.right);
+			geom.h = info->height - (sc->gap.top + sc->gap.bottom);
 			break;
 		}
 	}

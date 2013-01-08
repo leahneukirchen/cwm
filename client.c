@@ -286,10 +286,7 @@ client_maximize(struct client_ctx *cc)
 	    cc->geom.x + cc->geom.w / 2,
 	    cc->geom.y + cc->geom.h / 2);
 
-	cc->geom.x = xine.x + sc->gap.left;
-	cc->geom.y = xine.y + sc->gap.top;
-	cc->geom.h = xine.h - (sc->gap.top + sc->gap.bottom);
-	cc->geom.w = xine.w - (sc->gap.left + sc->gap.right);
+	cc->geom = xine;
 	cc->bwidth = 0;
 	cc->flags |= CLIENT_MAXIMIZED;
 
@@ -329,9 +326,8 @@ client_vmaximize(struct client_ctx *cc)
 	    cc->geom.x + cc->geom.w / 2,
 	    cc->geom.y + cc->geom.h / 2);
 
-	cc->geom.y = xine.y + sc->gap.top;
-	cc->geom.h = xine.h - (cc->bwidth * 2) - (sc->gap.top +
-	    sc->gap.bottom);
+	cc->geom.y = xine.y;
+	cc->geom.h = xine.h - (cc->bwidth * 2);
 	cc->flags |= CLIENT_VMAXIMIZED;
 
 resize:
@@ -370,9 +366,8 @@ client_hmaximize(struct client_ctx *cc)
 	    cc->geom.x + cc->geom.w / 2,
 	    cc->geom.y + cc->geom.h / 2);
 
-	cc->geom.x = xine.x + sc->gap.left;
-	cc->geom.w = xine.w - (cc->bwidth * 2) - (sc->gap.left +
-	    sc->gap.right);
+	cc->geom.x = xine.x;
+	cc->geom.w = xine.w - (cc->bwidth * 2);
 	cc->flags |= CLIENT_HMAXIMIZED;
 
 resize:
@@ -672,22 +667,16 @@ client_placecalc(struct client_ctx *cc)
 		yslack = xine.h - cc->geom.h - cc->bwidth * 2;
 
 		if (xslack >= xine.x) {
-			cc->geom.x = MAX(MIN(xmouse, xslack),
-			    xine.x + sc->gap.left);
-			if (cc->geom.x > (xslack - sc->gap.right))
-				cc->geom.x -= sc->gap.right;
+			cc->geom.x = MAX(MIN(xmouse, xslack), xine.x);
 		} else {
-			cc->geom.x = xine.x + sc->gap.left;
-			cc->geom.w = xine.w - sc->gap.left;
+			cc->geom.x = xine.x;
+			cc->geom.w = xine.w;
 		}
 		if (yslack >= xine.y) {
-			cc->geom.y = MAX(MIN(ymouse, yslack),
-			    xine.y + sc->gap.top);
-			if (cc->geom.y > (yslack - sc->gap.bottom))
-				cc->geom.y -= sc->gap.bottom;
+			cc->geom.y = MAX(MIN(ymouse, yslack), xine.y);
 		} else {
-			cc->geom.y = xine.y + sc->gap.top;
-			cc->geom.h = xine.h - sc->gap.top;
+			cc->geom.y = xine.y;
+			cc->geom.h = xine.h;
 		}
 	}
 }
