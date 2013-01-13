@@ -160,7 +160,7 @@ group_init(struct screen_ctx *sc)
 	xu_ewmh_net_showing_desktop(sc);
 	xu_ewmh_net_virtual_roots(sc);
 
-	group_setactive(sc, 0);
+	group_setactive(sc, 1);
 }
 
 void
@@ -269,8 +269,12 @@ group_hidetoggle(struct screen_ctx *sc, int idx)
 
 	if (gc->hidden)
 		group_show(sc, gc);
-	else
+	else {
 		group_hide(sc, gc);
+		/* make clients stick to empty group */
+		if (TAILQ_EMPTY(&gc->clients))
+			group_setactive(sc, idx);
+	}
 }
 
 void

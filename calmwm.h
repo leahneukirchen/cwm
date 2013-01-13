@@ -88,6 +88,10 @@ size_t strlcat(char *, const char *, size_t);
 
 #define ARG_CHAR		0x0001
 #define ARG_INT			0x0002
+
+#define CWM_TILE_HORIZ 		0x0001
+#define CWM_TILE_VERT 		0x0002
+
 union arg {
 	char	*c;
 	int	 i;
@@ -333,6 +337,7 @@ void			 client_freeze(struct client_ctx *);
 void			 client_getsizehints(struct client_ctx *);
 void			 client_hide(struct client_ctx *);
 void			 client_hmaximize(struct client_ctx *);
+void 			 client_htile(struct client_ctx *);
 void			 client_leave(struct client_ctx *);
 void			 client_lower(struct client_ctx *);
 void			 client_map(struct client_ctx *);
@@ -350,6 +355,7 @@ int			 client_snapcalc(int, int, int, int, int);
 void			 client_transient(struct client_ctx *);
 void			 client_unhide(struct client_ctx *);
 void			 client_vmaximize(struct client_ctx *);
+void 			 client_vtile(struct client_ctx *);
 void			 client_warp(struct client_ctx *);
 
 void			 group_alltoggle(struct screen_ctx *);
@@ -420,6 +426,7 @@ void			 kbfunc_quit_wm(struct client_ctx *, union arg *);
 void			 kbfunc_restart(struct client_ctx *, union arg *);
 void			 kbfunc_ssh(struct client_ctx *, union arg *);
 void			 kbfunc_term(struct client_ctx *, union arg *);
+void 			 kbfunc_tile(struct client_ctx *, union arg *);
 
 void			 mousefunc_menu_cmd(struct client_ctx *, void *);
 void			 mousefunc_menu_group(struct client_ctx *, void *);
