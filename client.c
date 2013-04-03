@@ -37,8 +37,7 @@ static void			 client_mtf(struct client_ctx *);
 static void			 client_none(struct screen_ctx *);
 static void			 client_placecalc(struct client_ctx *);
 static void			 client_update(struct client_ctx *);
-static void			 client_gethints(struct client_ctx *);
-static void			 client_freehints(struct client_ctx *);
+static void			 client_getmwmhints(struct client_ctx *);
 static int			 client_inbound(struct client_ctx *, int, int);
 
 struct client_ctx	*_curcc = NULL;
@@ -59,6 +58,7 @@ struct client_ctx *
 client_new(Window win, struct screen_ctx *sc, int mapped)
 {
 	struct client_ctx	*cc;
+	XClassHint		 xch;
 	XWindowAttributes	 wattr;
 	XWMHints		*wmhints;
 	int			 state;
@@ -81,6 +81,12 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	client_setname(cc);
 
 	conf_client(cc);
+
+	if (XGetClassHint(X_Dpy, cc->win, &xch)) {
+		cc->app_name = xch.res_name;
+		cc->app_class = xch.res_class;
+	}
+	client_getmwmhints(cc);
 
 	/* Saved pointer position */
 	cc->ptr.x = -1;
@@ -126,7 +132,6 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 
 	xu_ewmh_net_client_list(sc);
 
-	client_gethints(cc);
 	client_update(cc);
 
 	if (mapped)
@@ -162,6 +167,10 @@ client_delete(struct client_ctx *cc)
 		client_none(sc);
 
 	XFree(cc->size);
+	if (cc->app_name != NULL)
+		XFree(cc->app_name);
+	if (cc->app_class != NULL)
+		XFree(cc->app_class);
 
 	while ((wn = TAILQ_FIRST(&cc->nameq)) != NULL) {
 		TAILQ_REMOVE(&cc->nameq, wn, entry);
@@ -169,7 +178,6 @@ client_delete(struct client_ctx *cc)
 		free(wn);
 	}
 
-	client_freehints(cc);
 	free(cc);
 }
 
@@ -789,33 +797,17 @@ client_applysizehints(struct client_ctx *cc)
 }
 
 static void
-client_gethints(struct client_ctx *cc)
+client_getmwmhints(struct client_ctx *cc)
 {
-	XClassHint		 xch;
 	struct mwm_hints	*mwmh;
 
-	if (XGetClassHint(X_Dpy, cc->win, &xch)) {
-		if (xch.res_name != NULL)
-			cc->app_name = xch.res_name;
-		if (xch.res_class != NULL)
-			cc->app_class = xch.res_class;
-	}
-
-	if (xu_getprop(cc->win, cwmh[_MOTIF_WM_HINTS].atom, _MOTIF_WM_HINTS,
+	if (xu_getprop(cc->win,
+	    cwmh[_MOTIF_WM_HINTS].atom, cwmh[_MOTIF_WM_HINTS].atom,
 	    PROP_MWM_HINTS_ELEMENTS, (u_char **)&mwmh) == MWM_NUMHINTS)
 		if (mwmh->flags & MWM_HINTS_DECORATIONS &&
 		    !(mwmh->decorations & MWM_DECOR_ALL) &&
 		    !(mwmh->decorations & MWM_DECOR_BORDER))
 			cc->bwidth = 0;
-}
-
-static void
-client_freehints(struct client_ctx *cc)
-{
-	if (cc->app_name != NULL)
-		XFree(cc->app_name);
-	if (cc->app_class != NULL)
-		XFree(cc->app_class);
 }
 
 void
