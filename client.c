@@ -121,9 +121,6 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	(state == IconicState) ? client_hide(cc) : client_unhide(cc);
 	xu_setstate(cc, cc->state);
 
-	XSync(X_Dpy, False);
-	XUngrabServer(X_Dpy);
-
 	TAILQ_INSERT_TAIL(&sc->mruq, cc, mru_entry);
 	TAILQ_INSERT_TAIL(&Clientq, cc, entry);
 
@@ -134,6 +131,9 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 
 	if (mapped)
 		group_autogroup(cc);
+
+	XSync(X_Dpy, False);
+	XUngrabServer(X_Dpy);
 
 	return (cc);
 }
