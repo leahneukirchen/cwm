@@ -203,7 +203,7 @@ xev_handle_propertynotify(XEvent *ee)
 			break;
 		}
 	} else {
-		TAILQ_FOREACH(sc, &Screenq, entry) 
+		TAILQ_FOREACH(sc, &Screenq, entry)
 			if (sc->rootwin == e->window)
 				goto test;
 		return;

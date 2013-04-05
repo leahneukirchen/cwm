@@ -574,7 +574,7 @@ client_cycle(struct screen_ctx *sc, int flags)
 		return;
 
 	if (oldcc == NULL)
-		oldcc = (flags & CWM_RCYCLE ? 
+		oldcc = (flags & CWM_RCYCLE ?
 		    TAILQ_LAST(&sc->mruq, cycle_entry_q) :
 		    TAILQ_FIRST(&sc->mruq));
 
@@ -606,7 +606,7 @@ client_cycle(struct screen_ctx *sc, int flags)
 }
 
 void
-client_cycle_leave(struct screen_ctx *sc, struct client_ctx *cc) 
+client_cycle_leave(struct screen_ctx *sc, struct client_ctx *cc)
 {
 	sc->cycling = 0;
 

@@ -189,13 +189,13 @@ search_match_path(struct menu_q *menuq, struct menu_q *resultq, char *search, in
 	globfree(&g);
 }
 
-void 
+void
 search_match_path_exec(struct menu_q *menuq, struct menu_q *resultq, char *search)
 {
 	return (search_match_path(menuq, resultq, search, PATH_EXEC));
 }
 
-void 
+void
 search_match_path_any(struct menu_q *menuq, struct menu_q *resultq, char *search)
 {
 	return (search_match_path(menuq, resultq, search, 0));
