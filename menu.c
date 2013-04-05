@@ -59,8 +59,8 @@ struct menu_ctx {
 	int 			 flags;
 	int			 x;
 	int			 y;
-    	void (*match)(struct menu_q *, struct menu_q *, char *);
-    	void (*print)(struct menu *, int);
+	void (*match)(struct menu_q *, struct menu_q *, char *);
+	void (*print)(struct menu *, int);
 };
 static struct menu	*menu_handle_key(XEvent *, struct menu_ctx *,
 			     struct menu_q *, struct menu_q *);
@@ -75,7 +75,7 @@ static void 		 menu_draw_entry(struct screen_ctx *, struct menu_ctx *,
 static int		 menu_calc_entry(struct screen_ctx *, struct menu_ctx *,
 			     int, int);
 static int		 menu_keycode(XKeyEvent *, enum ctltype *,
-                             char *);
+			     char *);
 
 void
 menu_init(struct screen_ctx *sc)
@@ -88,7 +88,7 @@ menu_init(struct screen_ctx *sc)
 
 struct menu *
 menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
-    char *initial, int flags, 
+    char *initial, int flags,
     void (*match)(struct menu_q *, struct menu_q *, char *),
     void (*print)(struct menu *, int))
 {
@@ -217,7 +217,7 @@ menu_complete_path(struct menu_ctx *mc)
 	
 	menuq_clear(&menuq);
 
-	if (path[0] != '\0') 
+	if (path[0] != '\0')
 		snprintf(mr->text, sizeof(mr->text), "%s \"%s\"",
 			mc->searchstr, path);
 	else if (!mr->abort)
@@ -286,7 +286,7 @@ menu_handle_key(XEvent *e, struct menu_ctx *mc, struct menu_q *menuq,
 		break;
 	case CTL_TAB:
 		if ((mi = TAILQ_FIRST(resultq)) != NULL) {
-			/* 
+			/*
 			 * - We are in exec_path menu mode
 			 * - It is equal to the input
 			 * We got a command, launch the file menu
@@ -296,7 +296,7 @@ menu_handle_key(XEvent *e, struct menu_ctx *mc, struct menu_q *menuq,
 					strlen(mi->text))) == 0)
 				return (menu_complete_path(mc));
 
-			/* 
+			/*
 			 * Put common prefix of the results into searchstr
 			 */
 			(void)strlcpy(mc->searchstr,

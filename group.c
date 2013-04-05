@@ -142,7 +142,7 @@ group_init(struct screen_ctx *sc)
 
 	TAILQ_INIT(&sc->groupq);
 	sc->group_hideall = 0;
-	/* 
+	/*
 	 * See if any group names have already been set and update the
 	 * property with ours if they'll have changed.
 	 */
