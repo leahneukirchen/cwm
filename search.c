@@ -33,8 +33,11 @@
 
 #include "calmwm.h"
 
-#define PATH_EXEC 	0x1
+#define PATH_ANY 	0x0001
+#define PATH_EXEC 	0x0002
 
+static void	search_match_path(struct menu_q *, struct menu_q *,
+		    char *, int);
 static int	strsubmatch(char *, char *, int);
 
 /*
@@ -198,7 +201,7 @@ search_match_path_exec(struct menu_q *menuq, struct menu_q *resultq, char *searc
 void
 search_match_path_any(struct menu_q *menuq, struct menu_q *resultq, char *search)
 {
-	return (search_match_path(menuq, resultq, search, 0));
+	return (search_match_path(menuq, resultq, search, PATH_ANY));
 }
 
 void
