@@ -227,6 +227,7 @@ mousefunc_menu_unhide(struct client_ctx *cc, void *arg)
 	old_cc = client_current();
 
 	TAILQ_INIT(&menuq);
+
 	TAILQ_FOREACH(cc, &Clientq, entry)
 		if (cc->flags & CLIENT_HIDDEN) {
 			wname = (cc->label) ? cc->label : cc->name;
@@ -263,6 +264,7 @@ mousefunc_menu_cmd(struct client_ctx *cc, void *arg)
 	struct cmd		*cmd;
 
 	TAILQ_INIT(&menuq);
+
 	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
 		mi = xcalloc(1, sizeof(*mi));
 		(void)strlcpy(mi->text, cmd->label, sizeof(mi->text));

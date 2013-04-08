@@ -209,6 +209,7 @@ menu_complete_path(struct menu_ctx *mc)
 	mr = xcalloc(1, sizeof(*mr));
 
 	TAILQ_INIT(&menuq);
+
 	if ((mi = menu_filter(mc->sc, &menuq, mc->searchstr, NULL,
 	    CWM_MENU_DUMMY, search_match_path_any, NULL)) != NULL) {
 		mr->abort = mi->abort;

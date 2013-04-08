@@ -351,6 +351,7 @@ group_menu(XButtonEvent *e)
 	int			 i;
 
 	sc = screen_fromroot(e->root);
+
 	TAILQ_INIT(&menuq);
 
 	for (i = 0; i < CALMWM_NGROUPS; i++) {
