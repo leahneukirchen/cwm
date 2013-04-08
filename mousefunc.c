@@ -251,8 +251,9 @@ mousefunc_menu_unhide(struct client_ctx *cc, void *arg)
 		if (old_cc != NULL)
 			client_ptrsave(old_cc);
 		client_ptrwarp(cc);
-	} else
-		menuq_clear(&menuq);
+	}
+
+	menuq_clear(&menuq);
 }
 
 void
@@ -277,6 +278,6 @@ mousefunc_menu_cmd(struct client_ctx *cc, void *arg)
 	mi = menu_filter(sc, &menuq, NULL, NULL, 0, NULL, NULL);
 	if (mi != NULL)
 		u_spawn(((struct cmd *)mi->ctx)->image);
-	else
-		menuq_clear(&menuq);
+
+	menuq_clear(&menuq);
 }
