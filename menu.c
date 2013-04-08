@@ -74,6 +74,7 @@ static void 		 menu_draw_entry(struct screen_ctx *, struct menu_ctx *,
 			     struct menu_q *, int, int);
 static int		 menu_calc_entry(struct screen_ctx *, struct menu_ctx *,
 			     int, int);
+static struct menu 	*menu_complete_path(struct menu_ctx *);
 static int		 menu_keycode(XKeyEvent *, enum ctltype *,
 			     char *);
 
