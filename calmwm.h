@@ -56,15 +56,12 @@ size_t strlcat(char *, const char *, size_t);
 #define	CONFFILE	".cwmrc"
 #define	WMNAME	 	"CWM"
 
-#define CHILDMASK	(SubstructureRedirectMask|SubstructureNotifyMask)
 #define BUTTONMASK	(ButtonPressMask|ButtonReleaseMask)
 #define MOUSEMASK	(BUTTONMASK|PointerMotionMask)
+#define MENUMASK 	(MOUSEMASK|ButtonMotionMask|ExposureMask)
+#define MENUGRABMASK	(MOUSEMASK|ButtonMotionMask|StructureNotifyMask)
 #define KEYMASK		(KeyPressMask|ExposureMask)
-#define MENUMASK 	(BUTTONMASK|ButtonMotionMask|ExposureMask| \
-			PointerMotionMask)
-#define MENUGRABMASK	(BUTTONMASK|ButtonMotionMask|StructureNotifyMask|\
-			PointerMotionMask)
-#define SEARCHMASK	(KeyPressMask|ExposureMask)
+#define IGNOREMODMASK	(LockMask|Mod2Mask)
 
 /* kb movement */
 #define CWM_MOVE		0x0001
@@ -92,27 +89,31 @@ size_t strlcat(char *, const char *, size_t);
 #define CWM_MENU_DUMMY		0x0001
 #define CWM_MENU_FILE		0x0002
 
-#define KBTOGROUP(X) ((X) - 1)
+#define ARG_CHAR		0x0001
+#define ARG_INT			0x0002
+
+#define CWM_TILE_HORIZ 		0x0001
+#define CWM_TILE_VERT 		0x0002
 
 union arg {
 	char	*c;
 	int	 i;
 };
 
-enum cwmcolor {
+enum menucolor {
+	CWM_COLOR_MENU_FG,
+	CWM_COLOR_MENU_BG,
+	CWM_COLOR_MENU_FONT,
+	CWM_COLOR_MENU_FONT_SEL,
+	CWM_COLOR_MENU_MAX
+};
+
+enum bordercolor {
 	CWM_COLOR_BORDER_ACTIVE,
 	CWM_COLOR_BORDER_INACTIVE,
 	CWM_COLOR_BORDER_GROUP,
 	CWM_COLOR_BORDER_UNGROUP,
-	CWM_COLOR_FG_MENU,
-	CWM_COLOR_BG_MENU,
-	CWM_COLOR_FONT,
-	CWM_COLOR_MAX
-};
-
-struct color {
-	char		*name;
-	unsigned long	 pixel;
+	CWM_COLOR_BORDER_MAX
 };
 
 struct geom {
@@ -142,7 +143,7 @@ struct client_ctx {
 	struct screen_ctx	*sc;
 	Window			 win;
 	XSizeHints		*size;
-	Colormap		 cmap;
+	Colormap		 colormap;
 	u_int			 bwidth; /* border width */
 	struct geom		 geom, savegeom;
 	struct {
@@ -169,16 +170,16 @@ struct client_ctx {
 #define CLIENT_VMAXIMIZED		0x0004
 #define CLIENT_HMAXIMIZED		0x0008
 #define CLIENT_FREEZE			0x0010
+#define CLIENT_GROUP			0x0020
+#define CLIENT_UNGROUP			0x0040
 
+#define CLIENT_HIGHLIGHT		(CLIENT_GROUP | CLIENT_UNGROUP)
 #define CLIENT_MAXFLAGS			(CLIENT_VMAXIMIZED | CLIENT_HMAXIMIZED)
 #define CLIENT_MAXIMIZED		(CLIENT_VMAXIMIZED | CLIENT_HMAXIMIZED)
 	int			 flags;
 	int			 state;
 	int			 active;
 	int			 stackingorder;
-#define CLIENT_HIGHLIGHT_GROUP		0x0001
-#define CLIENT_HIGHLIGHT_UNGROUP	0x0002
-	int			 highlight;
 	struct winname_q	 nameq;
 #define CLIENT_MAXNAMEQLEN		5
 	int			 nameqlen;
@@ -228,21 +229,22 @@ TAILQ_HEAD(autostartcmd_q, autostartcmd);
 struct screen_ctx {
 	TAILQ_ENTRY(screen_ctx)	 entry;
 	u_int			 which;
+	Visual			*visual;
+	Colormap		 colormap;
 	Window			 rootwin;
 	Window			 menuwin;
-	struct color		 color[CWM_COLOR_MAX];
-	GC			 gc;
+	unsigned long		 color[CWM_COLOR_BORDER_MAX];
 	int			 cycling;
 	struct geom		 view; /* viewable area */
 	struct geom		 work; /* workable area, gap-applied */
 	struct gap		 gap;
 	struct cycle_entry_q	 mruq;
-	XftColor		 xftcolor;
+	XftColor		 xftcolor[CWM_COLOR_MENU_MAX];
 	XftDraw			*xftdraw;
-	XftFont			*font;
+	XftFont			*xftfont;
 	int			 xinerama_no;
 	XineramaScreenInfo	*xinerama;
-#define CALMWM_NGROUPS		 9
+#define CALMWM_NGROUPS		 10
 	struct group_ctx	 groups[CALMWM_NGROUPS];
 	struct group_ctx_q	 groupq;
 	int			 group_hideall;
@@ -261,6 +263,7 @@ struct keybinding {
 	int			 keycode;
 #define KBFLAG_NEEDCLIENT	 0x0001
 	int			 flags;
+	int			 argtype;
 };
 TAILQ_HEAD(keybinding_q, keybinding);
 
@@ -277,7 +280,6 @@ TAILQ_HEAD(mousebinding_q, mousebinding);
 
 struct cmd {
 	TAILQ_ENTRY(cmd)	entry;
-	int			flags;
 	char			image[MAXPATHLEN];
 #define CMD_MAXLABELLEN		256
 	char			label[CMD_MAXLABELLEN];
@@ -312,9 +314,11 @@ struct conf {
 #define	CONF_SNAPDIST			0
 	int			 snapdist;
 	struct gap		 gap;
-	struct color		 color[CWM_COLOR_MAX];
+	char			*color[CWM_COLOR_BORDER_MAX];
+	char		 	*menucolor[CWM_COLOR_MENU_MAX];
 	char			 termpath[MAXPATHLEN];
 	char			 lockpath[MAXPATHLEN];
+	char			 known_hosts[MAXPATHLEN];
 #define	CONF_FONT			"sans-serif:pixelsize=14:bold"
 	char			*font;
 };
@@ -336,20 +340,21 @@ __dead void		 usage(void);
 void			 client_applysizehints(struct client_ctx *);
 struct client_ctx	*client_current(void);
 void			 client_cycle(struct screen_ctx *, int);
-void			 client_cycle_leave(struct screen_ctx *, struct client_ctx *);
+void			 client_cycle_leave(struct screen_ctx *,
+			     struct client_ctx *);
 void			 client_delete(struct client_ctx *);
 void			 client_draw_border(struct client_ctx *);
 struct client_ctx	*client_find(Window);
 void			 client_freeze(struct client_ctx *);
 void			 client_getsizehints(struct client_ctx *);
 void			 client_hide(struct client_ctx *);
-void			 client_horizmaximize(struct client_ctx *);
+void			 client_hmaximize(struct client_ctx *);
+void 			 client_htile(struct client_ctx *);
 void			 client_leave(struct client_ctx *);
 void			 client_lower(struct client_ctx *);
 void			 client_map(struct client_ctx *);
 void			 client_maximize(struct client_ctx *);
 void			 client_move(struct client_ctx *);
-void			 client_mtf(struct client_ctx *);
 struct client_ctx	*client_new(Window, struct screen_ctx *, int);
 void			 client_ptrsave(struct client_ctx *);
 void			 client_ptrwarp(struct client_ctx *);
@@ -361,7 +366,8 @@ void			 client_setname(struct client_ctx *);
 int			 client_snapcalc(int, int, int, int, int);
 void			 client_transient(struct client_ctx *);
 void			 client_unhide(struct client_ctx *);
-void			 client_vertmaximize(struct client_ctx *);
+void			 client_vmaximize(struct client_ctx *);
+void 			 client_vtile(struct client_ctx *);
 void			 client_warp(struct client_ctx *);
 
 void			 group_alltoggle(struct screen_ctx *);
@@ -384,16 +390,17 @@ void			 search_match_client(struct menu_q *, struct menu_q *,
 			     char *);
 void			 search_match_exec(struct menu_q *, struct menu_q *,
 			     char *);
-void			 search_match_exec_path(struct menu_q *, struct menu_q *,
-			     char *);
+void			 search_match_exec_path(struct menu_q *,
+			     struct menu_q *, char *);
 void			 search_match_path_any(struct menu_q *, struct menu_q *,
 			     char *);
 void			 search_match_text(struct menu_q *, struct menu_q *,
 			     char *);
 void			 search_print_client(struct menu *, int);
 
-XineramaScreenInfo	*screen_find_xinerama(struct screen_ctx *, int, int);
+struct geom		 screen_find_xinerama(struct screen_ctx *, int, int);
 struct screen_ctx	*screen_fromroot(Window);
+void			 screen_init(struct screen_ctx *, u_int);
 void			 screen_update_geometry(struct screen_ctx *);
 void			 screen_updatestackingorder(struct screen_ctx *);
 
@@ -432,6 +439,7 @@ void			 kbfunc_quit_wm(struct client_ctx *, union arg *);
 void			 kbfunc_restart(struct client_ctx *, union arg *);
 void			 kbfunc_ssh(struct client_ctx *, union arg *);
 void			 kbfunc_term(struct client_ctx *, union arg *);
+void 			 kbfunc_tile(struct client_ctx *, union arg *);
 
 void			 mousefunc_menu_cmd(struct client_ctx *, void *);
 void			 mousefunc_menu_group(struct client_ctx *, void *);
@@ -449,13 +457,14 @@ struct menu  		*menu_filter(struct screen_ctx *, struct menu_q *,
 			     void (*)(struct menu_q *, struct menu_q *, char *),
 			     void (*)(struct menu *, int));
 void			 menu_init(struct screen_ctx *);
+void			 menuq_clear(struct menu_q *);
 
 int			 parse_config(const char *, struct conf *);
 
 void			 conf_bindname(struct conf *, char *, char *);
 void			 conf_clear(struct conf *);
 void			 conf_client(struct client_ctx *);
-void			 conf_cmd_add(struct conf *, char *, char *, int);
+void			 conf_cmd_add(struct conf *, char *, char *);
 void			 conf_color(struct conf *, struct screen_ctx *);
 void			 conf_font(struct conf *, struct screen_ctx *);
 void			 conf_gap(struct conf *, struct screen_ctx *);
@@ -463,16 +472,15 @@ void			 conf_grab(struct conf *, struct keybinding *);
 void			 conf_grab_mouse(struct client_ctx *);
 void			 conf_init(struct conf *);
 void			 conf_mousebind(struct conf *, char *, char *);
-void			 conf_setup(struct conf *, const char *);
 void			 conf_ungrab(struct conf *, struct keybinding *);
 
 int			 font_ascent(struct screen_ctx *);
 int			 font_descent(struct screen_ctx *);
 void			 font_draw(struct screen_ctx *, const char *, int,
-			     Drawable, int, int);
+			     Drawable, int, int, int);
 u_int			 font_height(struct screen_ctx *);
 void			 font_init(struct screen_ctx *, const char *,
-			     const char *);
+			     const char **);
 int			 font_width(struct screen_ctx *, const char *, int);
 
 void			 xev_loop(void);
@@ -494,6 +502,8 @@ void			 xu_ptr_setpos(Window, int, int);
 void			 xu_ptr_ungrab(void);
 void			 xu_sendmsg(Window, Atom, long);
 void			 xu_setstate(struct client_ctx *, int);
+void 			 xu_xorcolor(XRenderColor, XRenderColor,
+			     XRenderColor *);
 
 void			 xu_ewmh_net_supported(struct screen_ctx *);
 void			 xu_ewmh_net_supported_wm_check(struct screen_ctx *);
@@ -506,10 +516,10 @@ void			 xu_ewmh_net_wm_number_of_desktops(struct screen_ctx *);
 void			 xu_ewmh_net_showing_desktop(struct screen_ctx *);
 void			 xu_ewmh_net_virtual_roots(struct screen_ctx *);
 void			 xu_ewmh_net_current_desktop(struct screen_ctx *, long);
-void			 xu_ewmh_net_desktop_names(struct screen_ctx *, char *, int);
+void			 xu_ewmh_net_desktop_names(struct screen_ctx *, char *,
+			     int);
 
 void			 xu_ewmh_net_wm_desktop(struct client_ctx *);
-
 
 void			 u_exec(char *);
 void			 u_spawn(char *);
@@ -533,8 +543,9 @@ extern Cursor				 Cursor_resize;
 extern struct screen_ctx_q		 Screenq;
 extern struct client_ctx_q		 Clientq;
 extern struct conf			 Conf;
+extern char				*homedir;
 
-extern int				 HasXinerama, HasRandr, Randr_ev;
+extern int				 HasRandr, Randr_ev;
 
 enum {
 	WM_STATE,

@@ -203,7 +203,7 @@ xev_handle_propertynotify(XEvent *ee)
 			break;
 		}
 	} else {
-		TAILQ_FOREACH(sc, &Screenq, entry) 
+		TAILQ_FOREACH(sc, &Screenq, entry)
 			if (sc->rootwin == e->window)
 				goto test;
 		return;
@@ -241,8 +241,7 @@ xev_handle_buttonpress(XEvent *ee)
 	sc = screen_fromroot(e->root);
 	cc = client_find(e->window);
 
-	/* Ignore caps lock and numlock */
-	e->state &= ~(Mod2Mask | LockMask);
+	e->state &= ~IGNOREMODMASK;
 
 	TAILQ_FOREACH(mb, &Conf.mousebindingq, entry) {
 		if (e->button == mb->button && e->state == mb->modmask)
@@ -283,8 +282,7 @@ xev_handle_keypress(XEvent *ee)
 	keysym = XkbKeycodeToKeysym(X_Dpy, e->keycode, 0, 0);
 	skeysym = XkbKeycodeToKeysym(X_Dpy, e->keycode, 0, 1);
 
-	/* we don't care about caps lock and numlock here */
-	e->state &= ~(LockMask | Mod2Mask);
+	e->state &= ~IGNOREMODMASK;
 
 	TAILQ_FOREACH(kb, &Conf.keybindingq, entry) {
 		if (keysym != kb->keysym && skeysym == kb->keysym)

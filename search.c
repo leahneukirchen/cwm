@@ -33,8 +33,11 @@
 
 #include "calmwm.h"
 
-#define PATH_EXEC 	0x1
+#define PATH_ANY 	0x0001
+#define PATH_EXEC 	0x0002
 
+static void	search_match_path(struct menu_q *, struct menu_q *,
+		    char *, int);
 static int	strsubmatch(char *, char *, int);
 
 /*
@@ -189,16 +192,16 @@ search_match_path(struct menu_q *menuq, struct menu_q *resultq, char *search, in
 	globfree(&g);
 }
 
-void 
+void
 search_match_path_exec(struct menu_q *menuq, struct menu_q *resultq, char *search)
 {
 	return (search_match_path(menuq, resultq, search, PATH_EXEC));
 }
 
-void 
+void
 search_match_path_any(struct menu_q *menuq, struct menu_q *resultq, char *search)
 {
-	return (search_match_path(menuq, resultq, search, 0));
+	return (search_match_path(menuq, resultq, search, PATH_ANY));
 }
 
 void
@@ -217,19 +220,20 @@ void
 search_match_exec(struct menu_q *menuq, struct menu_q *resultq, char *search)
 {
 	struct menu	*mi, *mj;
+	int		 r;
 
 	TAILQ_INIT(resultq);
 
 	TAILQ_FOREACH(mi, menuq, entry) {
 		if (strsubmatch(search, mi->text, 1) == 0 &&
 		    fnmatch(search, mi->text, 0) == FNM_NOMATCH)
-				continue;
-		for (mj = TAILQ_FIRST(resultq); mj != NULL;
-		     mj = TAILQ_NEXT(mj, resultentry)) {
-			if (strcasecmp(mi->text, mj->text) < 0) {
+			continue;
+		TAILQ_FOREACH(mj, resultq, resultentry) {
+			r = strcasecmp(mi->text, mj->text);
+			if (r < 0)
 				TAILQ_INSERT_BEFORE(mj, mi, resultentry);
+			if (r <= 0)
 				break;
-			}
 		}
 		if (mj == NULL)
 			TAILQ_INSERT_TAIL(resultq, mi, resultentry);

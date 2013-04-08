@@ -68,9 +68,9 @@ mousefunc_sweep_draw(struct client_ctx *cc)
 	XMoveResizeWindow(X_Dpy, sc->menuwin, 0, 0, width, font_height(sc) * 2);
 	XMapWindow(X_Dpy, sc->menuwin);
 	XClearWindow(X_Dpy, sc->menuwin);
-	font_draw(sc, cc->name, strlen(cc->name), sc->menuwin,
+	font_draw(sc, cc->name, strlen(cc->name), sc->menuwin, 0,
 	    2, font_ascent(sc) + 1);
-	font_draw(sc, asize, strlen(asize), sc->menuwin,
+	font_draw(sc, asize, strlen(asize), sc->menuwin, 0,
 	    width / 2 - width_size / 2, font_height(sc) + font_ascent(sc) + 1);
 }
 
@@ -162,11 +162,11 @@ mousefunc_window_move(struct client_ctx *cc, void *arg)
 			cc->geom.y = ev.xmotion.y_root - py - cc->bwidth;
 
 			cc->geom.x += client_snapcalc(cc->geom.x,
-			    cc->geom.w, sc->view.w,
-			    cc->bwidth, Conf.snapdist);
+			    cc->geom.x + cc->geom.w + (cc->bwidth * 2),
+			    sc->work.x, sc->work.w, Conf.snapdist);
 			cc->geom.y += client_snapcalc(cc->geom.y,
-			    cc->geom.h, sc->view.h,
-			    cc->bwidth, Conf.snapdist);
+			    cc->geom.y + cc->geom.h + (cc->bwidth * 2),
+			    sc->work.y, sc->work.h, Conf.snapdist);
 
 			/* don't move more than 60 times / second */
 			if ((ev.xmotion.time - ltime) > (1000 / 60)) {
@@ -250,12 +250,8 @@ mousefunc_menu_unhide(struct client_ctx *cc, void *arg)
 		if (old_cc != NULL)
 			client_ptrsave(old_cc);
 		client_ptrwarp(cc);
-	} else {
-		while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
-			TAILQ_REMOVE(&menuq, mi, entry);
-			free(mi);
-		}
-	}
+	} else
+		menuq_clear(&menuq);
 }
 
 void
@@ -280,8 +276,5 @@ mousefunc_menu_cmd(struct client_ctx *cc, void *arg)
 	if (mi != NULL)
 		u_spawn(((struct cmd *)mi->ctx)->image);
 	else
-		while ((mi = TAILQ_FIRST(&menuq)) != NULL) {
-			TAILQ_REMOVE(&menuq, mi, entry);
-			free(mi);
-		}
+		menuq_clear(&menuq);
 }
