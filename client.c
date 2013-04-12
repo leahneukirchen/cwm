@@ -125,7 +125,6 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	xu_configure(cc);
 
 	(state == IconicState) ? client_hide(cc) : client_unhide(cc);
-	xu_setstate(cc, cc->state);
 
 	TAILQ_INSERT_TAIL(&sc->mruq, cc, mru_entry);
 	TAILQ_INSERT_TAIL(&Clientq, cc, entry);
