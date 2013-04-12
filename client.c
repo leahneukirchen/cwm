@@ -447,7 +447,6 @@ client_ptrsave(struct client_ctx *cc)
 void
 client_hide(struct client_ctx *cc)
 {
-	/* XXX - add wm_state stuff */
 	XUnmapWindow(X_Dpy, cc->win);
 
 	cc->active = 0;
