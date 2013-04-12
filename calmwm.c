@@ -129,8 +129,6 @@ dpy_init(const char *dpyname)
 {
 	int	i;
 
-	XSetErrorHandler(x_errorhandler);
-
 	if ((X_Dpy = XOpenDisplay(dpyname)) == NULL)
 		errx(1, "unable to open display \"%s\"",
 		    XDisplayName(dpyname));
