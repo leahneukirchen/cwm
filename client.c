@@ -111,7 +111,7 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	}
 	client_draw_border(cc);
 
-	if (xu_getstate(cc, &state) < 0)
+	if (xu_getstate(cc->win, &state) < 0)
 		state = NormalState;
 
 	XSelectInput(X_Dpy, cc->win, ColormapChangeMask | EnterWindowMask |

@@ -72,13 +72,13 @@ xu_btn_ungrab(Window win, int mask, u_int btn)
 }
 
 void
-xu_ptr_getpos(Window rootwin, int *x, int *y)
+xu_ptr_getpos(Window win, int *x, int *y)
 {
 	Window	 w0, w1;
 	int	 tmp0, tmp1;
 	u_int	 tmp2;
 
-	XQueryPointer(X_Dpy, rootwin, &w0, &w1, &tmp0, &tmp1, x, y, &tmp2);
+	XQueryPointer(X_Dpy, win, &w0, &w1, &tmp0, &tmp1, x, y, &tmp2);
 }
 
 void
@@ -203,11 +203,11 @@ xu_getstrprop(Window win, Atom atm, char **text) {
 }
 
 int
-xu_getstate(struct client_ctx *cc, int *state)
+xu_getstate(Window win, int *state)
 {
 	long	*p = NULL;
 
-	if (xu_getprop(cc->win, cwmh[WM_STATE].atom, cwmh[WM_STATE].atom, 2L,
+	if (xu_getprop(win, cwmh[WM_STATE].atom, cwmh[WM_STATE].atom, 2L,
 	    (u_char **)&p) <= 0)
 		return (-1);
 
