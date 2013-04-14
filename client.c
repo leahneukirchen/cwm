@@ -111,7 +111,7 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	}
 	client_draw_border(cc);
 
-	if (xu_getstate(cc, &state) < 0)
+	if (xu_getstate(cc->win, &state) < 0)
 		state = NormalState;
 
 	XSelectInput(X_Dpy, cc->win, ColormapChangeMask | EnterWindowMask |
@@ -125,7 +125,6 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 	xu_configure(cc);
 
 	(state == IconicState) ? client_hide(cc) : client_unhide(cc);
-	xu_setstate(cc, cc->state);
 
 	TAILQ_INSERT_TAIL(&sc->mruq, cc, mru_entry);
 	TAILQ_INSERT_TAIL(&Clientq, cc, entry);
@@ -448,7 +447,6 @@ client_ptrsave(struct client_ctx *cc)
 void
 client_hide(struct client_ctx *cc)
 {
-	/* XXX - add wm_state stuff */
 	XUnmapWindow(X_Dpy, cc->win);
 
 	cc->active = 0;

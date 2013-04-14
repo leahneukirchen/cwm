@@ -387,7 +387,7 @@ void			 search_print_client(struct menu *, int);
 
 struct geom		 screen_find_xinerama(struct screen_ctx *, int, int);
 struct screen_ctx	*screen_fromroot(Window);
-void			 screen_init(struct screen_ctx *, u_int);
+void			 screen_init(u_int);
 void			 screen_update_geometry(struct screen_ctx *);
 void			 screen_updatestackingorder(struct screen_ctx *);
 
@@ -478,7 +478,7 @@ void			 xu_configure(struct client_ctx *);
 void			 xu_getatoms(void);
 unsigned long		 xu_getcolor(struct screen_ctx *, char *);
 int			 xu_getprop(Window, Atom, Atom, long, u_char **);
-int			 xu_getstate(struct client_ctx *, int *);
+int			 xu_getstate(Window, int *);
 int			 xu_getstrprop(Window, Atom, char **);
 void			 xu_key_grab(Window, int, int);
 void			 xu_key_ungrab(Window, int, int);

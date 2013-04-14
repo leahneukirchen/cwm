@@ -335,6 +335,7 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 	}
 
 	TAILQ_INIT(&menuq);
+
 	lbuf = NULL;
 	while ((buf = fgetln(fp, &len))) {
 		if (buf[len - 1] == '\n')
