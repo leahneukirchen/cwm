@@ -101,13 +101,14 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 
 	if (wattr.map_state != IsViewable) {
 		client_placecalc(cc);
+		client_move(cc);
 		if ((wmhints = XGetWMHints(X_Dpy, cc->win)) != NULL) {
-			if (wmhints->flags & StateHint)
-				xu_setstate(cc, wmhints->initial_state);
-
+			if (wmhints->flags & StateHint) {
+				cc->state = wmhints->initial_state;
+				xu_setstate(cc->win, cc->state);
+			}
 			XFree(wmhints);
 		}
-		client_move(cc);
 	}
 	client_draw_border(cc);
 
@@ -151,7 +152,8 @@ client_delete(struct client_ctx *cc)
 	group_client_delete(cc);
 
 	XGrabServer(X_Dpy);
-	xu_setstate(cc, WithdrawnState);
+	cc->state = WithdrawnState;
+	xu_setstate(cc->win, cc->state);
 	XRemoveFromSaveSet(X_Dpy, cc->win);
 
 	XSync(X_Dpy, False);
@@ -451,7 +453,8 @@ client_hide(struct client_ctx *cc)
 
 	cc->active = 0;
 	cc->flags |= CLIENT_HIDDEN;
-	xu_setstate(cc, IconicState);
+	cc->state = IconicState;
+	xu_setstate(cc->win, cc->state);
 
 	if (cc == client_current())
 		client_none(cc->sc);
@@ -463,7 +466,8 @@ client_unhide(struct client_ctx *cc)
 	XMapRaised(X_Dpy, cc->win);
 
 	cc->flags &= ~CLIENT_HIDDEN;
-	xu_setstate(cc, NormalState);
+	cc->state = NormalState;
+	xu_setstate(cc->win, cc->state);
 	client_draw_border(cc);
 }
 

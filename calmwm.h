@@ -477,7 +477,7 @@ int			 xu_ptr_regrab(int, Cursor);
 void			 xu_ptr_setpos(Window, int, int);
 void			 xu_ptr_ungrab(void);
 void			 xu_sendmsg(Window, Atom, long);
-void			 xu_setstate(struct client_ctx *, int);
+void			 xu_setstate(Window win, int);
 void 			 xu_xorcolor(XRenderColor, XRenderColor,
 			     XRenderColor *);
 
