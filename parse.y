@@ -137,16 +137,11 @@ main		: FONTNAME STRING		{
 				YYERROR;
 			}
 
-			group_make_autogroup(conf, $3, $2);
+			conf_autogroup(conf, $2, $3);
 			free($3);
 		}
 		| IGNORE STRING {
-			struct winmatch	*wm;
-
-			wm = xcalloc(1, sizeof(*wm));
-			(void)strlcpy(wm->title, $2, sizeof(wm->title));
-			TAILQ_INSERT_TAIL(&conf->ignoreq, wm, entry);
-
+			conf_ignore(conf, $2);
 			free($2);
 		}
 		| BIND STRING string		{

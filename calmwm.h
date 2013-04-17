@@ -352,7 +352,6 @@ void			 group_client_delete(struct client_ctx *);
 void			 group_cycle(struct screen_ctx *, int);
 void			 group_hidetoggle(struct screen_ctx *, int);
 void			 group_init(struct screen_ctx *);
-void			 group_make_autogroup(struct conf *, char *, int);
 void			 group_menu(XButtonEvent *);
 void			 group_movetogroup(struct client_ctx *, int);
 void			 group_only(struct screen_ctx *, int);
@@ -436,6 +435,7 @@ void			 menuq_clear(struct menu_q *);
 
 int			 parse_config(const char *, struct conf *);
 
+void			 conf_autogroup(struct conf *, int, char *);
 void			 conf_bindname(struct conf *, char *, char *);
 void			 conf_clear(struct conf *);
 void			 conf_client(struct client_ctx *);
@@ -446,6 +446,7 @@ void			 conf_gap(struct conf *, struct screen_ctx *);
 void			 conf_grab(struct conf *, struct keybinding *);
 void			 conf_grab_mouse(struct client_ctx *);
 void			 conf_init(struct conf *);
+void			 conf_ignore(struct conf *, char *);
 void			 conf_mousebind(struct conf *, char *, char *);
 void			 conf_ungrab(struct conf *, struct keybinding *);
 

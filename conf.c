@@ -53,6 +53,39 @@ conf_cmd_add(struct conf *c, char *image, char *label)
 }
 
 void
+conf_autogroup(struct conf *c, int no, char *val)
+{
+	struct autogroupwin	*aw;
+	char			*p;
+
+	aw = xcalloc(1, sizeof(*aw));
+
+	if ((p = strchr(val, ',')) == NULL) {
+		aw->name = NULL;
+		aw->class = xstrdup(val);
+	} else {
+		*(p++) = '\0';
+		aw->name = xstrdup(val);
+		aw->class = xstrdup(p);
+	}
+	aw->num = no;
+
+	TAILQ_INSERT_TAIL(&c->autogroupq, aw, entry);
+}
+
+void
+conf_ignore(struct conf *c, char *val)
+{
+	struct winmatch	*wm;
+
+	wm = xcalloc(1, sizeof(*wm));
+
+	(void)strlcpy(wm->title, val, sizeof(wm->title));
+
+	TAILQ_INSERT_TAIL(&c->ignoreq, wm, entry);
+}
+
+void
 conf_gap(struct conf *c, struct screen_ctx *sc)
 {
 	sc->gap = c->gap;
