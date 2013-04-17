@@ -105,14 +105,14 @@ client_new(Window win, struct screen_ctx *sc, int mapped)
 		if ((wmhints = XGetWMHints(X_Dpy, cc->win)) != NULL) {
 			if (wmhints->flags & StateHint) {
 				cc->state = wmhints->initial_state;
-				xu_setstate(cc->win, cc->state);
+				xu_set_wm_state(cc->win, cc->state);
 			}
 			XFree(wmhints);
 		}
 	}
 	client_draw_border(cc);
 
-	if (xu_getstate(cc->win, &state) < 0)
+	if (xu_get_wm_state(cc->win, &state) < 0)
 		state = NormalState;
 
 	XSelectInput(X_Dpy, cc->win, ColormapChangeMask | EnterWindowMask |
@@ -153,7 +153,7 @@ client_delete(struct client_ctx *cc)
 
 	XGrabServer(X_Dpy);
 	cc->state = WithdrawnState;
-	xu_setstate(cc->win, cc->state);
+	xu_set_wm_state(cc->win, cc->state);
 	XRemoveFromSaveSet(X_Dpy, cc->win);
 
 	XSync(X_Dpy, False);
@@ -454,7 +454,7 @@ client_hide(struct client_ctx *cc)
 	cc->active = 0;
 	cc->flags |= CLIENT_HIDDEN;
 	cc->state = IconicState;
-	xu_setstate(cc->win, cc->state);
+	xu_set_wm_state(cc->win, cc->state);
 
 	if (cc == client_current())
 		client_none(cc->sc);
@@ -467,7 +467,7 @@ client_unhide(struct client_ctx *cc)
 
 	cc->flags &= ~CLIENT_HIDDEN;
 	cc->state = NormalState;
-	xu_setstate(cc->win, cc->state);
+	xu_set_wm_state(cc->win, cc->state);
 	client_draw_border(cc);
 }
 

@@ -203,7 +203,7 @@ xu_getstrprop(Window win, Atom atm, char **text) {
 }
 
 int
-xu_getstate(Window win, int *state)
+xu_get_wm_state(Window win, int *state)
 {
 	long	*p = NULL;
 
@@ -218,7 +218,7 @@ xu_getstate(Window win, int *state)
 }
 
 void
-xu_setstate(Window win, int state)
+xu_set_wm_state(Window win, int state)
 {
 	long	 dat[2];
 
