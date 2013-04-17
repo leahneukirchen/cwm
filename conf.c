@@ -39,7 +39,6 @@ void
 conf_cmd_add(struct conf *c, char *image, char *label)
 {
 	/* "term" and "lock" have special meanings. */
-
 	if (strcmp(label, "term") == 0)
 		(void)strlcpy(c->termpath, image, sizeof(c->termpath));
 	else if (strcmp(label, "lock") == 0)
