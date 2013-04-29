@@ -205,7 +205,7 @@ TAILQ_HEAD(autogroupwin_q, autogroupwin);
 
 struct screen_ctx {
 	TAILQ_ENTRY(screen_ctx)	 entry;
-	u_int			 which;
+	int			 which;
 	Visual			*visual;
 	Colormap		 colormap;
 	Window			 rootwin;
@@ -374,7 +374,7 @@ void			 search_print_client(struct menu *, int);
 
 struct geom		 screen_find_xinerama(struct screen_ctx *, int, int);
 struct screen_ctx	*screen_fromroot(Window);
-void			 screen_init(u_int);
+void			 screen_init(int);
 void			 screen_update_geometry(struct screen_ctx *);
 void			 screen_updatestackingorder(struct screen_ctx *);
 

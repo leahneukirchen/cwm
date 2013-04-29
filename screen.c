@@ -31,7 +31,7 @@
 #include "calmwm.h"
 
 void
-screen_init(u_int which)
+screen_init(int which)
 {
 	struct screen_ctx	*sc;
 	Window			*wins, w0, w1;
