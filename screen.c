@@ -50,16 +50,14 @@ screen_init(int which)
 	xu_ewmh_net_supported_wm_check(sc);
 
 	conf_gap(&Conf, sc);
+	conf_color(&Conf, sc);
+	conf_font(&Conf, sc);
 
 	screen_update_geometry(sc);
 
-	conf_color(&Conf, sc);
-
-	group_init(sc);
-	conf_font(&Conf, sc);
-
 	TAILQ_INIT(&sc->mruq);
 
+	group_init(sc);
 	menu_init(sc);
 
 	rootattr.cursor = Cursor_normal;
