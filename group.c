@@ -98,8 +98,7 @@ group_show(struct screen_ctx *sc, struct group_ctx *gc)
 {
 	struct client_ctx	*cc;
 	Window			*winlist;
-	u_int			 i;
-	int			 lastempty = -1;
+	int			 i, lastempty = -1;
 
 	gc->highstack = 0;
 	TAILQ_FOREACH(cc, &gc->clients, group_entry) {
@@ -161,27 +160,6 @@ group_init(struct screen_ctx *sc)
 	xu_ewmh_net_virtual_roots(sc);
 
 	group_setactive(sc, 1);
-}
-
-void
-group_make_autogroup(struct conf *conf, char *val, int no)
-{
-	struct autogroupwin	*aw;
-	char			*p;
-
-	aw = xcalloc(1, sizeof(*aw));
-
-	if ((p = strchr(val, ',')) == NULL) {
-		aw->name = NULL;
-		aw->class = xstrdup(val);
-	} else {
-		*(p++) = '\0';
-		aw->name = xstrdup(val);
-		aw->class = xstrdup(p);
-	}
-	aw->num = no;
-
-	TAILQ_INSERT_TAIL(&conf->autogroupq, aw, entry);
 }
 
 static void

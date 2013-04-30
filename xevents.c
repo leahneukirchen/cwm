@@ -362,7 +362,7 @@ xev_handle_randr(XEvent *ee)
 
 	i = XRRRootToScreen(X_Dpy, rev->root);
 	TAILQ_FOREACH(sc, &Screenq, entry) {
-		if (sc->which == (u_int)i) {
+		if (sc->which == i) {
 			XRRUpdateConfiguration(ee);
 			screen_update_geometry(sc);
 		}

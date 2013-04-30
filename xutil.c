@@ -203,7 +203,7 @@ xu_getstrprop(Window win, Atom atm, char **text) {
 }
 
 int
-xu_getstate(Window win, int *state)
+xu_get_wm_state(Window win, int *state)
 {
 	long	*p = NULL;
 
@@ -218,15 +218,14 @@ xu_getstate(Window win, int *state)
 }
 
 void
-xu_setstate(struct client_ctx *cc, int state)
+xu_set_wm_state(Window win, int state)
 {
 	long	 dat[2];
 
 	dat[0] = state;
 	dat[1] = None;
 
-	cc->state = state;
-	XChangeProperty(X_Dpy, cc->win,
+	XChangeProperty(X_Dpy, win,
 	    cwmh[WM_STATE].atom, cwmh[WM_STATE].atom, 32,
 	    PropModeReplace, (unsigned char *)dat, 2);
 }
