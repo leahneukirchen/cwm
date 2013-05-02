@@ -31,14 +31,12 @@
 
 #include "calmwm.h"
 
-static int	mousefunc_sweep_calc(struct client_ctx *, int, int, int, int);
+static void	mousefunc_sweep_calc(struct client_ctx *, int, int, int, int);
 static void	mousefunc_sweep_draw(struct client_ctx *);
 
-static int
+static void
 mousefunc_sweep_calc(struct client_ctx *cc, int x, int y, int mx, int my)
 {
-	int	 width = cc->geom.w, height = cc->geom.h;
-
 	cc->geom.w = abs(x - mx) - cc->bwidth;
 	cc->geom.h = abs(y - my) - cc->bwidth;
 
@@ -46,8 +44,6 @@ mousefunc_sweep_calc(struct client_ctx *cc, int x, int y, int mx, int my)
 
 	cc->geom.x = x <= mx ? x : x - cc->geom.w;
 	cc->geom.y = y <= my ? y : y - cc->geom.h;
-
-	return (width != cc->geom.w || height != cc->geom.h);
 }
 
 static void
@@ -103,15 +99,14 @@ mousefunc_window_resize(struct client_ctx *cc, void *arg)
 			client_draw_border(cc);
 			break;
 		case MotionNotify:
-			if (mousefunc_sweep_calc(cc, x, y,
-			    ev.xmotion.x_root, ev.xmotion.y_root))
-				/* Recompute window output */
-				mousefunc_sweep_draw(cc);
+			mousefunc_sweep_calc(cc, x, y,
+			    ev.xmotion.x_root, ev.xmotion.y_root);
 
 			/* don't resize more than 60 times / second */
 			if ((ev.xmotion.time - ltime) > (1000 / 60)) {
 				ltime = ev.xmotion.time;
 				client_resize(cc, 1);
+				mousefunc_sweep_draw(cc);
 			}
 			break;
 		case ButtonRelease:
