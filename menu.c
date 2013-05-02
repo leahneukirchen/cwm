@@ -42,7 +42,7 @@ enum ctltype {
 };
 
 struct menu_ctx {
-	struct screen_ctx 	*sc;
+	struct screen_ctx	*sc;
 	char			 searchstr[MENU_MAXENTRY + 1];
 	char			 dispstr[MENU_MAXENTRY*2 + 1];
 	char			 promptstr[MENU_MAXENTRY + 1];
@@ -112,21 +112,14 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
 
 	mc.sc = sc;
 	mc.flags = flags;
-	if (prompt == NULL) {
-		evmask = MENUMASK;
-		mc.promptstr[0] = '\0';
-		mc.list = 1;
-	} else {
-		evmask = MENUMASK | KEYMASK; /* only accept keys if prompt */
-		(void)snprintf(mc.promptstr, sizeof(mc.promptstr), "%s%s",
-		    prompt, PROMPT_SCHAR);
-		(void)snprintf(mc.dispstr, sizeof(mc.dispstr), "%s%s%s",
-		    mc.promptstr, mc.searchstr, PROMPT_ECHAR);
-		mc.width = font_width(sc->xftfont, mc.dispstr,
-		    strlen(mc.dispstr));
+	if (prompt != NULL) {
+		evmask = MENUMASK | KEYMASK; /* accept keys as well */
+		(void)strlcpy(mc.promptstr, prompt, sizeof(mc.promptstr));
 		mc.hasprompt = 1;
+	} else {
+		evmask = MENUMASK;
+		mc.list = 1;
 	}
-	mc.height = sc->xftfont->height + 1;
 
 	if (initial != NULL)
 		(void)strlcpy(mc.searchstr, initial, sizeof(mc.searchstr));
@@ -137,7 +130,6 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
 	mc.print = print;
 	mc.entry = mc.prev = -1;
 
-	XMoveResizeWindow(X_Dpy, sc->menuwin, mc.x, mc.y, mc.width, mc.height);
 	XSelectInput(X_Dpy, sc->menuwin, evmask);
 	XMapRaised(X_Dpy, sc->menuwin);
 
@@ -193,6 +185,7 @@ out:
 		xu_ptr_setpos(sc->rootwin, xsave, ysave);
 	xu_ptr_ungrab();
 
+	XMoveResizeWindow(X_Dpy, sc->menuwin, 0, 0, 1, 1);
 	XUnmapWindow(X_Dpy, sc->menuwin);
 	XUngrabKeyboard(X_Dpy, CurrentTime);
 
@@ -372,8 +365,8 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 	mc->width = 0;
 	mc->height = 0;
 	if (mc->hasprompt) {
-		(void)snprintf(mc->dispstr, sizeof(mc->dispstr), "%s%s%s",
-		    mc->promptstr, mc->searchstr, PROMPT_ECHAR);
+		(void)snprintf(mc->dispstr, sizeof(mc->dispstr), "%s%s%s%s",
+		    mc->promptstr, PROMPT_SCHAR, mc->searchstr, PROMPT_ECHAR);
 		mc->width = font_width(sc->xftfont, mc->dispstr,
 		    strlen(mc->dispstr));
 		mc->height = sc->xftfont->height + 1;
