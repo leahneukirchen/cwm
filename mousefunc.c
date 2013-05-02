@@ -50,25 +50,20 @@ static void
 mousefunc_sweep_draw(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
-	char			 asize[10]; /* fits "nnnnxnnnn\0" */
-	int			 width, width_size, width_name, height;
+	char			 asize[14]; /* fits " nnnn x nnnn \0" */
 
-	(void)snprintf(asize, sizeof(asize), "%dx%d",
+	(void)snprintf(asize, sizeof(asize), " %4d x %-4d ",
 	    (cc->geom.w - cc->hint.basew) / cc->hint.incw,
 	    (cc->geom.h - cc->hint.baseh) / cc->hint.inch);
-	width_size = font_width(sc->xftfont, asize, strlen(asize)) + 4;
-	width_name = font_width(sc->xftfont, cc->name, strlen(cc->name)) + 4;
-	width = MAX(width_size, width_name);
-	height = sc->xftfont->height + 1;
 
 	XReparentWindow(X_Dpy, sc->menuwin, cc->win, 0, 0);
-	XMoveResizeWindow(X_Dpy, sc->menuwin, 0, 0, width, height * 2);
+	XMoveResizeWindow(X_Dpy, sc->menuwin, 0, 0,
+	    font_width(sc->xftfont, asize, strlen(asize)), sc->xftfont->height);
 	XMapWindow(X_Dpy, sc->menuwin);
 	XClearWindow(X_Dpy, sc->menuwin);
-	font_draw(sc, cc->name, strlen(cc->name), sc->menuwin, 0,
-	    2, sc->xftfont->ascent + 1);
-	font_draw(sc, asize, strlen(asize), sc->menuwin, 0,
-	    width / 2 - width_size / 2, height + sc->xftfont->ascent + 1);
+
+	font_draw(sc, asize, strlen(asize), sc->menuwin, 0, 0,
+	    sc->xftfont->ascent + 1);
 }
 
 void
