@@ -122,9 +122,11 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
 		    prompt, PROMPT_SCHAR);
 		(void)snprintf(mc.dispstr, sizeof(mc.dispstr), "%s%s%s",
 		    mc.promptstr, mc.searchstr, PROMPT_ECHAR);
-		mc.width = font_width(sc, mc.dispstr, strlen(mc.dispstr));
+		mc.width = font_width(sc->xftfont, mc.dispstr,
+		    strlen(mc.dispstr));
 		mc.hasprompt = 1;
 	}
+	mc.height = sc->xftfont->height + 1;
 
 	if (initial != NULL)
 		(void)strlcpy(mc.searchstr, initial, sizeof(mc.searchstr));
@@ -135,8 +137,7 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
 	mc.print = print;
 	mc.entry = mc.prev = -1;
 
-	XMoveResizeWindow(X_Dpy, sc->menuwin, mc.x, mc.y, mc.width,
-	    font_height(sc));
+	XMoveResizeWindow(X_Dpy, sc->menuwin, mc.x, mc.y, mc.width, mc.height);
 	XSelectInput(X_Dpy, sc->menuwin, evmask);
 	XMapRaised(X_Dpy, sc->menuwin);
 
@@ -164,6 +165,7 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
 				goto out;
 			/* FALLTHROUGH */
 		case Expose:
+			fprintf(stderr, "expose\n");
 			menu_draw(sc, &mc, menuq, &resultq);
 			break;
 		case MotionNotify:
@@ -373,8 +375,9 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 	if (mc->hasprompt) {
 		(void)snprintf(mc->dispstr, sizeof(mc->dispstr), "%s%s%s",
 		    mc->promptstr, mc->searchstr, PROMPT_ECHAR);
-		mc->width = font_width(sc, mc->dispstr, strlen(mc->dispstr));
-		mc->height = font_height(sc);
+		mc->width = font_width(sc->xftfont, mc->dispstr,
+		    strlen(mc->dispstr));
+		mc->height = sc->xftfont->height + 1;
 		mc->num = 1;
 	}
 
@@ -389,9 +392,9 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 			text = mi->text;
 		}
 
-		mc->width = MAX(mc->width, font_width(sc, text,
+		mc->width = MAX(mc->width, font_width(sc->xftfont, text,
 		    MIN(strlen(text), MENU_MAXENTRY)));
-		mc->height += font_height(sc);
+		mc->height += sc->xftfont->height + 1;
 		mc->num++;
 	}
 
@@ -425,7 +428,7 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 
 	if (mc->hasprompt) {
 		font_draw(sc, mc->dispstr, strlen(mc->dispstr), sc->menuwin, 0,
-		    0, font_ascent(sc));
+		    0, sc->xftfont->ascent);
 		n = 1;
 	} else
 		n = 0;
@@ -433,7 +436,7 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 	TAILQ_FOREACH(mi, resultq, resultentry) {
 		char *text = mi->print[0] != '\0' ?
 		    mi->print : mi->text;
-		int y = n * font_height(sc) + font_ascent(sc) + 1;
+		int y = n * (sc->xftfont->height + 1) + sc->xftfont->ascent + 1;
 
 		/* Stop drawing when menu doesn't fit inside the screen. */
 		if (mc->y + y > xine.h)
@@ -469,10 +472,10 @@ menu_draw_entry(struct screen_ctx *sc, struct menu_ctx *mc,
 	color = active ? CWM_COLOR_MENU_FG : CWM_COLOR_MENU_BG;
 	text = mi->print[0] != '\0' ?  mi->print : mi->text;
 	XftDrawRect(sc->xftdraw, &sc->xftcolor[color], 0,
-	    font_height(sc) * entry, mc->width,
-	    font_height(sc) + font_descent(sc));
+	    (sc->xftfont->height + 1) * entry, mc->width,
+	    (sc->xftfont->height + 1) + sc->xftfont->descent);
 	font_draw(sc, text, strlen(text), sc->menuwin, active,
-	    0, font_height(sc) * entry + font_ascent(sc) + 1);
+	    0, (sc->xftfont->height + 1) * entry + sc->xftfont->ascent + 1);
 }
 
 static void
@@ -525,11 +528,12 @@ menu_calc_entry(struct screen_ctx *sc, struct menu_ctx *mc, int x, int y)
 {
 	int	 entry;
 
-	entry = y / font_height(sc);
+	entry = y / (sc->xftfont->height + 1);
 
 	/* in bounds? */
 	if (x < 0 || x > mc->width || y < 0 ||
-	    y > font_height(sc) * mc->num || entry < 0 || entry >= mc->num)
+	    y > (sc->xftfont->height + 1) * mc->num ||
+	    entry < 0 || entry >= mc->num)
 		entry = -1;
 
 	if (mc->hasprompt && entry == 0)

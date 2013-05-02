@@ -450,14 +450,11 @@ void			 conf_ignore(struct conf *, char *);
 void			 conf_mousebind(struct conf *, char *, char *);
 void			 conf_ungrab(struct conf *, struct keybinding *);
 
-int			 font_ascent(struct screen_ctx *);
-int			 font_descent(struct screen_ctx *);
 void			 font_draw(struct screen_ctx *, const char *, int,
 			     Drawable, int, int, int);
-u_int			 font_height(struct screen_ctx *);
 void			 font_init(struct screen_ctx *, const char *,
 			     const char **);
-int			 font_width(struct screen_ctx *, const char *, int);
+int			 font_width(XftFont *, const char *, int);
 
 void			 xev_loop(void);
 
