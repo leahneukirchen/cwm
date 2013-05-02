@@ -165,7 +165,6 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
 				goto out;
 			/* FALLTHROUGH */
 		case Expose:
-			fprintf(stderr, "expose\n");
 			menu_draw(sc, &mc, menuq, &resultq);
 			break;
 		case MotionNotify:
