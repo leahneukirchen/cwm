@@ -117,12 +117,24 @@ main		: FONTNAME STRING		{
 				conf->flags |= CONF_STICKY_GROUPS;
 		}
 		| BORDERWIDTH NUMBER {
+			if ($2 < 0) {
+				yyerror("invalid borderwidth: %d", $2);
+				YYERROR;
+			}
 			conf->bwidth = $2;
 		}
 		| MOVEAMOUNT NUMBER {
+			if ($2 < 0) {
+				yyerror("invalid movemount: %d", $2);
+				YYERROR;
+			}
 			conf->mamount = $2;
 		}
 		| SNAPDIST NUMBER {
+			if ($2 < 0) {
+				yyerror("invalid snapdist: %d", $2);
+				YYERROR;
+			}
 			conf->snapdist = $2;
 		}
 		| COMMAND STRING string		{
@@ -133,10 +145,9 @@ main		: FONTNAME STRING		{
 		| AUTOGROUP NUMBER STRING	{
 			if ($2 < 0 || $2 > 9) {
 				free($3);
-				yyerror("autogroup number out of range: %d", $2);
+				yyerror("invalid autogroup: %d", $2);
 				YYERROR;
 			}
-
 			conf_autogroup(conf, $2, $3);
 			free($3);
 		}
@@ -150,6 +161,11 @@ main		: FONTNAME STRING		{
 			free($3);
 		}
 		| GAP NUMBER NUMBER NUMBER NUMBER {
+			if ($2 < 0 || $3 < 0 || $4 < 0 || $5 < 0) {
+				yyerror("invalid gap: %d %d %d %d",
+				    $2, $3, $4, $5);
+				YYERROR;
+			}
 			conf->gap.top = $2;
 			conf->gap.bottom = $3;
 			conf->gap.left = $4;
