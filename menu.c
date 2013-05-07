@@ -81,7 +81,9 @@ static int		 menu_keycode(XKeyEvent *, enum ctltype *,
 void
 menu_init(struct screen_ctx *sc)
 {
-	sc->menuwin = XCreateSimpleWindow(X_Dpy, sc->rootwin, 0, 0, 1, 1, 0, 0,
+	sc->menuwin = XCreateSimpleWindow(X_Dpy, sc->rootwin, 0, 0, 1, 1,
+	    Conf.bwidth,
+	    sc->xftcolor[CWM_COLOR_MENU_FG].pixel,
 	    sc->xftcolor[CWM_COLOR_MENU_BG].pixel);
 }
 
