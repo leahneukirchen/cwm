@@ -276,7 +276,7 @@ group_hidetoggle(struct screen_ctx *sc, int idx)
 	}
 
 	group_fix_hidden_state(gc);
-	debug("group_hidetoggle %i\n", gc->hidden);
+	debug("group_hidetoggle idx=%i, gc->hidden=%i\n", idx, gc->hidden);
 
 	if (gc->hidden)
 		group_show(sc, gc);
@@ -432,23 +432,27 @@ group_autogroup(struct client_ctx *cc)
 			no = *grpno;
 		XFree(grpno);
 	} else {
-		debug("search class:%s name:%s\n", cc->app_class, cc->app_name);
+		debug("search class=%s name=%s\n", cc->app_class, cc->app_name);
 		TAILQ_FOREACH(aw, &Conf.autogroupq, entry) {
-			if (strcmp(aw->class, cc->app_class) == 0) {
+			debug("  probe num=%i class=%s name=%s, ", 
+				aw->num, aw->class, aw->name);
+			if (strcasecmp(aw->class, cc->app_class) == 0) {
 				if ((aw->name != NULL) &&
-				    (strcmp(aw->name, cc->app_name) == 0)) {
+				    (strcasecmp(aw->name, cc->app_name) == 0)) {
 					no = aw->num;
 					both_match = 1;
 				} else if (aw->name == NULL && !both_match)
 					no = aw->num;
 			}
+			debug("\t current no=%i, both_match=%i\n", 
+				no, both_match);
 		}
 	}
 
 	TAILQ_FOREACH(as, &Conf.autostartq, entry) {
 		int end;
 		char* space = strchr(as->cmd, ' ');
-		if ( as->lasttime ==0 )
+		if ( as->lasttime == 0 )
 			continue;
 		if ( space == NULL )
 			end = strlen(as->cmd);
