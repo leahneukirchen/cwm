@@ -136,8 +136,8 @@ kbfunc_moveresize(struct client_ctx *cc, union arg *arg)
 	case CWM_SNAP:
 		ox = cc->geom.x; ow = cc->geom.w;
 		oy = cc->geom.y; oh = cc->geom.h;
-		#define sw cc->sc->work.w
-		#define sh cc->sc->work.h
+		#define sw sc->work.w
+		#define sh sc->work.h
 		#define bw 2 * cc->bwidth
 		#define nw cc->geom.w
 		#define nh cc->geom.h
