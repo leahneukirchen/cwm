@@ -560,6 +560,8 @@ conf_unbind(struct conf *c, struct keybinding *unbind)
 		    key->keysym == unbind->keysym) {
 			conf_ungrab(c, key);
 			TAILQ_REMOVE(&c->keybindingq, key, entry);
+			if (key->argtype & ARG_CHAR)
+				free(key->argument.c);
 			free(key);
 		}
 	}
