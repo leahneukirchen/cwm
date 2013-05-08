@@ -99,8 +99,7 @@ group_show(struct screen_ctx *sc, struct group_ctx *gc)
 {
 	struct client_ctx	*cc;
 	Window			*winlist;
-	u_int			 i;
-	int			 lastempty = -1;
+	int			 i, lastempty = -1;
 
 	gc->highstack = 0;
 	TAILQ_FOREACH(cc, &gc->clients, group_entry) {
@@ -162,27 +161,6 @@ group_init(struct screen_ctx *sc)
 	xu_ewmh_net_virtual_roots(sc);
 
 	group_setactive(sc, 1);
-}
-
-void
-group_make_autogroup(struct conf *conf, char *val, int no)
-{
-	struct autogroupwin	*aw;
-	char			*p;
-
-	aw = xcalloc(1, sizeof(*aw));
-
-	if ((p = strchr(val, ',')) == NULL) {
-		aw->name = NULL;
-		aw->class = xstrdup(val);
-	} else {
-		*(p++) = '\0';
-		aw->name = xstrdup(val);
-		aw->class = xstrdup(p);
-	}
-	aw->num = no;
-
-	TAILQ_INSERT_TAIL(&conf->autogroupq, aw, entry);
 }
 
 void
@@ -384,6 +362,7 @@ group_menu(XButtonEvent *e)
 	int			 i;
 
 	sc = screen_fromroot(e->root);
+
 	TAILQ_INIT(&menuq);
 
 	for (i = 0; i < CALMWM_NGROUPS; i++) {
@@ -407,15 +386,11 @@ group_menu(XButtonEvent *e)
 		return;
 
 	mi = menu_filter(sc, &menuq, NULL, NULL, 0, NULL, NULL);
+	if (mi != NULL && mi->ctx != NULL) {
+		gc = (struct group_ctx *)mi->ctx;
+		(gc->hidden) ? group_show(sc, gc) : group_hide(sc, gc);
+	}
 
-	if (mi == NULL || mi->ctx == NULL)
-		goto cleanup;
-
-	gc = (struct group_ctx *)mi->ctx;
-
-	(gc->hidden) ? group_show(sc, gc) : group_hide(sc, gc);
-
-cleanup:
 	menuq_clear(&menuq);
 }
 

@@ -72,13 +72,13 @@ xu_btn_ungrab(Window win, int mask, u_int btn)
 }
 
 void
-xu_ptr_getpos(Window rootwin, int *x, int *y)
+xu_ptr_getpos(Window win, int *x, int *y)
 {
 	Window	 w0, w1;
 	int	 tmp0, tmp1;
 	u_int	 tmp2;
 
-	XQueryPointer(X_Dpy, rootwin, &w0, &w1, &tmp0, &tmp1, x, y, &tmp2);
+	XQueryPointer(X_Dpy, win, &w0, &w1, &tmp0, &tmp1, x, y, &tmp2);
 }
 
 void
@@ -203,11 +203,11 @@ xu_getstrprop(Window win, Atom atm, char **text) {
 }
 
 int
-xu_getstate(struct client_ctx *cc, int *state)
+xu_get_wm_state(Window win, int *state)
 {
 	long	*p = NULL;
 
-	if (xu_getprop(cc->win, cwmh[WM_STATE].atom, cwmh[WM_STATE].atom, 2L,
+	if (xu_getprop(win, cwmh[WM_STATE].atom, cwmh[WM_STATE].atom, 2L,
 	    (u_char **)&p) <= 0)
 		return (-1);
 
@@ -218,15 +218,14 @@ xu_getstate(struct client_ctx *cc, int *state)
 }
 
 void
-xu_setstate(struct client_ctx *cc, int state)
+xu_set_wm_state(Window win, int state)
 {
 	long	 dat[2];
 
 	dat[0] = state;
 	dat[1] = None;
 
-	cc->state = state;
-	XChangeProperty(X_Dpy, cc->win,
+	XChangeProperty(X_Dpy, win,
 	    cwmh[WM_STATE].atom, cwmh[WM_STATE].atom, 32,
 	    PropModeReplace, (unsigned char *)dat, 2);
 }
@@ -292,7 +291,7 @@ xu_ewmh_net_supported_wm_check(struct screen_ctx *sc)
 	XChangeProperty(X_Dpy, w, ewmh[_NET_SUPPORTING_WM_CHECK].atom,
 	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)&w, 1);
 	XChangeProperty(X_Dpy, w, ewmh[_NET_WM_NAME].atom,
-	    XA_WM_NAME, 8, PropModeReplace, (unsigned char *)WMNAME,
+	    cwmh[UTF8_STRING].atom, 8, PropModeReplace, (unsigned char *)WMNAME,
 	    strlen(WMNAME));
 }
 

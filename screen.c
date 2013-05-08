@@ -31,12 +31,15 @@
 #include "calmwm.h"
 
 void
-screen_init(struct screen_ctx *sc, u_int which)
+screen_init(int which)
 {
+	struct screen_ctx	*sc;
 	Window			*wins, w0, w1;
 	XWindowAttributes	 winattr;
 	XSetWindowAttributes	 rootattr;
 	u_int			 nwins, i;
+
+	sc = xcalloc(1, sizeof(*sc));
 
 	sc->which = which;
 	sc->visual = DefaultVisual(X_Dpy, sc->which);
@@ -47,16 +50,14 @@ screen_init(struct screen_ctx *sc, u_int which)
 	xu_ewmh_net_supported_wm_check(sc);
 
 	conf_gap(&Conf, sc);
+	conf_color(&Conf, sc);
+	conf_font(&Conf, sc);
 
 	screen_update_geometry(sc);
 
-	conf_color(&Conf, sc);
-
-	group_init(sc);
-	conf_font(&Conf, sc);
-
 	TAILQ_INIT(&sc->mruq);
 
+	group_init(sc);
 	menu_init(sc);
 
 	rootattr.cursor = Cursor_normal;
@@ -83,6 +84,8 @@ screen_init(struct screen_ctx *sc, u_int which)
 
 	if (HasRandr)
 		XRRSelectInput(X_Dpy, sc->rootwin, RRScreenChangeNotifyMask);
+
+	TAILQ_INSERT_TAIL(&Screenq, sc, entry);
 
 	XSync(X_Dpy, False);
 }

@@ -38,6 +38,8 @@
 
 static void	search_match_path(struct menu_q *, struct menu_q *,
 		    char *, int);
+static void	search_match_path_exec(struct menu_q *, struct menu_q *,
+		    char *);
 static int	strsubmatch(char *, char *, int);
 
 /*
@@ -192,7 +194,7 @@ search_match_path(struct menu_q *menuq, struct menu_q *resultq, char *search, in
 	globfree(&g);
 }
 
-void
+static void
 search_match_path_exec(struct menu_q *menuq, struct menu_q *resultq, char *search)
 {
 	return (search_match_path(menuq, resultq, search, PATH_EXEC));

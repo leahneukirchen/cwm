@@ -228,7 +228,7 @@ TAILQ_HEAD(autostartcmd_q, autostartcmd);
 
 struct screen_ctx {
 	TAILQ_ENTRY(screen_ctx)	 entry;
-	u_int			 which;
+	int			 which;
 	Visual			*visual;
 	Colormap		 colormap;
 	Window			 rootwin;
@@ -376,7 +376,6 @@ void			 group_client_delete(struct client_ctx *);
 void			 group_cycle(struct screen_ctx *, int);
 void			 group_hidetoggle(struct screen_ctx *, int);
 void			 group_init(struct screen_ctx *);
-void			 group_make_autogroup(struct conf *, char *, int);
 void			 group_make_autostart(struct conf *, char *, int);
 void			 group_menu(XButtonEvent *);
 void			 group_movetogroup(struct client_ctx *, int);
@@ -400,7 +399,7 @@ void			 search_print_client(struct menu *, int);
 
 struct geom		 screen_find_xinerama(struct screen_ctx *, int, int);
 struct screen_ctx	*screen_fromroot(Window);
-void			 screen_init(struct screen_ctx *, u_int);
+void			 screen_init(int);
 void			 screen_update_geometry(struct screen_ctx *);
 void			 screen_updatestackingorder(struct screen_ctx *);
 
@@ -461,6 +460,7 @@ void			 menuq_clear(struct menu_q *);
 
 int			 parse_config(const char *, struct conf *);
 
+void			 conf_autogroup(struct conf *, int, char *);
 void			 conf_bindname(struct conf *, char *, char *);
 void			 conf_clear(struct conf *);
 void			 conf_client(struct client_ctx *);
@@ -471,6 +471,7 @@ void			 conf_gap(struct conf *, struct screen_ctx *);
 void			 conf_grab(struct conf *, struct keybinding *);
 void			 conf_grab_mouse(struct client_ctx *);
 void			 conf_init(struct conf *);
+void			 conf_ignore(struct conf *, char *);
 void			 conf_mousebind(struct conf *, char *, char *);
 void			 conf_ungrab(struct conf *, struct keybinding *);
 
@@ -491,7 +492,7 @@ void			 xu_configure(struct client_ctx *);
 void			 xu_getatoms(void);
 unsigned long		 xu_getcolor(struct screen_ctx *, char *);
 int			 xu_getprop(Window, Atom, Atom, long, u_char **);
-int			 xu_getstate(struct client_ctx *, int *);
+int			 xu_get_wm_state(Window, int *);
 int			 xu_getstrprop(Window, Atom, char **);
 void			 xu_key_grab(Window, int, int);
 void			 xu_key_ungrab(Window, int, int);
@@ -501,7 +502,7 @@ int			 xu_ptr_regrab(int, Cursor);
 void			 xu_ptr_setpos(Window, int, int);
 void			 xu_ptr_ungrab(void);
 void			 xu_sendmsg(Window, Atom, long);
-void			 xu_setstate(struct client_ctx *, int);
+void			 xu_set_wm_state(Window win, int);
 void 			 xu_xorcolor(XRenderColor, XRenderColor,
 			     XRenderColor *);
 
