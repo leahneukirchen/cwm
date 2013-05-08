@@ -261,7 +261,9 @@ group_hidetoggle(struct screen_ctx *sc, int idx)
 	if ( TAILQ_EMPTY(&gc->clients) ) {
 		struct autostartcmd 	*as;
 		TAILQ_FOREACH(as, &Conf.autostartq, entry) {
-			if ( as->num == idx + 1 ) {
+			debug("idx=%i, as->num=%i, as->cmd=%s\n",
+				idx, as->num, as->cmd);
+			if ( as->num == idx ) {
 				time_t now = time(NULL);
 				if (as->lasttime < now - 5) {
 					debug("run %s\n", as->cmd);
