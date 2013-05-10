@@ -236,7 +236,7 @@ struct keybinding {
 	void			(*callback)(struct client_ctx *, union arg *);
 	union arg		 argument;
 	int			 modmask;
-	int			 keysym;
+	KeySym			 keysym;
 	int			 keycode;
 #define KBFLAG_NEEDCLIENT	 0x0001
 	int			 flags;
@@ -465,8 +465,8 @@ unsigned long		 xu_getcolor(struct screen_ctx *, char *);
 int			 xu_getprop(Window, Atom, Atom, long, u_char **);
 int			 xu_get_wm_state(Window, int *);
 int			 xu_getstrprop(Window, Atom, char **);
-void			 xu_key_grab(Window, int, int);
-void			 xu_key_ungrab(Window, int, int);
+void			 xu_key_grab(Window, int, KeySym);
+void			 xu_key_ungrab(Window, int, KeySym);
 void			 xu_ptr_getpos(Window, int *, int *);
 int			 xu_ptr_grab(Window, int, Cursor);
 int			 xu_ptr_regrab(int, Cursor);

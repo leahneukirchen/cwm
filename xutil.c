@@ -88,7 +88,7 @@ xu_ptr_setpos(Window win, int x, int y)
 }
 
 void
-xu_key_grab(Window win, int mask, int keysym)
+xu_key_grab(Window win, int mask, KeySym keysym)
 {
 	KeyCode	 code;
 	int	 i;
@@ -104,7 +104,7 @@ xu_key_grab(Window win, int mask, int keysym)
 }
 
 void
-xu_key_ungrab(Window win, int mask, int keysym)
+xu_key_ungrab(Window win, int mask, KeySym keysym)
 {
 	KeyCode	 code;
 	int	 i;
