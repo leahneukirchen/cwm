@@ -33,7 +33,7 @@
 static unsigned int ign_mods[] = { 0, LockMask, Mod2Mask, Mod2Mask | LockMask };
 
 int
-xu_ptr_grab(Window win, int mask, Cursor curs)
+xu_ptr_grab(Window win, u_int mask, Cursor curs)
 {
 	return (XGrabPointer(X_Dpy, win, False, mask,
 	    GrabModeAsync, GrabModeAsync,
@@ -41,7 +41,7 @@ xu_ptr_grab(Window win, int mask, Cursor curs)
 }
 
 int
-xu_ptr_regrab(int mask, Cursor curs)
+xu_ptr_regrab(u_int mask, Cursor curs)
 {
 	return (XChangeActivePointerGrab(X_Dpy, mask,
 	    curs, CurrentTime) == GrabSuccess ? 0 : -1);
@@ -90,7 +90,7 @@ xu_ptr_setpos(Window win, int x, int y)
 }
 
 void
-xu_key_grab(Window win, int mask, KeySym keysym)
+xu_key_grab(Window win, u_int mask, KeySym keysym)
 {
 	KeyCode	 code;
 	u_int	 i;
@@ -106,7 +106,7 @@ xu_key_grab(Window win, int mask, KeySym keysym)
 }
 
 void
-xu_key_ungrab(Window win, int mask, KeySym keysym)
+xu_key_ungrab(Window win, u_int mask, KeySym keysym)
 {
 	KeyCode	 code;
 	u_int	 i;

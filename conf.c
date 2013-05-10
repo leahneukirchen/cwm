@@ -627,7 +627,7 @@ void
 conf_grab_mouse(struct client_ctx *cc)
 {
 	struct mousebinding	*mb;
-	int			 button;
+	u_int			 button;
 
 	TAILQ_FOREACH(mb, &Conf.mousebindingq, entry) {
 		if (mb->context != MOUSEBIND_CTX_WIN)

@@ -235,7 +235,7 @@ struct keybinding {
 	TAILQ_ENTRY(keybinding)	 entry;
 	void			(*callback)(struct client_ctx *, union arg *);
 	union arg		 argument;
-	int			 modmask;
+	u_int			 modmask;
 	KeySym			 keysym;
 	int			 keycode;
 #define KBFLAG_NEEDCLIENT	 0x0001
@@ -247,8 +247,8 @@ TAILQ_HEAD(keybinding_q, keybinding);
 struct mousebinding {
 	TAILQ_ENTRY(mousebinding)	entry;
 	void			 	(*callback)(struct client_ctx *, void *);
-	int				modmask;
-	int			 	button;
+	u_int				modmask;
+	u_int			 	button;
 #define MOUSEBIND_CTX_ROOT		0x0001
 #define MOUSEBIND_CTX_WIN		0x0002
 	int				context;
@@ -465,11 +465,11 @@ unsigned long		 xu_getcolor(struct screen_ctx *, char *);
 int			 xu_getprop(Window, Atom, Atom, long, u_char **);
 int			 xu_get_wm_state(Window, int *);
 int			 xu_getstrprop(Window, Atom, char **);
-void			 xu_key_grab(Window, int, KeySym);
-void			 xu_key_ungrab(Window, int, KeySym);
+void			 xu_key_grab(Window, u_int, KeySym);
+void			 xu_key_ungrab(Window, u_int, KeySym);
 void			 xu_ptr_getpos(Window, int *, int *);
-int			 xu_ptr_grab(Window, int, Cursor);
-int			 xu_ptr_regrab(int, Cursor);
+int			 xu_ptr_grab(Window, u_int, Cursor);
+int			 xu_ptr_regrab(u_int, Cursor);
 void			 xu_ptr_setpos(Window, int, int);
 void			 xu_ptr_ungrab(void);
 void			 xu_sendmsg(Window, Atom, long);

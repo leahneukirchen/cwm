@@ -277,7 +277,7 @@ xev_handle_keypress(XEvent *ee)
 	struct client_ctx	*cc = NULL, fakecc;
 	struct keybinding	*kb;
 	KeySym			 keysym, skeysym;
-	int			 modshift;
+	u_int			 modshift;
 
 	keysym = XkbKeycodeToKeysym(X_Dpy, e->keycode, 0, 0);
 	skeysym = XkbKeycodeToKeysym(X_Dpy, e->keycode, 0, 1);
