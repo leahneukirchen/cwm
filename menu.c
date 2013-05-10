@@ -197,7 +197,7 @@ menu_complete_path(struct menu_ctx *mc)
 {
 	struct menu		*mi, *mr;
 	struct menu_q		 menuq;
-	char *path = NULL;
+	char			*path = NULL;
 
 	path = xcalloc(1, sizeof(mr->text));
 	mr = xcalloc(1, sizeof(*mr));
