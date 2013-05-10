@@ -323,7 +323,7 @@ xev_handle_keyrelease(XEvent *ee)
 	struct screen_ctx	*sc;
 	struct client_ctx	*cc;
 	KeySym			 keysym;
-	int			 i;
+	u_int			 i;
 
 	sc = screen_fromroot(e->root);
 	cc = client_current();

@@ -56,7 +56,8 @@ xu_ptr_ungrab(void)
 void
 xu_btn_grab(Window win, int mask, u_int btn)
 {
-	int	i;
+	u_int	i;
+
 	for (i = 0; i < nitems(ign_mods); i++)
 		XGrabButton(X_Dpy, btn, (mask | ign_mods[i]), win,
 		    False, BUTTONMASK, GrabModeAsync,
@@ -66,7 +67,8 @@ xu_btn_grab(Window win, int mask, u_int btn)
 void
 xu_btn_ungrab(Window win, int mask, u_int btn)
 {
-	int	i;
+	u_int	i;
+
 	for (i = 0; i < nitems(ign_mods); i++)
 		XUngrabButton(X_Dpy, btn, (mask | ign_mods[i]), win);
 }
@@ -91,7 +93,7 @@ void
 xu_key_grab(Window win, int mask, KeySym keysym)
 {
 	KeyCode	 code;
-	int	 i;
+	u_int	 i;
 
 	code = XKeysymToKeycode(X_Dpy, keysym);
 	if ((XkbKeycodeToKeysym(X_Dpy, code, 0, 0) != keysym) &&
@@ -107,7 +109,7 @@ void
 xu_key_ungrab(Window win, int mask, KeySym keysym)
 {
 	KeyCode	 code;
-	int	 i;
+	u_int	 i;
 
 	code = XKeysymToKeycode(X_Dpy, keysym);
 	if ((XkbKeycodeToKeysym(X_Dpy, code, 0, 0) != keysym) &&
@@ -258,7 +260,7 @@ struct atom_ctx ewmh[EWMH_NITEMS] = {
 void
 xu_getatoms(void)
 {
-	int	 i;
+	u_int	 i;
 
 	for (i = 0; i < nitems(cwmh); i++)
 		cwmh[i].atom = XInternAtom(X_Dpy, cwmh[i].name, False);
@@ -271,7 +273,7 @@ void
 xu_ewmh_net_supported(struct screen_ctx *sc)
 {
 	Atom	 atom[EWMH_NITEMS];
-	int	 i;
+	u_int	 i;
 
 	for (i = 0; i < nitems(ewmh); i++)
 		atom[i] = ewmh[i].atom;

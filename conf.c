@@ -195,7 +195,7 @@ m_binds[] = {
 void
 conf_init(struct conf *c)
 {
-	int	i;
+	u_int	i;
 
 	bzero(c, sizeof(*c));
 
@@ -459,7 +459,7 @@ conf_bindname(struct conf *c, char *name, char *binding)
 {
 	struct keybinding	*current_binding;
 	char			*substring, *tmp;
-	int			 i;
+	u_int			 i;
 
 	current_binding = xcalloc(1, sizeof(*current_binding));
 
@@ -564,7 +564,7 @@ conf_mousebind(struct conf *c, char *name, char *binding)
 	struct mousebinding	*current_binding;
 	char			*substring, *tmp;
 	const char		*errstr;
-	int			 i;
+	u_int			 i;
 
 	current_binding = xcalloc(1, sizeof(*current_binding));
 
