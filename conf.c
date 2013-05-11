@@ -84,18 +84,6 @@ conf_ignore(struct conf *c, char *val)
 	TAILQ_INSERT_TAIL(&c->ignoreq, wm, entry);
 }
 
-void
-conf_gap(struct conf *c, struct screen_ctx *sc)
-{
-	sc->gap = c->gap;
-}
-
-void
-conf_font(struct conf *c, struct screen_ctx *sc)
-{
-	font_init(sc, c->font, (const char **)c->menucolor);
-}
-
 static char *menu_color_binds[CWM_COLOR_MENU_MAX] = {
 	"black",	/* CWM_COLOR_MENU_FG */
 	"white",	/* CWM_COLOR_MENU_BG */
@@ -111,12 +99,16 @@ static char *color_binds[CWM_COLOR_BORDER_MAX] = {
 };
 
 void
-conf_color(struct conf *c, struct screen_ctx *sc)
+conf_screen(struct screen_ctx *sc)
 {
 	int	 i;
 
+	sc->gap = Conf.gap;
+
+	font_init(sc, Conf.font, (const char **)Conf.menucolor);
+
 	for (i = 0; i < CWM_COLOR_BORDER_MAX; i++)
-		sc->color[i] = xu_getcolor(sc, c->color[i]);
+		sc->color[i] = xu_getcolor(sc, Conf.color[i]);
 }
 
 static struct {
