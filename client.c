@@ -55,7 +55,7 @@ client_find(Window win)
 }
 
 struct client_ctx *
-client_new(Window win, struct screen_ctx *sc, int mapped)
+client_init(Window win, struct screen_ctx *sc, int mapped)
 {
 	struct client_ctx	*cc;
 	XClassHint		 xch;

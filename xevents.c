@@ -86,7 +86,7 @@ xev_handle_maprequest(XEvent *ee)
 
 	if ((cc = client_find(e->window)) == NULL) {
 		XGetWindowAttributes(X_Dpy, e->window, &xattr);
-		cc = client_new(e->window, screen_fromroot(xattr.root), 1);
+		cc = client_init(e->window, screen_fromroot(xattr.root), 1);
 	}
 
 	if ((cc->flags & CLIENT_IGNORE) == 0)

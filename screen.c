@@ -74,7 +74,7 @@ screen_init(int which)
 		if (winattr.override_redirect ||
 		    winattr.map_state != IsViewable)
 			continue;
-		(void)client_new(wins[i], sc, winattr.map_state != IsUnmapped);
+		(void)client_init(wins[i], sc, winattr.map_state != IsUnmapped);
 	}
 	XFree(wins);
 
