@@ -447,7 +447,7 @@ void			 conf_mousebind(struct conf *, char *, char *);
 void			 conf_screen(struct screen_ctx *);
 void			 conf_ungrab(struct conf *, struct keybinding *);
 
-void			 font_draw(struct screen_ctx *, const char *, int,
+void			 font_draw(struct screen_ctx *, const char *,
 			     Drawable, int, int, int);
 void			 font_init(struct screen_ctx *, const char *,
 			     const char **);
