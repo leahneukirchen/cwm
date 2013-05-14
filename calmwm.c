@@ -181,7 +181,7 @@ x_wmerrorhandler(Display *dpy, XErrorEvent *e)
 static int
 x_errorhandler(Display *dpy, XErrorEvent *e)
 {
-#if DEBUG
+#ifdef DEBUG
 	char msg[80], number[80], req[80];
 
 	XGetErrorText(X_Dpy, e->error_code, msg, sizeof(msg));
