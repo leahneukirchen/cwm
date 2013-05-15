@@ -42,7 +42,7 @@ install: ${PROG}
 	install -m 644 cwm.1 ${DESTDIR}${MANPREFIX}/man1
 	install -m 644 cwmrc.5 ${DESTDIR}${MANPREFIX}/man5
 	
-uninstall
+uninstall: ${PROG}
 	rm -f ${DESTDIR}${PREFIX}/bin/cwm
 	rm -f ${DESTDIR}${MANPREFIX}/man1/cwm.1
 	rm -f ${DESTDIR}${MANPREFIX}/man5/cwmrc.5
