@@ -446,7 +446,6 @@ void			 conf_ungrab(struct conf *, struct keybinding *);
 
 void			 font_draw(struct screen_ctx *, const char *,
 			     Drawable, int, int, int);
-void			 font_init(struct screen_ctx *, const char *);
 int			 font_width(XftFont *, const char *, int);
 
 void			 xev_loop(void);

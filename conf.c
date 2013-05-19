@@ -103,7 +103,14 @@ conf_screen(struct screen_ctx *sc)
 
 	sc->gap = Conf.gap;
 
-	font_init(sc, Conf.font);
+	sc->xftdraw = XftDrawCreate(X_Dpy, sc->rootwin,
+	    sc->visual, sc->colormap);
+	if (sc->xftdraw == NULL)
+		errx(1, "XftDrawCreate");
+
+	sc->xftfont = XftFontOpenName(X_Dpy, sc->which, Conf.font);
+	if (sc->xftfont == NULL)
+		errx(1, "XftFontOpenName");
 
 	for (i = 0; i < CWM_COLOR_MAX; i++) {
 		if (*Conf.color[i] == '\0')
