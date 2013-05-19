@@ -239,6 +239,7 @@ struct atom_ctx cwmh[CWMH_NITEMS] = {
 	{"WM_PROTOCOLS",		None},
 	{"_MOTIF_WM_HINTS",		None},
 	{"UTF8_STRING",			None},
+	{"WM_CHANGE_STATE",		None},
 };
 struct atom_ctx ewmh[EWMH_NITEMS] = {
 	{"_NET_SUPPORTED",		None},
