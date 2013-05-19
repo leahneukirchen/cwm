@@ -36,7 +36,7 @@ static struct client_ctx	*client_mruprev(struct client_ctx *);
 static void			 client_mtf(struct client_ctx *);
 static void			 client_none(struct screen_ctx *);
 static void			 client_placecalc(struct client_ctx *);
-static void			 client_update(struct client_ctx *);
+static void			 client_wm_protocols(struct client_ctx *);
 static void			 client_getmwmhints(struct client_ctx *);
 static int			 client_inbound(struct client_ctx *, int, int);
 
@@ -132,7 +132,7 @@ client_init(Window win, struct screen_ctx *sc, int mapped)
 
 	xu_ewmh_net_client_list(sc);
 
-	client_update(cc);
+	client_wm_protocols(cc);
 
 	if (mapped)
 		group_autogroup(cc);
@@ -497,29 +497,26 @@ client_draw_border(struct client_ctx *cc)
 }
 
 static void
-client_update(struct client_ctx *cc)
+client_wm_protocols(struct client_ctx *cc)
 {
 	Atom	*p;
-	int	 i;
-	long	 n;
+	int	 i, j;
 
-	if ((n = xu_getprop(cc->win, cwmh[WM_PROTOCOLS].atom,
-		 XA_ATOM, 20L, (u_char **)&p)) <= 0)
-		return;
-
-	for (i = 0; i < n; i++)
-		if (p[i] == cwmh[WM_DELETE_WINDOW].atom)
-			cc->xproto |= CLIENT_PROTO_DELETE;
-		else if (p[i] == cwmh[WM_TAKE_FOCUS].atom)
-			cc->xproto |= CLIENT_PROTO_TAKEFOCUS;
-
-	XFree(p);
+	if (XGetWMProtocols(X_Dpy, cc->win, &p, &j)) {
+		for (i = 0; i < j; i++) {
+			if (p[i] == cwmh[WM_DELETE_WINDOW].atom)
+				cc->xproto |= _WM_DELETE_WINDOW;
+			else if (p[i] == cwmh[WM_TAKE_FOCUS].atom)
+				cc->xproto |= _WM_TAKE_FOCUS;
+		}
+		XFree(p);
+	}
 }
 
 void
 client_send_delete(struct client_ctx *cc)
 {
-	if (cc->xproto & CLIENT_PROTO_DELETE)
+	if (cc->xproto & _WM_DELETE_WINDOW)
 		xu_sendmsg(cc->win,
 		    cwmh[WM_PROTOCOLS].atom, cwmh[WM_DELETE_WINDOW].atom);
 	else
