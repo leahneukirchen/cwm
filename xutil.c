@@ -420,24 +420,12 @@ xu_ewmh_net_wm_desktop(struct client_ctx *cc)
 	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&no, 1);
 }
 
-unsigned long
-xu_getcolor(struct screen_ctx *sc, char *name)
-{
-	XColor	 color, tmp;
-
-	if (!XAllocNamedColor(X_Dpy, sc->colormap, name, &color, &tmp)) {
-		warnx("XAllocNamedColor error: '%s'", name);
-		return (0);
-	}
-
-	return (color.pixel);
-}
-
 void
-xu_xorcolor(XRenderColor a, XRenderColor b, XRenderColor *r)
+xu_xorcolor(XftColor a, XftColor b, XftColor *r)
 {
-	r->red = a.red ^ b.red;
-	r->green = a.green ^ b.green;
-	r->blue = a.blue ^ b.blue;
-	r->alpha = 0xffff;
+	r->pixel = a.pixel ^ b.pixel;
+	r->color.red = a.color.red ^ b.color.red;
+	r->color.green = a.color.green ^ b.color.green;
+	r->color.blue = a.color.blue ^ b.color.blue;
+	r->color.alpha = 0xffff;
 }

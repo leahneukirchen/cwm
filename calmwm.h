@@ -85,20 +85,16 @@ union arg {
 	int	 i;
 };
 
-enum menucolor {
-	CWM_COLOR_MENU_FG,
-	CWM_COLOR_MENU_BG,
-	CWM_COLOR_MENU_FONT,
-	CWM_COLOR_MENU_FONT_SEL,
-	CWM_COLOR_MENU_MAX
-};
-
-enum bordercolor {
+enum color {
 	CWM_COLOR_BORDER_ACTIVE,
 	CWM_COLOR_BORDER_INACTIVE,
 	CWM_COLOR_BORDER_GROUP,
 	CWM_COLOR_BORDER_UNGROUP,
-	CWM_COLOR_BORDER_MAX
+	CWM_COLOR_MENU_FG,
+	CWM_COLOR_MENU_BG,
+	CWM_COLOR_MENU_FONT,
+	CWM_COLOR_MENU_FONT_SEL,
+	CWM_COLOR_MAX
 };
 
 struct geom {
@@ -213,13 +209,12 @@ struct screen_ctx {
 	Colormap		 colormap;
 	Window			 rootwin;
 	Window			 menuwin;
-	unsigned long		 color[CWM_COLOR_BORDER_MAX];
 	int			 cycling;
 	struct geom		 view; /* viewable area */
 	struct geom		 work; /* workable area, gap-applied */
 	struct gap		 gap;
 	struct cycle_entry_q	 mruq;
-	XftColor		 xftcolor[CWM_COLOR_MENU_MAX];
+	XftColor		 xftcolor[CWM_COLOR_MAX];
 	XftDraw			*xftdraw;
 	XftFont			*xftfont;
 	int			 xinerama_no;
@@ -293,8 +288,7 @@ struct conf {
 #define	CONF_SNAPDIST			0
 	int			 snapdist;
 	struct gap		 gap;
-	char			*color[CWM_COLOR_BORDER_MAX];
-	char		 	*menucolor[CWM_COLOR_MENU_MAX];
+	char			*color[CWM_COLOR_MAX];
 	char			 termpath[MAXPATHLEN];
 	char			 lockpath[MAXPATHLEN];
 	char			 known_hosts[MAXPATHLEN];
@@ -452,8 +446,7 @@ void			 conf_ungrab(struct conf *, struct keybinding *);
 
 void			 font_draw(struct screen_ctx *, const char *,
 			     Drawable, int, int, int);
-void			 font_init(struct screen_ctx *, const char *,
-			     const char **);
+void			 font_init(struct screen_ctx *, const char *);
 int			 font_width(XftFont *, const char *, int);
 
 void			 xev_loop(void);
@@ -462,7 +455,6 @@ void			 xu_btn_grab(Window, int, u_int);
 void			 xu_btn_ungrab(Window, int, u_int);
 void			 xu_configure(struct client_ctx *);
 void			 xu_getatoms(void);
-unsigned long		 xu_getcolor(struct screen_ctx *, char *);
 int			 xu_getprop(Window, Atom, Atom, long, u_char **);
 int			 xu_get_wm_state(Window, int *);
 int			 xu_getstrprop(Window, Atom, char **);
@@ -475,8 +467,7 @@ void			 xu_ptr_setpos(Window, int, int);
 void			 xu_ptr_ungrab(void);
 void			 xu_sendmsg(Window, Atom, long);
 void			 xu_set_wm_state(Window win, int);
-void 			 xu_xorcolor(XRenderColor, XRenderColor,
-			     XRenderColor *);
+void 			 xu_xorcolor(XftColor, XftColor, XftColor *);
 
 void			 xu_ewmh_net_supported(struct screen_ctx *);
 void			 xu_ewmh_net_supported_wm_check(struct screen_ctx *);
