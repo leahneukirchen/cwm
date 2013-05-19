@@ -203,13 +203,12 @@ xev_handle_propertynotify(XEvent *ee)
 			break;
 		}
 	} else {
-		TAILQ_FOREACH(sc, &Screenq, entry)
-			if (sc->rootwin == e->window)
-				goto test;
-		return;
-test:
-		if (e->atom == ewmh[_NET_DESKTOP_NAMES].atom)
-			group_update_names(sc);
+		TAILQ_FOREACH(sc, &Screenq, entry) {
+			if (sc->rootwin == e->window) {
+				if (e->atom == ewmh[_NET_DESKTOP_NAMES].atom)
+					group_update_names(sc);
+			}
+		}
 	}
 }
 
