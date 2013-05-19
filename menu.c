@@ -367,7 +367,7 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 	if (mc->hasprompt) {
 		(void)snprintf(mc->dispstr, sizeof(mc->dispstr), "%s%s%s%s",
 		    mc->promptstr, PROMPT_SCHAR, mc->searchstr, PROMPT_ECHAR);
-		mc->width = font_width(sc->xftfont, mc->dispstr,
+		mc->width = xu_xft_width(sc->xftfont, mc->dispstr,
 		    strlen(mc->dispstr));
 		mc->height = sc->xftfont->height + 1;
 		mc->num = 1;
@@ -384,7 +384,7 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 			text = mi->text;
 		}
 
-		mc->width = MAX(mc->width, font_width(sc->xftfont, text,
+		mc->width = MAX(mc->width, xu_xft_width(sc->xftfont, text,
 		    MIN(strlen(text), MENU_MAXENTRY)));
 		mc->height += sc->xftfont->height + 1;
 		mc->num++;
@@ -419,7 +419,7 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 	    mc->width, mc->height);
 
 	if (mc->hasprompt) {
-		font_draw(sc, mc->dispstr, sc->menuwin, CWM_COLOR_MENU_FONT,
+		xu_xft_draw(sc, mc->dispstr, sc->menuwin, CWM_COLOR_MENU_FONT,
 		    0, sc->xftfont->ascent);
 		n = 1;
 	} else
@@ -434,7 +434,7 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 		if (mc->y + y > xine.h)
 			break;
 
-		font_draw(sc, text, sc->menuwin, CWM_COLOR_MENU_FONT, 0, y);
+		xu_xft_draw(sc, text, sc->menuwin, CWM_COLOR_MENU_FONT, 0, y);
 		n++;
 	}
 	if (mc->hasprompt && n > 1 && (mc->searchstr[0] != '\0')) {
@@ -466,7 +466,7 @@ menu_draw_entry(struct screen_ctx *sc, struct menu_ctx *mc,
 	    (sc->xftfont->height + 1) * entry, mc->width,
 	    (sc->xftfont->height + 1) + sc->xftfont->descent);
 	color = active ? CWM_COLOR_MENU_FONT_SEL : CWM_COLOR_MENU_FONT;
-	font_draw(sc, text, sc->menuwin, color,
+	xu_xft_draw(sc, text, sc->menuwin, color,
 	    0, (sc->xftfont->height + 1) * entry + sc->xftfont->ascent + 1);
 }
 

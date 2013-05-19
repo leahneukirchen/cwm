@@ -444,10 +444,6 @@ void			 conf_mousebind(struct conf *, char *, char *);
 void			 conf_screen(struct screen_ctx *);
 void			 conf_ungrab(struct conf *, struct keybinding *);
 
-void			 font_draw(struct screen_ctx *, const char *,
-			     Drawable, int, int, int);
-int			 font_width(XftFont *, const char *, int);
-
 void			 xev_loop(void);
 
 void			 xu_btn_grab(Window, int, u_int);
@@ -466,6 +462,9 @@ void			 xu_ptr_setpos(Window, int, int);
 void			 xu_ptr_ungrab(void);
 void			 xu_sendmsg(Window, Atom, long);
 void			 xu_set_wm_state(Window win, int);
+void			 xu_xft_draw(struct screen_ctx *, const char *,
+			     Drawable, int, int, int);
+int			 xu_xft_width(XftFont *, const char *, int);
 void 			 xu_xorcolor(XftColor, XftColor, XftColor *);
 
 void			 xu_ewmh_net_supported(struct screen_ctx *);
