@@ -256,6 +256,7 @@ struct atom_ctx ewmh[EWMH_NITEMS] = {
 	{"_NET_WORKAREA",		None},
 	{"_NET_WM_NAME",		None},
 	{"_NET_WM_DESKTOP",		None},
+	{"_NET_CLOSE_WINDOW",		None},
 };
 
 void

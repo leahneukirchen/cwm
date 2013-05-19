@@ -545,6 +545,7 @@ enum {
 	_NET_WORKAREA,
 	_NET_WM_NAME,
 	_NET_WM_DESKTOP,
+	_NET_CLOSE_WINDOW,
 	EWMH_NITEMS
 };
 struct atom_ctx {

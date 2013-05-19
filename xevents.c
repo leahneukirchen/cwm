@@ -348,6 +348,9 @@ xev_handle_clientmessage(XEvent *ee)
 	if (e->message_type == cwmh[WM_CHANGE_STATE].atom &&
 	    e->format == 32 && e->data.l[0] == IconicState)
 		client_hide(cc);
+
+	if (e->message_type == ewmh[_NET_CLOSE_WINDOW].atom)
+		client_send_delete(cc);
 }
 
 static void
