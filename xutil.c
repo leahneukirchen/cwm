@@ -257,6 +257,9 @@ struct atom_ctx ewmh[EWMH_NITEMS] = {
 	{"_NET_WM_NAME",		None},
 	{"_NET_WM_DESKTOP",		None},
 	{"_NET_CLOSE_WINDOW",		None},
+	{"_NET_WM_STATE", 		None},
+	{"_NET_WM_STATE_MAXIMIZED_VERT",None},
+	{"_NET_WM_STATE_MAXIMIZED_HORZ",None},
 };
 
 void
@@ -418,6 +421,64 @@ xu_ewmh_net_wm_desktop(struct client_ctx *cc)
 
 	XChangeProperty(X_Dpy, cc->win, ewmh[_NET_WM_DESKTOP].atom,
 	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&no, 1);
+}
+
+Atom *
+xu_ewmh_get_net_wm_state(struct client_ctx *cc, int *n)
+{
+	Atom	*state, *p = NULL;
+
+	if ((*n = xu_getprop(cc->win, ewmh[_NET_WM_STATE].atom, XA_ATOM, 64L,
+	    (u_char **)&p)) <= 0)
+		return (NULL);
+
+	state = xmalloc(*n * sizeof(Atom));
+	memcpy(state, p, *n * sizeof(Atom));
+	XFree((char *)p);
+
+	return (state);
+}
+
+void
+xu_ewmh_restore_net_wm_state(struct client_ctx *cc)
+{
+	Atom	*atoms;
+	int	 i, n;
+
+	atoms = xu_ewmh_get_net_wm_state(cc, &n);
+	for (i = 0; i < n; i++) {
+		if (atoms[i] == ewmh[_NET_WM_STATE_MAXIMIZED_HORZ].atom)
+			client_hmaximize(cc);
+		if (atoms[i] == ewmh[_NET_WM_STATE_MAXIMIZED_VERT].atom)
+			client_vmaximize(cc);
+	}
+	free(atoms);
+}
+
+void
+xu_ewmh_set_net_wm_state(struct client_ctx *cc)
+{
+	Atom	*atoms, *oatoms;
+	int	 n, i, j;
+
+	oatoms = xu_ewmh_get_net_wm_state(cc, &n);
+	atoms = xmalloc((n + _NET_WM_STATES_NITEMS) * sizeof(Atom));
+	for (i = j = 0; i < n; i++) {
+		if (oatoms[i] != ewmh[_NET_WM_STATE_MAXIMIZED_HORZ].atom &&
+		    oatoms[i] != ewmh[_NET_WM_STATE_MAXIMIZED_VERT].atom)
+			atoms[j++] = oatoms[i];
+	}
+	free(oatoms);
+	if (cc->flags & CLIENT_HMAXIMIZED)
+		atoms[j++] = ewmh[_NET_WM_STATE_MAXIMIZED_HORZ].atom;
+	if (cc->flags & CLIENT_VMAXIMIZED)
+		atoms[j++] = ewmh[_NET_WM_STATE_MAXIMIZED_VERT].atom;
+	if (j > 0)
+		XChangeProperty(X_Dpy, cc->win, ewmh[_NET_WM_STATE].atom,
+		    XA_ATOM, 32, PropModeReplace, (unsigned char *)atoms, j);
+	else
+		XDeleteProperty(X_Dpy, cc->win, ewmh[_NET_WM_STATE].atom);
+	free(atoms);
 }
 
 void
