@@ -451,7 +451,7 @@ menu_draw_entry(struct menu_ctx *mc, struct menu_q *resultq,
 		return;
 
 	color = active ? CWM_COLOR_MENU_FG : CWM_COLOR_MENU_BG;
-	text = mi->print[0] != '\0' ?  mi->print : mi->text;
+	text = mi->print[0] != '\0' ? mi->print : mi->text;
 	XftDrawRect(sc->xftdraw, &sc->xftcolor[color], 0,
 	    (sc->xftfont->height + 1) * entry, mc->width,
 	    (sc->xftfont->height + 1) + sc->xftfont->descent);

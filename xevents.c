@@ -358,7 +358,7 @@ xev_handle_clientmessage(XEvent *ee)
 		if (old_cc)
 			client_ptrsave(old_cc);
 		client_ptrwarp(cc);
-	}                              
+	}
 }
 
 static void
