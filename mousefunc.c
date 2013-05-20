@@ -63,7 +63,7 @@ mousefunc_sweep_draw(struct client_ctx *cc)
 	XMapWindow(X_Dpy, sc->menuwin);
 	XClearWindow(X_Dpy, sc->menuwin);
 
-	xu_xft_draw(sc, asize, sc->menuwin, CWM_COLOR_MENU_FONT,
+	xu_xft_draw(sc, asize, CWM_COLOR_MENU_FONT,
 	    0, sc->xftfont->ascent + 1);
 }
 

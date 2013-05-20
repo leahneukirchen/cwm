@@ -103,11 +103,6 @@ conf_screen(struct screen_ctx *sc)
 
 	sc->gap = Conf.gap;
 
-	sc->xftdraw = XftDrawCreate(X_Dpy, sc->rootwin,
-	    sc->visual, sc->colormap);
-	if (sc->xftdraw == NULL)
-		errx(1, "XftDrawCreate");
-
 	sc->xftfont = XftFontOpenName(X_Dpy, sc->which, Conf.font);
 	if (sc->xftfont == NULL)
 		errx(1, "XftFontOpenName");
@@ -134,6 +129,16 @@ conf_screen(struct screen_ctx *sc)
 	if (!XftColorAllocValue(X_Dpy, sc->visual, sc->colormap,
 	    &xc.color, &sc->xftcolor[CWM_COLOR_MENU_FONT_SEL]))
 		warnx("XftColorAllocValue: '%s'", Conf.color[i]);
+
+	sc->menuwin = XCreateSimpleWindow(X_Dpy, sc->rootwin, 0, 0, 1, 1,
+	    Conf.bwidth,
+	    sc->xftcolor[CWM_COLOR_MENU_FG].pixel,
+	    sc->xftcolor[CWM_COLOR_MENU_BG].pixel);
+
+	sc->xftdraw = XftDrawCreate(X_Dpy, sc->menuwin,
+	    sc->visual, sc->colormap);
+	if (sc->xftdraw == NULL)
+		errx(1, "XftDrawCreate");
 }
 
 static struct {

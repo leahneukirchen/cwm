@@ -56,7 +56,6 @@ screen_init(int which)
 	TAILQ_INIT(&sc->mruq);
 
 	group_init(sc);
-	menu_init(sc);
 
 	rootattr.cursor = Cursor_normal;
 	rootattr.event_mask = SubstructureRedirectMask|SubstructureNotifyMask|

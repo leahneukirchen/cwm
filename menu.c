@@ -76,15 +76,6 @@ static int		 menu_calc_entry(struct menu_ctx *, int, int);
 static struct menu 	*menu_complete_path(struct menu_ctx *);
 static int		 menu_keycode(XKeyEvent *, enum ctltype *, char *);
 
-void
-menu_init(struct screen_ctx *sc)
-{
-	sc->menuwin = XCreateSimpleWindow(X_Dpy, sc->rootwin, 0, 0, 1, 1,
-	    Conf.bwidth,
-	    sc->xftcolor[CWM_COLOR_MENU_FG].pixel,
-	    sc->xftcolor[CWM_COLOR_MENU_BG].pixel);
-}
-
 struct menu *
 menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
     char *initial, int flags,
@@ -417,7 +408,7 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 	    mc->width, mc->height);
 
 	if (mc->hasprompt) {
-		xu_xft_draw(sc, mc->dispstr, sc->menuwin, CWM_COLOR_MENU_FONT,
+		xu_xft_draw(sc, mc->dispstr, CWM_COLOR_MENU_FONT,
 		    0, sc->xftfont->ascent);
 		n = 1;
 	} else
@@ -432,7 +423,7 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 		if (mc->y + y > xine.h)
 			break;
 
-		xu_xft_draw(sc, text, sc->menuwin, CWM_COLOR_MENU_FONT, 0, y);
+		xu_xft_draw(sc, text, CWM_COLOR_MENU_FONT, 0, y);
 		n++;
 	}
 	if (mc->hasprompt && n > 1 && (mc->searchstr[0] != '\0')) {
@@ -465,7 +456,7 @@ menu_draw_entry(struct menu_ctx *mc, struct menu_q *resultq,
 	    (sc->xftfont->height + 1) * entry, mc->width,
 	    (sc->xftfont->height + 1) + sc->xftfont->descent);
 	color = active ? CWM_COLOR_MENU_FONT_SEL : CWM_COLOR_MENU_FONT;
-	xu_xft_draw(sc, text, sc->menuwin, color,
+	xu_xft_draw(sc, text, color,
 	    0, (sc->xftfont->height + 1) * entry + sc->xftfont->ascent + 1);
 }
 

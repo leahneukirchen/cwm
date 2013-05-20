@@ -442,10 +442,8 @@ xu_xft_width(XftFont *xftfont, const char *text, int len)
 }
 
 void
-xu_xft_draw(struct screen_ctx *sc, const char *text,
-    Drawable d, int color, int x, int y)
+xu_xft_draw(struct screen_ctx *sc, const char *text, int color, int x, int y)
 {
-	XftDrawChange(sc->xftdraw, d);
 	XftDrawStringUtf8(sc->xftdraw, &sc->xftcolor[color], sc->xftfont,
 	    x, y, (const FcChar8*)text, strlen(text));
 }
