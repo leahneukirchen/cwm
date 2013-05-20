@@ -65,18 +65,16 @@ struct menu_ctx {
 static struct menu	*menu_handle_key(XEvent *, struct menu_ctx *,
 			     struct menu_q *, struct menu_q *);
 static void		 menu_handle_move(XEvent *, struct menu_ctx *,
-			     struct screen_ctx *, struct menu_q *);
+			     struct menu_q *);
 static struct menu	*menu_handle_release(XEvent *, struct menu_ctx *,
-			     struct screen_ctx *, struct menu_q *);
-static void		 menu_draw(struct screen_ctx *, struct menu_ctx *,
-			     struct menu_q *, struct menu_q *);
-static void 		 menu_draw_entry(struct screen_ctx *, struct menu_ctx *,
-			     struct menu_q *, int, int);
-static int		 menu_calc_entry(struct screen_ctx *, struct menu_ctx *,
+			     struct menu_q *);
+static void		 menu_draw(struct menu_ctx *, struct menu_q *,
+			     struct menu_q *);
+static void 		 menu_draw_entry(struct menu_ctx *, struct menu_q *,
 			     int, int);
+static int		 menu_calc_entry(struct menu_ctx *, int, int);
 static struct menu 	*menu_complete_path(struct menu_ctx *);
-static int		 menu_keycode(XKeyEvent *, enum ctltype *,
-			     char *);
+static int		 menu_keycode(XKeyEvent *, enum ctltype *, char *);
 
 void
 menu_init(struct screen_ctx *sc)
@@ -157,13 +155,13 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
 				goto out;
 			/* FALLTHROUGH */
 		case Expose:
-			menu_draw(sc, &mc, menuq, &resultq);
+			menu_draw(&mc, menuq, &resultq);
 			break;
 		case MotionNotify:
-			menu_handle_move(&e, &mc, sc, &resultq);
+			menu_handle_move(&e, &mc, &resultq);
 			break;
 		case ButtonRelease:
-			if ((mi = menu_handle_release(&e, &mc, sc, &resultq))
+			if ((mi = menu_handle_release(&e, &mc, &resultq))
 			    != NULL)
 				goto out;
 			break;
@@ -342,9 +340,9 @@ menu_handle_key(XEvent *e, struct menu_ctx *mc, struct menu_q *menuq,
 }
 
 static void
-menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
-    struct menu_q *resultq)
+menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 {
+	struct screen_ctx	*sc = mc->sc;
 	struct menu		*mi;
 	struct geom		 xine;
 	int			 n, xsave, ysave;
@@ -439,17 +437,18 @@ menu_draw(struct screen_ctx *sc, struct menu_ctx *mc, struct menu_q *menuq,
 	}
 	if (mc->hasprompt && n > 1 && (mc->searchstr[0] != '\0')) {
 		mc->entry = 1;
-		menu_draw_entry(sc, mc, resultq, mc->entry, 1);
+		menu_draw_entry(mc, resultq, mc->entry, 1);
 	}
 }
 
 static void
-menu_draw_entry(struct screen_ctx *sc, struct menu_ctx *mc,
-    struct menu_q *resultq, int entry, int active)
+menu_draw_entry(struct menu_ctx *mc, struct menu_q *resultq,
+    int entry, int active)
 {
-	struct menu	*mi;
-	char 		*text;
-	int		 color, i = 0;
+	struct screen_ctx	*sc = mc->sc;
+	struct menu		*mi;
+	char 			*text;
+	int			 color, i = 0;
 
 	if (mc->hasprompt)
 		i = 1;
@@ -471,35 +470,33 @@ menu_draw_entry(struct screen_ctx *sc, struct menu_ctx *mc,
 }
 
 static void
-menu_handle_move(XEvent *e, struct menu_ctx *mc, struct screen_ctx *sc,
-    struct menu_q *resultq)
+menu_handle_move(XEvent *e, struct menu_ctx *mc, struct menu_q *resultq)
 {
 	mc->prev = mc->entry;
-	mc->entry = menu_calc_entry(sc, mc, e->xbutton.x, e->xbutton.y);
+	mc->entry = menu_calc_entry(mc, e->xbutton.x, e->xbutton.y);
 
 	if (mc->prev == mc->entry)
 		return;
 
 	if (mc->prev != -1)
-		menu_draw_entry(sc, mc, resultq, mc->prev, 0);
+		menu_draw_entry(mc, resultq, mc->prev, 0);
 	if (mc->entry != -1) {
 		(void)xu_ptr_regrab(MENUGRABMASK, Cursor_normal);
-		menu_draw_entry(sc, mc, resultq, mc->entry, 1);
+		menu_draw_entry(mc, resultq, mc->entry, 1);
 	} else
 		(void)xu_ptr_regrab(MENUGRABMASK, Cursor_default);
 
 	if (mc->hasprompt)
-		menu_draw_entry(sc, mc, resultq, 1, 1);
+		menu_draw_entry(mc, resultq, 1, 1);
 }
 
 static struct menu *
-menu_handle_release(XEvent *e, struct menu_ctx *mc, struct screen_ctx *sc,
-    struct menu_q *resultq)
+menu_handle_release(XEvent *e, struct menu_ctx *mc, struct menu_q *resultq)
 {
-	struct menu	*mi;
-	int		 entry, i = 0;
+	struct menu		*mi;
+	int			 entry, i = 0;
 
-	entry = menu_calc_entry(sc, mc, e->xbutton.x, e->xbutton.y);
+	entry = menu_calc_entry(mc, e->xbutton.x, e->xbutton.y);
 
 	if (mc->hasprompt)
 		i = 1;
@@ -516,9 +513,10 @@ menu_handle_release(XEvent *e, struct menu_ctx *mc, struct screen_ctx *sc,
 }
 
 static int
-menu_calc_entry(struct screen_ctx *sc, struct menu_ctx *mc, int x, int y)
+menu_calc_entry(struct menu_ctx *mc, int x, int y)
 {
-	int	 entry;
+	struct screen_ctx	*sc = mc->sc;
+	int			 entry;
 
 	entry = y / (sc->xftfont->height + 1);
 
