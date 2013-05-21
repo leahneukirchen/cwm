@@ -482,6 +482,8 @@ void			 xu_ewmh_net_desktop_names(struct screen_ctx *, char *,
 
 void			 xu_ewmh_net_wm_desktop(struct client_ctx *);
 Atom 			*xu_ewmh_get_net_wm_state(struct client_ctx *, int *);
+void 			 xu_ewmh_handle_net_wm_state_msg(struct client_ctx *,
+			     int, Atom , Atom);
 void 			 xu_ewmh_set_net_wm_state(struct client_ctx *);
 void 			 xu_ewmh_restore_net_wm_state(struct client_ctx *);
 
@@ -542,6 +544,11 @@ enum {
 	_NET_WM_STATE_MAXIMIZED_VERT,
 	_NET_WM_STATE_MAXIMIZED_HORZ,
 	EWMH_NITEMS
+};
+enum {
+	_NET_WM_STATE_REMOVE,
+	_NET_WM_STATE_ADD,
+	_NET_WM_STATE_TOGGLE
 };
 struct atom_ctx {
 	char	*name;

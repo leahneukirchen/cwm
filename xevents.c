@@ -359,6 +359,10 @@ xev_handle_clientmessage(XEvent *ee)
 			client_ptrsave(old_cc);
 		client_ptrwarp(cc);
 	}
+	if (e->message_type == ewmh[_NET_WM_STATE].atom &&
+	    e->format == 32)
+		xu_ewmh_handle_net_wm_state_msg(cc,
+		    e->data.l[0], e->data.l[1], e->data.l[2]);
 }
 
 static void
