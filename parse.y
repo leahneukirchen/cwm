@@ -42,18 +42,17 @@ static struct file {
 	char			*name;
 	int			 lineno;
 	int			 errors;
-} *file;
-
-struct file		*pushfile(const char *);
-int			 popfile(void);
-int			 yyparse(void);
-int			 yylex(void);
-int			 yyerror(const char *, ...);
-int			 kw_cmp(const void *, const void *);
-int			 lookup(char *);
-int			 lgetc(int);
-int			 lungetc(int);
-int			 findeol(void);
+} *file, *topfile;
+struct file	*pushfile(const char *);
+int		 popfile(void);
+int		 yyparse(void);
+int		 yylex(void);
+int		 yyerror(const char *, ...);
+int		 kw_cmp(const void *, const void *);
+int		 lookup(char *);
+int		 lgetc(int);
+int		 lungetc(int);
+int		 findeol(void);
 
 static struct conf	*conf;
 
@@ -224,7 +223,7 @@ struct keywords {
 int
 yyerror(const char *fmt, ...)
 {
-	va_list ap;
+	va_list		 ap;
 
 	file->errors++;
 	va_start(ap, fmt);
@@ -308,8 +307,9 @@ lgetc(int quotec)
 
 	if (quotec) {
 		if ((c = getc(file->stream)) == EOF) {
-			yyerror("reached end of file while parsing quoted string");
-			if (popfile() == EOF)
+			yyerror("reached end of file while parsing "
+			    "quoted string");
+			if (file == topfile || popfile() == EOF)
 				return (EOF);
 			return (quotec);
 		}
@@ -327,7 +327,7 @@ lgetc(int quotec)
 	}
 
 	while (c == EOF) {
-		if (popfile() == EOF)
+		if (file == topfile || popfile() == EOF)
 			return (EOF);
 		c = getc(file->stream);
 	}
@@ -356,11 +356,13 @@ findeol(void)
 	int	c;
 
 	parsebuf = NULL;
-	pushback_index = 0;
 
 	/* skip to either EOF or the first real EOL */
 	while (1) {
-		c = lgetc(0);
+		if (pushback_index)
+			c = pushback_buffer[--pushback_index];
+		else
+			c = lgetc(0);
 		if (c == '\n') {
 			file->lineno++;
 			break;
@@ -461,9 +463,10 @@ nodigits:
 #define allowed_in_string(x) \
 	(isalnum(x) || (ispunct(x) && x != '(' && x != ')' && \
 	x != '{' && x != '}' && x != '<' && x != '>' && \
-	x != '!' && x != '=' && x != '#' && x != ','))
+	x != '!' && x != '=' && x != '/' && x != '#' && \
+	x != ','))
 
-	if (isalnum(c) || c == ':' || c == '_' || c == '*' || c == '/') {
+	if (isalnum(c) || c == ':' || c == '_' || c == '*') {
 		do {
 			*p++ = c;
 			if ((unsigned)(p-buf) >= sizeof(buf)) {
@@ -495,6 +498,7 @@ pushfile(const char *name)
 	nfile->name = xstrdup(name);
 
 	if ((nfile->stream = fopen(nfile->name, "r")) == NULL) {
+		warn("%s", nfile->name);
 		free(nfile->name);
 		free(nfile);
 		return (NULL);
@@ -509,16 +513,15 @@ popfile(void)
 {
 	struct file	*prev;
 
-	if ((prev = TAILQ_PREV(file, files, entry)) != NULL) {
+	if ((prev = TAILQ_PREV(file, files, entry)) != NULL)
 		prev->errors += file->errors;
-		TAILQ_REMOVE(&files, file, entry);
-		fclose(file->stream);
-		free(file->name);
-		free(file);
-		file = prev;
-		return (0);
-	}
-	return (EOF);
+
+	TAILQ_REMOVE(&files, file, entry);
+	fclose(file->stream);
+	free(file->name);
+	free(file);
+	file = prev;
+	return (file ? 0 : EOF);
 }
 
 int
@@ -532,12 +535,12 @@ parse_config(const char *filename, struct conf *xconf)
 		free(conf);
 		return (-1);
 	}
+	topfile = file;
 
 	conf_init(conf);
 
 	yyparse();
 	errors = file->errors;
-	file->errors = 0;
 	popfile();
 
 	if (errors) {
