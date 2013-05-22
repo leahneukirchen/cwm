@@ -171,7 +171,12 @@ main		: FONTNAME STRING		{
 			conf->gap.right = $5;
 		}
 		| MOUSEBIND STRING string	{
-			conf_mousebind(conf, $2, $3);
+			if (!conf_mousebind(conf, $2, $3)) {
+				yyerror("invalid mousebind: %s %s", $2, $3);
+				free($2);
+				free($3);
+				YYERROR;
+			}
 			free($2);
 			free($3);
 		}

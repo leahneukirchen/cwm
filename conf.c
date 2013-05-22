@@ -577,11 +577,14 @@ static struct {
 	{ "menu_cmd", mousefunc_menu_cmd, MOUSEBIND_CTX_ROOT },
 };
 
-void
+static unsigned int mouse_btns[] = { Button1, Button2, Button3 };
+
+int
 conf_mousebind(struct conf *c, char *name, char *binding)
 {
 	struct mousebinding	*current_binding;
 	char			*substring, *tmp;
+	u_int			 button;
 	const char		*errstr;
 	u_int			 i;
 
@@ -600,16 +603,27 @@ conf_mousebind(struct conf *c, char *name, char *binding)
 	} else
 		substring = name;
 
-	current_binding->button = strtonum(substring, 1, 3, &errstr);
+	button = strtonum(substring, 1, 3, &errstr);
 	if (errstr)
-		warnx("number of buttons is %s: %s", errstr, substring);
+		warnx("button number is %s: %s", errstr, substring);
+
+	for (i = 0; i < nitems(mouse_btns); i++) {
+		if (button == mouse_btns[i]) {
+			current_binding->button = button;
+			break;
+		}
+	}
+	if (!current_binding->button || errstr) {
+		free(current_binding);
+		return (0);
+	}
 
 	/* We now have the correct binding, remove duplicates. */
 	conf_mouseunbind(c, current_binding);
 
 	if (strcmp("unmap", binding) == 0) {
 		free(current_binding);
-		return;
+		return (1);
 	}
 
 	for (i = 0; i < nitems(name_to_mousefunc); i++) {
@@ -619,8 +633,10 @@ conf_mousebind(struct conf *c, char *name, char *binding)
 		current_binding->context = name_to_mousefunc[i].context;
 		current_binding->callback = name_to_mousefunc[i].handler;
 		TAILQ_INSERT_TAIL(&c->mousebindingq, current_binding, entry);
-		return;
+		return (1);
 	}
+
+	return (0);
 }
 
 static void
@@ -646,26 +662,10 @@ void
 conf_grab_mouse(struct client_ctx *cc)
 {
 	struct mousebinding	*mb;
-	u_int			 button;
 
 	TAILQ_FOREACH(mb, &Conf.mousebindingq, entry) {
 		if (mb->context != MOUSEBIND_CTX_WIN)
 			continue;
-
-		switch(mb->button) {
-		case 1:
-			button = Button1;
-			break;
-		case 2:
-			button = Button2;
-			break;
-		case 3:
-			button = Button3;
-			break;
-		default:
-			warnx("strange button in mousebinding\n");
-			continue;
-		}
-		xu_btn_grab(cc->win, mb->modmask, button);
+		xu_btn_grab(cc->win, mb->modmask, mb->button);
 	}
 }

@@ -439,7 +439,7 @@ void			 conf_grab(struct conf *, struct keybinding *);
 void			 conf_grab_mouse(struct client_ctx *);
 void			 conf_init(struct conf *);
 void			 conf_ignore(struct conf *, char *);
-void			 conf_mousebind(struct conf *, char *, char *);
+int			 conf_mousebind(struct conf *, char *, char *);
 void			 conf_screen(struct screen_ctx *);
 void			 conf_ungrab(struct conf *, struct keybinding *);
 
