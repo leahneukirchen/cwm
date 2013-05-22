@@ -98,8 +98,9 @@ static char *color_binds[CWM_COLOR_MAX] = {
 void
 conf_screen(struct screen_ctx *sc)
 {
-	int		 i;
-	XftColor	 xc;
+	struct keybinding	*kb;
+	int			 i;
+	XftColor		 xc;
 
 	sc->gap = Conf.gap;
 
@@ -139,6 +140,9 @@ conf_screen(struct screen_ctx *sc)
 	    sc->visual, sc->colormap);
 	if (sc->xftdraw == NULL)
 		errx(1, "XftDrawCreate");
+
+	TAILQ_FOREACH(kb, &Conf.keybindingq, entry)
+		xu_key_grab(sc->rootwin, kb->modmask, kb->keysym);
 }
 
 static struct {
