@@ -389,15 +389,13 @@ static void
 xev_handle_mappingnotify(XEvent *ee)
 {
 	XMappingEvent		*e = &ee->xmapping;
-	struct keybinding	*kb;
-
-	TAILQ_FOREACH(kb, &Conf.keybindingq, entry)
-		conf_ungrab(&Conf, kb);
+	struct screen_ctx	*sc;
 
 	XRefreshKeyboardMapping(e);
-
-	TAILQ_FOREACH(kb, &Conf.keybindingq, entry)
-		conf_grab(&Conf, kb);
+	if (e->request == MappingKeyboard) {
+		TAILQ_FOREACH(sc, &Screenq, entry)
+			conf_grab_kbd(sc->rootwin);
+	}
 }
 
 static void

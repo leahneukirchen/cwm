@@ -106,21 +106,6 @@ xu_key_grab(Window win, u_int mask, KeySym keysym)
 }
 
 void
-xu_key_ungrab(Window win, u_int mask, KeySym keysym)
-{
-	KeyCode	 code;
-	u_int	 i;
-
-	code = XKeysymToKeycode(X_Dpy, keysym);
-	if ((XkbKeycodeToKeysym(X_Dpy, code, 0, 0) != keysym) &&
-	    (XkbKeycodeToKeysym(X_Dpy, code, 0, 1) == keysym))
-		mask |= ShiftMask;
-
-	for (i = 0; i < nitems(ign_mods); i++)
-		XUngrabKey(X_Dpy, code, (mask | ign_mods[i]), win);
-}
-
-void
 xu_configure(struct client_ctx *cc)
 {
 	XConfigureEvent	 ce;

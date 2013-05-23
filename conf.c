@@ -98,7 +98,6 @@ static char *color_binds[CWM_COLOR_MAX] = {
 void
 conf_screen(struct screen_ctx *sc)
 {
-	struct keybinding	*kb;
 	int			 i;
 	XftColor		 xc;
 
@@ -141,8 +140,7 @@ conf_screen(struct screen_ctx *sc)
 	if (sc->xftdraw == NULL)
 		errx(1, "XftDrawCreate");
 
-	TAILQ_FOREACH(kb, &Conf.keybindingq, entry)
-		xu_key_grab(sc->rootwin, kb->modmask, kb->keysym);
+	conf_grab_kbd(sc->rootwin);
 }
 
 static struct {
@@ -436,37 +434,6 @@ static struct {
 	    {.i = CWM_TILE_VERT } },
 };
 
-/*
- * The following two functions are used when grabbing and ungrabbing keys for
- * bindings
- */
-
-/*
- * Grab key combination on all screens and add to the global queue
- */
-void
-conf_grab(struct conf *c, struct keybinding *kb)
-{
-	extern struct screen_ctx_q	 Screenq;
-	struct screen_ctx		*sc;
-
-	TAILQ_FOREACH(sc, &Screenq, entry)
-		xu_key_grab(sc->rootwin, kb->modmask, kb->keysym);
-}
-
-/*
- * Ungrab key combination from all screens and remove from global queue
- */
-void
-conf_ungrab(struct conf *c, struct keybinding *kb)
-{
-	extern struct screen_ctx_q	 Screenq;
-	struct screen_ctx		*sc;
-
-	TAILQ_FOREACH(sc, &Screenq, entry)
-		xu_key_ungrab(sc->rootwin, kb->modmask, kb->keysym);
-}
-
 static struct {
 	char	chr;
 	int	mask;
@@ -656,17 +623,26 @@ conf_mouseunbind(struct conf *c, struct mousebinding *unbind)
 	}
 }
 
-/*
- * Grab the mouse buttons that we need for bindings for this client
- */
 void
-conf_grab_mouse(struct client_ctx *cc)
+conf_grab_mouse(Window win)
 {
 	struct mousebinding	*mb;
 
 	TAILQ_FOREACH(mb, &Conf.mousebindingq, entry) {
 		if (mb->context != MOUSEBIND_CTX_WIN)
 			continue;
-		xu_btn_grab(cc->win, mb->modmask, mb->button);
+		xu_btn_grab(win, mb->modmask, mb->button);
 	}
 }
+
+void
+conf_grab_kbd(Window win)
+{
+	struct keybinding	*kb;
+
+	XUngrabKey(X_Dpy, AnyKey, AnyModifier, win);
+
+	TAILQ_FOREACH(kb, &Conf.keybindingq, entry)
+		xu_key_grab(win, kb->modmask, kb->keysym);
+}
+

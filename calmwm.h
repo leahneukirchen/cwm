@@ -435,13 +435,12 @@ void			 conf_bindname(struct conf *, char *, char *);
 void			 conf_clear(struct conf *);
 void			 conf_client(struct client_ctx *);
 void			 conf_cmd_add(struct conf *, char *, char *);
-void			 conf_grab(struct conf *, struct keybinding *);
-void			 conf_grab_mouse(struct client_ctx *);
+void			 conf_grab_kbd(Window);
+void			 conf_grab_mouse(Window);
 void			 conf_init(struct conf *);
 void			 conf_ignore(struct conf *, char *);
 int			 conf_mousebind(struct conf *, char *, char *);
 void			 conf_screen(struct screen_ctx *);
-void			 conf_ungrab(struct conf *, struct keybinding *);
 
 void			 xev_loop(void);
 
@@ -453,7 +452,6 @@ int			 xu_getprop(Window, Atom, Atom, long, u_char **);
 int			 xu_get_wm_state(Window, int *);
 int			 xu_getstrprop(Window, Atom, char **);
 void			 xu_key_grab(Window, u_int, KeySym);
-void			 xu_key_ungrab(Window, u_int, KeySym);
 void			 xu_ptr_getpos(Window, int *, int *);
 int			 xu_ptr_grab(Window, u_int, Cursor);
 int			 xu_ptr_regrab(u_int, Cursor);
