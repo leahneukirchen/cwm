@@ -457,7 +457,7 @@ int			 xu_ptr_grab(Window, u_int, Cursor);
 int			 xu_ptr_regrab(u_int, Cursor);
 void			 xu_ptr_setpos(Window, int, int);
 void			 xu_ptr_ungrab(void);
-void			 xu_sendmsg(Window, Atom, long);
+void			 xu_sendmsg(Window, Atom, Atom);
 void			 xu_set_wm_state(Window win, int);
 void			 xu_xft_draw(struct screen_ctx *, const char *,
 			     int, int, int);
