@@ -33,7 +33,7 @@
 static unsigned int ign_mods[] = { 0, LockMask, Mod2Mask, Mod2Mask | LockMask };
 
 int
-xu_ptr_grab(Window win, int mask, Cursor curs)
+xu_ptr_grab(Window win, u_int mask, Cursor curs)
 {
 	return (XGrabPointer(X_Dpy, win, False, mask,
 	    GrabModeAsync, GrabModeAsync,
@@ -41,7 +41,7 @@ xu_ptr_grab(Window win, int mask, Cursor curs)
 }
 
 int
-xu_ptr_regrab(int mask, Cursor curs)
+xu_ptr_regrab(u_int mask, Cursor curs)
 {
 	return (XChangeActivePointerGrab(X_Dpy, mask,
 	    curs, CurrentTime) == GrabSuccess ? 0 : -1);
@@ -56,7 +56,8 @@ xu_ptr_ungrab(void)
 void
 xu_btn_grab(Window win, int mask, u_int btn)
 {
-	int	i;
+	u_int	i;
+
 	for (i = 0; i < nitems(ign_mods); i++)
 		XGrabButton(X_Dpy, btn, (mask | ign_mods[i]), win,
 		    False, BUTTONMASK, GrabModeAsync,
@@ -66,7 +67,8 @@ xu_btn_grab(Window win, int mask, u_int btn)
 void
 xu_btn_ungrab(Window win, int mask, u_int btn)
 {
-	int	i;
+	u_int	i;
+
 	for (i = 0; i < nitems(ign_mods); i++)
 		XUngrabButton(X_Dpy, btn, (mask | ign_mods[i]), win);
 }
@@ -88,10 +90,10 @@ xu_ptr_setpos(Window win, int x, int y)
 }
 
 void
-xu_key_grab(Window win, int mask, int keysym)
+xu_key_grab(Window win, u_int mask, KeySym keysym)
 {
 	KeyCode	 code;
-	int	 i;
+	u_int	 i;
 
 	code = XKeysymToKeycode(X_Dpy, keysym);
 	if ((XkbKeycodeToKeysym(X_Dpy, code, 0, 0) != keysym) &&
@@ -101,21 +103,6 @@ xu_key_grab(Window win, int mask, int keysym)
 	for (i = 0; i < nitems(ign_mods); i++)
 		XGrabKey(X_Dpy, code, (mask | ign_mods[i]), win,
 		    True, GrabModeAsync, GrabModeAsync);
-}
-
-void
-xu_key_ungrab(Window win, int mask, int keysym)
-{
-	KeyCode	 code;
-	int	 i;
-
-	code = XKeysymToKeycode(X_Dpy, keysym);
-	if ((XkbKeycodeToKeysym(X_Dpy, code, 0, 0) != keysym) &&
-	    (XkbKeycodeToKeysym(X_Dpy, code, 0, 1) == keysym))
-		mask |= ShiftMask;
-
-	for (i = 0; i < nitems(ign_mods); i++)
-		XUngrabKey(X_Dpy, code, (mask | ign_mods[i]), win);
 }
 
 void
@@ -138,19 +125,19 @@ xu_configure(struct client_ctx *cc)
 }
 
 void
-xu_sendmsg(Window win, Atom atm, long val)
+xu_sendmsg(Window win, Atom type, Atom atm)
 {
-	XEvent	 e;
+	XClientMessageEvent	 e;
 
-	(void)memset(&e, 0, sizeof(e));
-	e.xclient.type = ClientMessage;
-	e.xclient.window = win;
-	e.xclient.message_type = atm;
-	e.xclient.format = 32;
-	e.xclient.data.l[0] = val;
-	e.xclient.data.l[1] = CurrentTime;
+	bzero(&e, sizeof(e));
+	e.type = ClientMessage;
+	e.window = win;
+	e.message_type = type;
+	e.format = 32;
+	e.data.l[0] = atm;
+	e.data.l[1] = CurrentTime;
 
-	XSendEvent(X_Dpy, win, False, 0, &e);
+	XSendEvent(X_Dpy, win, False, 0L, (XEvent *)&e);
 }
 
 int
@@ -237,6 +224,7 @@ struct atom_ctx cwmh[CWMH_NITEMS] = {
 	{"WM_PROTOCOLS",		None},
 	{"_MOTIF_WM_HINTS",		None},
 	{"UTF8_STRING",			None},
+	{"WM_CHANGE_STATE",		None},
 };
 struct atom_ctx ewmh[EWMH_NITEMS] = {
 	{"_NET_SUPPORTED",		None},
@@ -253,12 +241,16 @@ struct atom_ctx ewmh[EWMH_NITEMS] = {
 	{"_NET_WORKAREA",		None},
 	{"_NET_WM_NAME",		None},
 	{"_NET_WM_DESKTOP",		None},
+	{"_NET_CLOSE_WINDOW",		None},
+	{"_NET_WM_STATE", 		None},
+	{"_NET_WM_STATE_MAXIMIZED_VERT",None},
+	{"_NET_WM_STATE_MAXIMIZED_HORZ",None},
 };
 
 void
 xu_getatoms(void)
 {
-	int	 i;
+	u_int	 i;
 
 	for (i = 0; i < nitems(cwmh); i++)
 		cwmh[i].atom = XInternAtom(X_Dpy, cwmh[i].name, False);
@@ -271,7 +263,7 @@ void
 xu_ewmh_net_supported(struct screen_ctx *sc)
 {
 	Atom	 atom[EWMH_NITEMS];
-	int	 i;
+	u_int	 i;
 
 	for (i = 0; i < nitems(ewmh); i++)
 		atom[i] = ewmh[i].atom;
@@ -416,24 +408,125 @@ xu_ewmh_net_wm_desktop(struct client_ctx *cc)
 	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&no, 1);
 }
 
-unsigned long
-xu_getcolor(struct screen_ctx *sc, char *name)
+Atom *
+xu_ewmh_get_net_wm_state(struct client_ctx *cc, int *n)
 {
-	XColor	 color, tmp;
+	Atom	*state, *p = NULL;
 
-	if (!XAllocNamedColor(X_Dpy, sc->colormap, name, &color, &tmp)) {
-		warnx("XAllocNamedColor error: '%s'", name);
-		return (0);
-	}
+	if ((*n = xu_getprop(cc->win, ewmh[_NET_WM_STATE].atom, XA_ATOM, 64L,
+	    (u_char **)&p)) <= 0)
+		return (NULL);
 
-	return (color.pixel);
+	state = xmalloc(*n * sizeof(Atom));
+	memcpy(state, p, *n * sizeof(Atom));
+	XFree((char *)p);
+
+	return (state);
 }
 
 void
-xu_xorcolor(XRenderColor a, XRenderColor b, XRenderColor *r)
+xu_ewmh_handle_net_wm_state_msg(struct client_ctx *cc, int action,
+    Atom first, Atom second)
 {
-	r->red = a.red ^ b.red;
-	r->green = a.green ^ b.green;
-	r->blue = a.blue ^ b.blue;
-	r->alpha = 0xffff;
+	int i;
+	static struct handlers {
+		int atom;
+		int property;
+		void (*toggle)(struct client_ctx *);
+	} handlers[] = {
+		{ _NET_WM_STATE_MAXIMIZED_VERT,
+			CLIENT_VMAXIMIZED,
+			client_vmaximize },
+		{ _NET_WM_STATE_MAXIMIZED_HORZ,
+			CLIENT_HMAXIMIZED,
+			client_hmaximize },
+	};
+
+	for (i = 0; i < nitems(handlers); i++) {
+		if (first != ewmh[handlers[i].atom].atom &&
+		    second != ewmh[handlers[i].atom].atom)
+			continue;
+		switch (action) {
+		case _NET_WM_STATE_ADD:
+			if ((cc->flags & handlers[i].property) == 0)
+				handlers[i].toggle(cc);
+			break;
+		case _NET_WM_STATE_REMOVE:
+			if (cc->flags & handlers[i].property)
+				handlers[i].toggle(cc);
+			break;
+		case _NET_WM_STATE_TOGGLE:
+			handlers[i].toggle(cc);
+		}
+	}
+}
+
+void
+xu_ewmh_restore_net_wm_state(struct client_ctx *cc)
+{
+	Atom	*atoms;
+	int	 i, n;
+
+	atoms = xu_ewmh_get_net_wm_state(cc, &n);
+	for (i = 0; i < n; i++) {
+		if (atoms[i] == ewmh[_NET_WM_STATE_MAXIMIZED_HORZ].atom)
+			client_hmaximize(cc);
+		if (atoms[i] == ewmh[_NET_WM_STATE_MAXIMIZED_VERT].atom)
+			client_vmaximize(cc);
+	}
+	free(atoms);
+}
+
+void
+xu_ewmh_set_net_wm_state(struct client_ctx *cc)
+{
+	Atom	*atoms, *oatoms;
+	int	 n, i, j;
+
+	oatoms = xu_ewmh_get_net_wm_state(cc, &n);
+	atoms = xmalloc((n + _NET_WM_STATES_NITEMS) * sizeof(Atom));
+	for (i = j = 0; i < n; i++) {
+		if (oatoms[i] != ewmh[_NET_WM_STATE_MAXIMIZED_HORZ].atom &&
+		    oatoms[i] != ewmh[_NET_WM_STATE_MAXIMIZED_VERT].atom)
+			atoms[j++] = oatoms[i];
+	}
+	free(oatoms);
+	if (cc->flags & CLIENT_HMAXIMIZED)
+		atoms[j++] = ewmh[_NET_WM_STATE_MAXIMIZED_HORZ].atom;
+	if (cc->flags & CLIENT_VMAXIMIZED)
+		atoms[j++] = ewmh[_NET_WM_STATE_MAXIMIZED_VERT].atom;
+	if (j > 0)
+		XChangeProperty(X_Dpy, cc->win, ewmh[_NET_WM_STATE].atom,
+		    XA_ATOM, 32, PropModeReplace, (unsigned char *)atoms, j);
+	else
+		XDeleteProperty(X_Dpy, cc->win, ewmh[_NET_WM_STATE].atom);
+	free(atoms);
+}
+
+void
+xu_xorcolor(XftColor a, XftColor b, XftColor *r)
+{
+	r->pixel = a.pixel ^ b.pixel;
+	r->color.red = a.color.red ^ b.color.red;
+	r->color.green = a.color.green ^ b.color.green;
+	r->color.blue = a.color.blue ^ b.color.blue;
+	r->color.alpha = 0xffff;
+}
+
+int
+xu_xft_width(XftFont *xftfont, const char *text, int len)
+{
+	XGlyphInfo	 extents;
+
+	XftTextExtentsUtf8(X_Dpy, xftfont, (const FcChar8*)text,
+	    len, &extents);
+
+	return (extents.xOff);
+}
+
+void
+xu_xft_draw(struct screen_ctx *sc, const char *text, int color, int x, int y)
+{
+	XftDrawStringUtf8(sc->xftdraw, &sc->xftcolor[color], sc->xftfont,
+	    x, y, (const FcChar8*)text, strlen(text));
 }

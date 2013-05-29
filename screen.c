@@ -49,16 +49,13 @@ screen_init(int which)
 	xu_ewmh_net_supported(sc);
 	xu_ewmh_net_supported_wm_check(sc);
 
-	conf_gap(&Conf, sc);
-	conf_color(&Conf, sc);
-	conf_font(&Conf, sc);
+	conf_screen(sc);
 
 	screen_update_geometry(sc);
 
 	TAILQ_INIT(&sc->mruq);
 
 	group_init(sc);
-	menu_init(sc);
 
 	rootattr.cursor = Cursor_normal;
 	rootattr.event_mask = SubstructureRedirectMask|SubstructureNotifyMask|
@@ -76,7 +73,7 @@ screen_init(int which)
 		if (winattr.override_redirect ||
 		    winattr.map_state != IsViewable)
 			continue;
-		(void)client_new(wins[i], sc, winattr.map_state != IsUnmapped);
+		(void)client_init(wins[i], sc, winattr.map_state != IsUnmapped);
 	}
 	XFree(wins);
 

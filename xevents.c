@@ -86,7 +86,7 @@ xev_handle_maprequest(XEvent *ee)
 
 	if ((cc = client_find(e->window)) == NULL) {
 		XGetWindowAttributes(X_Dpy, e->window, &xattr);
-		cc = client_new(e->window, screen_fromroot(xattr.root), 1);
+		cc = client_init(e->window, screen_fromroot(xattr.root), 1);
 	}
 
 	if ((cc->flags & CLIENT_IGNORE) == 0)
@@ -203,13 +203,12 @@ xev_handle_propertynotify(XEvent *ee)
 			break;
 		}
 	} else {
-		TAILQ_FOREACH(sc, &Screenq, entry)
-			if (sc->rootwin == e->window)
-				goto test;
-		return;
-test:
-		if (e->atom == ewmh[_NET_DESKTOP_NAMES].atom)
-			group_update_names(sc);
+		TAILQ_FOREACH(sc, &Screenq, entry) {
+			if (sc->rootwin == e->window) {
+				if (e->atom == ewmh[_NET_DESKTOP_NAMES].atom)
+					group_update_names(sc);
+			}
+		}
 	}
 }
 
@@ -277,7 +276,7 @@ xev_handle_keypress(XEvent *ee)
 	struct client_ctx	*cc = NULL, fakecc;
 	struct keybinding	*kb;
 	KeySym			 keysym, skeysym;
-	int			 modshift;
+	u_int			 modshift;
 
 	keysym = XkbKeycodeToKeysym(X_Dpy, e->keycode, 0, 0);
 	skeysym = XkbKeycodeToKeysym(X_Dpy, e->keycode, 0, 1);
@@ -322,7 +321,8 @@ xev_handle_keyrelease(XEvent *ee)
 	XKeyEvent		*e = &ee->xkey;
 	struct screen_ctx	*sc;
 	struct client_ctx	*cc;
-	int			 i, keysym;
+	KeySym			 keysym;
+	u_int			 i;
 
 	sc = screen_fromroot(e->root);
 	cc = client_current();
@@ -340,17 +340,29 @@ static void
 xev_handle_clientmessage(XEvent *ee)
 {
 	XClientMessageEvent	*e = &ee->xclient;
-	Atom			 xa_wm_change_state;
-	struct client_ctx	*cc;
-
-	xa_wm_change_state = XInternAtom(X_Dpy, "WM_CHANGE_STATE", False);
+	struct client_ctx	*cc, *old_cc;
 
 	if ((cc = client_find(e->window)) == NULL)
 		return;
 
-	if (e->message_type == xa_wm_change_state && e->format == 32 &&
-	    e->data.l[0] == IconicState)
+	if (e->message_type == cwmh[WM_CHANGE_STATE].atom &&
+	    e->format == 32 && e->data.l[0] == IconicState)
 		client_hide(cc);
+
+	if (e->message_type == ewmh[_NET_CLOSE_WINDOW].atom)
+		client_send_delete(cc);
+
+	if (e->message_type == ewmh[_NET_ACTIVE_WINDOW].atom &&
+	    e->format == 32) {                                                
+		old_cc = client_current();
+		if (old_cc)
+			client_ptrsave(old_cc);
+		client_ptrwarp(cc);
+	}
+	if (e->message_type == ewmh[_NET_WM_STATE].atom &&
+	    e->format == 32)
+		xu_ewmh_handle_net_wm_state_msg(cc,
+		    e->data.l[0], e->data.l[1], e->data.l[2]);
 }
 
 static void
@@ -377,15 +389,13 @@ static void
 xev_handle_mappingnotify(XEvent *ee)
 {
 	XMappingEvent		*e = &ee->xmapping;
-	struct keybinding	*kb;
-
-	TAILQ_FOREACH(kb, &Conf.keybindingq, entry)
-		conf_ungrab(&Conf, kb);
+	struct screen_ctx	*sc;
 
 	XRefreshKeyboardMapping(e);
-
-	TAILQ_FOREACH(kb, &Conf.keybindingq, entry)
-		conf_grab(&Conf, kb);
+	if (e->request == MappingKeyboard) {
+		TAILQ_FOREACH(sc, &Screenq, entry)
+			conf_grab_kbd(sc->rootwin);
+	}
 }
 
 static void
