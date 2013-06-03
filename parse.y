@@ -467,13 +467,13 @@ nodigits:
 		}
 	}
 
+/* Similar to other parse.y copies, but also allows '/' in strings */
 #define allowed_in_string(x) \
 	(isalnum(x) || (ispunct(x) && x != '(' && x != ')' && \
 	x != '{' && x != '}' && x != '<' && x != '>' && \
-	x != '!' && x != '=' && x != '/' && x != '#' && \
-	x != ','))
+	x != '!' && x != '=' && x != '#' && x != ','))
 
-	if (isalnum(c) || c == ':' || c == '_' || c == '*') {
+	if (isalnum(c) || c == ':' || c == '_' || c == '*' || c == '/') {
 		do {
 			*p++ = c;
 			if ((unsigned)(p-buf) >= sizeof(buf)) {
