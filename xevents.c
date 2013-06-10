@@ -150,7 +150,11 @@ xev_handle_configurerequest(XEvent *ee)
 		if (e->value_mask & CWY)
 			cc->geom.y = e->y;
 		if (e->value_mask & CWBorderWidth)
-			wc.border_width = e->border_width;
+			cc->bwidth = e->border_width;
+		if (e->value_mask & CWSibling)
+			wc.sibling = e->above;
+		if (e->value_mask & CWStackMode)
+			wc.stack_mode = e->detail;
 
 		if (cc->geom.x == 0 && cc->geom.w >= sc->view.w)
 			cc->geom.x -= cc->bwidth;
