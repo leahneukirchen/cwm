@@ -169,7 +169,7 @@ xev_handle_configurerequest(XEvent *ee)
 		wc.border_width = cc->bwidth;
 
 		XConfigureWindow(X_Dpy, cc->win, e->value_mask, &wc);
-		xu_configure(cc);
+		client_config(cc);
 	} else {
 		/* let it do what it wants, it'll be ours when we map it. */
 		wc.x = e->x;

@@ -311,6 +311,7 @@ struct mwm_hints {
 __dead void		 usage(void);
 
 void			 client_applysizehints(struct client_ctx *);
+void			 client_config(struct client_ctx *);
 struct client_ctx	*client_current(void);
 void			 client_cycle(struct screen_ctx *, int);
 void			 client_cycle_leave(struct screen_ctx *,
@@ -327,6 +328,7 @@ void			 client_leave(struct client_ctx *);
 void			 client_lower(struct client_ctx *);
 void			 client_map(struct client_ctx *);
 void			 client_maximize(struct client_ctx *);
+void			 client_msg(struct client_ctx *, Atom);
 void			 client_move(struct client_ctx *);
 struct client_ctx	*client_init(Window, struct screen_ctx *, int);
 void			 client_ptrsave(struct client_ctx *);
@@ -446,7 +448,6 @@ void			 xev_loop(void);
 
 void			 xu_btn_grab(Window, int, u_int);
 void			 xu_btn_ungrab(Window, int, u_int);
-void			 xu_configure(struct client_ctx *);
 void			 xu_getatoms(void);
 int			 xu_getprop(Window, Atom, Atom, long, u_char **);
 int			 xu_get_wm_state(Window, int *);
@@ -457,7 +458,6 @@ int			 xu_ptr_grab(Window, u_int, Cursor);
 int			 xu_ptr_regrab(u_int, Cursor);
 void			 xu_ptr_setpos(Window, int, int);
 void			 xu_ptr_ungrab(void);
-void			 xu_sendmsg(Window, Atom, Atom);
 void			 xu_set_wm_state(Window win, int);
 void			 xu_xft_draw(struct screen_ctx *, const char *,
 			     int, int, int);
