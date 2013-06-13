@@ -343,17 +343,6 @@ group_cycle(struct screen_ctx *sc, int flags)
 		group_setactive(sc, showgroup->shortcut);
 }
 
-/* called when a client is deleted */
-void
-group_client_delete(struct client_ctx *cc)
-{
-	if (cc->group == NULL)
-		return;
-
-	TAILQ_REMOVE(&cc->group->clients, cc, group_entry);
-	cc->group = NULL; /* he he */
-}
-
 void
 group_menu(XButtonEvent *e)
 {

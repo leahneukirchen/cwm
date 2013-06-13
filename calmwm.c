@@ -144,7 +144,6 @@ dpy_init(const char *dpyname)
 static void
 x_setup(void)
 {
-	struct keybinding	*kb;
 	int			 i;
 
 	Cursor_default = XCreateFontCursor(X_Dpy, XC_X_cursor);
@@ -155,13 +154,6 @@ x_setup(void)
 
 	for (i = 0; i < ScreenCount(X_Dpy); i++)
 		screen_init(i);
-
-	/*
-	 * XXX key grabs weren't done before, since Screenq was empty,
-	 * do them here for now (this needs changing).
-	 */
-	TAILQ_FOREACH(kb, &Conf.keybindingq, entry)
-		conf_grab(&Conf, kb);
 }
 
 static void
@@ -181,7 +173,7 @@ x_wmerrorhandler(Display *dpy, XErrorEvent *e)
 static int
 x_errorhandler(Display *dpy, XErrorEvent *e)
 {
-#if DEBUG
+#ifdef DEBUG
 	char msg[80], number[80], req[80];
 
 	XGetErrorText(X_Dpy, e->error_code, msg, sizeof(msg));
