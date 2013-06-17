@@ -545,7 +545,9 @@ static struct {
 	{ "menu_cmd", mousefunc_menu_cmd, MOUSEBIND_CTX_ROOT },
 };
 
-static unsigned int mouse_btns[] = { Button1, Button2, Button3 };
+static unsigned int mouse_btns[] = {
+	Button1, Button2, Button3, Button4, Button5
+};
 
 int
 conf_mousebind(struct conf *c, char *name, char *binding)
@@ -571,7 +573,7 @@ conf_mousebind(struct conf *c, char *name, char *binding)
 	} else
 		substring = name;
 
-	button = strtonum(substring, 1, 3, &errstr);
+	button = strtonum(substring, 1, 5, &errstr);
 	if (errstr)
 		warnx("button number is %s: %s", errstr, substring);
 
