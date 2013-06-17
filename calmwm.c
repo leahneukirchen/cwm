@@ -52,11 +52,10 @@ struct conf			 Conf;
 char				*homedir;
 
 static void	sigchld_cb(int);
-static void	dpy_init(const char *);
 static int	x_errorhandler(Display *, XErrorEvent *);
-static int	x_wmerrorhandler(Display *, XErrorEvent *);
-static void	x_setup(void);
+static void	x_init(const char *);
 static void	x_teardown(void);
+static int	x_wmerrorhandler(Display *, XErrorEvent *);
 
 int
 main(int argc, char **argv)
@@ -109,15 +108,13 @@ main(int argc, char **argv)
 		conf_path = NULL;
 	}
 
-	dpy_init(display_name);
 
 	conf_init(&Conf);
 	if (conf_path && (parse_config(conf_path, &Conf) == -1))
 		warnx("config file %s has errors, not loading", conf_path);
 	free(conf_path);
 
-	xu_getatoms();
-	x_setup();
+	x_init(display_name);
 	xev_loop();
 	x_teardown();
 
@@ -125,7 +122,7 @@ main(int argc, char **argv)
 }
 
 static void
-dpy_init(const char *dpyname)
+x_init(const char *dpyname)
 {
 	int	i;
 
@@ -139,12 +136,8 @@ dpy_init(const char *dpyname)
 	XSetErrorHandler(x_errorhandler);
 
 	HasRandr = XRRQueryExtension(X_Dpy, &Randr_ev, &i);
-}
 
-static void
-x_setup(void)
-{
-	int			 i;
+	xu_getatoms();
 
 	Cursor_default = XCreateFontCursor(X_Dpy, XC_X_cursor);
 	Cursor_move = XCreateFontCursor(X_Dpy, XC_fleur);
