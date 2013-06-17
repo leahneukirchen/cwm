@@ -625,6 +625,23 @@ conf_mouseunbind(struct conf *c, struct mousebinding *unbind)
 	}
 }
 
+static int cursor_binds[CF_NITEMS] = {
+	XC_X_cursor,		/* CF_DEFAULT */
+	XC_fleur,		/* CF_MOVE */
+	XC_left_ptr,		/* CF_NORMAL */
+	XC_question_arrow,	/* CF_QUESTION */
+	XC_bottom_right_corner,	/* CF_RESIZE */
+};
+
+void
+conf_cursor(struct conf *c)
+{
+	u_int	 i;
+
+	for (i = 0; i < nitems(cursor_binds); i++)
+		c->cursor[i] = XCreateFontCursor(X_Dpy, cursor_binds[i]);
+}
+
 void
 conf_grab_mouse(Window win)
 {
@@ -647,4 +664,3 @@ conf_grab_kbd(Window win)
 	TAILQ_FOREACH(kb, &Conf.keybindingq, entry)
 		xu_key_grab(win, kb->modmask, kb->keysym);
 }
-

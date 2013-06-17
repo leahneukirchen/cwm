@@ -57,7 +57,7 @@ screen_init(int which)
 
 	group_init(sc);
 
-	rootattr.cursor = Cursor_normal;
+	rootattr.cursor = Conf.cursor[CF_NORMAL];
 	rootattr.event_mask = SubstructureRedirectMask|SubstructureNotifyMask|
 	    PropertyChangeMask|EnterWindowMask|LeaveWindowMask|
 	    ColormapChangeMask|BUTTONMASK;
