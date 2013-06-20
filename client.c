@@ -123,7 +123,7 @@ client_init(Window win, struct screen_ctx *sc, int mapped)
 	client_transient(cc);
 
 	/* Notify client of its configuration. */
-	xu_configure(cc);
+	client_config(cc);
 
 	(state == IconicState) ? client_hide(cc) : client_unhide(cc);
 
@@ -400,14 +400,14 @@ client_resize(struct client_ctx *cc, int reset)
 
 	XMoveResizeWindow(X_Dpy, cc->win, cc->geom.x,
 	    cc->geom.y, cc->geom.w, cc->geom.h);
-	xu_configure(cc);
+	client_config(cc);
 }
 
 void
 client_move(struct client_ctx *cc)
 {
 	XMoveWindow(X_Dpy, cc->win, cc->geom.x, cc->geom.y);
-	xu_configure(cc);
+	client_config(cc);
 }
 
 void
@@ -420,6 +420,26 @@ void
 client_raise(struct client_ctx *cc)
 {
 	XRaiseWindow(X_Dpy, cc->win);
+}
+
+void
+client_config(struct client_ctx *cc)
+{
+	XConfigureEvent	 cn;
+
+	bzero(&cn, sizeof(cn));
+	cn.type = ConfigureNotify;
+	cn.event = cc->win;
+	cn.window = cc->win;
+	cn.x = cc->geom.x;
+	cn.y = cc->geom.y;
+	cn.width = cc->geom.w;
+	cn.height = cc->geom.h;
+	cn.border_width = cc->bwidth;
+	cn.above = None;
+	cn.override_redirect = 0;
+
+	XSendEvent(X_Dpy, cc->win, False, StructureNotifyMask, (XEvent *)&cn);
 }
 
 void
@@ -519,11 +539,26 @@ client_wm_protocols(struct client_ctx *cc)
 }
 
 void
+client_msg(struct client_ctx *cc, Atom proto)
+{
+	XClientMessageEvent	 cm;
+
+	bzero(&cm, sizeof(cm));
+	cm.type = ClientMessage;
+	cm.window = cc->win;
+	cm.message_type = cwmh[WM_PROTOCOLS].atom;
+	cm.format = 32;
+	cm.data.l[0] = proto;
+	cm.data.l[1] = CurrentTime;
+
+	XSendEvent(X_Dpy, cc->win, False, NoEventMask, (XEvent *)&cm);
+}
+
+void
 client_send_delete(struct client_ctx *cc)
 {
 	if (cc->xproto & _WM_DELETE_WINDOW)
-		xu_sendmsg(cc->win,
-		    cwmh[WM_PROTOCOLS].atom, cwmh[WM_DELETE_WINDOW].atom);
+		client_msg(cc, cwmh[WM_DELETE_WINDOW].atom);
 	else
 		XKillClient(X_Dpy, cc->win);
 }

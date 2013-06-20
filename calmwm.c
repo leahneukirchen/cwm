@@ -38,12 +38,6 @@
 char				**cwm_argv;
 Display				*X_Dpy;
 
-Cursor				 Cursor_default;
-Cursor				 Cursor_move;
-Cursor				 Cursor_normal;
-Cursor				 Cursor_question;
-Cursor				 Cursor_resize;
-
 struct screen_ctx_q		 Screenq = TAILQ_HEAD_INITIALIZER(Screenq);
 struct client_ctx_q		 Clientq = TAILQ_HEAD_INITIALIZER(Clientq);
 
@@ -52,11 +46,10 @@ struct conf			 Conf;
 char				*homedir;
 
 static void	sigchld_cb(int);
-static void	dpy_init(const char *);
 static int	x_errorhandler(Display *, XErrorEvent *);
-static int	x_wmerrorhandler(Display *, XErrorEvent *);
-static void	x_setup(void);
+static void	x_init(const char *);
 static void	x_teardown(void);
+static int	x_wmerrorhandler(Display *, XErrorEvent *);
 
 int
 main(int argc, char **argv)
@@ -109,15 +102,13 @@ main(int argc, char **argv)
 		conf_path = NULL;
 	}
 
-	dpy_init(display_name);
 
 	conf_init(&Conf);
 	if (conf_path && (parse_config(conf_path, &Conf) == -1))
 		warnx("config file %s has errors, not loading", conf_path);
 	free(conf_path);
 
-	xu_getatoms();
-	x_setup();
+	x_init(display_name);
 	xev_loop();
 	x_teardown();
 
@@ -125,7 +116,7 @@ main(int argc, char **argv)
 }
 
 static void
-dpy_init(const char *dpyname)
+x_init(const char *dpyname)
 {
 	int	i;
 
@@ -139,18 +130,10 @@ dpy_init(const char *dpyname)
 	XSetErrorHandler(x_errorhandler);
 
 	HasRandr = XRRQueryExtension(X_Dpy, &Randr_ev, &i);
-}
 
-static void
-x_setup(void)
-{
-	int			 i;
+	xu_getatoms();
 
-	Cursor_default = XCreateFontCursor(X_Dpy, XC_X_cursor);
-	Cursor_move = XCreateFontCursor(X_Dpy, XC_fleur);
-	Cursor_normal = XCreateFontCursor(X_Dpy, XC_left_ptr);
-	Cursor_question = XCreateFontCursor(X_Dpy, XC_question_arrow);
-	Cursor_resize = XCreateFontCursor(X_Dpy, XC_bottom_right_corner);
+	conf_cursor(&Conf);
 
 	for (i = 0; i < ScreenCount(X_Dpy); i++)
 		screen_init(i);
