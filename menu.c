@@ -122,7 +122,8 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
 	XSelectInput(X_Dpy, sc->menuwin, evmask);
 	XMapRaised(X_Dpy, sc->menuwin);
 
-	if (xu_ptr_grab(sc->menuwin, MENUGRABMASK, Cursor_question) < 0) {
+	if (xu_ptr_grab(sc->menuwin, MENUGRABMASK,
+	    Conf.cursor[CF_QUESTION]) < 0) {
 		XUnmapWindow(X_Dpy, sc->menuwin);
 		return (NULL);
 	}
@@ -472,10 +473,10 @@ menu_handle_move(XEvent *e, struct menu_ctx *mc, struct menu_q *resultq)
 	if (mc->prev != -1)
 		menu_draw_entry(mc, resultq, mc->prev, 0);
 	if (mc->entry != -1) {
-		(void)xu_ptr_regrab(MENUGRABMASK, Cursor_normal);
+		(void)xu_ptr_regrab(MENUGRABMASK, Conf.cursor[CF_NORMAL]);
 		menu_draw_entry(mc, resultq, mc->entry, 1);
 	} else
-		(void)xu_ptr_regrab(MENUGRABMASK, Cursor_default);
+		(void)xu_ptr_regrab(MENUGRABMASK, Conf.cursor[CF_DEFAULT]);
 
 	if (mc->hasprompt)
 		menu_draw_entry(mc, resultq, 1, 1);

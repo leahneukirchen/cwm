@@ -84,7 +84,7 @@ conf_ignore(struct conf *c, char *val)
 	TAILQ_INSERT_TAIL(&c->ignoreq, wm, entry);
 }
 
-static char *color_binds[CWM_COLOR_MAX] = {
+static char *color_binds[] = {
 	"#CCCCCC",	/* CWM_COLOR_BORDER_ACTIVE */
 	"#666666",	/* CWM_COLOR_BORDER_INACTIVE */
 	"blue",		/* CWM_COLOR_BORDER_GROUP */
@@ -107,9 +107,16 @@ conf_screen(struct screen_ctx *sc)
 	if (sc->xftfont == NULL)
 		errx(1, "XftFontOpenName");
 
-	for (i = 0; i < CWM_COLOR_MAX; i++) {
-		if (*Conf.color[i] == '\0')
+	for (i = 0; i < nitems(color_binds); i++) {
+		if (i == CWM_COLOR_MENU_FONT_SEL && *Conf.color[i] == '\0') {
+			xu_xorcolor(sc->xftcolor[CWM_COLOR_MENU_BG],
+			    sc->xftcolor[CWM_COLOR_MENU_FG], &xc);
+			xu_xorcolor(sc->xftcolor[CWM_COLOR_MENU_FONT], xc, &xc);
+			if (!XftColorAllocValue(X_Dpy, sc->visual, sc->colormap,
+			    &xc.color, &sc->xftcolor[CWM_COLOR_MENU_FONT_SEL]))
+				warnx("XftColorAllocValue: '%s'", Conf.color[i]);
 			break;
+		}
 		if (XftColorAllocName(X_Dpy, sc->visual, sc->colormap,
 		    Conf.color[i], &xc)) {
 			sc->xftcolor[i] = xc;
@@ -120,15 +127,6 @@ conf_screen(struct screen_ctx *sc)
 			    color_binds[i], &sc->xftcolor[i]);
 		}
 	}
-	if (i == CWM_COLOR_MAX)
-		return;
-
-	xu_xorcolor(sc->xftcolor[CWM_COLOR_MENU_BG],
-		    sc->xftcolor[CWM_COLOR_MENU_FG], &xc);
-	xu_xorcolor(sc->xftcolor[CWM_COLOR_MENU_FONT], xc, &xc);
-	if (!XftColorAllocValue(X_Dpy, sc->visual, sc->colormap,
-	    &xc.color, &sc->xftcolor[CWM_COLOR_MENU_FONT_SEL]))
-		warnx("XftColorAllocValue: '%s'", Conf.color[i]);
 
 	sc->menuwin = XCreateSimpleWindow(X_Dpy, sc->rootwin, 0, 0, 1, 1,
 	    Conf.bwidth,
@@ -571,7 +569,9 @@ static struct {
 	{ "menu_cmd", mousefunc_menu_cmd, MOUSEBIND_CTX_ROOT },
 };
 
-static unsigned int mouse_btns[] = { Button1, Button2, Button3 };
+static unsigned int mouse_btns[] = {
+	Button1, Button2, Button3, Button4, Button5
+};
 
 int
 conf_mousebind(struct conf *c, char *name, char *binding)
@@ -597,7 +597,7 @@ conf_mousebind(struct conf *c, char *name, char *binding)
 	} else
 		substring = name;
 
-	button = strtonum(substring, 1, 3, &errstr);
+	button = strtonum(substring, 1, 5, &errstr);
 	if (errstr)
 		warnx("button number is %s: %s", errstr, substring);
 
@@ -649,6 +649,23 @@ conf_mouseunbind(struct conf *c, struct mousebinding *unbind)
 	}
 }
 
+static int cursor_binds[CF_NITEMS] = {
+	XC_X_cursor,		/* CF_DEFAULT */
+	XC_fleur,		/* CF_MOVE */
+	XC_left_ptr,		/* CF_NORMAL */
+	XC_question_arrow,	/* CF_QUESTION */
+	XC_bottom_right_corner,	/* CF_RESIZE */
+};
+
+void
+conf_cursor(struct conf *c)
+{
+	u_int	 i;
+
+	for (i = 0; i < nitems(cursor_binds); i++)
+		c->cursor[i] = XCreateFontCursor(X_Dpy, cursor_binds[i]);
+}
+
 void
 conf_grab_mouse(Window win)
 {
@@ -671,4 +688,3 @@ conf_grab_kbd(Window win)
 	TAILQ_FOREACH(kb, &Conf.keybindingq, entry)
 		xu_key_grab(win, kb->modmask, kb->keysym);
 }
-
