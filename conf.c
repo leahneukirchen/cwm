@@ -31,8 +31,9 @@
 
 #include "calmwm.h"
 
-static void	 conf_mouseunbind(struct conf *, struct mousebinding *);
-static void	 conf_unbind(struct conf *, struct keybinding *);
+static const char	*conf_bind_getmask(const char *, u_int *);
+static void	 	 conf_mouseunbind(struct conf *, struct mousebinding *);
+static void	 	 conf_unbind(struct conf *, struct keybinding *);
 
 /* Add an command menu entry to the end of the menu */
 void
@@ -442,27 +443,35 @@ static struct {
 	{ 'S',	ShiftMask },
 };
 
+static const char *
+conf_bind_getmask(const char *name, u_int *mask)
+{
+	char		*dash;
+	const char	*ch;
+	u_int	 	 i;
+
+	*mask = 0;
+	if ((dash = strchr(name, '-')) == NULL)
+		return (name);
+	for (i = 0; i < nitems(bind_mods); i++) {
+		if ((ch = strchr(name, bind_mods[i].chr)) != NULL && ch < dash)
+			*mask |= bind_mods[i].mask;
+	}
+
+	/* Skip past modifiers. */
+	return (dash + 1);
+}
+
 void
 conf_bindname(struct conf *c, char *name, char *binding)
 {
 	struct keybinding	*current_binding;
-	char			*substring, *tmp;
-	u_int			 i;
+	const char		*substring;
+	u_int			 i, mask;
 
 	current_binding = xcalloc(1, sizeof(*current_binding));
-
-	if ((substring = strchr(name, '-')) != NULL) {
-		for (i = 0; i < nitems(bind_mods); i++) {
-			if ((tmp = strchr(name, bind_mods[i].chr)) !=
-			    NULL && tmp < substring) {
-				current_binding->modmask |= bind_mods[i].mask;
-			}
-		}
-
-		/* skip past the modifiers */
-		substring++;
-	} else
-		substring = name;
+	substring = conf_bind_getmask(name, &mask);
+	current_binding->modmask |= mask;
 
 	if (substring[0] == '[' &&
 	    substring[strlen(substring)-1] == ']') {
@@ -551,25 +560,12 @@ int
 conf_mousebind(struct conf *c, char *name, char *binding)
 {
 	struct mousebinding	*current_binding;
-	char			*substring, *tmp;
-	u_int			 button;
-	const char		*errstr;
-	u_int			 i;
+	const char		*errstr, *substring;
+	u_int			 button, i, mask;
 
 	current_binding = xcalloc(1, sizeof(*current_binding));
-
-	if ((substring = strchr(name, '-')) != NULL) {
-		for (i = 0; i < nitems(bind_mods); i++) {
-			if ((tmp = strchr(name, bind_mods[i].chr)) !=
-			    NULL && tmp < substring) {
-				current_binding->modmask |= bind_mods[i].mask;
-			}
-		}
-
-		/* skip past the modifiers */
-		substring++;
-	} else
-		substring = name;
+	substring = conf_bind_getmask(name, &mask);
+	current_binding->modmask |= mask;
 
 	button = strtonum(substring, 1, 5, &errstr);
 	if (errstr)
