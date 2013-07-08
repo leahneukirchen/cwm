@@ -32,8 +32,8 @@
 #include "calmwm.h"
 
 static const char	*conf_bind_getmask(const char *, u_int *);
-static void	 	 conf_mouseunbind(struct conf *, struct mousebinding *);
-static void	 	 conf_unbind(struct conf *, struct keybinding *);
+static void	 	 conf_unbind_mouse(struct conf *, struct mousebinding *);
+static void	 	 conf_unbind_kbd(struct conf *, struct keybinding *);
 
 /* Add an command menu entry to the end of the menu */
 void
@@ -145,7 +145,7 @@ conf_screen(struct screen_ctx *sc)
 static struct {
 	char	*key;
 	char	*func;
-} kb_binds[] = {
+} kbd_binds[] = {
 	{ "CM-Return",	"terminal" },
 	{ "CM-Delete",	"lock" },
 	{ "M-question",	"exec" },
@@ -204,7 +204,7 @@ static struct {
 	{ "CS-Up",	"bigptrmoveup" },
 	{ "CS-Right",	"bigptrmoveright" },
 },
-m_binds[] = {
+mouse_binds[] = {
 	{ "1",		"menu_unhide" },
 	{ "2",		"menu_group" },
 	{ "3",		"menu_cmd" },
@@ -232,11 +232,11 @@ conf_init(struct conf *c)
 	TAILQ_INIT(&c->autogroupq);
 	TAILQ_INIT(&c->mousebindingq);
 
-	for (i = 0; i < nitems(kb_binds); i++)
-		conf_bindname(c, kb_binds[i].key, kb_binds[i].func);
+	for (i = 0; i < nitems(kbd_binds); i++)
+		conf_bind_kbd(c, kbd_binds[i].key, kbd_binds[i].func);
 
-	for (i = 0; i < nitems(m_binds); i++)
-		conf_mousebind(c, m_binds[i].key, m_binds[i].func);
+	for (i = 0; i < nitems(mouse_binds); i++)
+		conf_bind_mouse(c, mouse_binds[i].key, mouse_binds[i].func);
 
 	for (i = 0; i < nitems(color_binds); i++)
 		c->color[i] = xstrdup(color_binds[i]);
@@ -434,7 +434,7 @@ static struct {
 };
 
 static struct {
-	char	chr;
+	char	ch;
 	int	mask;
 } bind_mods[] = {
 	{ 'C',	ControlMask },
@@ -454,7 +454,7 @@ conf_bind_getmask(const char *name, u_int *mask)
 	if ((dash = strchr(name, '-')) == NULL)
 		return (name);
 	for (i = 0; i < nitems(bind_mods); i++) {
-		if ((ch = strchr(name, bind_mods[i].chr)) != NULL && ch < dash)
+		if ((ch = strchr(name, bind_mods[i].ch)) != NULL && ch < dash)
 			*mask |= bind_mods[i].mask;
 	}
 
@@ -463,7 +463,7 @@ conf_bind_getmask(const char *name, u_int *mask)
 }
 
 void
-conf_bindname(struct conf *c, char *name, char *binding)
+conf_bind_kbd(struct conf *c, char *name, char *binding)
 {
 	struct keybinding	*current_binding;
 	const char		*substring;
@@ -489,7 +489,7 @@ conf_bindname(struct conf *c, char *name, char *binding)
 	}
 
 	/* We now have the correct binding, remove duplicates. */
-	conf_unbind(c, current_binding);
+	conf_unbind_kbd(c, current_binding);
 
 	if (strcmp("unmap", binding) == 0) {
 		free(current_binding);
@@ -516,7 +516,7 @@ conf_bindname(struct conf *c, char *name, char *binding)
 }
 
 static void
-conf_unbind(struct conf *c, struct keybinding *unbind)
+conf_unbind_kbd(struct conf *c, struct keybinding *unbind)
 {
 	struct keybinding	*key = NULL, *keynxt;
 
@@ -557,7 +557,7 @@ static unsigned int mouse_btns[] = {
 };
 
 int
-conf_mousebind(struct conf *c, char *name, char *binding)
+conf_bind_mouse(struct conf *c, char *name, char *binding)
 {
 	struct mousebinding	*current_binding;
 	const char		*errstr, *substring;
@@ -583,7 +583,7 @@ conf_mousebind(struct conf *c, char *name, char *binding)
 	}
 
 	/* We now have the correct binding, remove duplicates. */
-	conf_mouseunbind(c, current_binding);
+	conf_unbind_mouse(c, current_binding);
 
 	if (strcmp("unmap", binding) == 0) {
 		free(current_binding);
@@ -604,7 +604,7 @@ conf_mousebind(struct conf *c, char *name, char *binding)
 }
 
 static void
-conf_mouseunbind(struct conf *c, struct mousebinding *unbind)
+conf_unbind_mouse(struct conf *c, struct mousebinding *unbind)
 {
 	struct mousebinding	*mb = NULL, *mbnxt;
 

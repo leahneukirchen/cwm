@@ -443,7 +443,8 @@ void			 menuq_clear(struct menu_q *);
 int			 parse_config(const char *, struct conf *);
 
 void			 conf_autogroup(struct conf *, int, char *);
-void			 conf_bindname(struct conf *, char *, char *);
+void			 conf_bind_kbd(struct conf *, char *, char *);
+int			 conf_bind_mouse(struct conf *, char *, char *);
 void			 conf_clear(struct conf *);
 void			 conf_client(struct client_ctx *);
 void			 conf_cmd_add(struct conf *, char *, char *);
@@ -452,7 +453,6 @@ void			 conf_grab_kbd(Window);
 void			 conf_grab_mouse(Window);
 void			 conf_init(struct conf *);
 void			 conf_ignore(struct conf *, char *);
-int			 conf_mousebind(struct conf *, char *, char *);
 void			 conf_screen(struct screen_ctx *);
 
 void			 xev_loop(void);
