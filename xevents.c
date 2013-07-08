@@ -253,12 +253,12 @@ xev_handle_buttonpress(XEvent *ee)
 
 	if (mb == NULL)
 		return;
-	if (mb->context == MOUSEBIND_CTX_ROOT) {
+	if (mb->flags == MOUSEBIND_CTX_ROOT) {
 		if (e->window != sc->rootwin)
 			return;
 		cc = &fakecc;
 		cc->sc = screen_fromroot(e->window);
-	} else if (cc == NULL) /* (mb->context == MOUSEBIND_CTX_WIN */
+	} else if (cc == NULL) /* (mb->flags == MOUSEBIND_CTX_WIN */
 		return;
 
 	(*mb->callback)(cc, e);

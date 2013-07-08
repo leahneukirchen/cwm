@@ -32,8 +32,8 @@
 #include "calmwm.h"
 
 static const char	*conf_bind_getmask(const char *, u_int *);
-static void	 	 conf_unbind_mouse(struct conf *, struct mousebinding *);
 static void	 	 conf_unbind_kbd(struct conf *, struct keybinding *);
+static void	 	 conf_unbind_mouse(struct conf *, struct mousebinding *);
 
 /* Add an command menu entry to the end of the menu */
 void
@@ -382,50 +382,53 @@ static struct {
 	{ "ssh", kbfunc_ssh, 0, {0} },
 	{ "terminal", kbfunc_term, 0, {0} },
 	{ "lock", kbfunc_lock, 0, {0} },
-	{ "moveup", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "moveup", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_UP|CWM_MOVE)} },
-	{ "movedown", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "movedown", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_DOWN|CWM_MOVE)} },
-	{ "moveright", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "moveright", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_RIGHT|CWM_MOVE)} },
-	{ "moveleft", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "moveleft", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_LEFT|CWM_MOVE)} },
-	{ "bigmoveup", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "bigmoveup", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_UP|CWM_MOVE|CWM_BIGMOVE)} },
-	{ "bigmovedown", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "bigmovedown", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_DOWN|CWM_MOVE|CWM_BIGMOVE)} },
-	{ "bigmoveright", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "bigmoveright", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_RIGHT|CWM_MOVE|CWM_BIGMOVE)} },
-	{ "bigmoveleft", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "bigmoveleft", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_LEFT|CWM_MOVE|CWM_BIGMOVE)} },
-	{ "resizeup", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "resizeup", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_UP|CWM_RESIZE)} },
-	{ "resizedown", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "resizedown", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_DOWN|CWM_RESIZE)} },
-	{ "resizeright", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "resizeright", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_RIGHT|CWM_RESIZE)} },
-	{ "resizeleft", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "resizeleft", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_LEFT|CWM_RESIZE)} },
-	{ "bigresizeup", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "bigresizeup", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_UP|CWM_RESIZE|CWM_BIGMOVE)} },
-	{ "bigresizedown", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "bigresizedown", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_DOWN|CWM_RESIZE|CWM_BIGMOVE)} },
-	{ "bigresizeright", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "bigresizeright", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_RIGHT|CWM_RESIZE|CWM_BIGMOVE)} },
-	{ "bigresizeleft", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "bigresizeleft", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_LEFT|CWM_RESIZE|CWM_BIGMOVE)} },
-	{ "ptrmoveup", kbfunc_moveresize, 0, {.i = (CWM_UP|CWM_PTRMOVE)} },
-	{ "ptrmovedown", kbfunc_moveresize, 0, {.i = (CWM_DOWN|CWM_PTRMOVE)} },
-	{ "ptrmoveleft", kbfunc_moveresize, 0, {.i = (CWM_LEFT|CWM_PTRMOVE)} },
-	{ "ptrmoveright", kbfunc_moveresize, 0,
+	{ "ptrmoveup", kbfunc_client_moveresize, 0,
+	    {.i = (CWM_UP|CWM_PTRMOVE)} },
+	{ "ptrmovedown", kbfunc_client_moveresize, 0,
+	    {.i = (CWM_DOWN|CWM_PTRMOVE)} },
+	{ "ptrmoveleft", kbfunc_client_moveresize, 0,
+	    {.i = (CWM_LEFT|CWM_PTRMOVE)} },
+	{ "ptrmoveright", kbfunc_client_moveresize, 0,
 	    {.i = (CWM_RIGHT|CWM_PTRMOVE)} },
-	{ "bigptrmoveup", kbfunc_moveresize, 0,
+	{ "bigptrmoveup", kbfunc_client_moveresize, 0,
 	    {.i = (CWM_UP|CWM_PTRMOVE|CWM_BIGMOVE)} },
-	{ "bigptrmovedown", kbfunc_moveresize, 0,
+	{ "bigptrmovedown", kbfunc_client_moveresize, 0,
 	    {.i = (CWM_DOWN|CWM_PTRMOVE|CWM_BIGMOVE)} },
-	{ "bigptrmoveleft", kbfunc_moveresize, 0,
+	{ "bigptrmoveleft", kbfunc_client_moveresize, 0,
 	    {.i = (CWM_LEFT|CWM_PTRMOVE|CWM_BIGMOVE)} },
-	{ "bigptrmoveright", kbfunc_moveresize, 0,
+	{ "bigptrmoveright", kbfunc_client_moveresize, 0,
 	    {.i = (CWM_RIGHT|CWM_PTRMOVE|CWM_BIGMOVE)} },
 	{ "htile", kbfunc_tile, KBFLAG_NEEDCLIENT,
 	    {.i = CWM_TILE_HORIZ } },
@@ -538,15 +541,15 @@ conf_unbind_kbd(struct conf *c, struct keybinding *unbind)
 static struct {
 	char *tag;
 	void (*handler)(struct client_ctx *, void *);
-	int context;
+	int flags;
 } name_to_mousefunc[] = {
-	{ "window_move", mousefunc_window_move, MOUSEBIND_CTX_WIN },
-	{ "window_resize", mousefunc_window_resize, MOUSEBIND_CTX_WIN },
-	{ "window_grouptoggle", mousefunc_window_grouptoggle,
+	{ "window_move", mousefunc_client_move, MOUSEBIND_CTX_WIN },
+	{ "window_resize", mousefunc_client_resize, MOUSEBIND_CTX_WIN },
+	{ "window_grouptoggle", mousefunc_client_grouptoggle,
 	    MOUSEBIND_CTX_WIN },
-	{ "window_lower", mousefunc_window_lower, MOUSEBIND_CTX_WIN },
-	{ "window_raise", mousefunc_window_raise, MOUSEBIND_CTX_WIN },
-	{ "window_hide", mousefunc_window_hide, MOUSEBIND_CTX_WIN },
+	{ "window_lower", mousefunc_client_lower, MOUSEBIND_CTX_WIN },
+	{ "window_raise", mousefunc_client_raise, MOUSEBIND_CTX_WIN },
+	{ "window_hide", mousefunc_client_hide, MOUSEBIND_CTX_WIN },
 	{ "menu_group", mousefunc_menu_group, MOUSEBIND_CTX_ROOT },
 	{ "menu_unhide", mousefunc_menu_unhide, MOUSEBIND_CTX_ROOT },
 	{ "menu_cmd", mousefunc_menu_cmd, MOUSEBIND_CTX_ROOT },
@@ -594,8 +597,8 @@ conf_bind_mouse(struct conf *c, char *name, char *binding)
 		if (strcmp(name_to_mousefunc[i].tag, binding) != 0)
 			continue;
 
-		current_binding->context = name_to_mousefunc[i].context;
 		current_binding->callback = name_to_mousefunc[i].handler;
+		current_binding->flags = name_to_mousefunc[i].flags;
 		TAILQ_INSERT_TAIL(&c->mousebindingq, current_binding, entry);
 		return (1);
 	}
@@ -642,7 +645,7 @@ conf_grab_mouse(Window win)
 	struct mousebinding	*mb;
 
 	TAILQ_FOREACH(mb, &Conf.mousebindingq, entry) {
-		if (mb->context != MOUSEBIND_CTX_WIN)
+		if (mb->flags != MOUSEBIND_CTX_WIN)
 			continue;
 		xu_btn_grab(win, mb->modmask, mb->button);
 	}

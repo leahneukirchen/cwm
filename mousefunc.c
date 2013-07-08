@@ -68,7 +68,7 @@ mousefunc_sweep_draw(struct client_ctx *cc)
 }
 
 void
-mousefunc_window_resize(struct client_ctx *cc, void *arg)
+mousefunc_client_resize(struct client_ctx *cc, void *arg)
 {
 	XEvent			 ev;
 	Time			 ltime = 0;
@@ -125,7 +125,7 @@ mousefunc_window_resize(struct client_ctx *cc, void *arg)
 }
 
 void
-mousefunc_window_move(struct client_ctx *cc, void *arg)
+mousefunc_client_move(struct client_ctx *cc, void *arg)
 {
 	XEvent			 ev;
 	Time			 ltime = 0;
@@ -177,26 +177,26 @@ mousefunc_window_move(struct client_ctx *cc, void *arg)
 }
 
 void
-mousefunc_window_grouptoggle(struct client_ctx *cc, void *arg)
+mousefunc_client_grouptoggle(struct client_ctx *cc, void *arg)
 {
 	group_sticky_toggle_enter(cc);
 }
 
 void
-mousefunc_window_lower(struct client_ctx *cc, void *arg)
+mousefunc_client_lower(struct client_ctx *cc, void *arg)
 {
 	client_ptrsave(cc);
 	client_lower(cc);
 }
 
 void
-mousefunc_window_raise(struct client_ctx *cc, void *arg)
+mousefunc_client_raise(struct client_ctx *cc, void *arg)
 {
 	client_raise(cc);
 }
 
 void
-mousefunc_window_hide(struct client_ctx *cc, void *arg)
+mousefunc_client_hide(struct client_ctx *cc, void *arg)
 {
 	client_hide(cc);
 }
