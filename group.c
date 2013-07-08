@@ -430,8 +430,8 @@ group_update_names(struct screen_ctx *sc)
 		}
 	}
 
-	strings = xmalloc((nstrings < CALMWM_NGROUPS ? CALMWM_NGROUPS :
-	    nstrings) * sizeof(*strings));
+	strings = xcalloc((nstrings < CALMWM_NGROUPS ? CALMWM_NGROUPS :
+	    nstrings), sizeof(*strings));
 
 	p = (char *)prop_ret;
 	while (n < nstrings) {
