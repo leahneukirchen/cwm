@@ -216,7 +216,7 @@ mousefunc_client_rcyclegroup(struct client_ctx *cc, void *arg)
 void
 mousefunc_menu_group(struct client_ctx *cc, void *arg)
 {
-	group_menu(arg);
+	group_menu(cc->sc);
 }
 
 void
