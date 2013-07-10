@@ -309,15 +309,12 @@ group_cycle(struct screen_ctx *sc, int flags)
 }
 
 void
-group_menu(XButtonEvent *e)
+group_menu(struct screen_ctx *sc)
 {
-	struct screen_ctx	*sc;
 	struct group_ctx	*gc;
 	struct menu		*mi;
 	struct menu_q		 menuq;
 	int			 i;
-
-	sc = screen_fromroot(e->root);
 
 	TAILQ_INIT(&menuq);
 
@@ -430,8 +427,8 @@ group_update_names(struct screen_ctx *sc)
 		}
 	}
 
-	strings = xmalloc((nstrings < CALMWM_NGROUPS ? CALMWM_NGROUPS :
-	    nstrings) * sizeof(*strings));
+	strings = xcalloc((nstrings < CALMWM_NGROUPS ? CALMWM_NGROUPS :
+	    nstrings), sizeof(*strings));
 
 	p = (char *)prop_ret;
 	while (n < nstrings) {

@@ -270,7 +270,7 @@ struct mousebinding {
 	u_int			 	button;
 #define MOUSEBIND_CTX_ROOT		0x0001
 #define MOUSEBIND_CTX_WIN		0x0002
-	int				context;
+	int				flags;
 };
 TAILQ_HEAD(mousebinding_q, mousebinding);
 
@@ -372,7 +372,7 @@ void			 group_autogroup(struct client_ctx *);
 void			 group_cycle(struct screen_ctx *, int);
 void			 group_hidetoggle(struct screen_ctx *, int);
 void			 group_init(struct screen_ctx *);
-void			 group_menu(XButtonEvent *);
+void			 group_menu(struct screen_ctx *);
 void			 group_movetogroup(struct client_ctx *, int);
 void			 group_only(struct screen_ctx *, int);
 void			 group_sticky(struct client_ctx *);
@@ -415,6 +415,8 @@ void			 kbfunc_client_label(struct client_ctx *, union arg *);
 void			 kbfunc_client_lower(struct client_ctx *, union arg *);
 void			 kbfunc_client_maximize(struct client_ctx *,
 			     union arg *);
+void			 kbfunc_client_moveresize(struct client_ctx *,
+			     union arg *);
 void			 kbfunc_client_movetogroup(struct client_ctx *,
 			     union arg *);
 void			 kbfunc_client_nogroup(struct client_ctx *,
@@ -428,23 +430,26 @@ void			 kbfunc_cmdexec(struct client_ctx *, union arg *);
 void			 kbfunc_exec(struct client_ctx *, union arg *);
 void			 kbfunc_lock(struct client_ctx *, union arg *);
 void			 kbfunc_menu_search(struct client_ctx *, union arg *);
-void			 kbfunc_moveresize(struct client_ctx *, union arg *);
 void			 kbfunc_quit_wm(struct client_ctx *, union arg *);
 void			 kbfunc_restart(struct client_ctx *, union arg *);
 void			 kbfunc_ssh(struct client_ctx *, union arg *);
 void			 kbfunc_term(struct client_ctx *, union arg *);
 void 			 kbfunc_tile(struct client_ctx *, union arg *);
 
+void			 mousefunc_client_cyclegroup(struct client_ctx *,
+			    void *);
+void			 mousefunc_client_grouptoggle(struct client_ctx *,
+			    void *);
+void			 mousefunc_client_hide(struct client_ctx *, void *);
+void			 mousefunc_client_lower(struct client_ctx *, void *);
+void			 mousefunc_client_move(struct client_ctx *, void *);
+void			 mousefunc_client_raise(struct client_ctx *, void *);
+void			 mousefunc_client_rcyclegroup(struct client_ctx *,
+    			   void *);
+void			 mousefunc_client_resize(struct client_ctx *, void *);
 void			 mousefunc_menu_cmd(struct client_ctx *, void *);
 void			 mousefunc_menu_group(struct client_ctx *, void *);
 void			 mousefunc_menu_unhide(struct client_ctx *, void *);
-void			 mousefunc_window_grouptoggle(struct client_ctx *,
-			    void *);
-void			 mousefunc_window_hide(struct client_ctx *, void *);
-void			 mousefunc_window_lower(struct client_ctx *, void *);
-void			 mousefunc_window_move(struct client_ctx *, void *);
-void			 mousefunc_window_raise(struct client_ctx *, void *);
-void			 mousefunc_window_resize(struct client_ctx *, void *);
 
 struct menu  		*menu_filter(struct screen_ctx *, struct menu_q *,
 			     char *, char *, int,
@@ -455,7 +460,8 @@ void			 menuq_clear(struct menu_q *);
 int			 parse_config(const char *, struct conf *);
 
 void			 conf_autogroup(struct conf *, int, char *);
-void			 conf_bindname(struct conf *, char *, char *);
+void			 conf_bind_kbd(struct conf *, char *, char *);
+int			 conf_bind_mouse(struct conf *, char *, char *);
 void			 conf_clear(struct conf *);
 void			 conf_client(struct client_ctx *);
 void			 conf_cmd_add(struct conf *, char *, char *);
@@ -464,7 +470,6 @@ void			 conf_grab_kbd(Window);
 void			 conf_grab_mouse(Window);
 void			 conf_init(struct conf *);
 void			 conf_ignore(struct conf *, char *);
-int			 conf_mousebind(struct conf *, char *, char *);
 void			 conf_screen(struct screen_ctx *);
 
 void			 xev_loop(void);

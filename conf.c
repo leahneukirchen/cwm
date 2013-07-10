@@ -31,8 +31,9 @@
 
 #include "calmwm.h"
 
-static void	 conf_mouseunbind(struct conf *, struct mousebinding *);
-static void	 conf_unbind(struct conf *, struct keybinding *);
+static const char	*conf_bind_getmask(const char *, u_int *);
+static void	 	 conf_unbind_kbd(struct conf *, struct keybinding *);
+static void	 	 conf_unbind_mouse(struct conf *, struct mousebinding *);
 
 /* Add an command menu entry to the end of the menu */
 void
@@ -98,8 +99,8 @@ static char *color_binds[] = {
 void
 conf_screen(struct screen_ctx *sc)
 {
-	int			 i;
-	XftColor		 xc;
+	u_int		 i;
+	XftColor	 xc;
 
 	sc->gap = Conf.gap;
 
@@ -144,7 +145,7 @@ conf_screen(struct screen_ctx *sc)
 static struct {
 	char	*key;
 	char	*func;
-} kb_binds[] = {
+} kbd_binds[] = {
 	{ "CM-Return",	"terminal" },
 	{ "CM-Delete",	"lock" },
 	{ "M-question",	"exec" },
@@ -203,7 +204,7 @@ static struct {
 	{ "CS-Up",	"bigptrmoveup" },
 	{ "CS-Right",	"bigptrmoveright" },
 },
-m_binds[] = {
+mouse_binds[] = {
 	{ "1",		"menu_unhide" },
 	{ "2",		"menu_group" },
 	{ "3",		"menu_cmd" },
@@ -231,11 +232,11 @@ conf_init(struct conf *c)
 	TAILQ_INIT(&c->autogroupq);
 	TAILQ_INIT(&c->mousebindingq);
 
-	for (i = 0; i < nitems(kb_binds); i++)
-		conf_bindname(c, kb_binds[i].key, kb_binds[i].func);
+	for (i = 0; i < nitems(kbd_binds); i++)
+		conf_bind_kbd(c, kbd_binds[i].key, kbd_binds[i].func);
 
-	for (i = 0; i < nitems(m_binds); i++)
-		conf_mousebind(c, m_binds[i].key, m_binds[i].func);
+	for (i = 0; i < nitems(mouse_binds); i++)
+		conf_bind_mouse(c, mouse_binds[i].key, mouse_binds[i].func);
 
 	for (i = 0; i < nitems(color_binds); i++)
 		c->color[i] = xstrdup(color_binds[i]);
@@ -381,50 +382,53 @@ static struct {
 	{ "ssh", kbfunc_ssh, 0, {0} },
 	{ "terminal", kbfunc_term, 0, {0} },
 	{ "lock", kbfunc_lock, 0, {0} },
-	{ "moveup", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "moveup", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_UP|CWM_MOVE)} },
-	{ "movedown", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "movedown", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_DOWN|CWM_MOVE)} },
-	{ "moveright", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "moveright", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_RIGHT|CWM_MOVE)} },
-	{ "moveleft", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "moveleft", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_LEFT|CWM_MOVE)} },
-	{ "bigmoveup", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "bigmoveup", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_UP|CWM_MOVE|CWM_BIGMOVE)} },
-	{ "bigmovedown", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "bigmovedown", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_DOWN|CWM_MOVE|CWM_BIGMOVE)} },
-	{ "bigmoveright", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "bigmoveright", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_RIGHT|CWM_MOVE|CWM_BIGMOVE)} },
-	{ "bigmoveleft", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "bigmoveleft", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_LEFT|CWM_MOVE|CWM_BIGMOVE)} },
-	{ "resizeup", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "resizeup", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_UP|CWM_RESIZE)} },
-	{ "resizedown", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "resizedown", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_DOWN|CWM_RESIZE)} },
-	{ "resizeright", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "resizeright", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_RIGHT|CWM_RESIZE)} },
-	{ "resizeleft", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "resizeleft", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_LEFT|CWM_RESIZE)} },
-	{ "bigresizeup", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "bigresizeup", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_UP|CWM_RESIZE|CWM_BIGMOVE)} },
-	{ "bigresizedown", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "bigresizedown", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_DOWN|CWM_RESIZE|CWM_BIGMOVE)} },
-	{ "bigresizeright", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "bigresizeright", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_RIGHT|CWM_RESIZE|CWM_BIGMOVE)} },
-	{ "bigresizeleft", kbfunc_moveresize, KBFLAG_NEEDCLIENT,
+	{ "bigresizeleft", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
 	    {.i = (CWM_LEFT|CWM_RESIZE|CWM_BIGMOVE)} },
-	{ "ptrmoveup", kbfunc_moveresize, 0, {.i = (CWM_UP|CWM_PTRMOVE)} },
-	{ "ptrmovedown", kbfunc_moveresize, 0, {.i = (CWM_DOWN|CWM_PTRMOVE)} },
-	{ "ptrmoveleft", kbfunc_moveresize, 0, {.i = (CWM_LEFT|CWM_PTRMOVE)} },
-	{ "ptrmoveright", kbfunc_moveresize, 0,
+	{ "ptrmoveup", kbfunc_client_moveresize, 0,
+	    {.i = (CWM_UP|CWM_PTRMOVE)} },
+	{ "ptrmovedown", kbfunc_client_moveresize, 0,
+	    {.i = (CWM_DOWN|CWM_PTRMOVE)} },
+	{ "ptrmoveleft", kbfunc_client_moveresize, 0,
+	    {.i = (CWM_LEFT|CWM_PTRMOVE)} },
+	{ "ptrmoveright", kbfunc_client_moveresize, 0,
 	    {.i = (CWM_RIGHT|CWM_PTRMOVE)} },
-	{ "bigptrmoveup", kbfunc_moveresize, 0,
+	{ "bigptrmoveup", kbfunc_client_moveresize, 0,
 	    {.i = (CWM_UP|CWM_PTRMOVE|CWM_BIGMOVE)} },
-	{ "bigptrmovedown", kbfunc_moveresize, 0,
+	{ "bigptrmovedown", kbfunc_client_moveresize, 0,
 	    {.i = (CWM_DOWN|CWM_PTRMOVE|CWM_BIGMOVE)} },
-	{ "bigptrmoveleft", kbfunc_moveresize, 0,
+	{ "bigptrmoveleft", kbfunc_client_moveresize, 0,
 	    {.i = (CWM_LEFT|CWM_PTRMOVE|CWM_BIGMOVE)} },
-	{ "bigptrmoveright", kbfunc_moveresize, 0,
+	{ "bigptrmoveright", kbfunc_client_moveresize, 0,
 	    {.i = (CWM_RIGHT|CWM_PTRMOVE|CWM_BIGMOVE)} },
 	{ "htile", kbfunc_tile, KBFLAG_NEEDCLIENT,
 	    {.i = CWM_TILE_HORIZ } },
@@ -433,7 +437,7 @@ static struct {
 };
 
 static struct {
-	char	chr;
+	char	ch;
 	int	mask;
 } bind_mods[] = {
 	{ 'C',	ControlMask },
@@ -442,27 +446,35 @@ static struct {
 	{ 'S',	ShiftMask },
 };
 
+static const char *
+conf_bind_getmask(const char *name, u_int *mask)
+{
+	char		*dash;
+	const char	*ch;
+	u_int	 	 i;
+
+	*mask = 0;
+	if ((dash = strchr(name, '-')) == NULL)
+		return (name);
+	for (i = 0; i < nitems(bind_mods); i++) {
+		if ((ch = strchr(name, bind_mods[i].ch)) != NULL && ch < dash)
+			*mask |= bind_mods[i].mask;
+	}
+
+	/* Skip past modifiers. */
+	return (dash + 1);
+}
+
 void
-conf_bindname(struct conf *c, char *name, char *binding)
+conf_bind_kbd(struct conf *c, char *name, char *binding)
 {
 	struct keybinding	*current_binding;
-	char			*substring, *tmp;
-	u_int			 i;
+	const char		*substring;
+	u_int			 i, mask;
 
 	current_binding = xcalloc(1, sizeof(*current_binding));
-
-	if ((substring = strchr(name, '-')) != NULL) {
-		for (i = 0; i < nitems(bind_mods); i++) {
-			if ((tmp = strchr(name, bind_mods[i].chr)) !=
-			    NULL && tmp < substring) {
-				current_binding->modmask |= bind_mods[i].mask;
-			}
-		}
-
-		/* skip past the modifiers */
-		substring++;
-	} else
-		substring = name;
+	substring = conf_bind_getmask(name, &mask);
+	current_binding->modmask |= mask;
 
 	if (substring[0] == '[' &&
 	    substring[strlen(substring)-1] == ']') {
@@ -480,7 +492,7 @@ conf_bindname(struct conf *c, char *name, char *binding)
 	}
 
 	/* We now have the correct binding, remove duplicates. */
-	conf_unbind(c, current_binding);
+	conf_unbind_kbd(c, current_binding);
 
 	if (strcmp("unmap", binding) == 0) {
 		free(current_binding);
@@ -507,7 +519,7 @@ conf_bindname(struct conf *c, char *name, char *binding)
 }
 
 static void
-conf_unbind(struct conf *c, struct keybinding *unbind)
+conf_unbind_kbd(struct conf *c, struct keybinding *unbind)
 {
 	struct keybinding	*key = NULL, *keynxt;
 
@@ -529,15 +541,17 @@ conf_unbind(struct conf *c, struct keybinding *unbind)
 static struct {
 	char *tag;
 	void (*handler)(struct client_ctx *, void *);
-	int context;
+	int flags;
 } name_to_mousefunc[] = {
-	{ "window_move", mousefunc_window_move, MOUSEBIND_CTX_WIN },
-	{ "window_resize", mousefunc_window_resize, MOUSEBIND_CTX_WIN },
-	{ "window_grouptoggle", mousefunc_window_grouptoggle,
+	{ "window_move", mousefunc_client_move, MOUSEBIND_CTX_WIN },
+	{ "window_resize", mousefunc_client_resize, MOUSEBIND_CTX_WIN },
+	{ "window_grouptoggle", mousefunc_client_grouptoggle,
 	    MOUSEBIND_CTX_WIN },
-	{ "window_lower", mousefunc_window_lower, MOUSEBIND_CTX_WIN },
-	{ "window_raise", mousefunc_window_raise, MOUSEBIND_CTX_WIN },
-	{ "window_hide", mousefunc_window_hide, MOUSEBIND_CTX_WIN },
+	{ "window_lower", mousefunc_client_lower, MOUSEBIND_CTX_WIN },
+	{ "window_raise", mousefunc_client_raise, MOUSEBIND_CTX_WIN },
+	{ "window_hide", mousefunc_client_hide, MOUSEBIND_CTX_WIN },
+	{ "cyclegroup", mousefunc_client_cyclegroup, MOUSEBIND_CTX_ROOT },
+	{ "rcyclegroup", mousefunc_client_rcyclegroup, MOUSEBIND_CTX_ROOT },
 	{ "menu_group", mousefunc_menu_group, MOUSEBIND_CTX_ROOT },
 	{ "menu_unhide", mousefunc_menu_unhide, MOUSEBIND_CTX_ROOT },
 	{ "menu_cmd", mousefunc_menu_cmd, MOUSEBIND_CTX_ROOT },
@@ -548,28 +562,15 @@ static unsigned int mouse_btns[] = {
 };
 
 int
-conf_mousebind(struct conf *c, char *name, char *binding)
+conf_bind_mouse(struct conf *c, char *name, char *binding)
 {
 	struct mousebinding	*current_binding;
-	char			*substring, *tmp;
-	u_int			 button;
-	const char		*errstr;
-	u_int			 i;
+	const char		*errstr, *substring;
+	u_int			 button, i, mask;
 
 	current_binding = xcalloc(1, sizeof(*current_binding));
-
-	if ((substring = strchr(name, '-')) != NULL) {
-		for (i = 0; i < nitems(bind_mods); i++) {
-			if ((tmp = strchr(name, bind_mods[i].chr)) !=
-			    NULL && tmp < substring) {
-				current_binding->modmask |= bind_mods[i].mask;
-			}
-		}
-
-		/* skip past the modifiers */
-		substring++;
-	} else
-		substring = name;
+	substring = conf_bind_getmask(name, &mask);
+	current_binding->modmask |= mask;
 
 	button = strtonum(substring, 1, 5, &errstr);
 	if (errstr)
@@ -587,7 +588,7 @@ conf_mousebind(struct conf *c, char *name, char *binding)
 	}
 
 	/* We now have the correct binding, remove duplicates. */
-	conf_mouseunbind(c, current_binding);
+	conf_unbind_mouse(c, current_binding);
 
 	if (strcmp("unmap", binding) == 0) {
 		free(current_binding);
@@ -598,8 +599,8 @@ conf_mousebind(struct conf *c, char *name, char *binding)
 		if (strcmp(name_to_mousefunc[i].tag, binding) != 0)
 			continue;
 
-		current_binding->context = name_to_mousefunc[i].context;
 		current_binding->callback = name_to_mousefunc[i].handler;
+		current_binding->flags = name_to_mousefunc[i].flags;
 		TAILQ_INSERT_TAIL(&c->mousebindingq, current_binding, entry);
 		return (1);
 	}
@@ -608,7 +609,7 @@ conf_mousebind(struct conf *c, char *name, char *binding)
 }
 
 static void
-conf_mouseunbind(struct conf *c, struct mousebinding *unbind)
+conf_unbind_mouse(struct conf *c, struct mousebinding *unbind)
 {
 	struct mousebinding	*mb = NULL, *mbnxt;
 
@@ -646,7 +647,7 @@ conf_grab_mouse(Window win)
 	struct mousebinding	*mb;
 
 	TAILQ_FOREACH(mb, &Conf.mousebindingq, entry) {
-		if (mb->context != MOUSEBIND_CTX_WIN)
+		if (mb->flags != MOUSEBIND_CTX_WIN)
 			continue;
 		xu_btn_grab(win, mb->modmask, mb->button);
 	}
