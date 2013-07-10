@@ -393,7 +393,7 @@ void
 xu_ewmh_handle_net_wm_state_msg(struct client_ctx *cc, int action,
     Atom first, Atom second)
 {
-	int i;
+	u_int i;
 	static struct handlers {
 		int atom;
 		int property;

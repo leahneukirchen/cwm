@@ -99,8 +99,8 @@ static char *color_binds[] = {
 void
 conf_screen(struct screen_ctx *sc)
 {
-	int			 i;
-	XftColor		 xc;
+	u_int		 i;
+	XftColor	 xc;
 
 	sc->gap = Conf.gap;
 
