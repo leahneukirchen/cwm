@@ -238,11 +238,7 @@ xev_handle_buttonpress(XEvent *ee)
 {
 	XButtonEvent		*e = &ee->xbutton;
 	struct client_ctx	*cc, fakecc;
-	struct screen_ctx	*sc;
 	struct mousebinding	*mb;
-
-	sc = screen_fromroot(e->root);
-	cc = client_find(e->window);
 
 	e->state &= ~IGNOREMODMASK;
 
@@ -253,13 +249,16 @@ xev_handle_buttonpress(XEvent *ee)
 
 	if (mb == NULL)
 		return;
-	if (mb->flags == MOUSEBIND_CTX_ROOT) {
-		if (e->window != sc->rootwin)
+	if (mb->flags == MOUSEBIND_CTX_WIN) {
+		if (((cc = client_find(e->window)) == NULL) &&
+		    (cc = client_current()) == NULL)
+			return;
+	} else { /* (mb->flags == MOUSEBIND_CTX_ROOT) */
+		if (e->window != e->root)
 			return;
 		cc = &fakecc;
 		cc->sc = screen_fromroot(e->window);
-	} else if (cc == NULL) /* (mb->flags == MOUSEBIND_CTX_WIN */
-		return;
+	}
 
 	(*mb->callback)(cc, e);
 }
