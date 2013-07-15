@@ -529,9 +529,9 @@ client_wm_protocols(struct client_ctx *cc)
 
 	if (XGetWMProtocols(X_Dpy, cc->win, &p, &j)) {
 		for (i = 0; i < j; i++) {
-			if (p[i] == cwmh[WM_DELETE_WINDOW].atom)
+			if (p[i] == cwmh[WM_DELETE_WINDOW])
 				cc->xproto |= _WM_DELETE_WINDOW;
-			else if (p[i] == cwmh[WM_TAKE_FOCUS].atom)
+			else if (p[i] == cwmh[WM_TAKE_FOCUS])
 				cc->xproto |= _WM_TAKE_FOCUS;
 		}
 		XFree(p);
@@ -546,7 +546,7 @@ client_msg(struct client_ctx *cc, Atom proto)
 	bzero(&cm, sizeof(cm));
 	cm.type = ClientMessage;
 	cm.window = cc->win;
-	cm.message_type = cwmh[WM_PROTOCOLS].atom;
+	cm.message_type = cwmh[WM_PROTOCOLS];
 	cm.format = 32;
 	cm.data.l[0] = proto;
 	cm.data.l[1] = CurrentTime;
@@ -558,7 +558,7 @@ void
 client_send_delete(struct client_ctx *cc)
 {
 	if (cc->xproto & _WM_DELETE_WINDOW)
-		client_msg(cc, cwmh[WM_DELETE_WINDOW].atom);
+		client_msg(cc, cwmh[WM_DELETE_WINDOW]);
 	else
 		XKillClient(X_Dpy, cc->win);
 }
@@ -569,7 +569,7 @@ client_setname(struct client_ctx *cc)
 	struct winname	*wn;
 	char		*newname;
 
-	if (!xu_getstrprop(cc->win, ewmh[_NET_WM_NAME].atom, &newname))
+	if (!xu_getstrprop(cc->win, ewmh[_NET_WM_NAME], &newname))
 		if (!xu_getstrprop(cc->win, XA_WM_NAME, &newname))
 			newname = xstrdup("");
 
@@ -841,7 +841,7 @@ client_getmwmhints(struct client_ctx *cc)
 	struct mwm_hints	*mwmh;
 
 	if (xu_getprop(cc->win,
-	    cwmh[_MOTIF_WM_HINTS].atom, cwmh[_MOTIF_WM_HINTS].atom,
+	    cwmh[_MOTIF_WM_HINTS], cwmh[_MOTIF_WM_HINTS],
 	    PROP_MWM_HINTS_ELEMENTS, (u_char **)&mwmh) == MWM_NUMHINTS)
 		if (mwmh->flags & MWM_HINTS_DECORATIONS &&
 		    !(mwmh->decorations & MWM_DECOR_ALL) &&

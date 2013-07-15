@@ -447,6 +447,7 @@ void			 menuq_clear(struct menu_q *);
 
 int			 parse_config(const char *, struct conf *);
 
+void			 conf_atoms(void);
 void			 conf_autogroup(struct conf *, int, char *);
 void			 conf_bind_kbd(struct conf *, char *, char *);
 int			 conf_bind_mouse(struct conf *, char *, char *);
@@ -464,7 +465,6 @@ void			 xev_loop(void);
 
 void			 xu_btn_grab(Window, int, u_int);
 void			 xu_btn_ungrab(Window, int, u_int);
-void			 xu_getatoms(void);
 int			 xu_getprop(Window, Atom, Atom, long, u_char **);
 int			 xu_get_wm_state(Window, int *);
 int			 xu_getstrprop(Window, Atom, char **);
@@ -558,11 +558,7 @@ enum {
 	_NET_WM_STATE_ADD,
 	_NET_WM_STATE_TOGGLE
 };
-struct atom_ctx {
-	char	*name;
-	Atom	 atom;
-};
-extern struct atom_ctx			 cwmh[CWMH_NITEMS];
-extern struct atom_ctx			 ewmh[EWMH_NITEMS];
+extern Atom				 cwmh[CWMH_NITEMS];
+extern Atom				 ewmh[EWMH_NITEMS];
 
 #endif /* _CALMWM_H_ */
