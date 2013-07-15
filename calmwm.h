@@ -318,6 +318,53 @@ struct mwm_hints {
 #define	MWM_DECOR_ALL		(1<<0)
 #define	MWM_DECOR_BORDER	(1<<1)
 
+extern Display				*X_Dpy;
+extern struct screen_ctx_q		 Screenq;
+extern struct client_ctx_q		 Clientq;
+extern struct conf			 Conf;
+extern char				*homedir;
+extern int				 HasRandr, Randr_ev;
+
+enum {
+	WM_STATE,
+	WM_DELETE_WINDOW,
+	WM_TAKE_FOCUS,
+	WM_PROTOCOLS,
+	_MOTIF_WM_HINTS,
+	UTF8_STRING,
+	WM_CHANGE_STATE,
+	CWMH_NITEMS
+};
+enum {
+	_NET_SUPPORTED,
+	_NET_SUPPORTING_WM_CHECK,
+	_NET_ACTIVE_WINDOW,
+	_NET_CLIENT_LIST,
+	_NET_NUMBER_OF_DESKTOPS,
+	_NET_CURRENT_DESKTOP,
+	_NET_DESKTOP_VIEWPORT,
+	_NET_DESKTOP_GEOMETRY,
+	_NET_VIRTUAL_ROOTS,
+	_NET_SHOWING_DESKTOP,
+	_NET_DESKTOP_NAMES,
+	_NET_WORKAREA,
+	_NET_WM_NAME,
+	_NET_WM_DESKTOP,
+	_NET_CLOSE_WINDOW,
+	_NET_WM_STATE,
+#define	_NET_WM_STATES_NITEMS	2
+	_NET_WM_STATE_MAXIMIZED_VERT,
+	_NET_WM_STATE_MAXIMIZED_HORZ,
+	EWMH_NITEMS
+};
+enum {
+	_NET_WM_STATE_REMOVE,
+	_NET_WM_STATE_ADD,
+	_NET_WM_STATE_TOGGLE
+};
+extern Atom				 cwmh[CWMH_NITEMS];
+extern Atom				 ewmh[EWMH_NITEMS];
+
 __dead void		 usage(void);
 
 void			 client_applysizehints(struct client_ctx *);
@@ -510,55 +557,5 @@ char			*xstrdup(const char *);
 int			 xasprintf(char **, const char *, ...)
 			    __attribute__((__format__ (printf, 2, 3)))
 			    __attribute__((__nonnull__ (2)));
-
-/* Externs */
-extern Display				*X_Dpy;
-
-extern struct screen_ctx_q		 Screenq;
-extern struct client_ctx_q		 Clientq;
-extern struct conf			 Conf;
-extern char				*homedir;
-
-extern int				 HasRandr, Randr_ev;
-
-enum {
-	WM_STATE,
-	WM_DELETE_WINDOW,
-	WM_TAKE_FOCUS,
-	WM_PROTOCOLS,
-	_MOTIF_WM_HINTS,
-	UTF8_STRING,
-	WM_CHANGE_STATE,
-	CWMH_NITEMS
-};
-enum {
-	_NET_SUPPORTED,
-	_NET_SUPPORTING_WM_CHECK,
-	_NET_ACTIVE_WINDOW,
-	_NET_CLIENT_LIST,
-	_NET_NUMBER_OF_DESKTOPS,
-	_NET_CURRENT_DESKTOP,
-	_NET_DESKTOP_VIEWPORT,
-	_NET_DESKTOP_GEOMETRY,
-	_NET_VIRTUAL_ROOTS,
-	_NET_SHOWING_DESKTOP,
-	_NET_DESKTOP_NAMES,
-	_NET_WORKAREA,
-	_NET_WM_NAME,
-	_NET_WM_DESKTOP,
-	_NET_CLOSE_WINDOW,
-	_NET_WM_STATE,
-#define	_NET_WM_STATES_NITEMS	2
-	_NET_WM_STATE_MAXIMIZED_VERT,
-	_NET_WM_STATE_MAXIMIZED_HORZ,
-	EWMH_NITEMS
-};
-enum {
-	_NET_WM_STATE_REMOVE,
-	_NET_WM_STATE_ADD,
-	_NET_WM_STATE_TOGGLE
-};
-extern Atom				 cwmh[CWMH_NITEMS];
-extern Atom				 ewmh[EWMH_NITEMS];
 
 #endif /* _CALMWM_H_ */
