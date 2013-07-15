@@ -840,8 +840,7 @@ client_getmwmhints(struct client_ctx *cc)
 {
 	struct mwm_hints	*mwmh;
 
-	if (xu_getprop(cc->win,
-	    cwmh[_MOTIF_WM_HINTS], cwmh[_MOTIF_WM_HINTS],
+	if (xu_getprop(cc->win, cwmh[_MOTIF_WM_HINTS], cwmh[_MOTIF_WM_HINTS],
 	    PROP_MWM_HINTS_ELEMENTS, (u_char **)&mwmh) == MWM_NUMHINTS)
 		if (mwmh->flags & MWM_HINTS_DECORATIONS &&
 		    !(mwmh->decorations & MWM_DECOR_ALL) &&

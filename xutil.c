@@ -177,8 +177,7 @@ xu_set_wm_state(Window win, int state)
 	dat[0] = state;
 	dat[1] = None;
 
-	XChangeProperty(X_Dpy, win,
-	    cwmh[WM_STATE], cwmh[WM_STATE], 32,
+	XChangeProperty(X_Dpy, win, cwmh[WM_STATE], cwmh[WM_STATE], 32,
 	    PropModeReplace, (unsigned char *)dat, 2);
 }
 
