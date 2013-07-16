@@ -624,7 +624,7 @@ conf_unbind_mouse(struct conf *c, struct mousebinding *unbind)
 	}
 }
 
-static int cursor_binds[CF_NITEMS] = {
+static int cursor_binds[] = {
 	XC_X_cursor,		/* CF_DEFAULT */
 	XC_fleur,		/* CF_MOVE */
 	XC_left_ptr,		/* CF_NORMAL */
