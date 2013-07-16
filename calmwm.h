@@ -115,7 +115,7 @@ enum color {
 	CWM_COLOR_MENU_BG,
 	CWM_COLOR_MENU_FONT,
 	CWM_COLOR_MENU_FONT_SEL,
-	CWM_COLOR_MAX
+	CWM_COLOR_NITEMS
 };
 
 struct geom {
@@ -235,7 +235,7 @@ struct screen_ctx {
 	struct geom		 work; /* workable area, gap-applied */
 	struct gap		 gap;
 	struct cycle_entry_q	 mruq;
-	XftColor		 xftcolor[CWM_COLOR_MAX];
+	XftColor		 xftcolor[CWM_COLOR_NITEMS];
 	XftDraw			*xftdraw;
 	XftFont			*xftfont;
 	int			 xinerama_no;
@@ -309,7 +309,7 @@ struct conf {
 #define	CONF_SNAPDIST			0
 	int			 snapdist;
 	struct gap		 gap;
-	char			*color[CWM_COLOR_MAX];
+	char			*color[CWM_COLOR_NITEMS];
 	char			 termpath[MAXPATHLEN];
 	char			 lockpath[MAXPATHLEN];
 	char			 known_hosts[MAXPATHLEN];
@@ -329,6 +329,53 @@ struct mwm_hints {
 #define	MWM_HINTS_DECORATIONS	(1<<1)
 #define	MWM_DECOR_ALL		(1<<0)
 #define	MWM_DECOR_BORDER	(1<<1)
+
+extern Display				*X_Dpy;
+extern struct screen_ctx_q		 Screenq;
+extern struct client_ctx_q		 Clientq;
+extern struct conf			 Conf;
+extern char				*homedir;
+extern int				 HasRandr, Randr_ev;
+
+enum {
+	WM_STATE,
+	WM_DELETE_WINDOW,
+	WM_TAKE_FOCUS,
+	WM_PROTOCOLS,
+	_MOTIF_WM_HINTS,
+	UTF8_STRING,
+	WM_CHANGE_STATE,
+	CWMH_NITEMS
+};
+enum {
+	_NET_SUPPORTED,
+	_NET_SUPPORTING_WM_CHECK,
+	_NET_ACTIVE_WINDOW,
+	_NET_CLIENT_LIST,
+	_NET_NUMBER_OF_DESKTOPS,
+	_NET_CURRENT_DESKTOP,
+	_NET_DESKTOP_VIEWPORT,
+	_NET_DESKTOP_GEOMETRY,
+	_NET_VIRTUAL_ROOTS,
+	_NET_SHOWING_DESKTOP,
+	_NET_DESKTOP_NAMES,
+	_NET_WORKAREA,
+	_NET_WM_NAME,
+	_NET_WM_DESKTOP,
+	_NET_CLOSE_WINDOW,
+	_NET_WM_STATE,
+#define	_NET_WM_STATES_NITEMS	2
+	_NET_WM_STATE_MAXIMIZED_VERT,
+	_NET_WM_STATE_MAXIMIZED_HORZ,
+	EWMH_NITEMS
+};
+enum {
+	_NET_WM_STATE_REMOVE,
+	_NET_WM_STATE_ADD,
+	_NET_WM_STATE_TOGGLE
+};
+extern Atom				 cwmh[CWMH_NITEMS];
+extern Atom				 ewmh[EWMH_NITEMS];
 
 __dead void		 usage(void);
 
@@ -459,6 +506,7 @@ void			 menuq_clear(struct menu_q *);
 
 int			 parse_config(const char *, struct conf *);
 
+void			 conf_atoms(void);
 void			 conf_autogroup(struct conf *, int, char *);
 void			 conf_bind_kbd(struct conf *, char *, char *);
 int			 conf_bind_mouse(struct conf *, char *, char *);
@@ -476,7 +524,6 @@ void			 xev_loop(void);
 
 void			 xu_btn_grab(Window, int, u_int);
 void			 xu_btn_ungrab(Window, int, u_int);
-void			 xu_getatoms(void);
 int			 xu_getprop(Window, Atom, Atom, long, u_char **);
 int			 xu_get_wm_state(Window, int *);
 int			 xu_getstrprop(Window, Atom, char **);
@@ -522,59 +569,5 @@ char			*xstrdup(const char *);
 int			 xasprintf(char **, const char *, ...)
 			    __attribute__((__format__ (printf, 2, 3)))
 			    __attribute__((__nonnull__ (2)));
-
-/* Externs */
-extern Display				*X_Dpy;
-
-extern struct screen_ctx_q		 Screenq;
-extern struct client_ctx_q		 Clientq;
-extern struct conf			 Conf;
-extern char				*homedir;
-
-extern int				 HasRandr, Randr_ev;
-
-enum {
-	WM_STATE,
-	WM_DELETE_WINDOW,
-	WM_TAKE_FOCUS,
-	WM_PROTOCOLS,
-	_MOTIF_WM_HINTS,
-	UTF8_STRING,
-	WM_CHANGE_STATE,
-	CWMH_NITEMS
-};
-enum {
-	_NET_SUPPORTED,
-	_NET_SUPPORTING_WM_CHECK,
-	_NET_ACTIVE_WINDOW,
-	_NET_CLIENT_LIST,
-	_NET_NUMBER_OF_DESKTOPS,
-	_NET_CURRENT_DESKTOP,
-	_NET_DESKTOP_VIEWPORT,
-	_NET_DESKTOP_GEOMETRY,
-	_NET_VIRTUAL_ROOTS,
-	_NET_SHOWING_DESKTOP,
-	_NET_DESKTOP_NAMES,
-	_NET_WORKAREA,
-	_NET_WM_NAME,
-	_NET_WM_DESKTOP,
-	_NET_CLOSE_WINDOW,
-	_NET_WM_STATE,
-#define	_NET_WM_STATES_NITEMS	2
-	_NET_WM_STATE_MAXIMIZED_VERT,
-	_NET_WM_STATE_MAXIMIZED_HORZ,
-	EWMH_NITEMS
-};
-enum {
-	_NET_WM_STATE_REMOVE,
-	_NET_WM_STATE_ADD,
-	_NET_WM_STATE_TOGGLE
-};
-struct atom_ctx {
-	char	*name;
-	Atom	 atom;
-};
-extern struct atom_ctx			 cwmh[CWMH_NITEMS];
-extern struct atom_ctx			 ewmh[EWMH_NITEMS];
 
 #endif /* _CALMWM_H_ */

@@ -599,7 +599,7 @@ parse_config(const char *filename, struct conf *xconf)
 		(void)strlcpy(xconf->lockpath, conf->lockpath,
 		    sizeof(xconf->lockpath));
 
-		for (i = 0; i < CWM_COLOR_MAX; i++)
+		for (i = 0; i < CWM_COLOR_NITEMS; i++)
 			xconf->color[i] = conf->color[i];
 
 		xconf->font = conf->font;

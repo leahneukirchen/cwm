@@ -37,6 +37,8 @@
 
 char				**cwm_argv;
 Display				*X_Dpy;
+Atom				 cwmh[CWMH_NITEMS];
+Atom				 ewmh[EWMH_NITEMS];
 
 struct screen_ctx_q		 Screenq = TAILQ_HEAD_INITIALIZER(Screenq);
 struct client_ctx_q		 Clientq = TAILQ_HEAD_INITIALIZER(Clientq);
@@ -129,7 +131,7 @@ x_init(const char *dpyname)
 
 	HasRandr = XRRQueryExtension(X_Dpy, &Randr_ev, &i);
 
-	xu_getatoms();
+	conf_atoms();
 
 	conf_cursor(&Conf);
 

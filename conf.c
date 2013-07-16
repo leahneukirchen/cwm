@@ -288,7 +288,7 @@ conf_clear(struct conf *c)
 		free(mb);
 	}
 
-	for (i = 0; i < CWM_COLOR_MAX; i++)
+	for (i = 0; i < CWM_COLOR_NITEMS; i++)
 		free(c->color[i]);
 
 	free(c->font);
@@ -624,7 +624,7 @@ conf_unbind_mouse(struct conf *c, struct mousebinding *unbind)
 	}
 }
 
-static int cursor_binds[CF_NITEMS] = {
+static int cursor_binds[] = {
 	XC_X_cursor,		/* CF_DEFAULT */
 	XC_fleur,		/* CF_MOVE */
 	XC_left_ptr,		/* CF_NORMAL */
@@ -662,4 +662,41 @@ conf_grab_kbd(Window win)
 
 	TAILQ_FOREACH(kb, &Conf.keybindingq, entry)
 		xu_key_grab(win, kb->modmask, kb->keysym);
+}
+
+static char *cwmhints[] = {
+	"WM_STATE",
+	"WM_DELETE_WINDOW",
+	"WM_TAKE_FOCUS",
+	"WM_PROTOCOLS",
+	"_MOTIF_WM_HINTS",
+	"UTF8_STRING",
+	"WM_CHANGE_STATE",
+};
+static char *ewmhints[] = {
+	"_NET_SUPPORTED",
+	"_NET_SUPPORTING_WM_CHECK",
+	"_NET_ACTIVE_WINDOW",
+	"_NET_CLIENT_LIST",
+	"_NET_NUMBER_OF_DESKTOPS",
+	"_NET_CURRENT_DESKTOP",
+	"_NET_DESKTOP_VIEWPORT",
+	"_NET_DESKTOP_GEOMETRY",
+	"_NET_VIRTUAL_ROOTS",
+	"_NET_SHOWING_DESKTOP",
+	"_NET_DESKTOP_NAMES",
+	"_NET_WORKAREA",
+	"_NET_WM_NAME",
+	"_NET_WM_DESKTOP",
+	"_NET_CLOSE_WINDOW",
+	"_NET_WM_STATE",
+	"_NET_WM_STATE_MAXIMIZED_VERT",
+	"_NET_WM_STATE_MAXIMIZED_HORZ",
+};
+
+void
+conf_atoms(void)
+{
+	XInternAtoms(X_Dpy, cwmhints, nitems(cwmhints), False, cwmh);
+	XInternAtoms(X_Dpy, ewmhints, nitems(ewmhints), False, ewmh);
 }
