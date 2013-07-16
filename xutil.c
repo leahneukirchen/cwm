@@ -185,14 +185,8 @@ xu_set_wm_state(Window win, int state)
 void
 xu_ewmh_net_supported(struct screen_ctx *sc)
 {
-	Atom	 atom[EWMH_NITEMS];
-	u_int	 i;
-
-	for (i = 0; i < nitems(ewmh); i++)
-		atom[i] = ewmh[i];
-
 	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_SUPPORTED],
-	    XA_ATOM, 32, PropModeReplace, (unsigned char *)atom, EWMH_NITEMS);
+	    XA_ATOM, 32, PropModeReplace, (unsigned char *)ewmh, EWMH_NITEMS);
 }
 
 void
