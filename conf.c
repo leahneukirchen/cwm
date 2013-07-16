@@ -288,7 +288,7 @@ conf_clear(struct conf *c)
 		free(mb);
 	}
 
-	for (i = 0; i < CWM_COLOR_MAX; i++)
+	for (i = 0; i < CWM_COLOR_NITEMS; i++)
 		free(c->color[i]);
 
 	free(c->font);

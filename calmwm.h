@@ -103,7 +103,7 @@ enum color {
 	CWM_COLOR_MENU_BG,
 	CWM_COLOR_MENU_FONT,
 	CWM_COLOR_MENU_FONT_SEL,
-	CWM_COLOR_MAX
+	CWM_COLOR_NITEMS
 };
 
 struct geom {
@@ -223,7 +223,7 @@ struct screen_ctx {
 	struct geom		 work; /* workable area, gap-applied */
 	struct gap		 gap;
 	struct cycle_entry_q	 mruq;
-	XftColor		 xftcolor[CWM_COLOR_MAX];
+	XftColor		 xftcolor[CWM_COLOR_NITEMS];
 	XftDraw			*xftdraw;
 	XftFont			*xftfont;
 	int			 xinerama_no;
@@ -297,7 +297,7 @@ struct conf {
 #define	CONF_SNAPDIST			0
 	int			 snapdist;
 	struct gap		 gap;
-	char			*color[CWM_COLOR_MAX];
+	char			*color[CWM_COLOR_NITEMS];
 	char			 termpath[MAXPATHLEN];
 	char			 lockpath[MAXPATHLEN];
 	char			 known_hosts[MAXPATHLEN];
