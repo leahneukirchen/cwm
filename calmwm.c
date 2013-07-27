@@ -37,6 +37,8 @@
 
 char				**cwm_argv;
 Display				*X_Dpy;
+Atom				 cwmh[CWMH_NITEMS];
+Atom				 ewmh[EWMH_NITEMS];
 
 struct screen_ctx_q		 Screenq = TAILQ_HEAD_INITIALIZER(Screenq);
 struct client_ctx_q		 Clientq = TAILQ_HEAD_INITIALIZER(Clientq);
@@ -102,7 +104,6 @@ main(int argc, char **argv)
 		conf_path = NULL;
 	}
 
-
 	conf_init(&Conf);
 	if (conf_path && (parse_config(conf_path, &Conf) == -1))
 		warnx("config file %s has errors, not loading", conf_path);
@@ -121,8 +122,7 @@ x_init(const char *dpyname)
 	int	i;
 
 	if ((X_Dpy = XOpenDisplay(dpyname)) == NULL)
-		errx(1, "unable to open display \"%s\"",
-		    XDisplayName(dpyname));
+		errx(1, "unable to open display \"%s\"", XDisplayName(dpyname));
 
 	XSetErrorHandler(x_wmerrorhandler);
 	XSelectInput(X_Dpy, DefaultRootWindow(X_Dpy), SubstructureRedirectMask);
@@ -131,7 +131,7 @@ x_init(const char *dpyname)
 
 	HasRandr = XRRQueryExtension(X_Dpy, &Randr_ev, &i);
 
-	xu_getatoms();
+	conf_atoms();
 
 	conf_cursor(&Conf);
 

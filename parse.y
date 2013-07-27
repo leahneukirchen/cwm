@@ -167,7 +167,7 @@ main		: FONTNAME STRING		{
 			free($2);
 		}
 		| BIND STRING string		{
-			conf_bindname(conf, $2, $3);
+			conf_bind_kbd(conf, $2, $3);
 			free($2);
 			free($3);
 		}
@@ -183,7 +183,7 @@ main		: FONTNAME STRING		{
 			conf->gap.right = $5;
 		}
 		| MOUSEBIND STRING string	{
-			if (!conf_mousebind(conf, $2, $3)) {
+			if (!conf_bind_mouse(conf, $2, $3)) {
 				yyerror("invalid mousebind: %s %s", $2, $3);
 				free($2);
 				free($3);
@@ -616,7 +616,7 @@ parse_config(const char *filename, struct conf *xconf)
 		(void)strlcpy(xconf->lockpath, conf->lockpath,
 		    sizeof(xconf->lockpath));
 
-		for (i = 0; i < CWM_COLOR_MAX; i++)
+		for (i = 0; i < CWM_COLOR_NITEMS; i++)
 			xconf->color[i] = conf->color[i];
 
 		xconf->font = conf->font;

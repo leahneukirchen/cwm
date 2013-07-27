@@ -53,7 +53,7 @@ kbfunc_client_raise(struct client_ctx *cc, union arg *arg)
 #define TYPEMASK	(CWM_MOVE | CWM_RESIZE | CWM_PTRMOVE | CWM_SNAP)
 #define MOVEMASK	(CWM_UP | CWM_DOWN | CWM_LEFT | CWM_RIGHT)
 void
-kbfunc_moveresize(struct client_ctx *cc, union arg *arg)
+kbfunc_client_moveresize(struct client_ctx *cc, union arg *arg)
 {
 	struct screen_ctx	*sc = cc->sc;
 	int			 x, y, flags, amt;

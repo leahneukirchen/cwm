@@ -159,7 +159,7 @@ xu_get_wm_state(Window win, int *state)
 {
 	long	*p = NULL;
 
-	if (xu_getprop(win, cwmh[WM_STATE].atom, cwmh[WM_STATE].atom, 2L,
+	if (xu_getprop(win, cwmh[WM_STATE], cwmh[WM_STATE], 2L,
 	    (u_char **)&p) <= 0)
 		return (-1);
 
@@ -177,64 +177,16 @@ xu_set_wm_state(Window win, int state)
 	dat[0] = state;
 	dat[1] = None;
 
-	XChangeProperty(X_Dpy, win,
-	    cwmh[WM_STATE].atom, cwmh[WM_STATE].atom, 32,
+	XChangeProperty(X_Dpy, win, cwmh[WM_STATE], cwmh[WM_STATE], 32,
 	    PropModeReplace, (unsigned char *)dat, 2);
-}
-
-struct atom_ctx cwmh[CWMH_NITEMS] = {
-	{"WM_STATE",			None},
-	{"WM_DELETE_WINDOW",		None},
-	{"WM_TAKE_FOCUS",		None},
-	{"WM_PROTOCOLS",		None},
-	{"_MOTIF_WM_HINTS",		None},
-	{"UTF8_STRING",			None},
-	{"WM_CHANGE_STATE",		None},
-};
-struct atom_ctx ewmh[EWMH_NITEMS] = {
-	{"_NET_SUPPORTED",		None},
-	{"_NET_SUPPORTING_WM_CHECK",	None},
-	{"_NET_ACTIVE_WINDOW",		None},
-	{"_NET_CLIENT_LIST",		None},
-	{"_NET_NUMBER_OF_DESKTOPS",	None},
-	{"_NET_CURRENT_DESKTOP",	None},
-	{"_NET_DESKTOP_VIEWPORT",	None},
-	{"_NET_DESKTOP_GEOMETRY",	None},
-	{"_NET_VIRTUAL_ROOTS",		None},
-	{"_NET_SHOWING_DESKTOP",	None},
-	{"_NET_DESKTOP_NAMES",		None},
-	{"_NET_WORKAREA",		None},
-	{"_NET_WM_NAME",		None},
-	{"_NET_WM_DESKTOP",		None},
-	{"_NET_CLOSE_WINDOW",		None},
-	{"_NET_WM_STATE", 		None},
-	{"_NET_WM_STATE_MAXIMIZED_VERT",None},
-	{"_NET_WM_STATE_MAXIMIZED_HORZ",None},
-};
-
-void
-xu_getatoms(void)
-{
-	u_int	 i;
-
-	for (i = 0; i < nitems(cwmh); i++)
-		cwmh[i].atom = XInternAtom(X_Dpy, cwmh[i].name, False);
-	for (i = 0; i < nitems(ewmh); i++)
-		ewmh[i].atom = XInternAtom(X_Dpy, ewmh[i].name, False);
 }
 
 /* Root Window Properties */
 void
 xu_ewmh_net_supported(struct screen_ctx *sc)
 {
-	Atom	 atom[EWMH_NITEMS];
-	u_int	 i;
-
-	for (i = 0; i < nitems(ewmh); i++)
-		atom[i] = ewmh[i].atom;
-
-	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_SUPPORTED].atom,
-	    XA_ATOM, 32, PropModeReplace, (unsigned char *)atom, EWMH_NITEMS);
+	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_SUPPORTED],
+	    XA_ATOM, 32, PropModeReplace, (unsigned char *)ewmh, EWMH_NITEMS);
 }
 
 void
@@ -243,12 +195,12 @@ xu_ewmh_net_supported_wm_check(struct screen_ctx *sc)
 	Window	 w;
 
 	w = XCreateSimpleWindow(X_Dpy, sc->rootwin, -1, -1, 1, 1, 0, 0, 0);
-	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_SUPPORTING_WM_CHECK].atom,
+	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_SUPPORTING_WM_CHECK],
 	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)&w, 1);
-	XChangeProperty(X_Dpy, w, ewmh[_NET_SUPPORTING_WM_CHECK].atom,
+	XChangeProperty(X_Dpy, w, ewmh[_NET_SUPPORTING_WM_CHECK],
 	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)&w, 1);
-	XChangeProperty(X_Dpy, w, ewmh[_NET_WM_NAME].atom,
-	    cwmh[UTF8_STRING].atom, 8, PropModeReplace, (unsigned char *)WMNAME,
+	XChangeProperty(X_Dpy, w, ewmh[_NET_WM_NAME],
+	    cwmh[UTF8_STRING], 8, PropModeReplace, (unsigned char *)WMNAME,
 	    strlen(WMNAME));
 }
 
@@ -257,7 +209,7 @@ xu_ewmh_net_desktop_geometry(struct screen_ctx *sc)
 {
 	long	 geom[2] = { sc->view.w, sc->view.h };
 
-	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_DESKTOP_GEOMETRY].atom,
+	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_DESKTOP_GEOMETRY],
 	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)geom , 2);
 }
 
@@ -274,7 +226,7 @@ xu_ewmh_net_workarea(struct screen_ctx *sc)
 		workareas[i][3] = sc->work.h;
 	}
 
-	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_WORKAREA].atom,
+	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_WORKAREA],
 	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)workareas,
 	    CALMWM_NGROUPS * 4);
 }
@@ -291,10 +243,10 @@ xu_ewmh_net_client_list(struct screen_ctx *sc)
 	if (i == 0)
 		return;
 
-	winlist = xmalloc(i * sizeof(*winlist));
+	winlist = xcalloc(i, sizeof(*winlist));
 	TAILQ_FOREACH(cc, &Clientq, entry)
 		winlist[j++] = cc->win;
-	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_CLIENT_LIST].atom,
+	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_CLIENT_LIST],
 	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)winlist, i);
 	free(winlist);
 }
@@ -302,7 +254,7 @@ xu_ewmh_net_client_list(struct screen_ctx *sc)
 void
 xu_ewmh_net_active_window(struct screen_ctx *sc, Window w)
 {
-	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_ACTIVE_WINDOW].atom,
+	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_ACTIVE_WINDOW],
 	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)&w, 1);
 }
 
@@ -312,7 +264,7 @@ xu_ewmh_net_wm_desktop_viewport(struct screen_ctx *sc)
 	long	 viewports[2] = {0, 0};
 
 	/* We don't support large desktops, so this is (0, 0). */
-	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_DESKTOP_VIEWPORT].atom,
+	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_DESKTOP_VIEWPORT],
 	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)viewports, 2);
 }
 
@@ -321,7 +273,7 @@ xu_ewmh_net_wm_number_of_desktops(struct screen_ctx *sc)
 {
 	long	 ndesks = CALMWM_NGROUPS;
 
-	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_NUMBER_OF_DESKTOPS].atom,
+	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_NUMBER_OF_DESKTOPS],
 	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&ndesks, 1);
 }
 
@@ -334,7 +286,7 @@ xu_ewmh_net_showing_desktop(struct screen_ctx *sc)
 	 * Note that when we hide all groups, or when all groups are
 	 * hidden we could technically set this later on.
 	 */
-	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_SHOWING_DESKTOP].atom,
+	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_SHOWING_DESKTOP],
 	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&zero, 1);
 }
 
@@ -342,21 +294,21 @@ void
 xu_ewmh_net_virtual_roots(struct screen_ctx *sc)
 {
 	/* We don't support virtual roots, so delete if set by previous wm. */
-	XDeleteProperty(X_Dpy, sc->rootwin, ewmh[_NET_VIRTUAL_ROOTS].atom);
+	XDeleteProperty(X_Dpy, sc->rootwin, ewmh[_NET_VIRTUAL_ROOTS]);
 }
 
 void
 xu_ewmh_net_current_desktop(struct screen_ctx *sc, long idx)
 {
-	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_CURRENT_DESKTOP].atom,
+	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_CURRENT_DESKTOP],
 	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&idx, 1);
 }
 
 void
 xu_ewmh_net_desktop_names(struct screen_ctx *sc, char *data, int n)
 {
-	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_DESKTOP_NAMES].atom,
-	    cwmh[UTF8_STRING].atom, 8, PropModeReplace, (unsigned char *)data, n);
+	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_DESKTOP_NAMES],
+	    cwmh[UTF8_STRING], 8, PropModeReplace, (unsigned char *)data, n);
 }
 
 /* Application Window Properties */
@@ -369,7 +321,7 @@ xu_ewmh_net_wm_desktop(struct client_ctx *cc)
 	if (gc)
 		no = gc->shortcut;
 
-	XChangeProperty(X_Dpy, cc->win, ewmh[_NET_WM_DESKTOP].atom,
+	XChangeProperty(X_Dpy, cc->win, ewmh[_NET_WM_DESKTOP],
 	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&no, 1);
 }
 
@@ -378,11 +330,11 @@ xu_ewmh_get_net_wm_state(struct client_ctx *cc, int *n)
 {
 	Atom	*state, *p = NULL;
 
-	if ((*n = xu_getprop(cc->win, ewmh[_NET_WM_STATE].atom, XA_ATOM, 64L,
+	if ((*n = xu_getprop(cc->win, ewmh[_NET_WM_STATE], XA_ATOM, 64L,
 	    (u_char **)&p)) <= 0)
 		return (NULL);
 
-	state = xmalloc(*n * sizeof(Atom));
+	state = xcalloc(*n, sizeof(Atom));
 	memcpy(state, p, *n * sizeof(Atom));
 	XFree((char *)p);
 
@@ -393,7 +345,7 @@ void
 xu_ewmh_handle_net_wm_state_msg(struct client_ctx *cc, int action,
     Atom first, Atom second)
 {
-	int i;
+	u_int i;
 	static struct handlers {
 		int atom;
 		int property;
@@ -408,8 +360,8 @@ xu_ewmh_handle_net_wm_state_msg(struct client_ctx *cc, int action,
 	};
 
 	for (i = 0; i < nitems(handlers); i++) {
-		if (first != ewmh[handlers[i].atom].atom &&
-		    second != ewmh[handlers[i].atom].atom)
+		if (first != ewmh[handlers[i].atom] &&
+		    second != ewmh[handlers[i].atom])
 			continue;
 		switch (action) {
 		case _NET_WM_STATE_ADD:
@@ -434,9 +386,9 @@ xu_ewmh_restore_net_wm_state(struct client_ctx *cc)
 
 	atoms = xu_ewmh_get_net_wm_state(cc, &n);
 	for (i = 0; i < n; i++) {
-		if (atoms[i] == ewmh[_NET_WM_STATE_MAXIMIZED_HORZ].atom)
+		if (atoms[i] == ewmh[_NET_WM_STATE_MAXIMIZED_HORZ])
 			client_hmaximize(cc);
-		if (atoms[i] == ewmh[_NET_WM_STATE_MAXIMIZED_VERT].atom)
+		if (atoms[i] == ewmh[_NET_WM_STATE_MAXIMIZED_VERT])
 			client_vmaximize(cc);
 	}
 	free(atoms);
@@ -449,22 +401,22 @@ xu_ewmh_set_net_wm_state(struct client_ctx *cc)
 	int	 n, i, j;
 
 	oatoms = xu_ewmh_get_net_wm_state(cc, &n);
-	atoms = xmalloc((n + _NET_WM_STATES_NITEMS) * sizeof(Atom));
+	atoms = xcalloc((n + _NET_WM_STATES_NITEMS), sizeof(Atom));
 	for (i = j = 0; i < n; i++) {
-		if (oatoms[i] != ewmh[_NET_WM_STATE_MAXIMIZED_HORZ].atom &&
-		    oatoms[i] != ewmh[_NET_WM_STATE_MAXIMIZED_VERT].atom)
+		if (oatoms[i] != ewmh[_NET_WM_STATE_MAXIMIZED_HORZ] &&
+		    oatoms[i] != ewmh[_NET_WM_STATE_MAXIMIZED_VERT])
 			atoms[j++] = oatoms[i];
 	}
 	free(oatoms);
 	if (cc->flags & CLIENT_HMAXIMIZED)
-		atoms[j++] = ewmh[_NET_WM_STATE_MAXIMIZED_HORZ].atom;
+		atoms[j++] = ewmh[_NET_WM_STATE_MAXIMIZED_HORZ];
 	if (cc->flags & CLIENT_VMAXIMIZED)
-		atoms[j++] = ewmh[_NET_WM_STATE_MAXIMIZED_VERT].atom;
+		atoms[j++] = ewmh[_NET_WM_STATE_MAXIMIZED_VERT];
 	if (j > 0)
-		XChangeProperty(X_Dpy, cc->win, ewmh[_NET_WM_STATE].atom,
+		XChangeProperty(X_Dpy, cc->win, ewmh[_NET_WM_STATE],
 		    XA_ATOM, 32, PropModeReplace, (unsigned char *)atoms, j);
 	else
-		XDeleteProperty(X_Dpy, cc->win, ewmh[_NET_WM_STATE].atom);
+		XDeleteProperty(X_Dpy, cc->win, ewmh[_NET_WM_STATE]);
 	free(atoms);
 }
 

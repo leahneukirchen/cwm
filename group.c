@@ -344,15 +344,12 @@ group_cycle(struct screen_ctx *sc, int flags)
 }
 
 void
-group_menu(XButtonEvent *e)
+group_menu(struct screen_ctx *sc)
 {
-	struct screen_ctx	*sc;
 	struct group_ctx	*gc;
 	struct menu		*mi;
 	struct menu_q		 menuq;
 	int			 i;
-
-	sc = screen_fromroot(e->root);
 
 	TAILQ_INIT(&menuq);
 
@@ -413,7 +410,7 @@ group_autogroup(struct client_ctx *cc)
 	if (cc->app_class == NULL || cc->app_name == NULL)
 		return;
 
-	if (xu_getprop(cc->win, ewmh[_NET_WM_DESKTOP].atom,
+	if (xu_getprop(cc->win, ewmh[_NET_WM_DESKTOP],
 	    XA_CARDINAL, 1, (unsigned char **)&grpno) > 0) {
 		if (*grpno == 0xffffffff)
 			no = 0;
@@ -480,8 +477,8 @@ group_update_names(struct screen_ctx *sc)
 	unsigned char	*prop_ret;
 	int		 i = 0, j = 0, nstrings = 0, n = 0, setnames = 0;
 
-	if ((j = xu_getprop(sc->rootwin, ewmh[_NET_DESKTOP_NAMES].atom,
-	    cwmh[UTF8_STRING].atom, 0xffffff, (u_char **)&prop_ret)) > 0) {
+	if ((j = xu_getprop(sc->rootwin, ewmh[_NET_DESKTOP_NAMES],
+	    cwmh[UTF8_STRING], 0xffffff, (u_char **)&prop_ret)) > 0) {
 		prop_ret[j - 1] = '\0'; /* paranoia */
 		while (i < j) {
 			if (prop_ret[i++] == '\0')
@@ -489,8 +486,8 @@ group_update_names(struct screen_ctx *sc)
 		}
 	}
 
-	strings = xmalloc((nstrings < CALMWM_NGROUPS ? CALMWM_NGROUPS :
-	    nstrings) * sizeof(*strings));
+	strings = xcalloc((nstrings < CALMWM_NGROUPS ? CALMWM_NGROUPS :
+	    nstrings), sizeof(*strings));
 
 	p = (char *)prop_ret;
 	while (n < nstrings) {

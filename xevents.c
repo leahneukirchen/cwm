@@ -209,7 +209,7 @@ xev_handle_propertynotify(XEvent *ee)
 	} else {
 		TAILQ_FOREACH(sc, &Screenq, entry) {
 			if (sc->rootwin == e->window) {
-				if (e->atom == ewmh[_NET_DESKTOP_NAMES].atom)
+				if (e->atom == ewmh[_NET_DESKTOP_NAMES])
 					group_update_names(sc);
 			}
 		}
@@ -238,11 +238,7 @@ xev_handle_buttonpress(XEvent *ee)
 {
 	XButtonEvent		*e = &ee->xbutton;
 	struct client_ctx	*cc, fakecc;
-	struct screen_ctx	*sc;
 	struct mousebinding	*mb;
-
-	sc = screen_fromroot(e->root);
-	cc = client_find(e->window);
 
 	e->state &= ~IGNOREMODMASK;
 
@@ -253,13 +249,16 @@ xev_handle_buttonpress(XEvent *ee)
 
 	if (mb == NULL)
 		return;
-	if (mb->context == MOUSEBIND_CTX_ROOT) {
-		if (e->window != sc->rootwin)
+	if (mb->flags == MOUSEBIND_CTX_WIN) {
+		if (((cc = client_find(e->window)) == NULL) &&
+		    (cc = client_current()) == NULL)
+			return;
+	} else { /* (mb->flags == MOUSEBIND_CTX_ROOT) */
+		if (e->window != e->root)
 			return;
 		cc = &fakecc;
 		cc->sc = screen_fromroot(e->window);
-	} else if (cc == NULL) /* (mb->context == MOUSEBIND_CTX_WIN */
-		return;
+	}
 
 	(*mb->callback)(cc, e);
 }
@@ -349,22 +348,20 @@ xev_handle_clientmessage(XEvent *ee)
 	if ((cc = client_find(e->window)) == NULL)
 		return;
 
-	if (e->message_type == cwmh[WM_CHANGE_STATE].atom &&
-	    e->format == 32 && e->data.l[0] == IconicState)
+	if (e->message_type == cwmh[WM_CHANGE_STATE] && e->format == 32 &&
+	    e->data.l[0] == IconicState)
 		client_hide(cc);
 
-	if (e->message_type == ewmh[_NET_CLOSE_WINDOW].atom)
+	if (e->message_type == ewmh[_NET_CLOSE_WINDOW])
 		client_send_delete(cc);
 
-	if (e->message_type == ewmh[_NET_ACTIVE_WINDOW].atom &&
-	    e->format == 32) {                                                
+	if (e->message_type == ewmh[_NET_ACTIVE_WINDOW] && e->format == 32) {
 		old_cc = client_current();
 		if (old_cc)
 			client_ptrsave(old_cc);
 		client_ptrwarp(cc);
 	}
-	if (e->message_type == ewmh[_NET_WM_STATE].atom &&
-	    e->format == 32)
+	if (e->message_type == ewmh[_NET_WM_STATE] && e->format == 32)
 		xu_ewmh_handle_net_wm_state_msg(cc,
 		    e->data.l[0], e->data.l[1], e->data.l[2]);
 }
