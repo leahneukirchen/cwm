@@ -419,7 +419,7 @@ group_update_names(struct screen_ctx *sc)
 	int		 i = 0, j = 0, nstrings = 0, n = 0, setnames = 0;
 
 	if ((j = xu_getprop(sc->rootwin, ewmh[_NET_DESKTOP_NAMES],
-	    cwmh[UTF8_STRING], 0xffffff, (u_char **)&prop_ret)) > 0) {
+	    cwmh[UTF8_STRING], 0xffffff, (unsigned char **)&prop_ret)) > 0) {
 		prop_ret[j - 1] = '\0'; /* paranoia */
 		while (i < j) {
 			if (prop_ret[i++] == '\0')
