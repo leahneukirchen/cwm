@@ -106,7 +106,7 @@ xu_key_grab(Window win, u_int mask, KeySym keysym)
 }
 
 int
-xu_getprop(Window win, Atom atm, Atom type, long len, u_char **p)
+xu_getprop(Window win, Atom atm, Atom type, long len, unsigned char **p)
 {
 	Atom	 realtype;
 	u_long	 n, extra;
@@ -160,7 +160,7 @@ xu_get_wm_state(Window win, int *state)
 	long	*p = NULL;
 
 	if (xu_getprop(win, cwmh[WM_STATE], cwmh[WM_STATE], 2L,
-	    (u_char **)&p) <= 0)
+	    (unsigned char **)&p) <= 0)
 		return (-1);
 
 	*state = (int)*p;
@@ -331,7 +331,7 @@ xu_ewmh_get_net_wm_state(struct client_ctx *cc, int *n)
 	Atom	*state, *p = NULL;
 
 	if ((*n = xu_getprop(cc->win, ewmh[_NET_WM_STATE], XA_ATOM, 64L,
-	    (u_char **)&p)) <= 0)
+	    (unsigned char **)&p)) <= 0)
 		return (NULL);
 
 	state = xcalloc(*n, sizeof(Atom));
