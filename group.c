@@ -177,7 +177,7 @@ group_movetogroup(struct client_ctx *cc, int idx)
 	struct group_ctx	*gc;
 
 	if (idx < 0 || idx >= CALMWM_NGROUPS)
-		err(1, "group_movetogroup: index out of range (%d)", idx);
+		errx(1, "group_movetogroup: index out of range (%d)", idx);
 
 	gc = &sc->groups[idx];
 	if (cc->group == gc)
@@ -240,7 +240,7 @@ group_hidetoggle(struct screen_ctx *sc, int idx)
 	struct group_ctx	*gc;
 
 	if (idx < 0 || idx >= CALMWM_NGROUPS)
-		err(1, "group_hidetoggle: index out of range (%d)", idx);
+		errx(1, "group_hidetoggle: index out of range (%d)", idx);
 
 	gc = &sc->groups[idx];
 	group_fix_hidden_state(gc);
@@ -261,7 +261,7 @@ group_only(struct screen_ctx *sc, int idx)
 	int	 i;
 
 	if (idx < 0 || idx >= CALMWM_NGROUPS)
-		err(1, "group_only: index out of range (%d)", idx);
+		errx(1, "group_only: index out of range (%d)", idx);
 
 	for (i = 0; i < CALMWM_NGROUPS; i++) {
 		if (i == idx)

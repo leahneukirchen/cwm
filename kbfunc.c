@@ -250,7 +250,7 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 			label = "wm";
 			break;
 		default:
-			err(1, "kbfunc_exec: invalid cmd %d", cmd);
+			errx(1, "kbfunc_exec: invalid cmd %d", cmd);
 			/*NOTREACHED*/
 	}
 
@@ -305,7 +305,7 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 				warn("%s", mi->text);
 				break;
 			default:
-				err(1, "kb_func: egad, cmd changed value!");
+				errx(1, "kb_func: egad, cmd changed value!");
 				break;
 		}
 	}
