@@ -186,15 +186,10 @@ client_delete(struct client_ctx *cc)
 void
 client_leave(struct client_ctx *cc)
 {
-	struct screen_ctx	*sc;
-
 	if (cc == NULL)
 		cc = client_current();
 	if (cc == NULL)
 		return;
-
-	sc = cc->sc;
-	xu_btn_ungrab(sc->rootwin, AnyModifier, Button1);
 }
 
 void

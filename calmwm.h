@@ -511,7 +511,7 @@ void			 conf_screen(struct screen_ctx *);
 void			 xev_loop(void);
 
 void			 xu_btn_grab(Window, int, u_int);
-void			 xu_btn_ungrab(Window, int, u_int);
+void			 xu_btn_ungrab(Window);
 int			 xu_getprop(Window, Atom, Atom, long, unsigned char **);
 int			 xu_get_wm_state(Window, int *);
 int			 xu_getstrprop(Window, Atom, char **);

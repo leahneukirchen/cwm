@@ -65,12 +65,9 @@ xu_btn_grab(Window win, int mask, u_int btn)
 }
 
 void
-xu_btn_ungrab(Window win, int mask, u_int btn)
+xu_btn_ungrab(Window win)
 {
-	u_int	i;
-
-	for (i = 0; i < nitems(ign_mods); i++)
-		XUngrabButton(X_Dpy, btn, (mask | ign_mods[i]), win);
+	XUngrabButton(X_Dpy, AnyButton, AnyModifier, win);
 }
 
 void

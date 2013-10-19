@@ -649,6 +649,8 @@ conf_grab_mouse(Window win)
 {
 	struct mousebinding	*mb;
 
+	xu_btn_ungrab(win);
+
 	TAILQ_FOREACH(mb, &Conf.mousebindingq, entry) {
 		if (mb->flags != MOUSEBIND_CTX_WIN)
 			continue;
