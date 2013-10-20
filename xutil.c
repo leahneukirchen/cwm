@@ -32,27 +32,6 @@
 
 static unsigned int ign_mods[] = { 0, LockMask, Mod2Mask, Mod2Mask | LockMask };
 
-int
-xu_ptr_grab(Window win, u_int mask, Cursor curs)
-{
-	return (XGrabPointer(X_Dpy, win, False, mask,
-	    GrabModeAsync, GrabModeAsync,
-	    None, curs, CurrentTime) == GrabSuccess ? 0 : -1);
-}
-
-int
-xu_ptr_regrab(u_int mask, Cursor curs)
-{
-	return (XChangeActivePointerGrab(X_Dpy, mask,
-	    curs, CurrentTime) == GrabSuccess ? 0 : -1);
-}
-
-void
-xu_ptr_ungrab(void)
-{
-	XUngrabPointer(X_Dpy, CurrentTime);
-}
-
 void
 xu_btn_grab(Window win, int mask, u_int btn)
 {
@@ -68,22 +47,6 @@ void
 xu_btn_ungrab(Window win)
 {
 	XUngrabButton(X_Dpy, AnyButton, AnyModifier, win);
-}
-
-void
-xu_ptr_getpos(Window win, int *x, int *y)
-{
-	Window	 w0, w1;
-	int	 tmp0, tmp1;
-	u_int	 tmp2;
-
-	XQueryPointer(X_Dpy, win, &w0, &w1, &tmp0, &tmp1, x, y, &tmp2);
-}
-
-void
-xu_ptr_setpos(Window win, int x, int y)
-{
-	XWarpPointer(X_Dpy, None, win, 0, 0, 0, 0, x, y);
 }
 
 void
@@ -106,6 +69,43 @@ void
 xu_key_ungrab(Window win)
 {
 	XUngrabKey(X_Dpy, AnyKey, AnyModifier, win);
+}
+
+int
+xu_ptr_grab(Window win, u_int mask, Cursor curs)
+{
+	return (XGrabPointer(X_Dpy, win, False, mask,
+	    GrabModeAsync, GrabModeAsync,
+	    None, curs, CurrentTime) == GrabSuccess ? 0 : -1);
+}
+
+int
+xu_ptr_regrab(u_int mask, Cursor curs)
+{
+	return (XChangeActivePointerGrab(X_Dpy, mask,
+	    curs, CurrentTime) == GrabSuccess ? 0 : -1);
+}
+
+void
+xu_ptr_ungrab(void)
+{
+	XUngrabPointer(X_Dpy, CurrentTime);
+}
+
+void
+xu_ptr_getpos(Window win, int *x, int *y)
+{
+	Window	 w0, w1;
+	int	 tmp0, tmp1;
+	u_int	 tmp2;
+
+	XQueryPointer(X_Dpy, win, &w0, &w1, &tmp0, &tmp1, x, y, &tmp2);
+}
+
+void
+xu_ptr_setpos(Window win, int x, int y)
+{
+	XWarpPointer(X_Dpy, None, win, 0, 0, 0, 0, x, y);
 }
 
 int
