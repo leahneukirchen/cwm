@@ -663,7 +663,7 @@ conf_grab_kbd(Window win)
 {
 	struct keybinding	*kb;
 
-	XUngrabKey(X_Dpy, AnyKey, AnyModifier, win);
+	xu_key_ungrab(win);
 
 	TAILQ_FOREACH(kb, &Conf.keybindingq, entry)
 		xu_key_grab(win, kb->modmask, kb->keysym);

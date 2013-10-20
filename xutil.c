@@ -102,6 +102,12 @@ xu_key_grab(Window win, u_int mask, KeySym keysym)
 		    True, GrabModeAsync, GrabModeAsync);
 }
 
+void
+xu_key_ungrab(Window win)
+{
+	XUngrabKey(X_Dpy, AnyKey, AnyModifier, win);
+}
+
 int
 xu_getprop(Window win, Atom atm, Atom type, long len, unsigned char **p)
 {
