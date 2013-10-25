@@ -113,7 +113,7 @@ xev_handle_unmapnotify(XEvent *ee)
 		 */
 		if (XCheckTypedWindowEvent(X_Dpy, cc->win,
 		    DestroyNotify, &ev) || e->send_event != 0) {
-			client_delete(cc);
+			client_delete(cc, 1);
 		} else
 			client_hide(cc);
 	}
@@ -127,7 +127,7 @@ xev_handle_destroynotify(XEvent *ee)
 	struct client_ctx	*cc;
 
 	if ((cc = client_find(e->window)) != NULL)
-		client_delete(cc);
+		client_delete(cc, 0);
 }
 
 static void
