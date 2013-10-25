@@ -649,6 +649,8 @@ conf_grab_mouse(Window win)
 {
 	struct mousebinding	*mb;
 
+	xu_btn_ungrab(win);
+
 	TAILQ_FOREACH(mb, &Conf.mousebindingq, entry) {
 		if (mb->flags != MOUSEBIND_CTX_WIN)
 			continue;
@@ -661,7 +663,7 @@ conf_grab_kbd(Window win)
 {
 	struct keybinding	*kb;
 
-	XUngrabKey(X_Dpy, AnyKey, AnyModifier, win);
+	xu_key_ungrab(win);
 
 	TAILQ_FOREACH(kb, &Conf.keybindingq, entry)
 		xu_key_grab(win, kb->modmask, kb->keysym);

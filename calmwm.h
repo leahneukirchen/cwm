@@ -385,7 +385,7 @@ struct client_ctx	*client_current(void);
 void			 client_cycle(struct screen_ctx *, int);
 void			 client_cycle_leave(struct screen_ctx *,
 			     struct client_ctx *);
-void			 client_delete(struct client_ctx *);
+void			 client_delete(struct client_ctx *, int);
 void			 client_draw_border(struct client_ctx *);
 struct client_ctx	*client_find(Window);
 void			 client_freeze(struct client_ctx *);
@@ -523,11 +523,12 @@ void			 conf_screen(struct screen_ctx *);
 void			 xev_loop(void);
 
 void			 xu_btn_grab(Window, int, u_int);
-void			 xu_btn_ungrab(Window, int, u_int);
+void			 xu_btn_ungrab(Window);
 int			 xu_getprop(Window, Atom, Atom, long, unsigned char **);
 int			 xu_get_wm_state(Window, int *);
 int			 xu_getstrprop(Window, Atom, char **);
 void			 xu_key_grab(Window, u_int, KeySym);
+void			 xu_key_ungrab(Window);
 void			 xu_ptr_getpos(Window, int *, int *);
 int			 xu_ptr_grab(Window, u_int, Cursor);
 int			 xu_ptr_regrab(u_int, Cursor);
