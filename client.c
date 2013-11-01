@@ -99,17 +99,22 @@ client_init(Window win, struct screen_ctx *sc, int mapped)
 	cc->geom.h = wattr.height;
 	cc->colormap = wattr.colormap;
 
+	if ((wmhints = XGetWMHints(X_Dpy, cc->win)) != NULL) {
+		if (wmhints->flags & InputHint) {
+			if (wmhints->input == 1)
+				cc->flags |= CLIENT_INPUT;
+		}
+	}
 	if (wattr.map_state != IsViewable) {
 		client_placecalc(cc);
 		client_move(cc);
-		if ((wmhints = XGetWMHints(X_Dpy, cc->win)) != NULL) {
-			if (wmhints->flags & StateHint) {
-				cc->state = wmhints->initial_state;
-				xu_set_wm_state(cc->win, cc->state);
-			}
-			XFree(wmhints);
+		if ((wmhints) && (wmhints->flags & StateHint)) {
+			cc->state = wmhints->initial_state;
+			xu_set_wm_state(cc->win, cc->state);
 		}
 	}
+	if (wmhints)
+		XFree(wmhints);
 	client_draw_border(cc);
 
 	if (xu_get_wm_state(cc->win, &state) < 0)
@@ -208,8 +213,12 @@ client_setactive(struct client_ctx *cc, int fg)
 
 	if (fg) {
 		XInstallColormap(X_Dpy, cc->colormap);
-		XSetInputFocus(X_Dpy, cc->win,
-		    RevertToPointerRoot, CurrentTime);
+		if (cc->flags & CLIENT_INPUT) {
+			XSetInputFocus(X_Dpy, cc->win,
+			    RevertToPointerRoot, CurrentTime);
+		}
+		if (cc->xproto & _WM_TAKE_FOCUS)
+			client_msg(cc, cwmh[WM_TAKE_FOCUS]);
 		conf_grab_mouse(cc->win);
 		/*
 		 * If we're in the middle of alt-tabbing, don't change
