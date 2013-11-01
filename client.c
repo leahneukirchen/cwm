@@ -695,10 +695,8 @@ client_placecalc(struct client_ctx *cc)
 		 */
 		xslack = sc->view.w - cc->geom.w - cc->bwidth * 2;
 		yslack = sc->view.h - cc->geom.h - cc->bwidth * 2;
-		if (cc->size->x > 0)
-			cc->geom.x = MIN(cc->size->x, xslack);
-		if (cc->size->y > 0)
-			cc->geom.y = MIN(cc->size->y, yslack);
+		cc->geom.x = MIN(cc->geom.x, xslack);
+		cc->geom.y = MIN(cc->geom.y, yslack);
 	} else {
 		struct geom		 xine;
 		int			 xmouse, ymouse;
