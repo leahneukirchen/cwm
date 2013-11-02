@@ -73,7 +73,6 @@ client_init(Window win, struct screen_ctx *sc, int mapped)
 	cc->state = mapped ? NormalState : IconicState;
 	cc->sc = sc;
 	cc->win = win;
-	cc->size = XAllocSizeHints();
 
 	client_getsizehints(cc);
 
@@ -175,7 +174,6 @@ client_delete(struct client_ctx *cc, int destroy)
 	if (cc == client_current())
 		client_none(sc);
 
-	XFree(cc->size);
 	if (cc->app_name != NULL)
 		XFree(cc->app_name);
 	if (cc->app_class != NULL)
@@ -685,7 +683,7 @@ client_placecalc(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	int			 xslack, yslack;
 
-	if (cc->size->flags & (USPosition|PPosition)) {
+	if (cc->hint.flags & (USPosition|PPosition)) {
 		/*
 		 * Ignore XINERAMA screens, just make sure it's somewhere
 		 * in the virtual desktop. else it stops people putting xterms
@@ -695,10 +693,8 @@ client_placecalc(struct client_ctx *cc)
 		 */
 		xslack = sc->view.w - cc->geom.w - cc->bwidth * 2;
 		yslack = sc->view.h - cc->geom.h - cc->bwidth * 2;
-		if (cc->size->x > 0)
-			cc->geom.x = MIN(cc->size->x, xslack);
-		if (cc->size->y > 0)
-			cc->geom.y = MIN(cc->size->y, yslack);
+		cc->geom.x = MIN(cc->geom.x, xslack);
+		cc->geom.y = MIN(cc->geom.y, yslack);
 	} else {
 		struct geom		 xine;
 		int			 xmouse, ymouse;
@@ -750,43 +746,52 @@ void
 client_getsizehints(struct client_ctx *cc)
 {
 	long		 tmp;
+	XSizeHints	*size;
 
-	if (!XGetWMNormalHints(X_Dpy, cc->win, cc->size, &tmp))
-		cc->size->flags = PSize;
+	if ((size = XAllocSizeHints()) == NULL)
+		warnx("XAllocSizeHints failure");
 
-	if (cc->size->flags & PBaseSize) {
-		cc->hint.basew = cc->size->base_width;
-		cc->hint.baseh = cc->size->base_height;
-	} else if (cc->size->flags & PMinSize) {
-		cc->hint.basew = cc->size->min_width;
-		cc->hint.baseh = cc->size->min_height;
+	if (!XGetWMNormalHints(X_Dpy, cc->win, size, &tmp))
+		size->flags = 0;
+
+	cc->hint.flags = size->flags;
+
+	if (size->flags & PBaseSize) {
+		cc->hint.basew = size->base_width;
+		cc->hint.baseh = size->base_height;
+	} else if (size->flags & PMinSize) {
+		cc->hint.basew = size->min_width;
+		cc->hint.baseh = size->min_height;
 	}
-	if (cc->size->flags & PMinSize) {
-		cc->hint.minw = cc->size->min_width;
-		cc->hint.minh = cc->size->min_height;
-	} else if (cc->size->flags & PBaseSize) {
-		cc->hint.minw = cc->size->base_width;
-		cc->hint.minh = cc->size->base_height;
+	if (size->flags & PMinSize) {
+		cc->hint.minw = size->min_width;
+		cc->hint.minh = size->min_height;
+	} else if (size->flags & PBaseSize) {
+		cc->hint.minw = size->base_width;
+		cc->hint.minh = size->base_height;
 	}
-	if (cc->size->flags & PMaxSize) {
-		cc->hint.maxw = cc->size->max_width;
-		cc->hint.maxh = cc->size->max_height;
+	if (size->flags & PMaxSize) {
+		cc->hint.maxw = size->max_width;
+		cc->hint.maxh = size->max_height;
 	}
-	if (cc->size->flags & PResizeInc) {
-		cc->hint.incw = cc->size->width_inc;
-		cc->hint.inch = cc->size->height_inc;
+	if (size->flags & PResizeInc) {
+		cc->hint.incw = size->width_inc;
+		cc->hint.inch = size->height_inc;
 	}
 	cc->hint.incw = MAX(1, cc->hint.incw);
 	cc->hint.inch = MAX(1, cc->hint.inch);
 
-	if (cc->size->flags & PAspect) {
-		if (cc->size->min_aspect.x > 0)
-			cc->hint.mina = (float)cc->size->min_aspect.y /
-			    cc->size->min_aspect.x;
-		if (cc->size->max_aspect.y > 0)
-			cc->hint.maxa = (float)cc->size->max_aspect.x /
-			    cc->size->max_aspect.y;
+	if (size->flags & PAspect) {
+		if (size->min_aspect.x > 0)
+			cc->hint.mina = (float)size->min_aspect.y /
+			    size->min_aspect.x;
+		if (size->max_aspect.y > 0)
+			cc->hint.maxa = (float)size->max_aspect.x /
+			    size->max_aspect.y;
 	}
+
+	if (size)
+		XFree(size);
 }
 
 void
