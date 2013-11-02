@@ -137,11 +137,11 @@ struct client_ctx {
 	TAILQ_ENTRY(client_ctx) mru_entry;
 	struct screen_ctx	*sc;
 	Window			 win;
-	XSizeHints		*size;
 	Colormap		 colormap;
 	u_int			 bwidth; /* border width */
 	struct geom		 geom, savegeom;
 	struct {
+		long		 flags;	/* defined hints */
 		int		 basew;	/* desired width */
 		int		 baseh;	/* desired height */
 		int		 minw;	/* minimum width */
