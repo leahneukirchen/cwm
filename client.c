@@ -211,7 +211,8 @@ client_setactive(struct client_ctx *cc, int fg)
 
 	if (fg) {
 		XInstallColormap(X_Dpy, cc->colormap);
-		if (cc->flags & CLIENT_INPUT) {
+		if ((cc->flags & CLIENT_INPUT) ||
+		    ((cc->xproto & _WM_TAKE_FOCUS) == 0)) {
 			XSetInputFocus(X_Dpy, cc->win,
 			    RevertToPointerRoot, CurrentTime);
 		}
