@@ -401,6 +401,8 @@ client_resize(struct client_ctx *cc, int reset)
 		xu_ewmh_set_net_wm_state(cc);
 	}
 
+	client_draw_border(cc);
+
 	XMoveResizeWindow(X_Dpy, cc->win, cc->geom.x,
 	    cc->geom.y, cc->geom.w, cc->geom.h);
 	client_config(cc);
