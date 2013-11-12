@@ -149,19 +149,10 @@ client_init(Window win, struct screen_ctx *sc, int mapped)
 }
 
 void
-client_delete(struct client_ctx *cc, int destroy)
+client_delete(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
 	struct winname		*wn;
-
-	if (destroy) {
-		XGrabServer(X_Dpy);
-		cc->state = WithdrawnState;
-		xu_set_wm_state(cc->win, cc->state);
-		XRemoveFromSaveSet(X_Dpy, cc->win);
-		XSync(X_Dpy, False);
-		XUngrabServer(X_Dpy);
-	}
 
 	TAILQ_REMOVE(&sc->mruq, cc, mru_entry);
 	TAILQ_REMOVE(&Clientq, cc, entry);
@@ -211,11 +202,12 @@ client_setactive(struct client_ctx *cc, int fg)
 
 	if (fg) {
 		XInstallColormap(X_Dpy, cc->colormap);
-		if (cc->flags & CLIENT_INPUT) {
+		if ((cc->flags & CLIENT_INPUT) ||
+		    ((cc->flags & CLIENT_WM_TAKE_FOCUS) == 0)) {
 			XSetInputFocus(X_Dpy, cc->win,
 			    RevertToPointerRoot, CurrentTime);
 		}
-		if (cc->xproto & _WM_TAKE_FOCUS)
+		if (cc->flags & CLIENT_WM_TAKE_FOCUS)
 			client_msg(cc, cwmh[WM_TAKE_FOCUS]);
 		conf_grab_mouse(cc->win);
 		/*
@@ -400,6 +392,8 @@ client_resize(struct client_ctx *cc, int reset)
 		xu_ewmh_set_net_wm_state(cc);
 	}
 
+	client_draw_border(cc);
+
 	XMoveResizeWindow(X_Dpy, cc->win, cc->geom.x,
 	    cc->geom.y, cc->geom.w, cc->geom.h);
 	client_config(cc);
@@ -531,9 +525,9 @@ client_wm_protocols(struct client_ctx *cc)
 	if (XGetWMProtocols(X_Dpy, cc->win, &p, &j)) {
 		for (i = 0; i < j; i++) {
 			if (p[i] == cwmh[WM_DELETE_WINDOW])
-				cc->xproto |= _WM_DELETE_WINDOW;
+				cc->flags |= CLIENT_WM_DELETE_WINDOW;
 			else if (p[i] == cwmh[WM_TAKE_FOCUS])
-				cc->xproto |= _WM_TAKE_FOCUS;
+				cc->flags |= CLIENT_WM_TAKE_FOCUS;
 		}
 		XFree(p);
 	}
@@ -558,7 +552,7 @@ client_msg(struct client_ctx *cc, Atom proto)
 void
 client_send_delete(struct client_ctx *cc)
 {
-	if (cc->xproto & _WM_DELETE_WINDOW)
+	if (cc->flags & CLIENT_WM_DELETE_WINDOW)
 		client_msg(cc, cwmh[WM_DELETE_WINDOW]);
 	else
 		XKillClient(X_Dpy, cc->win);

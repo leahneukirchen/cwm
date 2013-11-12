@@ -138,11 +138,6 @@ struct winname {
 };
 TAILQ_HEAD(winname_q, winname);
 
-enum wm_protocols {
-	_WM_DELETE_WINDOW	= 0x0001,
-	_WM_TAKE_FOCUS		= 0x0002,
-};
-
 struct client_ctx {
 	TAILQ_ENTRY(client_ctx) entry;
 	TAILQ_ENTRY(client_ctx) group_entry;
@@ -169,7 +164,6 @@ struct client_ctx {
 		int		 x;	/* x position */
 		int		 y;	/* y position */
 	} ptr;
-	enum wm_protocols	 xproto;
 #define CLIENT_HIDDEN			0x0001
 #define CLIENT_IGNORE			0x0002
 #define CLIENT_VMAXIMIZED		0x0004
@@ -178,6 +172,8 @@ struct client_ctx {
 #define CLIENT_GROUP			0x0020
 #define CLIENT_UNGROUP			0x0040
 #define CLIENT_INPUT			0x0080
+#define CLIENT_WM_DELETE_WINDOW		0x0100
+#define CLIENT_WM_TAKE_FOCUS		0x0200
 
 #define CLIENT_HIGHLIGHT		(CLIENT_GROUP | CLIENT_UNGROUP)
 #define CLIENT_MAXFLAGS			(CLIENT_VMAXIMIZED | CLIENT_HMAXIMIZED)
@@ -386,7 +382,7 @@ struct client_ctx	*client_current(void);
 void			 client_cycle(struct screen_ctx *, int);
 void			 client_cycle_leave(struct screen_ctx *,
 			     struct client_ctx *);
-void			 client_delete(struct client_ctx *, int);
+void			 client_delete(struct client_ctx *);
 void			 client_draw_border(struct client_ctx *);
 struct client_ctx	*client_find(Window);
 void			 client_freeze(struct client_ctx *);
