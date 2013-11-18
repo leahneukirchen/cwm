@@ -191,7 +191,7 @@ group_movetogroup(struct client_ctx *cc, int idx)
 	struct group_ctx	*gc;
 
 	if (idx < 0 || idx >= CALMWM_NGROUPS)
-		err(1, "group_movetogroup: index out of range (%d)", idx);
+		errx(1, "group_movetogroup: index out of range (%d)", idx);
 
 	gc = &sc->groups[idx];
 	if (cc->group == gc)
@@ -254,7 +254,7 @@ group_hidetoggle(struct screen_ctx *sc, int idx)
 	struct group_ctx	*gc;
 
 	if (idx < 0 || idx >= CALMWM_NGROUPS)
-		err(1, "group_hidetoggle: index out of range (%d)", idx);
+		errx(1, "group_hidetoggle: index out of range (%d)", idx);
 
 	gc = &sc->groups[idx];
 
@@ -296,7 +296,7 @@ group_only(struct screen_ctx *sc, int idx)
 	int	 i;
 
 	if (idx < 0 || idx >= CALMWM_NGROUPS)
-		err(1, "group_only: index out of range (%d)", idx);
+		errx(1, "group_only: index out of range (%d)", idx);
 
 	for (i = 0; i < CALMWM_NGROUPS; i++) {
 		if (i == idx)
@@ -478,7 +478,7 @@ group_update_names(struct screen_ctx *sc)
 	int		 i = 0, j = 0, nstrings = 0, n = 0, setnames = 0;
 
 	if ((j = xu_getprop(sc->rootwin, ewmh[_NET_DESKTOP_NAMES],
-	    cwmh[UTF8_STRING], 0xffffff, (u_char **)&prop_ret)) > 0) {
+	    cwmh[UTF8_STRING], 0xffffff, (unsigned char **)&prop_ret)) > 0) {
 		prop_ret[j - 1] = '\0'; /* paranoia */
 		while (i < j) {
 			if (prop_ret[i++] == '\0')

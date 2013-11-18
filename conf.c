@@ -104,9 +104,12 @@ conf_screen(struct screen_ctx *sc)
 
 	sc->gap = Conf.gap;
 
-	sc->xftfont = XftFontOpenName(X_Dpy, sc->which, Conf.font);
-	if (sc->xftfont == NULL)
-		errx(1, "XftFontOpenName");
+	sc->xftfont = XftFontOpenXlfd(X_Dpy, sc->which, Conf.font);
+	if (sc->xftfont == NULL) {
+		sc->xftfont = XftFontOpenName(X_Dpy, sc->which, Conf.font);
+		if (sc->xftfont == NULL)
+			errx(1, "XftFontOpenName");
+	}
 
 	for (i = 0; i < nitems(color_binds); i++) {
 		if (i == CWM_COLOR_MENU_FONT_SEL && *Conf.color[i] == '\0') {
@@ -672,6 +675,8 @@ conf_grab_mouse(Window win)
 {
 	struct mousebinding	*mb;
 
+	xu_btn_ungrab(win);
+
 	TAILQ_FOREACH(mb, &Conf.mousebindingq, entry) {
 		if (mb->flags != MOUSEBIND_CTX_WIN)
 			continue;
@@ -684,7 +689,7 @@ conf_grab_kbd(Window win)
 {
 	struct keybinding	*kb;
 
-	XUngrabKey(X_Dpy, AnyKey, AnyModifier, win);
+	xu_key_ungrab(win);
 
 	TAILQ_FOREACH(kb, &Conf.keybindingq, entry)
 		xu_key_grab(win, kb->modmask, kb->keysym);

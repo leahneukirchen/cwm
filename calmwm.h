@@ -152,11 +152,11 @@ struct client_ctx {
 	TAILQ_ENTRY(client_ctx) mru_entry;
 	struct screen_ctx	*sc;
 	Window			 win;
-	XSizeHints		*size;
 	Colormap		 colormap;
 	u_int			 bwidth; /* border width */
 	struct geom		 geom, savegeom;
 	struct {
+		long		 flags;	/* defined hints */
 		int		 basew;	/* desired width */
 		int		 baseh;	/* desired height */
 		int		 minw;	/* minimum width */
@@ -180,6 +180,7 @@ struct client_ctx {
 #define CLIENT_FREEZE			0x0010
 #define CLIENT_GROUP			0x0020
 #define CLIENT_UNGROUP			0x0040
+#define CLIENT_INPUT			0x0080
 
 #define CLIENT_HIGHLIGHT		(CLIENT_GROUP | CLIENT_UNGROUP)
 #define CLIENT_MAXFLAGS			(CLIENT_VMAXIMIZED | CLIENT_HMAXIMIZED)
@@ -397,7 +398,7 @@ struct client_ctx	*client_current(void);
 void			 client_cycle(struct screen_ctx *, int);
 void			 client_cycle_leave(struct screen_ctx *,
 			     struct client_ctx *);
-void			 client_delete(struct client_ctx *);
+void			 client_delete(struct client_ctx *, int);
 void			 client_draw_border(struct client_ctx *);
 struct client_ctx	*client_find(Window);
 void			 client_freeze(struct client_ctx *);
@@ -536,11 +537,12 @@ void			 conf_screen(struct screen_ctx *);
 void			 xev_loop(void);
 
 void			 xu_btn_grab(Window, int, u_int);
-void			 xu_btn_ungrab(Window, int, u_int);
-int			 xu_getprop(Window, Atom, Atom, long, u_char **);
+void			 xu_btn_ungrab(Window);
+int			 xu_getprop(Window, Atom, Atom, long, unsigned char **);
 int			 xu_get_wm_state(Window, int *);
 int			 xu_getstrprop(Window, Atom, char **);
 void			 xu_key_grab(Window, u_int, KeySym);
+void			 xu_key_ungrab(Window);
 void			 xu_ptr_getpos(Window, int *, int *);
 int			 xu_ptr_grab(Window, u_int, Cursor);
 int			 xu_ptr_regrab(u_int, Cursor);

@@ -32,6 +32,45 @@
 
 static unsigned int ign_mods[] = { 0, LockMask, Mod2Mask, Mod2Mask | LockMask };
 
+void
+xu_btn_grab(Window win, int mask, u_int btn)
+{
+	u_int	i;
+
+	for (i = 0; i < nitems(ign_mods); i++)
+		XGrabButton(X_Dpy, btn, (mask | ign_mods[i]), win,
+		    False, BUTTONMASK, GrabModeAsync,
+		    GrabModeSync, None, None);
+}
+
+void
+xu_btn_ungrab(Window win)
+{
+	XUngrabButton(X_Dpy, AnyButton, AnyModifier, win);
+}
+
+void
+xu_key_grab(Window win, u_int mask, KeySym keysym)
+{
+	KeyCode	 code;
+	u_int	 i;
+
+	code = XKeysymToKeycode(X_Dpy, keysym);
+	if ((XkbKeycodeToKeysym(X_Dpy, code, 0, 0) != keysym) &&
+	    (XkbKeycodeToKeysym(X_Dpy, code, 0, 1) == keysym))
+		mask |= ShiftMask;
+
+	for (i = 0; i < nitems(ign_mods); i++)
+		XGrabKey(X_Dpy, code, (mask | ign_mods[i]), win,
+		    True, GrabModeAsync, GrabModeAsync);
+}
+
+void
+xu_key_ungrab(Window win)
+{
+	XUngrabKey(X_Dpy, AnyKey, AnyModifier, win);
+}
+
 int
 xu_ptr_grab(Window win, u_int mask, Cursor curs)
 {
@@ -54,26 +93,6 @@ xu_ptr_ungrab(void)
 }
 
 void
-xu_btn_grab(Window win, int mask, u_int btn)
-{
-	u_int	i;
-
-	for (i = 0; i < nitems(ign_mods); i++)
-		XGrabButton(X_Dpy, btn, (mask | ign_mods[i]), win,
-		    False, BUTTONMASK, GrabModeAsync,
-		    GrabModeSync, None, None);
-}
-
-void
-xu_btn_ungrab(Window win, int mask, u_int btn)
-{
-	u_int	i;
-
-	for (i = 0; i < nitems(ign_mods); i++)
-		XUngrabButton(X_Dpy, btn, (mask | ign_mods[i]), win);
-}
-
-void
 xu_ptr_getpos(Window win, int *x, int *y)
 {
 	Window	 w0, w1;
@@ -89,24 +108,8 @@ xu_ptr_setpos(Window win, int x, int y)
 	XWarpPointer(X_Dpy, None, win, 0, 0, 0, 0, x, y);
 }
 
-void
-xu_key_grab(Window win, u_int mask, KeySym keysym)
-{
-	KeyCode	 code;
-	u_int	 i;
-
-	code = XKeysymToKeycode(X_Dpy, keysym);
-	if ((XkbKeycodeToKeysym(X_Dpy, code, 0, 0) != keysym) &&
-	    (XkbKeycodeToKeysym(X_Dpy, code, 0, 1) == keysym))
-		mask |= ShiftMask;
-
-	for (i = 0; i < nitems(ign_mods); i++)
-		XGrabKey(X_Dpy, code, (mask | ign_mods[i]), win,
-		    True, GrabModeAsync, GrabModeAsync);
-}
-
 int
-xu_getprop(Window win, Atom atm, Atom type, long len, u_char **p)
+xu_getprop(Window win, Atom atm, Atom type, long len, unsigned char **p)
 {
 	Atom	 realtype;
 	u_long	 n, extra;
@@ -160,7 +163,7 @@ xu_get_wm_state(Window win, int *state)
 	long	*p = NULL;
 
 	if (xu_getprop(win, cwmh[WM_STATE], cwmh[WM_STATE], 2L,
-	    (u_char **)&p) <= 0)
+	    (unsigned char **)&p) <= 0)
 		return (-1);
 
 	*state = (int)*p;
@@ -331,7 +334,7 @@ xu_ewmh_get_net_wm_state(struct client_ctx *cc, int *n)
 	Atom	*state, *p = NULL;
 
 	if ((*n = xu_getprop(cc->win, ewmh[_NET_WM_STATE], XA_ATOM, 64L,
-	    (u_char **)&p)) <= 0)
+	    (unsigned char **)&p)) <= 0)
 		return (NULL);
 
 	state = xcalloc(*n, sizeof(Atom));
