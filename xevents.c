@@ -97,27 +97,15 @@ static void
 xev_handle_unmapnotify(XEvent *ee)
 {
 	XUnmapEvent		*e = &ee->xunmap;
-	XEvent			ev;
 	struct client_ctx	*cc;
 
-	/* XXX, we need a recursive locking wrapper around grab server */
-	XGrabServer(X_Dpy);
 	if ((cc = client_find(e->window)) != NULL) {
-		/*
-		 * If it's going to die anyway, nuke it.
-		 *
-		 * Else, if it's a synthetic event delete state, since they
-		 * want it to be withdrawn. ICCM recommends you withdraw on
-		 * this even if we haven't alredy been told to iconify, to
-		 * deal with legacy clients.
-		 */
-		if (XCheckTypedWindowEvent(X_Dpy, cc->win,
-		    DestroyNotify, &ev) || e->send_event != 0) {
-			client_delete(cc, 1);
+		if (e->send_event) {
+			cc->state = WithdrawnState;
+			xu_set_wm_state(cc->win, cc->state);
 		} else
 			client_hide(cc);
 	}
-	XUngrabServer(X_Dpy);
 }
 
 static void
@@ -127,7 +115,7 @@ xev_handle_destroynotify(XEvent *ee)
 	struct client_ctx	*cc;
 
 	if ((cc = client_find(e->window)) != NULL)
-		client_delete(cc, 0);
+		client_delete(cc);
 }
 
 static void
