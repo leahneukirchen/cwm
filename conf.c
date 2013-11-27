@@ -103,6 +103,7 @@ conf_screen(struct screen_ctx *sc)
 	XftColor	 xc;
 
 	sc->gap = Conf.gap;
+	sc->snapdist = Conf.snapdist;
 
 	sc->xftfont = XftFontOpenXlfd(X_Dpy, sc->which, Conf.font);
 	if (sc->xftfont == NULL) {

@@ -216,6 +216,7 @@ struct screen_ctx {
 	Window			 rootwin;
 	Window			 menuwin;
 	int			 cycling;
+	int			 snapdist;
 	struct geom		 view; /* viewable area */
 	struct geom		 work; /* workable area, gap-applied */
 	struct gap		 gap;

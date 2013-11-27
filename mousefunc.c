@@ -147,10 +147,10 @@ mousefunc_client_move(struct client_ctx *cc, void *arg)
 
 			cc->geom.x += client_snapcalc(cc->geom.x,
 			    cc->geom.x + cc->geom.w + (cc->bwidth * 2),
-			    sc->work.x, sc->work.w, Conf.snapdist);
+			    sc->work.x, sc->work.w, sc->snapdist);
 			cc->geom.y += client_snapcalc(cc->geom.y,
 			    cc->geom.y + cc->geom.h + (cc->bwidth * 2),
-			    sc->work.y, sc->work.h, Conf.snapdist);
+			    sc->work.y, sc->work.h, sc->snapdist);
 
 			/* don't move more than 60 times / second */
 			if ((ev.xmotion.time - ltime) > (1000 / 60)) {
