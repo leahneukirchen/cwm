@@ -43,7 +43,6 @@ static void	 xev_handle_destroynotify(XEvent *);
 static void	 xev_handle_configurerequest(XEvent *);
 static void	 xev_handle_propertynotify(XEvent *);
 static void	 xev_handle_enternotify(XEvent *);
-static void	 xev_handle_leavenotify(XEvent *);
 static void	 xev_handle_buttonpress(XEvent *);
 static void	 xev_handle_buttonrelease(XEvent *);
 static void	 xev_handle_keypress(XEvent *);
@@ -60,7 +59,6 @@ void		(*xev_handlers[LASTEvent])(XEvent *) = {
 			[ConfigureRequest] = xev_handle_configurerequest,
 			[PropertyNotify] = xev_handle_propertynotify,
 			[EnterNotify] = xev_handle_enternotify,
-			[LeaveNotify] = xev_handle_leavenotify,
 			[ButtonPress] = xev_handle_buttonpress,
 			[ButtonRelease] = xev_handle_buttonrelease,
 			[KeyPress] = xev_handle_keypress,
@@ -81,7 +79,7 @@ xev_handle_maprequest(XEvent *ee)
 	struct client_ctx	*cc = NULL, *old_cc;
 	XWindowAttributes	 xattr;
 
-	if ((old_cc = client_current()) != NULL)
+	if ((old_cc = client_current()))
 		client_ptrsave(old_cc);
 
 	if ((cc = client_find(e->window)) == NULL) {
@@ -211,13 +209,7 @@ xev_handle_enternotify(XEvent *ee)
 	struct client_ctx	*cc;
 
 	if ((cc = client_find(e->window)) != NULL)
-		client_setactive(cc, 1);
-}
-
-static void
-xev_handle_leavenotify(XEvent *ee)
-{
-	client_leave(NULL);
+		client_setactive(cc);
 }
 
 /* We can split this into two event handlers. */
@@ -256,7 +248,7 @@ xev_handle_buttonrelease(XEvent *ee)
 {
 	struct client_ctx *cc;
 
-	if ((cc = client_current()) != NULL)
+	if ((cc = client_current()))
 		group_sticky_toggle_exit(cc);
 }
 
@@ -311,17 +303,15 @@ xev_handle_keyrelease(XEvent *ee)
 {
 	XKeyEvent		*e = &ee->xkey;
 	struct screen_ctx	*sc;
-	struct client_ctx	*cc;
 	KeySym			 keysym;
 	u_int			 i;
 
 	sc = screen_fromroot(e->root);
-	cc = client_current();
 
 	keysym = XkbKeycodeToKeysym(X_Dpy, e->keycode, 0, 0);
 	for (i = 0; i < nitems(modkeys); i++) {
 		if (keysym == modkeys[i]) {
-			client_cycle_leave(sc, cc);
+			client_cycle_leave(sc);
 			break;
 		}
 	}
@@ -344,8 +334,7 @@ xev_handle_clientmessage(XEvent *ee)
 		client_send_delete(cc);
 
 	if (e->message_type == ewmh[_NET_ACTIVE_WINDOW] && e->format == 32) {
-		old_cc = client_current();
-		if (old_cc)
+		if ((old_cc = client_current()))
 			client_ptrsave(old_cc);
 		client_ptrwarp(cc);
 	}

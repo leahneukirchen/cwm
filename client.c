@@ -180,53 +180,35 @@ client_delete(struct client_ctx *cc)
 }
 
 void
-client_leave(struct client_ctx *cc)
+client_setactive(struct client_ctx *cc)
 {
-	if (cc == NULL)
-		cc = client_current();
-	if (cc == NULL)
-		return;
-}
+	struct screen_ctx	*sc = cc->sc;
+	struct client_ctx	*oldcc;
 
-void
-client_setactive(struct client_ctx *cc, int fg)
-{
-	struct screen_ctx	*sc;
+	XInstallColormap(X_Dpy, cc->colormap);
 
-	if (cc == NULL)
-		cc = client_current();
-	if (cc == NULL)
-		return;
+	if ((cc->flags & CLIENT_INPUT) ||
+	    ((cc->flags & CLIENT_WM_TAKE_FOCUS) == 0)) {
+		XSetInputFocus(X_Dpy, cc->win,
+		    RevertToPointerRoot, CurrentTime);
+	}
+	if (cc->flags & CLIENT_WM_TAKE_FOCUS)
+		client_msg(cc, cwmh[WM_TAKE_FOCUS]);
 
-	sc = cc->sc;
-
-	if (fg) {
-		XInstallColormap(X_Dpy, cc->colormap);
-		if ((cc->flags & CLIENT_INPUT) ||
-		    ((cc->flags & CLIENT_WM_TAKE_FOCUS) == 0)) {
-			XSetInputFocus(X_Dpy, cc->win,
-			    RevertToPointerRoot, CurrentTime);
-		}
-		if (cc->flags & CLIENT_WM_TAKE_FOCUS)
-			client_msg(cc, cwmh[WM_TAKE_FOCUS]);
-		conf_grab_mouse(cc->win);
-		/*
-		 * If we're in the middle of alt-tabbing, don't change
-		 * the order please.
-		 */
-		if (!sc->cycling)
-			client_mtf(cc);
-	} else
-		client_leave(cc);
-
-	if (fg && cc != client_current()) {
-		client_setactive(NULL, 0);
-		_curcc = cc;
-		xu_ewmh_net_active_window(sc, cc->win);
+	if ((oldcc = client_current())) {
+		oldcc->active = 0;
+		client_draw_border(oldcc);
 	}
 
-	cc->active = fg;
+	/* If we're in the middle of cycing, don't change the order. */
+	if (!sc->cycling)
+		client_mtf(cc);
+
+	_curcc = cc;
+	cc->active = 1;
 	client_draw_border(cc);
+	conf_grab_mouse(cc->win);
+	xu_ewmh_net_active_window(sc, cc->win);
 }
 
 /*
@@ -640,12 +622,14 @@ client_cycle(struct screen_ctx *sc, int flags)
 }
 
 void
-client_cycle_leave(struct screen_ctx *sc, struct client_ctx *cc)
+client_cycle_leave(struct screen_ctx *sc)
 {
+	struct client_ctx	*cc;
+
 	sc->cycling = 0;
 
-	client_mtf(NULL);
-	if (cc) {
+	if ((cc = client_current())) {
+		client_mtf(cc);
 		group_sticky_toggle_exit(cc);
 		XUngrabKeyboard(X_Dpy, CurrentTime);
 	}
@@ -724,14 +708,8 @@ client_placecalc(struct client_ctx *cc)
 static void
 client_mtf(struct client_ctx *cc)
 {
-	struct screen_ctx	*sc;
+	struct screen_ctx	*sc = cc->sc;
 
-	if (cc == NULL)
-		cc = client_current();
-	if (cc == NULL)
-		return;
-
-	sc = cc->sc;
 	TAILQ_REMOVE(&sc->mruq, cc, mru_entry);
 	TAILQ_INSERT_HEAD(&sc->mruq, cc, mru_entry);
 }
