@@ -275,9 +275,7 @@ xev_handle_keypress(XEvent *ee)
 		if ((kb->modmask | modshift) != e->state)
 			continue;
 
-		if ((kb->keycode != 0 && kb->keysym == NoSymbol &&
-		    kb->keycode == e->keycode) || kb->keysym ==
-		    (modshift == 0 ? keysym : skeysym))
+		if (kb->keysym == (modshift == 0 ? keysym : skeysym))
 			break;
 	}
 
