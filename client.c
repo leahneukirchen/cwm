@@ -718,52 +718,46 @@ void
 client_getsizehints(struct client_ctx *cc)
 {
 	long		 tmp;
-	XSizeHints	*size;
+	XSizeHints	 size;
 
-	if ((size = XAllocSizeHints()) == NULL)
-		warnx("XAllocSizeHints failure");
+	if (!XGetWMNormalHints(X_Dpy, cc->win, &size, &tmp))
+		size.flags = 0;
 
-	if (!XGetWMNormalHints(X_Dpy, cc->win, size, &tmp))
-		size->flags = 0;
+	cc->hint.flags = size.flags;
 
-	cc->hint.flags = size->flags;
-
-	if (size->flags & PBaseSize) {
-		cc->hint.basew = size->base_width;
-		cc->hint.baseh = size->base_height;
-	} else if (size->flags & PMinSize) {
-		cc->hint.basew = size->min_width;
-		cc->hint.baseh = size->min_height;
+	if (size.flags & PBaseSize) {
+		cc->hint.basew = size.base_width;
+		cc->hint.baseh = size.base_height;
+	} else if (size.flags & PMinSize) {
+		cc->hint.basew = size.min_width;
+		cc->hint.baseh = size.min_height;
 	}
-	if (size->flags & PMinSize) {
-		cc->hint.minw = size->min_width;
-		cc->hint.minh = size->min_height;
-	} else if (size->flags & PBaseSize) {
-		cc->hint.minw = size->base_width;
-		cc->hint.minh = size->base_height;
+	if (size.flags & PMinSize) {
+		cc->hint.minw = size.min_width;
+		cc->hint.minh = size.min_height;
+	} else if (size.flags & PBaseSize) {
+		cc->hint.minw = size.base_width;
+		cc->hint.minh = size.base_height;
 	}
-	if (size->flags & PMaxSize) {
-		cc->hint.maxw = size->max_width;
-		cc->hint.maxh = size->max_height;
+	if (size.flags & PMaxSize) {
+		cc->hint.maxw = size.max_width;
+		cc->hint.maxh = size.max_height;
 	}
-	if (size->flags & PResizeInc) {
-		cc->hint.incw = size->width_inc;
-		cc->hint.inch = size->height_inc;
+	if (size.flags & PResizeInc) {
+		cc->hint.incw = size.width_inc;
+		cc->hint.inch = size.height_inc;
 	}
 	cc->hint.incw = MAX(1, cc->hint.incw);
 	cc->hint.inch = MAX(1, cc->hint.inch);
 
-	if (size->flags & PAspect) {
-		if (size->min_aspect.x > 0)
-			cc->hint.mina = (float)size->min_aspect.y /
-			    size->min_aspect.x;
-		if (size->max_aspect.y > 0)
-			cc->hint.maxa = (float)size->max_aspect.x /
-			    size->max_aspect.y;
+	if (size.flags & PAspect) {
+		if (size.min_aspect.x > 0)
+			cc->hint.mina = (float)size.min_aspect.y /
+			    size.min_aspect.x;
+		if (size.max_aspect.y > 0)
+			cc->hint.maxa = (float)size.max_aspect.x /
+			    size.max_aspect.y;
 	}
-
-	if (size)
-		XFree(size);
 }
 
 void
