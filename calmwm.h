@@ -228,6 +228,7 @@ struct screen_ctx {
 	Window			 rootwin;
 	Window			 menuwin;
 	int			 cycling;
+	int			 snapdist;
 	struct geom		 view; /* viewable area */
 	struct geom		 work; /* workable area, gap-applied */
 	struct gap		 gap;
@@ -380,8 +381,7 @@ void			 client_applysizehints(struct client_ctx *);
 void			 client_config(struct client_ctx *);
 struct client_ctx	*client_current(void);
 void			 client_cycle(struct screen_ctx *, int);
-void			 client_cycle_leave(struct screen_ctx *,
-			     struct client_ctx *);
+void			 client_cycle_leave(struct screen_ctx *);
 void			 client_delete(struct client_ctx *);
 void			 client_draw_border(struct client_ctx *);
 struct client_ctx	*client_find(Window);
@@ -390,7 +390,6 @@ void			 client_getsizehints(struct client_ctx *);
 void			 client_hide(struct client_ctx *);
 void			 client_hmaximize(struct client_ctx *);
 void 			 client_htile(struct client_ctx *);
-void			 client_leave(struct client_ctx *);
 void			 client_lower(struct client_ctx *);
 void			 client_map(struct client_ctx *);
 void			 client_maximize(struct client_ctx *);
@@ -402,7 +401,7 @@ void			 client_ptrwarp(struct client_ctx *);
 void			 client_raise(struct client_ctx *);
 void			 client_resize(struct client_ctx *, int);
 void			 client_send_delete(struct client_ctx *);
-void			 client_setactive(struct client_ctx *, int);
+void			 client_setactive(struct client_ctx *);
 void			 client_setname(struct client_ctx *);
 int			 client_snapcalc(int, int, int, int, int);
 void			 client_transient(struct client_ctx *);
