@@ -475,9 +475,6 @@ menu_handle_move(XEvent *e, struct menu_ctx *mc, struct menu_q *resultq)
 		menu_draw_entry(mc, resultq, mc->entry, 1);
 	} else
 		(void)xu_ptr_regrab(MENUGRABMASK, Conf.cursor[CF_DEFAULT]);
-
-	if (mc->hasprompt)
-		menu_draw_entry(mc, resultq, 1, 1);
 }
 
 static struct menu *
