@@ -231,8 +231,8 @@ mousefunc_menu_unhide(struct client_ctx *cc, void *arg)
 				continue;
 
 			mi = xcalloc(1, sizeof(*mi));
-			(void)snprintf(mi->text, sizeof(mi->text),
-			    "(%d) %s", cc->group->shortcut, wname);
+			(void)snprintf(mi->text, sizeof(mi->text), "(%d) %s",
+			    cc->group ? cc->group->shortcut : 0, wname);
 			mi->ctx = cc;
 			TAILQ_INSERT_TAIL(&menuq, mi, entry);
 		}
