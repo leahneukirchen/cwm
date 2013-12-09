@@ -427,10 +427,8 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 		xu_xft_draw(sc, text, CWM_COLOR_MENU_FONT, 0, y);
 		n++;
 	}
-	if (mc->hasprompt && n > 1 && (mc->searchstr[0] != '\0')) {
-		mc->entry = 1;
-		menu_draw_entry(mc, resultq, mc->entry, 1);
-	}
+	if (mc->hasprompt && n > 1)
+		menu_draw_entry(mc, resultq, 1, 1);
 }
 
 static void
@@ -477,9 +475,6 @@ menu_handle_move(XEvent *e, struct menu_ctx *mc, struct menu_q *resultq)
 		menu_draw_entry(mc, resultq, mc->entry, 1);
 	} else
 		(void)xu_ptr_regrab(MENUGRABMASK, Conf.cursor[CF_DEFAULT]);
-
-	if (mc->hasprompt)
-		menu_draw_entry(mc, resultq, 1, 1);
 }
 
 static struct menu *
