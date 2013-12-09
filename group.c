@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "calmwm.h"
 
@@ -162,6 +163,19 @@ group_init(struct screen_ctx *sc)
 	group_setactive(sc, 1);
 }
 
+void
+group_make_autostart(struct conf *conf, char *cmd, int no)
+{
+	struct autostartcmd	*as;
+
+	as = xcalloc(1, sizeof(*as));
+	as->cmd = xstrdup(cmd);
+	as->lasttime = 0;
+	as->num = no;
+
+	TAILQ_INSERT_TAIL(&conf->autostartq, as, entry);
+}
+
 static void
 group_setactive(struct screen_ctx *sc, long idx)
 {
@@ -243,7 +257,28 @@ group_hidetoggle(struct screen_ctx *sc, int idx)
 		errx(1, "group_hidetoggle: index out of range (%d)", idx);
 
 	gc = &sc->groups[idx];
+
+	if ( TAILQ_EMPTY(&gc->clients) ) {
+		struct autostartcmd 	*as;
+		TAILQ_FOREACH(as, &Conf.autostartq, entry) {
+			debug("idx=%i, as->num=%i, as->cmd=%s\n",
+				idx, as->num, as->cmd);
+			if ( as->num == idx ) {
+				time_t now = time(NULL);
+				if (as->lasttime < now - 5) {
+					debug("run %s\n", as->cmd);
+					as->lasttime = now;
+					u_spawn(as->cmd);
+				} else {
+					debug("still waiting for %s\n", as->cmd);
+				}
+			}
+		}
+		//return;
+	}
+
 	group_fix_hidden_state(gc);
+	debug("group_hidetoggle idx=%i, gc->hidden=%i\n", idx, gc->hidden);
 
 	if (gc->hidden)
 		group_show(sc, gc);
@@ -367,6 +402,7 @@ group_autogroup(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
 	struct autogroupwin	*aw;
+	struct autostartcmd	*as;
 	struct group_ctx	*gc;
 	int			 no = -1, both_match = 0;
 	long			*grpno;
@@ -384,15 +420,38 @@ group_autogroup(struct client_ctx *cc)
 			no = *grpno;
 		XFree(grpno);
 	} else {
+		debug("search class=%s name=%s\n", cc->app_class, cc->app_name);
 		TAILQ_FOREACH(aw, &Conf.autogroupq, entry) {
-			if (strcmp(aw->class, cc->app_class) == 0) {
+			debug("  probe num=%i class=%s name=%s, ", 
+				aw->num, aw->class, aw->name);
+			if (strcasecmp(aw->class, cc->app_class) == 0) {
 				if ((aw->name != NULL) &&
-				    (strcmp(aw->name, cc->app_name) == 0)) {
+				    (strcasecmp(aw->name, cc->app_name) == 0)) {
 					no = aw->num;
 					both_match = 1;
 				} else if (aw->name == NULL && !both_match)
 					no = aw->num;
 			}
+			debug("\t current no=%i, both_match=%i\n", 
+				no, both_match);
+		}
+	}
+
+	TAILQ_FOREACH(as, &Conf.autostartq, entry) {
+		int end;
+		char* space = strchr(as->cmd, ' ');
+		if ( as->lasttime == 0 )
+			continue;
+		if ( space == NULL )
+			end = strlen(as->cmd);
+		else
+			end = space - as->cmd;
+		if (strncasecmp(as->cmd, cc->app_class, end) == 0 ||
+		    strncasecmp(as->cmd, cc->app_name, end) == 0) {
+			as->lasttime = 0;
+			debug("reset timer for autostart %i %s by app_class = %s, app_name = %s\n", 
+				as->num, as->cmd, cc->app_class, cc->app_name);
+			break;
 		}
 	}
 

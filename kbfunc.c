@@ -50,7 +50,7 @@ kbfunc_client_raise(struct client_ctx *cc, union arg *arg)
 	client_raise(cc);
 }
 
-#define TYPEMASK	(CWM_MOVE | CWM_RESIZE | CWM_PTRMOVE)
+#define TYPEMASK	(CWM_MOVE | CWM_RESIZE | CWM_PTRMOVE | CWM_SNAP)
 #define MOVEMASK	(CWM_UP | CWM_DOWN | CWM_LEFT | CWM_RIGHT)
 void
 kbfunc_client_moveresize(struct client_ctx *cc, union arg *arg)
@@ -58,6 +58,7 @@ kbfunc_client_moveresize(struct client_ctx *cc, union arg *arg)
 	struct screen_ctx	*sc = cc->sc;
 	int			 x, y, flags, amt;
 	u_int			 mx, my;
+	int			ox, oy, ow, oh;
 
 	if (cc->flags & CLIENT_FREEZE)
 		return;
@@ -130,6 +131,81 @@ kbfunc_client_moveresize(struct client_ctx *cc, union arg *arg)
 	case CWM_PTRMOVE:
 		xu_ptr_getpos(sc->rootwin, &x, &y);
 		xu_ptr_setpos(sc->rootwin, x + mx, y + my);
+		break;
+	case CWM_SNAP:
+		ox = cc->geom.x; ow = cc->geom.w;
+		oy = cc->geom.y; oh = cc->geom.h;
+		#define sw sc->work.w
+		#define sh sc->work.h
+		#define bw 2 * cc->bwidth
+		#define nw cc->geom.w
+		#define nh cc->geom.h
+		#define nx cc->geom.x
+		#define ny cc->geom.y
+		if (flags & CWM_UP) {
+			if (oy > sh - oh - bw) ny = sh - oh - bw;
+			else if ( oy > (sh - oh - bw) / 2 ) ny = (sh - oh - bw) / 2;
+			else ny = 0;
+		} else if (flags & CWM_DOWN) {
+			if (oy < 0) ny = 0;
+			else if (oy < (sh - oh - bw) / 2) ny = (sh - oh - bw)/2;
+			else ny = sh - oh - bw;
+		} else if (flags & CWM_LEFT) {
+			if (ox + bw > sw - ow) nx = sw - ow - bw;
+			else if (ox > (sw - ow - bw) / 2) nx = (sw - ow - bw) / 2;
+			else cc->geom.x = 0;
+		} else if (flags & CWM_RIGHT) {
+			if (ox < 0) nx = 0;
+			else if (ox < (sw - ow - bw) / 2) nx = (sw - ow - bw) / 2;
+			else nx = sw - ow - bw;
+		} else if (flags & ( CWM_GROW | CWM_SHRINK)) {
+			if (flags & CWM_GROW ) {
+				if ((cc->flags & CLIENT_MAXFLAGS) == CLIENT_MAXIMIZED) {
+				} else if (ow + bw < sw / 3) {
+					nw = sw / 3 - bw; 
+					nh = sh / 3 - bw;
+				} else if (ow + bw < sw / 2) {
+					nw = sw / 2 - bw; 
+					nh = sh / 2 - bw;
+				} else if (ow + bw < sw * 2 / 3) {
+					nw = sw * 2 / 3 - bw;
+					nh = sh * 2 / 3 - bw;
+				} else {
+					client_maximize(cc);
+					goto end;
+				}
+			} else {
+				if ((cc->flags & CLIENT_MAXFLAGS) == CLIENT_MAXIMIZED) {
+					client_maximize(cc);
+					goto end;
+				} else if (ow + bw > sw * 2 / 3) {
+					nw = sw * 2 / 3 - bw; 
+					nh = sh * 2 / 3 - bw;
+				} else if (ow + bw> sw / 2) {
+					nw = sw / 2 - bw; 
+					nh = sh / 2 - bw;
+				} else if (ow + bw > sw / 3) {
+					nw = sw / 3 - bw;
+					nh = sh / 3 - bw;
+				}
+			}
+			nx += (ow - nw)/2;
+			ny += (oh - nh)/2;
+			if (abs(ox) < Conf.snapdist) nx = 0;
+			else if (abs(sw - bw - ox - ow) < Conf.snapdist) nx = sw - bw - nw;
+			if (abs(oy) < Conf.snapdist) ny = 0;
+			else if (abs(sh - bw - oy - oh) < Conf.snapdist) ny = sh - nh - bw;
+			if (nx < 0) nx = 0;
+			else if (nx + nw + bw > sw) nx = sw - nw - bw;
+			if (ny < 0) ny = 0;
+			else if (ny + nh + bw > sh) ny = sh - nh - bw;
+		}
+		client_ptrsave(cc);
+		client_resize(cc, 0);
+		cc->ptr.x += (nw - ow)/2;
+		cc->ptr.y += (nh - oh)/2;
+		client_ptrwarp(cc);
+		end:
 		break;
 	default:
 		warnx("invalid flags passed to kbfunc_client_moveresize");

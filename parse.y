@@ -71,7 +71,7 @@ typedef struct {
 %token	FONTNAME STICKY GAP MOUSEBIND
 %token	AUTOGROUP BIND COMMAND IGNORE
 %token	YES NO BORDERWIDTH MOVEAMOUNT
-%token	COLOR SNAPDIST
+%token	COLOR SNAPDIST AUTOSTART
 %token	ACTIVEBORDER INACTIVEBORDER
 %token	GROUPBORDER UNGROUPBORDER
 %token	MENUBG MENUFG
@@ -144,12 +144,22 @@ main		: FONTNAME STRING		{
 			free($3);
 		}
 		| AUTOGROUP NUMBER STRING	{
-			if ($2 < 0 || $2 > 9) {
+			if ($2 < 0 || $2 > CALMWM_NGROUPS) {
 				free($3);
 				yyerror("invalid autogroup: %d", $2);
 				YYERROR;
 			}
 			conf_autogroup(conf, $2, $3);
+			free($3);
+		}
+		| AUTOSTART NUMBER STRING {
+			if ($2 < 0 || $2 > CALMWM_NGROUPS) {
+				free($3);
+				yyerror("autostart number out of range: %d", $2);
+				YYERROR;
+			}
+
+			group_make_autostart(conf, $3, $2);
 			free($3);
 		}
 		| IGNORE STRING {
@@ -254,6 +264,7 @@ lookup(char *s)
 	static const struct keywords keywords[] = {
 		{ "activeborder",	ACTIVEBORDER},
 		{ "autogroup",		AUTOGROUP},
+		{ "autostart",		AUTOSTART},
 		{ "bind",		BIND},
 		{ "borderwidth",	BORDERWIDTH},
 		{ "color",		COLOR},
@@ -555,6 +566,7 @@ parse_config(const char *filename, struct conf *xconf)
 	}
 	else {
 		struct autogroupwin	*ag;
+		struct autostartcmd	*as;
 		struct keybinding	*kb;
 		struct winmatch		*wm;
 		struct cmd		*cmd;
@@ -582,6 +594,11 @@ parse_config(const char *filename, struct conf *xconf)
 		while ((ag = TAILQ_FIRST(&conf->autogroupq)) != NULL) {
 			TAILQ_REMOVE(&conf->autogroupq, ag, entry);
 			TAILQ_INSERT_TAIL(&xconf->autogroupq, ag, entry);
+		}
+
+		while ((as = TAILQ_FIRST(&conf->autostartq)) != NULL) {
+			TAILQ_REMOVE(&conf->autostartq, as, entry);
+			TAILQ_INSERT_TAIL(&xconf->autostartq, as, entry);
 		}
 
 		while ((wm = TAILQ_FIRST(&conf->ignoreq)) != NULL) {

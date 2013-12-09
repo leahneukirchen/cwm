@@ -72,6 +72,9 @@ size_t strlcat(char *, const char *, size_t);
 #define CWM_DOWN		0x0020
 #define CWM_LEFT		0x0040
 #define CWM_RIGHT		0x0080
+#define CWM_GROW		0x0100
+#define CWM_SHRINK		0x0200
+#define CWM_SNAP		0x0400
 
 /* exec */
 #define	CWM_EXEC_PROGRAM	0x0001
@@ -220,6 +223,14 @@ struct autogroupwin {
 };
 TAILQ_HEAD(autogroupwin_q, autogroupwin);
 
+struct autostartcmd {
+	TAILQ_ENTRY(autostartcmd)	 entry;
+	char				*cmd;
+	time_t				 lasttime;
+	int 				 num;
+};
+TAILQ_HEAD(autostartcmd_q, autostartcmd);
+
 struct screen_ctx {
 	TAILQ_ENTRY(screen_ctx)	 entry;
 	int			 which;
@@ -295,6 +306,7 @@ TAILQ_HEAD(menu_q, menu);
 struct conf {
 	struct keybinding_q	 keybindingq;
 	struct autogroupwin_q	 autogroupq;
+	struct autostartcmd_q	 autostartq;
 	struct winmatch_q	 ignoreq;
 	struct cmd_q		 cmdq;
 	struct mousebinding_q	 mousebindingq;
@@ -415,6 +427,7 @@ void			 group_autogroup(struct client_ctx *);
 void			 group_cycle(struct screen_ctx *, int);
 void			 group_hidetoggle(struct screen_ctx *, int);
 void			 group_init(struct screen_ctx *);
+void			 group_make_autostart(struct conf *, char *, int);
 void			 group_menu(struct screen_ctx *);
 void			 group_movetogroup(struct client_ctx *, int);
 void			 group_only(struct screen_ctx *, int);
@@ -568,3 +581,5 @@ int			 xasprintf(char **, const char *, ...)
 			    __attribute__((__nonnull__ (2)));
 
 #endif /* _CALMWM_H_ */
+
+#define debug(x...) fprintf(stderr, x);

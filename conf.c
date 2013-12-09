@@ -207,6 +207,12 @@ static struct {
 	{ "CS-Down",	"bigptrmovedown" },
 	{ "CS-Up",	"bigptrmoveup" },
 	{ "CS-Right",	"bigptrmoveright" },
+	{ "4-Page_Up",	"grow" },
+	{ "4-Page_Down", "shrink" },
+	{ "4-Insert",	"snapleft" },
+	{ "4-Home",	"snapup" },
+	{ "4-Delete",	"snapdown" },
+	{ "4-End",	"snapright" },
 },
 mouse_binds[] = {
 	{ "1",		"menu_unhide" },
@@ -234,6 +240,7 @@ conf_init(struct conf *c)
 	TAILQ_INIT(&c->cmdq);
 	TAILQ_INIT(&c->keybindingq);
 	TAILQ_INIT(&c->autogroupq);
+	TAILQ_INIT(&c->autostartq);
 	TAILQ_INIT(&c->mousebindingq);
 
 	for (i = 0; i < nitems(kbd_binds); i++)
@@ -259,6 +266,7 @@ void
 conf_clear(struct conf *c)
 {
 	struct autogroupwin	*ag;
+	struct autostartcmd	*as;
 	struct keybinding	*kb;
 	struct winmatch		*wm;
 	struct cmd		*cmd;
@@ -280,6 +288,12 @@ conf_clear(struct conf *c)
 		free(ag->class);
 		free(ag->name);
 		free(ag);
+	}
+
+	while ((as = TAILQ_FIRST(&c->autostartq)) != NULL) {
+		TAILQ_REMOVE(&c->autostartq, as, entry);
+		free(as->cmd);
+		free(as);
 	}
 
 	while ((wm = TAILQ_FIRST(&c->ignoreq)) != NULL) {
@@ -438,6 +452,18 @@ static struct {
 	    {.i = CWM_TILE_HORIZ } },
 	{ "vtile", kbfunc_tile, KBFLAG_NEEDCLIENT,
 	    {.i = CWM_TILE_VERT } },
+	{ "grow", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
+	    {.i = (CWM_GROW|CWM_SNAP)} },
+	{ "shrink", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
+	    {.i = (CWM_SHRINK|CWM_SNAP)} },
+	{ "snapup", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
+	    {.i = (CWM_UP|CWM_SNAP)} },
+	{ "snapdown", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
+	    {.i = (CWM_DOWN|CWM_SNAP)} },
+	{ "snapleft", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
+	    {.i = (CWM_LEFT|CWM_SNAP)} },
+	{ "snapright", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
+	    {.i = (CWM_RIGHT|CWM_SNAP)} },
 };
 
 static struct {
