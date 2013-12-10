@@ -471,6 +471,7 @@ client_unhide(struct client_ctx *cc)
 	cc->flags &= ~CLIENT_HIDDEN;
 	cc->state = NormalState;
 	xu_set_wm_state(cc->win, cc->state);
+	client_draw_border(cc);
 }
 
 void
