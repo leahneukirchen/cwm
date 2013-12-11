@@ -157,33 +157,6 @@ xu_getstrprop(Window win, Atom atm, char **text) {
 	return (nitems);
 }
 
-int
-xu_get_wm_state(Window win, int *state)
-{
-	long	*p = NULL;
-
-	if (xu_getprop(win, cwmh[WM_STATE], cwmh[WM_STATE], 2L,
-	    (unsigned char **)&p) <= 0)
-		return (-1);
-
-	*state = (int)*p;
-	XFree((char *)p);
-
-	return (0);
-}
-
-void
-xu_set_wm_state(Window win, int state)
-{
-	long	 dat[2];
-
-	dat[0] = state;
-	dat[1] = None;
-
-	XChangeProperty(X_Dpy, win, cwmh[WM_STATE], cwmh[WM_STATE], 32,
-	    PropModeReplace, (unsigned char *)dat, 2);
-}
-
 /* Root Window Properties */
 void
 xu_ewmh_net_supported(struct screen_ctx *sc)

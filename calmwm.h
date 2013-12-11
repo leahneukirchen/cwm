@@ -179,7 +179,6 @@ struct client_ctx {
 #define CLIENT_MAXFLAGS			(CLIENT_VMAXIMIZED | CLIENT_HMAXIMIZED)
 #define CLIENT_MAXIMIZED		(CLIENT_VMAXIMIZED | CLIENT_HMAXIMIZED)
 	int			 flags;
-	int			 state;
 	int			 active;
 	int			 stackingorder;
 	struct winname_q	 nameq;
@@ -189,8 +188,8 @@ struct client_ctx {
 	char			*label;
 	char			*matchname;
 	struct group_ctx	*group;
-	char			*app_class;
-	char			*app_name;
+	XClassHint		ch;
+	XWMHints		*wmh;
 };
 TAILQ_HEAD(client_ctx_q, client_ctx);
 TAILQ_HEAD(cycle_entry_q, client_ctx);
@@ -386,6 +385,7 @@ void			 client_delete(struct client_ctx *);
 void			 client_draw_border(struct client_ctx *);
 struct client_ctx	*client_find(Window);
 void			 client_freeze(struct client_ctx *);
+long			 client_get_wm_state(struct client_ctx *);
 void			 client_getsizehints(struct client_ctx *);
 void			 client_hide(struct client_ctx *);
 void			 client_hmaximize(struct client_ctx *);
@@ -401,6 +401,7 @@ void			 client_ptrwarp(struct client_ctx *);
 void			 client_raise(struct client_ctx *);
 void			 client_resize(struct client_ctx *, int);
 void			 client_send_delete(struct client_ctx *);
+void			 client_set_wm_state(struct client_ctx *, long);
 void			 client_setactive(struct client_ctx *);
 void			 client_setname(struct client_ctx *);
 int			 client_snapcalc(int, int, int, int, int);
@@ -409,6 +410,7 @@ void			 client_unhide(struct client_ctx *);
 void			 client_vmaximize(struct client_ctx *);
 void 			 client_vtile(struct client_ctx *);
 void			 client_warp(struct client_ctx *);
+void			 client_wm_hints(struct client_ctx *);
 
 void			 group_alltoggle(struct screen_ctx *);
 void			 group_autogroup(struct client_ctx *);
@@ -521,7 +523,6 @@ void			 xev_loop(void);
 void			 xu_btn_grab(Window, int, u_int);
 void			 xu_btn_ungrab(Window);
 int			 xu_getprop(Window, Atom, Atom, long, unsigned char **);
-int			 xu_get_wm_state(Window, int *);
 int			 xu_getstrprop(Window, Atom, char **);
 void			 xu_key_grab(Window, u_int, KeySym);
 void			 xu_key_ungrab(Window);
@@ -530,7 +531,6 @@ int			 xu_ptr_grab(Window, u_int, Cursor);
 int			 xu_ptr_regrab(u_int, Cursor);
 void			 xu_ptr_setpos(Window, int, int);
 void			 xu_ptr_ungrab(void);
-void			 xu_set_wm_state(Window win, int);
 void			 xu_xft_draw(struct screen_ctx *, const char *,
 			     int, int, int);
 int			 xu_xft_width(XftFont *, const char *, int);

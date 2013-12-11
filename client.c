@@ -37,7 +37,7 @@ static void			 client_mtf(struct client_ctx *);
 static void			 client_none(struct screen_ctx *);
 static void			 client_placecalc(struct client_ctx *);
 static void			 client_wm_protocols(struct client_ctx *);
-static void			 client_getmwmhints(struct client_ctx *);
+static void			 client_mwm_hints(struct client_ctx *);
 static int			 client_inbound(struct client_ctx *, int, int);
 
 struct client_ctx	*_curcc = NULL;
@@ -58,9 +58,7 @@ struct client_ctx *
 client_init(Window win, struct screen_ctx *sc, int mapped)
 {
 	struct client_ctx	*cc;
-	XClassHint		 xch;
 	XWindowAttributes	 wattr;
-	XWMHints		*wmhints;
 	int			 state;
 
 	if (win == None)
@@ -70,22 +68,19 @@ client_init(Window win, struct screen_ctx *sc, int mapped)
 
 	XGrabServer(X_Dpy);
 
-	cc->state = mapped ? NormalState : IconicState;
 	cc->sc = sc;
 	cc->win = win;
-
-	client_getsizehints(cc);
 
 	TAILQ_INIT(&cc->nameq);
 	client_setname(cc);
 
 	conf_client(cc);
 
-	if (XGetClassHint(X_Dpy, cc->win, &xch)) {
-		cc->app_name = xch.res_name;
-		cc->app_class = xch.res_class;
-	}
-	client_getmwmhints(cc);
+	XGetClassHint(X_Dpy, cc->win, &cc->ch);
+	client_wm_hints(cc);
+	client_wm_protocols(cc);
+	client_getsizehints(cc);
+	client_mwm_hints(cc);
 
 	/* Saved pointer position */
 	cc->ptr.x = -1;
@@ -98,36 +93,23 @@ client_init(Window win, struct screen_ctx *sc, int mapped)
 	cc->geom.h = wattr.height;
 	cc->colormap = wattr.colormap;
 
-	if ((wmhints = XGetWMHints(X_Dpy, cc->win)) != NULL) {
-		if (wmhints->flags & InputHint) {
-			if (wmhints->input == 1)
-				cc->flags |= CLIENT_INPUT;
-		}
-	}
 	if (wattr.map_state != IsViewable) {
 		client_placecalc(cc);
 		client_move(cc);
-		if ((wmhints) && (wmhints->flags & StateHint)) {
-			cc->state = wmhints->initial_state;
-			xu_set_wm_state(cc->win, cc->state);
-		}
+		if ((cc->wmh) && (cc->wmh->flags & StateHint))
+			client_set_wm_state(cc, cc->wmh->initial_state);
 	}
-	if (wmhints)
-		XFree(wmhints);
-	client_draw_border(cc);
-
-	if (xu_get_wm_state(cc->win, &state) < 0)
-		state = NormalState;
 
 	XSelectInput(X_Dpy, cc->win, ColormapChangeMask | EnterWindowMask |
 	    PropertyChangeMask | KeyReleaseMask);
-
-	XAddToSaveSet(X_Dpy, cc->win);
 
 	client_transient(cc);
 
 	/* Notify client of its configuration. */
 	client_config(cc);
+
+	if ((state = client_get_wm_state(cc)) < 0)
+		state = NormalState;
 
 	(state == IconicState) ? client_hide(cc) : client_unhide(cc);
 
@@ -136,7 +118,6 @@ client_init(Window win, struct screen_ctx *sc, int mapped)
 
 	xu_ewmh_net_client_list(sc);
 
-	client_wm_protocols(cc);
 	xu_ewmh_restore_net_wm_state(cc);
 
 	if (mapped)
@@ -165,16 +146,18 @@ client_delete(struct client_ctx *cc)
 	if (cc == client_current())
 		client_none(sc);
 
-	if (cc->app_name != NULL)
-		XFree(cc->app_name);
-	if (cc->app_class != NULL)
-		XFree(cc->app_class);
-
 	while ((wn = TAILQ_FIRST(&cc->nameq)) != NULL) {
 		TAILQ_REMOVE(&cc->nameq, wn, entry);
 		free(wn->name);
 		free(wn);
 	}
+
+	if (cc->ch.res_class)
+		XFree(cc->ch.res_class);
+	if (cc->ch.res_name)
+		XFree(cc->ch.res_name);
+	if (cc->wmh)
+		XFree(cc->wmh);
 
 	free(cc);
 }
@@ -430,7 +413,10 @@ client_ptrwarp(struct client_ctx *cc)
 		y = cc->geom.h / 2;
 	}
 
-	(cc->state == IconicState) ? client_unhide(cc) : client_raise(cc);
+	if (cc->flags & CLIENT_HIDDEN)
+		client_unhide(cc);
+	else
+		client_raise(cc);
 	xu_ptr_setpos(cc->win, x, y);
 }
 
@@ -456,8 +442,7 @@ client_hide(struct client_ctx *cc)
 
 	cc->active = 0;
 	cc->flags |= CLIENT_HIDDEN;
-	cc->state = IconicState;
-	xu_set_wm_state(cc->win, cc->state);
+	client_set_wm_state(cc, IconicState);
 
 	if (cc == client_current())
 		client_none(cc->sc);
@@ -469,8 +454,8 @@ client_unhide(struct client_ctx *cc)
 	XMapRaised(X_Dpy, cc->win);
 
 	cc->flags &= ~CLIENT_HIDDEN;
-	cc->state = NormalState;
-	xu_set_wm_state(cc->win, cc->state);
+	client_set_wm_state(cc, NormalState);
+	client_draw_border(cc);
 }
 
 void
@@ -513,6 +498,16 @@ client_wm_protocols(struct client_ctx *cc)
 		}
 		XFree(p);
 	}
+}
+
+void
+client_wm_hints(struct client_ctx *cc)
+{
+	if ((cc->wmh = XGetWMHints(X_Dpy, cc->win)) == NULL)
+		return;
+
+	if ((cc->wmh->flags & InputHint) && (cc->wmh->input))
+		cc->flags |= CLIENT_INPUT;
 }
 
 void
@@ -808,7 +803,7 @@ client_applysizehints(struct client_ctx *cc)
 }
 
 static void
-client_getmwmhints(struct client_ctx *cc)
+client_mwm_hints(struct client_ctx *cc)
 {
 	struct mwm_hints	*mwmh;
 
@@ -986,3 +981,26 @@ client_vtile(struct client_ctx *cc)
 		i++;
 	}
 }
+
+long
+client_get_wm_state(struct client_ctx *cc)
+{
+	long	*p, state = -1;
+
+	if (xu_getprop(cc->win, cwmh[WM_STATE], cwmh[WM_STATE], 2L,
+	    (unsigned char **)&p) > 0) {
+		state = *p;
+		XFree(p);
+	}
+	return(state);
+}
+
+void
+client_set_wm_state(struct client_ctx *cc, long state)
+{
+	long	 data[] = { state, None };
+
+	XChangeProperty(X_Dpy, cc->win, cwmh[WM_STATE], cwmh[WM_STATE], 32,
+	    PropModeReplace, (unsigned char *)data, 2);
+}
+
