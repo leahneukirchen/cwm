@@ -103,8 +103,6 @@ client_init(Window win, struct screen_ctx *sc, int mapped)
 	XSelectInput(X_Dpy, cc->win, ColormapChangeMask | EnterWindowMask |
 	    PropertyChangeMask | KeyReleaseMask);
 
-	XAddToSaveSet(X_Dpy, cc->win);
-
 	client_transient(cc);
 
 	/* Notify client of its configuration. */
