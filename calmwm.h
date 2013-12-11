@@ -177,8 +177,8 @@ struct client_ctx {
 	char			*label;
 	char			*matchname;
 	struct group_ctx	*group;
-	char			*app_class;
-	char			*app_name;
+	XClassHint		ch;
+	XWMHints		*wmh;
 };
 TAILQ_HEAD(client_ctx_q, client_ctx);
 TAILQ_HEAD(cycle_entry_q, client_ctx);

@@ -371,7 +371,7 @@ group_autogroup(struct client_ctx *cc)
 	int			 no = -1, both_match = 0;
 	long			*grpno;
 
-	if (cc->app_class == NULL || cc->app_name == NULL)
+	if (cc->ch.res_class == NULL || cc->ch.res_name == NULL)
 		return;
 
 	if (xu_getprop(cc->win, ewmh[_NET_WM_DESKTOP],
@@ -385,9 +385,9 @@ group_autogroup(struct client_ctx *cc)
 		XFree(grpno);
 	} else {
 		TAILQ_FOREACH(aw, &Conf.autogroupq, entry) {
-			if (strcmp(aw->class, cc->app_class) == 0) {
+			if (strcmp(aw->class, cc->ch.res_class) == 0) {
 				if ((aw->name != NULL) &&
-				    (strcmp(aw->name, cc->app_name) == 0)) {
+				    (strcmp(aw->name, cc->ch.res_name) == 0)) {
 					no = aw->num;
 					both_match = 1;
 				} else if (aw->name == NULL && !both_match)

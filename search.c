@@ -85,8 +85,8 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 		}
 
 		/* Then if there is a match on the window class name. */
-		if (tier < 0 && strsubmatch(search, cc->app_class, 0)) {
-			cc->matchname = cc->app_class;
+		if (tier < 0 && strsubmatch(search, cc->ch.res_class, 0)) {
+			cc->matchname = cc->ch.res_class;
 			tier = 3;
 		}
 

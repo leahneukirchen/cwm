@@ -58,9 +58,7 @@ struct client_ctx *
 client_init(Window win, struct screen_ctx *sc, int mapped)
 {
 	struct client_ctx	*cc;
-	XClassHint		 xch;
 	XWindowAttributes	 wattr;
-	XWMHints		*wmhints;
 	int			 state;
 
 	if (win == None)
@@ -74,18 +72,16 @@ client_init(Window win, struct screen_ctx *sc, int mapped)
 	cc->sc = sc;
 	cc->win = win;
 
-	client_getsizehints(cc);
-
 	TAILQ_INIT(&cc->nameq);
 	client_setname(cc);
 
 	conf_client(cc);
 
-	if (XGetClassHint(X_Dpy, cc->win, &xch)) {
-		cc->app_name = xch.res_name;
-		cc->app_class = xch.res_class;
-	}
+	XGetClassHint(X_Dpy, cc->win, &cc->ch);
+	cc->wmh = XGetWMHints(X_Dpy, cc->win);
 	client_getmwmhints(cc);
+	client_wm_protocols(cc);
+	client_getsizehints(cc);
 
 	/* Saved pointer position */
 	cc->ptr.x = -1;
@@ -98,22 +94,20 @@ client_init(Window win, struct screen_ctx *sc, int mapped)
 	cc->geom.h = wattr.height;
 	cc->colormap = wattr.colormap;
 
-	if ((wmhints = XGetWMHints(X_Dpy, cc->win)) != NULL) {
-		if (wmhints->flags & InputHint) {
-			if (wmhints->input == 1)
+	if (cc->wmh != NULL) {
+		if (cc->wmh->flags & InputHint) {
+			if (cc->wmh->input == 1)
 				cc->flags |= CLIENT_INPUT;
 		}
 	}
 	if (wattr.map_state != IsViewable) {
 		client_placecalc(cc);
 		client_move(cc);
-		if ((wmhints) && (wmhints->flags & StateHint)) {
-			cc->state = wmhints->initial_state;
+		if ((cc->wmh) && (cc->wmh->flags & StateHint)) {
+			cc->state = cc->wmh->initial_state;
 			xu_set_wm_state(cc->win, cc->state);
 		}
 	}
-	if (wmhints)
-		XFree(wmhints);
 	client_draw_border(cc);
 
 	if (xu_get_wm_state(cc->win, &state) < 0)
@@ -136,7 +130,6 @@ client_init(Window win, struct screen_ctx *sc, int mapped)
 
 	xu_ewmh_net_client_list(sc);
 
-	client_wm_protocols(cc);
 	xu_ewmh_restore_net_wm_state(cc);
 
 	if (mapped)
@@ -165,16 +158,18 @@ client_delete(struct client_ctx *cc)
 	if (cc == client_current())
 		client_none(sc);
 
-	if (cc->app_name != NULL)
-		XFree(cc->app_name);
-	if (cc->app_class != NULL)
-		XFree(cc->app_class);
-
 	while ((wn = TAILQ_FIRST(&cc->nameq)) != NULL) {
 		TAILQ_REMOVE(&cc->nameq, wn, entry);
 		free(wn->name);
 		free(wn);
 	}
+
+	if (cc->ch.res_class)
+		XFree(cc->ch.res_class);
+	if (cc->ch.res_name)
+		XFree(cc->ch.res_name);
+	if (cc->wmh)
+		XFree(cc->wmh);
 
 	free(cc);
 }
