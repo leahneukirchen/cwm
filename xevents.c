@@ -99,8 +99,7 @@ xev_handle_unmapnotify(XEvent *ee)
 
 	if ((cc = client_find(e->window)) != NULL) {
 		if (e->send_event) {
-			cc->state = WithdrawnState;
-			xu_set_wm_state(cc->win, cc->state);
+			client_set_wm_state(cc, WithdrawnState);
 		} else {
 			if (!(cc->flags & CLIENT_HIDDEN))
 				client_delete(cc);

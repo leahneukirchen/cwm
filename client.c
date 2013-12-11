@@ -68,7 +68,6 @@ client_init(Window win, struct screen_ctx *sc, int mapped)
 
 	XGrabServer(X_Dpy);
 
-	cc->state = mapped ? NormalState : IconicState;
 	cc->sc = sc;
 	cc->win = win;
 
@@ -103,15 +102,10 @@ client_init(Window win, struct screen_ctx *sc, int mapped)
 	if (wattr.map_state != IsViewable) {
 		client_placecalc(cc);
 		client_move(cc);
-		if ((cc->wmh) && (cc->wmh->flags & StateHint)) {
-			cc->state = cc->wmh->initial_state;
-			xu_set_wm_state(cc->win, cc->state);
-		}
+		if ((cc->wmh) && (cc->wmh->flags & StateHint))
+			client_set_wm_state(cc, cc->wmh->initial_state);
 	}
 	client_draw_border(cc);
-
-	if (xu_get_wm_state(cc->win, &state) < 0)
-		state = NormalState;
 
 	XSelectInput(X_Dpy, cc->win, ColormapChangeMask | EnterWindowMask |
 	    PropertyChangeMask | KeyReleaseMask);
@@ -122,6 +116,9 @@ client_init(Window win, struct screen_ctx *sc, int mapped)
 
 	/* Notify client of its configuration. */
 	client_config(cc);
+
+	if ((state = client_get_wm_state(cc)) < 0)
+		state = NormalState;
 
 	(state == IconicState) ? client_hide(cc) : client_unhide(cc);
 
@@ -425,7 +422,10 @@ client_ptrwarp(struct client_ctx *cc)
 		y = cc->geom.h / 2;
 	}
 
-	(cc->state == IconicState) ? client_unhide(cc) : client_raise(cc);
+	if (cc->flags & CLIENT_HIDDEN)
+		client_unhide(cc);
+	else
+		client_raise(cc);
 	xu_ptr_setpos(cc->win, x, y);
 }
 
@@ -451,8 +451,7 @@ client_hide(struct client_ctx *cc)
 
 	cc->active = 0;
 	cc->flags |= CLIENT_HIDDEN;
-	cc->state = IconicState;
-	xu_set_wm_state(cc->win, cc->state);
+	client_set_wm_state(cc, IconicState);
 
 	if (cc == client_current())
 		client_none(cc->sc);
@@ -464,8 +463,7 @@ client_unhide(struct client_ctx *cc)
 	XMapRaised(X_Dpy, cc->win);
 
 	cc->flags &= ~CLIENT_HIDDEN;
-	cc->state = NormalState;
-	xu_set_wm_state(cc->win, cc->state);
+	client_set_wm_state(cc, NormalState);
 	client_draw_border(cc);
 }
 
@@ -982,3 +980,26 @@ client_vtile(struct client_ctx *cc)
 		i++;
 	}
 }
+
+long
+client_get_wm_state(struct client_ctx *cc)
+{
+	long	*p, state = -1;
+
+	if (xu_getprop(cc->win, cwmh[WM_STATE], cwmh[WM_STATE], 2L,
+	    (unsigned char **)&p) > 0) {
+		state = *p;
+		XFree(p);
+	}
+	return(state);
+}
+
+void
+client_set_wm_state(struct client_ctx *cc, long state)
+{
+	long	 data[] = { state, None };
+
+	XChangeProperty(X_Dpy, cc->win, cwmh[WM_STATE], cwmh[WM_STATE], 32,
+	    PropModeReplace, (unsigned char *)data, 2);
+}
+
