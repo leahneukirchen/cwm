@@ -37,7 +37,7 @@ static void			 client_mtf(struct client_ctx *);
 static void			 client_none(struct screen_ctx *);
 static void			 client_placecalc(struct client_ctx *);
 static void			 client_wm_protocols(struct client_ctx *);
-static void			 client_getmwmhints(struct client_ctx *);
+static void			 client_mwm_hints(struct client_ctx *);
 static int			 client_inbound(struct client_ctx *, int, int);
 
 struct client_ctx	*_curcc = NULL;
@@ -78,9 +78,9 @@ client_init(Window win, struct screen_ctx *sc, int mapped)
 
 	XGetClassHint(X_Dpy, cc->win, &cc->ch);
 	client_wm_hints(cc);
-	client_getmwmhints(cc);
 	client_wm_protocols(cc);
 	client_getsizehints(cc);
+	client_mwm_hints(cc);
 
 	/* Saved pointer position */
 	cc->ptr.x = -1;
@@ -806,7 +806,7 @@ client_applysizehints(struct client_ctx *cc)
 }
 
 static void
-client_getmwmhints(struct client_ctx *cc)
+client_mwm_hints(struct client_ctx *cc)
 {
 	struct mwm_hints	*mwmh;
 
