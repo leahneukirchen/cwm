@@ -99,7 +99,6 @@ client_init(Window win, struct screen_ctx *sc, int mapped)
 		if ((cc->wmh) && (cc->wmh->flags & StateHint))
 			client_set_wm_state(cc, cc->wmh->initial_state);
 	}
-	client_draw_border(cc);
 
 	XSelectInput(X_Dpy, cc->win, ColormapChangeMask | EnterWindowMask |
 	    PropertyChangeMask | KeyReleaseMask);
