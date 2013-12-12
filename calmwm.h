@@ -316,6 +316,7 @@ struct mwm_hints {
 #define	MWM_DECOR_BORDER	(1<<1)
 
 extern Display				*X_Dpy;
+extern Time				 Last_Event_Time;
 extern struct screen_ctx_q		 Screenq;
 extern struct client_ctx_q		 Clientq;
 extern struct conf			 Conf;
@@ -381,7 +382,7 @@ void 			 client_htile(struct client_ctx *);
 void			 client_lower(struct client_ctx *);
 void			 client_map(struct client_ctx *);
 void			 client_maximize(struct client_ctx *);
-void			 client_msg(struct client_ctx *, Atom);
+void			 client_msg(struct client_ctx *, Atom, Time);
 void			 client_move(struct client_ctx *);
 struct client_ctx	*client_init(Window, struct screen_ctx *, int);
 void			 client_ptrsave(struct client_ctx *);
