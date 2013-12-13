@@ -37,6 +37,7 @@
 
 char				**cwm_argv;
 Display				*X_Dpy;
+Time				 Last_Event_Time = CurrentTime;
 Atom				 cwmh[CWMH_NITEMS];
 Atom				 ewmh[EWMH_NITEMS];
 

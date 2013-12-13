@@ -168,6 +168,9 @@ client_setactive(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	struct client_ctx	*oldcc;
 
+	if (cc->flags & CLIENT_HIDDEN)
+		return;
+
 	XInstallColormap(X_Dpy, cc->colormap);
 
 	if ((cc->flags & CLIENT_INPUT) ||
@@ -176,7 +179,7 @@ client_setactive(struct client_ctx *cc)
 		    RevertToPointerRoot, CurrentTime);
 	}
 	if (cc->flags & CLIENT_WM_TAKE_FOCUS)
-		client_msg(cc, cwmh[WM_TAKE_FOCUS]);
+		client_msg(cc, cwmh[WM_TAKE_FOCUS], Last_Event_Time);
 
 	if ((oldcc = client_current())) {
 		oldcc->active = 0;
@@ -511,7 +514,7 @@ client_wm_hints(struct client_ctx *cc)
 }
 
 void
-client_msg(struct client_ctx *cc, Atom proto)
+client_msg(struct client_ctx *cc, Atom proto, Time ts)
 {
 	XClientMessageEvent	 cm;
 
@@ -521,7 +524,7 @@ client_msg(struct client_ctx *cc, Atom proto)
 	cm.message_type = cwmh[WM_PROTOCOLS];
 	cm.format = 32;
 	cm.data.l[0] = proto;
-	cm.data.l[1] = CurrentTime;
+	cm.data.l[1] = ts;
 
 	XSendEvent(X_Dpy, cc->win, False, NoEventMask, (XEvent *)&cm);
 }
@@ -530,7 +533,7 @@ void
 client_send_delete(struct client_ctx *cc)
 {
 	if (cc->flags & CLIENT_WM_DELETE_WINDOW)
-		client_msg(cc, cwmh[WM_DELETE_WINDOW]);
+		client_msg(cc, cwmh[WM_DELETE_WINDOW], CurrentTime);
 	else
 		XKillClient(X_Dpy, cc->win);
 }

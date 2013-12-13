@@ -212,6 +212,8 @@ xev_handle_enternotify(XEvent *ee)
 	XCrossingEvent		*e = &ee->xcrossing;
 	struct client_ctx	*cc;
 
+	Last_Event_Time = e->time;
+
 	if ((cc = client_find(e->window)) != NULL)
 		client_setactive(cc);
 }
