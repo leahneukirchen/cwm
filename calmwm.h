@@ -92,6 +92,9 @@ size_t strlcat(char *, const char *, size_t);
 #define CWM_TILE_HORIZ 		0x0001
 #define CWM_TILE_VERT 		0x0002
 
+#define CWM_GAP			0x0001
+#define CWM_NOGAP		0x0002
+
 union arg {
 	char	*c;
 	int	 i;
@@ -442,7 +445,8 @@ void			 search_match_text(struct menu_q *, struct menu_q *,
 			     char *);
 void			 search_print_client(struct menu *, int);
 
-struct geom		 screen_find_xinerama(struct screen_ctx *, int, int);
+struct geom		 screen_find_xinerama(struct screen_ctx *,
+    			     int, int, int);
 struct screen_ctx	*screen_fromroot(Window);
 void			 screen_init(int);
 void			 screen_update_geometry(struct screen_ctx *);
