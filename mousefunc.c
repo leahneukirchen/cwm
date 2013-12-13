@@ -125,6 +125,7 @@ mousefunc_client_move(struct client_ctx *cc, void *arg)
 	XEvent			 ev;
 	Time			 ltime = 0;
 	struct screen_ctx	*sc = cc->sc;
+	struct geom		 xine;
 	int			 px, py;
 
 	client_raise(cc);
@@ -145,12 +146,15 @@ mousefunc_client_move(struct client_ctx *cc, void *arg)
 			cc->geom.x = ev.xmotion.x_root - px - cc->bwidth;
 			cc->geom.y = ev.xmotion.y_root - py - cc->bwidth;
 
+			xine = screen_find_xinerama(sc,
+			    cc->geom.x + cc->geom.w / 2,
+			    cc->geom.y + cc->geom.h / 2);
 			cc->geom.x += client_snapcalc(cc->geom.x,
 			    cc->geom.x + cc->geom.w + (cc->bwidth * 2),
-			    sc->work.x, sc->work.x + sc->work.w, sc->snapdist);
+			    xine.x, xine.x + xine.w, sc->snapdist);
 			cc->geom.y += client_snapcalc(cc->geom.y,
 			    cc->geom.y + cc->geom.h + (cc->bwidth * 2),
-			    sc->work.y, sc->work.y + sc->work.h, sc->snapdist);
+			    xine.y, xine.y + xine.h, sc->snapdist);
 
 			/* don't move more than 60 times / second */
 			if ((ev.xmotion.time - ltime) > (1000 / 60)) {
