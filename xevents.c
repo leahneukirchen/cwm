@@ -47,15 +47,15 @@ static void	 xev_handle_buttonpress(XEvent *);
 static void	 xev_handle_buttonrelease(XEvent *);
 static void	 xev_handle_keypress(XEvent *);
 static void	 xev_handle_keyrelease(XEvent *);
-static void	 xev_handle_expose(XEvent *);
 static void	 xev_handle_clientmessage(XEvent *);
 static void	 xev_handle_randr(XEvent *);
 static void	 xev_handle_mappingnotify(XEvent *);
-
+static void	 xev_handle_expose(XEvent *);
 
 void		(*xev_handlers[LASTEvent])(XEvent *) = {
 			[MapRequest] = xev_handle_maprequest,
 			[UnmapNotify] = xev_handle_unmapnotify,
+			[DestroyNotify] = xev_handle_destroynotify,
 			[ConfigureRequest] = xev_handle_configurerequest,
 			[PropertyNotify] = xev_handle_propertynotify,
 			[EnterNotify] = xev_handle_enternotify,
@@ -63,10 +63,9 @@ void		(*xev_handlers[LASTEvent])(XEvent *) = {
 			[ButtonRelease] = xev_handle_buttonrelease,
 			[KeyPress] = xev_handle_keypress,
 			[KeyRelease] = xev_handle_keyrelease,
-			[Expose] = xev_handle_expose,
-			[DestroyNotify] = xev_handle_destroynotify,
 			[ClientMessage] = xev_handle_clientmessage,
 			[MappingNotify] = xev_handle_mappingnotify,
+			[Expose] = xev_handle_expose,
 };
 
 static KeySym modkeys[] = { XK_Alt_L, XK_Alt_R, XK_Super_L, XK_Super_R,
@@ -188,6 +187,7 @@ xev_handle_propertynotify(XEvent *ee)
 			break;
 		case XA_WM_HINTS:
 			client_wm_hints(cc);
+			client_draw_border(cc);
 			break;
 		case XA_WM_TRANSIENT_FOR:
 			client_transient(cc);
