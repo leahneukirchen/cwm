@@ -148,7 +148,7 @@ mousefunc_client_move(struct client_ctx *cc, void *arg)
 
 			xine = screen_find_xinerama(sc,
 			    cc->geom.x + cc->geom.w / 2,
-			    cc->geom.y + cc->geom.h / 2);
+			    cc->geom.y + cc->geom.h / 2, CWM_GAP);
 			cc->geom.x += client_snapcalc(cc->geom.x,
 			    cc->geom.x + cc->geom.w + (cc->bwidth * 2),
 			    xine.x, xine.x + xine.w, sc->snapdist);

@@ -126,7 +126,7 @@ screen_updatestackingorder(struct screen_ctx *sc)
  * Find which xinerama screen the coordinates (x,y) is on.
  */
 struct geom
-screen_find_xinerama(struct screen_ctx *sc, int x, int y)
+screen_find_xinerama(struct screen_ctx *sc, int x, int y, int flags)
 {
 	XineramaScreenInfo	*info;
 	struct geom		 geom;
@@ -141,12 +141,18 @@ screen_find_xinerama(struct screen_ctx *sc, int x, int y)
 		info = &sc->xinerama[i];
 		if (x >= info->x_org && x < info->x_org + info->width &&
 		    y >= info->y_org && y < info->y_org + info->height) {
-			geom.x = info->x_org + sc->gap.left;
-			geom.y = info->y_org + sc->gap.top;
-			geom.w = info->width - (sc->gap.left + sc->gap.right);
-			geom.h = info->height - (sc->gap.top + sc->gap.bottom);
+			geom.x = info->x_org;
+			geom.y = info->y_org;
+			geom.w = info->width;
+			geom.h = info->height;
 			break;
 		}
+	}
+	if (flags & CWM_GAP) {
+		geom.x += sc->gap.left;
+		geom.y += sc->gap.top;
+		geom.w -= (sc->gap.left + sc->gap.right);
+		geom.h -= (sc->gap.top + sc->gap.bottom);
 	}
 	return (geom);
 }

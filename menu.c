@@ -380,7 +380,7 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 		mc->num++;
 	}
 
-	xine = screen_find_xinerama(sc, mc->x, mc->y);
+	xine = screen_find_xinerama(sc, mc->x, mc->y, CWM_GAP);
 	xine.w += xine.x;
 	xine.h += xine.y;
 
