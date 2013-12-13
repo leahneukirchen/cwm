@@ -72,7 +72,7 @@ typedef struct {
 %token	AUTOGROUP BIND COMMAND IGNORE
 %token	YES NO BORDERWIDTH MOVEAMOUNT
 %token	COLOR SNAPDIST
-%token	ACTIVEBORDER INACTIVEBORDER
+%token	ACTIVEBORDER INACTIVEBORDER URGENCYBORDER
 %token	GROUPBORDER UNGROUPBORDER
 %token	MENUBG MENUFG
 %token	FONTCOLOR FONTSELCOLOR
@@ -195,6 +195,10 @@ colors		: ACTIVEBORDER STRING {
 			free(conf->color[CWM_COLOR_BORDER_INACTIVE]);
 			conf->color[CWM_COLOR_BORDER_INACTIVE] = $2;
 		}
+		| URGENCYBORDER STRING {
+			free(conf->color[CWM_COLOR_BORDER_URGENCY]);
+			conf->color[CWM_COLOR_BORDER_URGENCY] = $2;
+		}
 		| GROUPBORDER STRING {
 			free(conf->color[CWM_COLOR_BORDER_GROUP]);
 			conf->color[CWM_COLOR_BORDER_GROUP] = $2;
@@ -273,6 +277,7 @@ lookup(char *s)
 		{ "snapdist",		SNAPDIST},
 		{ "sticky",		STICKY},
 		{ "ungroupborder",	UNGROUPBORDER},
+		{ "urgencyborder",	URGENCYBORDER},
 		{ "yes",		YES}
 	};
 	const struct keywords	*p;

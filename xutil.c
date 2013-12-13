@@ -333,6 +333,9 @@ xu_ewmh_handle_net_wm_state_msg(struct client_ctx *cc, int action,
 		{ _NET_WM_STATE_MAXIMIZED_HORZ,
 			CLIENT_HMAXIMIZED,
 			client_hmaximize },
+		{ _NET_WM_STATE_DEMANDS_ATTENTION,
+			CLIENT_URGENCY,
+			client_urgency },
 	};
 
 	for (i = 0; i < nitems(handlers); i++) {
@@ -366,6 +369,8 @@ xu_ewmh_restore_net_wm_state(struct client_ctx *cc)
 			client_hmaximize(cc);
 		if (atoms[i] == ewmh[_NET_WM_STATE_MAXIMIZED_VERT])
 			client_vmaximize(cc);
+		if (atoms[i] == ewmh[_NET_WM_STATE_DEMANDS_ATTENTION])
+			client_urgency(cc);
 	}
 	free(atoms);
 }
@@ -380,7 +385,8 @@ xu_ewmh_set_net_wm_state(struct client_ctx *cc)
 	atoms = xcalloc((n + _NET_WM_STATES_NITEMS), sizeof(Atom));
 	for (i = j = 0; i < n; i++) {
 		if (oatoms[i] != ewmh[_NET_WM_STATE_MAXIMIZED_HORZ] &&
-		    oatoms[i] != ewmh[_NET_WM_STATE_MAXIMIZED_VERT])
+		    oatoms[i] != ewmh[_NET_WM_STATE_MAXIMIZED_VERT] &&
+		    oatoms[i] != ewmh[_NET_WM_STATE_DEMANDS_ATTENTION])
 			atoms[j++] = oatoms[i];
 	}
 	free(oatoms);
@@ -388,6 +394,8 @@ xu_ewmh_set_net_wm_state(struct client_ctx *cc)
 		atoms[j++] = ewmh[_NET_WM_STATE_MAXIMIZED_HORZ];
 	if (cc->flags & CLIENT_VMAXIMIZED)
 		atoms[j++] = ewmh[_NET_WM_STATE_MAXIMIZED_VERT];
+	if (cc->flags & CLIENT_URGENCY)
+		atoms[j++] = ewmh[_NET_WM_STATE_DEMANDS_ATTENTION];
 	if (j > 0)
 		XChangeProperty(X_Dpy, cc->win, ewmh[_NET_WM_STATE],
 		    XA_ATOM, 32, PropModeReplace, (unsigned char *)atoms, j);
