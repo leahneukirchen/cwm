@@ -448,6 +448,12 @@ kbfunc_client_movetogroup(struct client_ctx *cc, union arg *arg)
 }
 
 void
+kbfunc_client_fullscreen(struct client_ctx *cc, union arg *arg)
+{
+	client_fullscreen(cc);
+}
+
+void
 kbfunc_client_maximize(struct client_ctx *cc, union arg *arg)
 {
 	client_maximize(cc);

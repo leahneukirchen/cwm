@@ -229,6 +229,38 @@ client_freeze(struct client_ctx *cc)
 }
 
 void
+client_fullscreen(struct client_ctx *cc)
+{
+	struct screen_ctx	*sc = cc->sc;
+	struct geom		 xine;
+
+	if ((cc->flags & CLIENT_FREEZE) &&
+	    !(cc->flags & CLIENT_FULLSCREEN))
+		return;
+
+	if ((cc->flags & CLIENT_FULLSCREEN)) {
+		cc->bwidth = Conf.bwidth;
+		cc->geom = cc->fullgeom;
+		cc->flags &= ~(CLIENT_FULLSCREEN | CLIENT_FREEZE);
+		goto resize;
+	}
+
+	cc->fullgeom = cc->geom;
+
+	xine = screen_find_xinerama(sc,
+	    cc->geom.x + cc->geom.w / 2,
+	    cc->geom.y + cc->geom.h / 2, CWM_NOGAP);
+
+	cc->bwidth = 0;
+	cc->geom = xine;
+	cc->flags |= (CLIENT_FULLSCREEN | CLIENT_FREEZE);
+
+resize:
+	client_resize(cc, 0);
+	xu_ewmh_set_net_wm_state(cc);
+}
+
+void
 client_maximize(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
@@ -238,9 +270,8 @@ client_maximize(struct client_ctx *cc)
 		return;
 
 	if ((cc->flags & CLIENT_MAXFLAGS) == CLIENT_MAXIMIZED) {
-		cc->flags &= ~CLIENT_MAXIMIZED;
 		cc->geom = cc->savegeom;
-		cc->bwidth = Conf.bwidth;
+		cc->flags &= ~CLIENT_MAXIMIZED;
 		goto resize;
 	}
 
@@ -263,8 +294,10 @@ client_maximize(struct client_ctx *cc)
 	    cc->geom.x + cc->geom.w / 2,
 	    cc->geom.y + cc->geom.h / 2, CWM_GAP);
 
-	cc->geom = xine;
-	cc->bwidth = 0;
+	cc->geom.x = xine.x;
+	cc->geom.y = xine.y;
+	cc->geom.w = xine.w - (cc->bwidth * 2);
+	cc->geom.h = xine.h - (cc->bwidth * 2);
 	cc->flags |= CLIENT_MAXIMIZED;
 
 resize:
@@ -284,21 +317,12 @@ client_vmaximize(struct client_ctx *cc)
 	if (cc->flags & CLIENT_VMAXIMIZED) {
 		cc->geom.y = cc->savegeom.y;
 		cc->geom.h = cc->savegeom.h;
-		cc->bwidth = Conf.bwidth;
-		if (cc->flags & CLIENT_HMAXIMIZED)
-			cc->geom.w -= cc->bwidth * 2;
 		cc->flags &= ~CLIENT_VMAXIMIZED;
 		goto resize;
 	}
 
 	cc->savegeom.y = cc->geom.y;
 	cc->savegeom.h = cc->geom.h;
-
-	/* if this will make us fully maximized then remove boundary */
-	if ((cc->flags & CLIENT_MAXFLAGS) == CLIENT_HMAXIMIZED) {
-		cc->geom.w += cc->bwidth * 2;
-		cc->bwidth = 0;
-	}
 
 	xine = screen_find_xinerama(sc,
 	    cc->geom.x + cc->geom.w / 2,
@@ -325,21 +349,12 @@ client_hmaximize(struct client_ctx *cc)
 	if (cc->flags & CLIENT_HMAXIMIZED) {
 		cc->geom.x = cc->savegeom.x;
 		cc->geom.w = cc->savegeom.w;
-		cc->bwidth = Conf.bwidth;
-		if (cc->flags & CLIENT_VMAXIMIZED)
-			cc->geom.h -= cc->bwidth * 2;
 		cc->flags &= ~CLIENT_HMAXIMIZED;
 		goto resize;
 	}
 
 	cc->savegeom.x = cc->geom.x;
 	cc->savegeom.w = cc->geom.w;
-
-	/* if this will make us fully maximized then remove boundary */
-	if ((cc->flags & CLIENT_MAXFLAGS) == CLIENT_VMAXIMIZED) {
-		cc->geom.h += cc->bwidth * 2;
-		cc->bwidth = 0;
-	}
 
 	xine = screen_find_xinerama(sc,
 	    cc->geom.x + cc->geom.w / 2,
@@ -359,7 +374,6 @@ client_resize(struct client_ctx *cc, int reset)
 {
 	if (reset) {
 		cc->flags &= ~CLIENT_MAXIMIZED;
-		cc->bwidth = Conf.bwidth;
 		xu_ewmh_set_net_wm_state(cc);
 	}
 
