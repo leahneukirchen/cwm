@@ -150,7 +150,7 @@ struct client_ctx {
 	Window			 win;
 	Colormap		 colormap;
 	u_int			 bwidth; /* border width */
-	struct geom		 geom, savegeom;
+	struct geom		 geom, savegeom, fullgeom;
 	struct {
 		long		 flags;	/* defined hints */
 		int		 basew;	/* desired width */
@@ -179,6 +179,7 @@ struct client_ctx {
 #define CLIENT_WM_DELETE_WINDOW		0x0100
 #define CLIENT_WM_TAKE_FOCUS		0x0200
 #define CLIENT_URGENCY			0x0400
+#define CLIENT_FULLSCREEN		0x0800
 
 #define CLIENT_HIGHLIGHT		(CLIENT_GROUP | CLIENT_UNGROUP)
 #define CLIENT_MAXFLAGS			(CLIENT_VMAXIMIZED | CLIENT_HMAXIMIZED)
@@ -367,9 +368,10 @@ enum {
 	_NET_WM_DESKTOP,
 	_NET_CLOSE_WINDOW,
 	_NET_WM_STATE,
-#define	_NET_WM_STATES_NITEMS	3
+#define	_NET_WM_STATES_NITEMS	4
 	_NET_WM_STATE_MAXIMIZED_VERT,
 	_NET_WM_STATE_MAXIMIZED_HORZ,
+	_NET_WM_STATE_FULLSCREEN,
 	_NET_WM_STATE_DEMANDS_ATTENTION,
 	EWMH_NITEMS
 };
@@ -392,6 +394,7 @@ void			 client_delete(struct client_ctx *);
 void			 client_draw_border(struct client_ctx *);
 struct client_ctx	*client_find(Window);
 void			 client_freeze(struct client_ctx *);
+void			 client_fullscreen(struct client_ctx *);
 long			 client_get_wm_state(struct client_ctx *);
 void			 client_getsizehints(struct client_ctx *);
 void			 client_hide(struct client_ctx *);
@@ -457,6 +460,8 @@ void			 kbfunc_client_cyclegroup(struct client_ctx *,
 			     union arg *);
 void			 kbfunc_client_delete(struct client_ctx *, union arg *);
 void			 kbfunc_client_freeze(struct client_ctx *, union arg *);
+void			 kbfunc_client_fullscreen(struct client_ctx *,
+			     union arg *);
 void			 kbfunc_client_group(struct client_ctx *, union arg *);
 void			 kbfunc_client_grouponly(struct client_ctx *,
 			     union arg *);

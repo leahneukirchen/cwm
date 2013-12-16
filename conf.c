@@ -178,7 +178,8 @@ static struct {
 	{ "M-Right",	"cyclegroup" },
 	{ "M-Left",	"rcyclegroup" },
 	{ "CM-g",	"grouptoggle" },
-	{ "CM-f",	"maximize" },
+	{ "CM-f",	"fullscreen" },
+	{ "CM-m",	"maximize" },
 	{ "CM-equal",	"vmaximize" },
 	{ "CMS-equal",	"hmaximize" },
 	{ "CMS-f",	"freeze" },
@@ -376,6 +377,7 @@ static struct {
 	{ "rcycleingroup", kbfunc_client_cycle, KBFLAG_NEEDCLIENT,
 	    {.i = CWM_RCYCLE|CWM_INGROUP} },
 	{ "grouptoggle", kbfunc_client_grouptoggle, KBFLAG_NEEDCLIENT, {0}},
+	{ "fullscreen", kbfunc_client_fullscreen, KBFLAG_NEEDCLIENT, {0} },
 	{ "maximize", kbfunc_client_maximize, KBFLAG_NEEDCLIENT, {0} },
 	{ "vmaximize", kbfunc_client_vmaximize, KBFLAG_NEEDCLIENT, {0} },
 	{ "hmaximize", kbfunc_client_hmaximize, KBFLAG_NEEDCLIENT, {0} },
@@ -688,6 +690,7 @@ static char *ewmhints[] = {
 	"_NET_WM_STATE",
 	"_NET_WM_STATE_MAXIMIZED_VERT",
 	"_NET_WM_STATE_MAXIMIZED_HORZ",
+	"_NET_WM_STATE_FULLSCREEN",
 	"_NET_WM_STATE_DEMANDS_ATTENTION",
 };
 
