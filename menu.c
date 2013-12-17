@@ -92,7 +92,7 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
 
 	TAILQ_INIT(&resultq);
 
-	bzero(&mc, sizeof(mc));
+	(void)memset(&mc, 0, sizeof(mc));
 
 	xu_ptr_getpos(sc->rootwin, &mc.x, &mc.y);
 
