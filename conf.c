@@ -226,7 +226,7 @@ conf_init(struct conf *c)
 {
 	u_int	i;
 
-	bzero(c, sizeof(*c));
+	(void)memset(c, 0, sizeof(*c));
 
 	c->bwidth = CONF_BWIDTH;
 	c->mamount = CONF_MAMOUNT;

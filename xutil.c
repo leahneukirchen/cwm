@@ -311,7 +311,7 @@ xu_ewmh_get_net_wm_state(struct client_ctx *cc, int *n)
 		return (NULL);
 
 	state = xcalloc(*n, sizeof(Atom));
-	memcpy(state, p, *n * sizeof(Atom));
+	(void)memcpy(state, p, *n * sizeof(Atom));
 	XFree((char *)p);
 
 	return (state);
