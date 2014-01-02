@@ -832,6 +832,9 @@ client_applysizehints(struct client_ctx *cc)
 		cc->geom.w = MIN(cc->geom.w, cc->hint.maxw);
 	if (cc->hint.maxh)
 		cc->geom.h = MIN(cc->geom.h, cc->hint.maxh);
+
+	cc->geom.w = MAX(cc->geom.w, 1);
+	cc->geom.h = MAX(cc->geom.h, 1);
 }
 
 static void
