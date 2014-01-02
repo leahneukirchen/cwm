@@ -247,7 +247,6 @@ struct keybinding {
 	union arg		 argument;
 	u_int			 modmask;
 	KeySym			 keysym;
-	int			 keycode;
 #define KBFLAG_NEEDCLIENT	 0x0001
 	int			 flags;
 	int			 argtype;
