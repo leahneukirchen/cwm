@@ -246,7 +246,7 @@ xev_handle_buttonpress(XEvent *ee)
 		cc->sc = screen_fromroot(e->window);
 	}
 
-	(*mb->callback)(cc, e);
+	(*mb->callback)(cc, &mb->argument);
 }
 
 static void
