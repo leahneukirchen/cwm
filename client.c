@@ -59,7 +59,7 @@ client_init(Window win, struct screen_ctx *sc, int mapped)
 {
 	struct client_ctx	*cc;
 	XWindowAttributes	 wattr;
-	int			 state;
+	long			 state;
 
 	if (win == None)
 		return (NULL);
