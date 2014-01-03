@@ -265,7 +265,7 @@ xev_handle_keypress(XEvent *ee)
 	struct client_ctx	*cc = NULL, fakecc;
 	struct keybinding	*kb;
 	KeySym			 keysym, skeysym;
-	u_int			 modshift;
+	unsigned int		 modshift;
 
 	keysym = XkbKeycodeToKeysym(X_Dpy, e->keycode, 0, 0);
 	skeysym = XkbKeycodeToKeysym(X_Dpy, e->keycode, 0, 1);
@@ -308,7 +308,7 @@ xev_handle_keyrelease(XEvent *ee)
 	XKeyEvent		*e = &ee->xkey;
 	struct screen_ctx	*sc;
 	KeySym			 keysym;
-	u_int			 i;
+	unsigned int		 i;
 
 	sc = screen_fromroot(e->root);
 

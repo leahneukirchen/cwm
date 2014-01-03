@@ -253,8 +253,8 @@ search_match_exec_path(struct menu_q *menuq, struct menu_q *resultq, char *searc
 static int
 strsubmatch(char *sub, char *str, int zeroidx)
 {
-	size_t	 len, sublen;
-	u_int	 n, flen;
+	size_t		 len, sublen;
+	unsigned int	 n, flen;
 
 	if (sub == NULL || str == NULL)
 		return (0);

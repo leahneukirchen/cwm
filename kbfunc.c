@@ -58,7 +58,7 @@ kbfunc_client_moveresize(struct client_ctx *cc, union arg *arg)
 	struct screen_ctx	*sc = cc->sc;
 	struct geom		 xine;
 	int			 x, y, flags, amt;
-	u_int			 mx, my;
+	unsigned int		 mx, my;
 
 	if (cc->flags & CLIENT_FREEZE)
 		return;

@@ -165,7 +165,7 @@ x_errorhandler(Display *dpy, XErrorEvent *e)
 	XGetErrorDatabaseText(X_Dpy, "XRequest", number,
 	    "<unknown>", req, sizeof(req));
 
-	warnx("%s(0x%x): %s", req, (u_int)e->resourceid, msg);
+	warnx("%s(0x%x): %s", req, (unsigned int)e->resourceid, msg);
 #endif
 	return (0);
 }

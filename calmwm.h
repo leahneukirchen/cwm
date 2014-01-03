@@ -137,7 +137,7 @@ struct client_ctx {
 	struct screen_ctx	*sc;
 	Window			 win;
 	Colormap		 colormap;
-	u_int			 bwidth; /* border width */
+	unsigned int		 bwidth; /* border width */
 	struct geom		 geom, savegeom, fullgeom;
 	struct {
 		long		 flags;	/* defined hints */
@@ -245,7 +245,7 @@ struct keybinding {
 	TAILQ_ENTRY(keybinding)	 entry;
 	void			(*callback)(struct client_ctx *, union arg *);
 	union arg		 argument;
-	u_int			 modmask;
+	unsigned int		 modmask;
 	KeySym			 keysym;
 #define KBFLAG_NEEDCLIENT	 0x0001
 	int			 flags;
@@ -257,8 +257,8 @@ struct mousebinding {
 	TAILQ_ENTRY(mousebinding)	entry;
 	void			 	(*callback)(struct client_ctx *, union arg *);
 	union arg			argument;
-	u_int				modmask;
-	u_int			 	button;
+	unsigned int			modmask;
+	unsigned int		 	button;
 #define MOUSEBIND_CTX_ROOT		0x0001
 #define MOUSEBIND_CTX_WIN		0x0002
 	int				flags;
@@ -311,9 +311,9 @@ struct conf {
 
 /* MWM hints */
 struct mwm_hints {
-	u_long	flags;
-	u_long	functions;
-	u_long	decorations;
+	unsigned long	flags;
+	unsigned long	functions;
+	unsigned long	decorations;
 };
 #define MWM_NUMHINTS		3
 #define	PROP_MWM_HINTS_ELEMENTS	3
@@ -528,15 +528,15 @@ void			 conf_screen(struct screen_ctx *);
 
 void			 xev_loop(void);
 
-void			 xu_btn_grab(Window, int, u_int);
+void			 xu_btn_grab(Window, int, unsigned int);
 void			 xu_btn_ungrab(Window);
 int			 xu_getprop(Window, Atom, Atom, long, unsigned char **);
 int			 xu_getstrprop(Window, Atom, char **);
-void			 xu_key_grab(Window, u_int, KeySym);
+void			 xu_key_grab(Window, unsigned int, KeySym);
 void			 xu_key_ungrab(Window);
 void			 xu_ptr_getpos(Window, int *, int *);
-int			 xu_ptr_grab(Window, u_int, Cursor);
-int			 xu_ptr_regrab(u_int, Cursor);
+int			 xu_ptr_grab(Window, unsigned int, Cursor);
+int			 xu_ptr_regrab(unsigned int, Cursor);
 void			 xu_ptr_setpos(Window, int, int);
 void			 xu_ptr_ungrab(void);
 void			 xu_xft_draw(struct screen_ctx *, const char *,
