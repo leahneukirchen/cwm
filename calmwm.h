@@ -259,7 +259,6 @@ struct keybinding {
 	union arg		 argument;
 	u_int			 modmask;
 	KeySym			 keysym;
-	int			 keycode;
 #define KBFLAG_NEEDCLIENT	 0x0001
 	int			 flags;
 	int			 argtype;
@@ -268,7 +267,8 @@ TAILQ_HEAD(keybinding_q, keybinding);
 
 struct mousebinding {
 	TAILQ_ENTRY(mousebinding)	entry;
-	void			 	(*callback)(struct client_ctx *, void *);
+	void			 	(*callback)(struct client_ctx *, union arg *);
+	union arg			argument;
 	u_int				modmask;
 	u_int			 	button;
 #define MOUSEBIND_CTX_ROOT		0x0001
@@ -496,19 +496,25 @@ void			 kbfunc_term(struct client_ctx *, union arg *);
 void 			 kbfunc_tile(struct client_ctx *, union arg *);
 
 void			 mousefunc_client_cyclegroup(struct client_ctx *,
-			    void *);
+			    union arg *);
 void			 mousefunc_client_grouptoggle(struct client_ctx *,
-			    void *);
-void			 mousefunc_client_hide(struct client_ctx *, void *);
-void			 mousefunc_client_lower(struct client_ctx *, void *);
-void			 mousefunc_client_move(struct client_ctx *, void *);
-void			 mousefunc_client_raise(struct client_ctx *, void *);
+			    union arg *);
+void			 mousefunc_client_hide(struct client_ctx *,
+    			    union arg *);
+void			 mousefunc_client_lower(struct client_ctx *,
+    			    union arg *);
+void			 mousefunc_client_move(struct client_ctx *,
+    			    union arg *);
+void			 mousefunc_client_raise(struct client_ctx *,
+    			    union arg *);
 void			 mousefunc_client_rcyclegroup(struct client_ctx *,
-    			   void *);
-void			 mousefunc_client_resize(struct client_ctx *, void *);
-void			 mousefunc_menu_cmd(struct client_ctx *, void *);
-void			 mousefunc_menu_group(struct client_ctx *, void *);
-void			 mousefunc_menu_unhide(struct client_ctx *, void *);
+    			   union arg *);
+void			 mousefunc_client_resize(struct client_ctx *,
+    			    union arg *);
+void			 mousefunc_menu_cmd(struct client_ctx *, union arg *);
+void			 mousefunc_menu_group(struct client_ctx *, union arg *);
+void			 mousefunc_menu_unhide(struct client_ctx *,
+    			    union arg *);
 
 struct menu  		*menu_filter(struct screen_ctx *, struct menu_q *,
 			     char *, char *, int,

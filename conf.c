@@ -535,22 +535,24 @@ conf_unbind_kbd(struct conf *c, struct keybinding *unbind)
 }
 
 static struct {
-	char *tag;
-	void (*handler)(struct client_ctx *, void *);
-	int flags;
+	char		*tag;
+	void		 (*handler)(struct client_ctx *, union arg *);
+	int		 flags;
+	union arg	 argument;
 } name_to_mousefunc[] = {
-	{ "window_move", mousefunc_client_move, MOUSEBIND_CTX_WIN },
-	{ "window_resize", mousefunc_client_resize, MOUSEBIND_CTX_WIN },
+	{ "window_move", mousefunc_client_move, MOUSEBIND_CTX_WIN, {0} },
+	{ "window_resize", mousefunc_client_resize, MOUSEBIND_CTX_WIN, {0} },
 	{ "window_grouptoggle", mousefunc_client_grouptoggle,
-	    MOUSEBIND_CTX_WIN },
-	{ "window_lower", mousefunc_client_lower, MOUSEBIND_CTX_WIN },
-	{ "window_raise", mousefunc_client_raise, MOUSEBIND_CTX_WIN },
-	{ "window_hide", mousefunc_client_hide, MOUSEBIND_CTX_WIN },
-	{ "cyclegroup", mousefunc_client_cyclegroup, MOUSEBIND_CTX_ROOT },
-	{ "rcyclegroup", mousefunc_client_rcyclegroup, MOUSEBIND_CTX_ROOT },
-	{ "menu_group", mousefunc_menu_group, MOUSEBIND_CTX_ROOT },
-	{ "menu_unhide", mousefunc_menu_unhide, MOUSEBIND_CTX_ROOT },
-	{ "menu_cmd", mousefunc_menu_cmd, MOUSEBIND_CTX_ROOT },
+	    MOUSEBIND_CTX_WIN, {0} },
+	{ "window_lower", mousefunc_client_lower, MOUSEBIND_CTX_WIN, {0} },
+	{ "window_raise", mousefunc_client_raise, MOUSEBIND_CTX_WIN, {0} },
+	{ "window_hide", mousefunc_client_hide, MOUSEBIND_CTX_WIN, {0} },
+	{ "cyclegroup", mousefunc_client_cyclegroup, MOUSEBIND_CTX_ROOT, {0} },
+	{ "rcyclegroup", mousefunc_client_rcyclegroup,
+	    MOUSEBIND_CTX_ROOT, {0} },
+	{ "menu_group", mousefunc_menu_group, MOUSEBIND_CTX_ROOT, {0} },
+	{ "menu_unhide", mousefunc_menu_unhide, MOUSEBIND_CTX_ROOT, {0} },
+	{ "menu_cmd", mousefunc_menu_cmd, MOUSEBIND_CTX_ROOT, {0} },
 };
 
 static unsigned int mouse_btns[] = {
@@ -597,6 +599,7 @@ conf_bind_mouse(struct conf *c, char *name, char *binding)
 
 		current_binding->callback = name_to_mousefunc[i].handler;
 		current_binding->flags = name_to_mousefunc[i].flags;
+		current_binding->argument = name_to_mousefunc[i].argument;
 		TAILQ_INSERT_TAIL(&c->mousebindingq, current_binding, entry);
 		return (1);
 	}

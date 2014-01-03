@@ -40,7 +40,7 @@ static void			 client_wm_protocols(struct client_ctx *);
 static void			 client_mwm_hints(struct client_ctx *);
 static int			 client_inbound(struct client_ctx *, int, int);
 
-struct client_ctx	*_curcc = NULL;
+struct client_ctx	*curcc = NULL;
 
 struct client_ctx *
 client_find(Window win)
@@ -59,7 +59,7 @@ client_init(Window win, struct screen_ctx *sc, int mapped)
 {
 	struct client_ctx	*cc;
 	XWindowAttributes	 wattr;
-	int			 state;
+	long			 state;
 
 	if (win == None)
 		return (NULL);
@@ -192,7 +192,7 @@ client_setactive(struct client_ctx *cc)
 	if (!sc->cycling)
 		client_mtf(cc);
 
-	_curcc = cc;
+	curcc = cc;
 	cc->active = 1;
 	cc->flags &= ~CLIENT_URGENCY;
 	client_draw_border(cc);
@@ -210,13 +210,13 @@ client_none(struct screen_ctx *sc)
 
 	xu_ewmh_net_active_window(sc, none);
 
-	_curcc = NULL;
+	curcc = NULL;
 }
 
 struct client_ctx *
 client_current(void)
 {
-	return (_curcc);
+	return (curcc);
 }
 
 void
@@ -832,6 +832,9 @@ client_applysizehints(struct client_ctx *cc)
 		cc->geom.w = MIN(cc->geom.w, cc->hint.maxw);
 	if (cc->hint.maxh)
 		cc->geom.h = MIN(cc->geom.h, cc->hint.maxh);
+
+	cc->geom.w = MAX(cc->geom.w, 1);
+	cc->geom.h = MAX(cc->geom.h, 1);
 }
 
 static void
