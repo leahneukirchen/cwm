@@ -31,7 +31,7 @@
 
 #include "calmwm.h"
 
-static const char	*conf_bind_getmask(const char *, u_int *);
+static const char	*conf_bind_getmask(const char *, unsigned int *);
 static void	 	 conf_unbind_kbd(struct conf *, struct keybinding *);
 static void	 	 conf_unbind_mouse(struct conf *, struct mousebinding *);
 
@@ -100,7 +100,7 @@ static char *color_binds[] = {
 void
 conf_screen(struct screen_ctx *sc)
 {
-	u_int		 i;
+	unsigned int	 i;
 	XftColor	 xc;
 
 	sc->gap = Conf.gap;
@@ -224,7 +224,7 @@ mouse_binds[] = {
 void
 conf_init(struct conf *c)
 {
-	u_int	i;
+	unsigned int	i;
 
 	(void)memset(c, 0, sizeof(*c));
 
@@ -454,11 +454,11 @@ static struct {
 };
 
 static const char *
-conf_bind_getmask(const char *name, u_int *mask)
+conf_bind_getmask(const char *name, unsigned int *mask)
 {
 	char		*dash;
 	const char	*ch;
-	u_int	 	 i;
+	unsigned int 	 i;
 
 	*mask = 0;
 	if ((dash = strchr(name, '-')) == NULL)
@@ -477,7 +477,7 @@ conf_bind_kbd(struct conf *c, char *name, char *binding)
 {
 	struct keybinding	*current_binding;
 	const char		*substring;
-	u_int			 i, mask;
+	unsigned int			 i, mask;
 
 	current_binding = xcalloc(1, sizeof(*current_binding));
 	substring = conf_bind_getmask(name, &mask);
@@ -564,7 +564,7 @@ conf_bind_mouse(struct conf *c, char *name, char *binding)
 {
 	struct mousebinding	*current_binding;
 	const char		*errstr, *substring;
-	u_int			 button, i, mask;
+	unsigned int		 button, i, mask;
 
 	current_binding = xcalloc(1, sizeof(*current_binding));
 	substring = conf_bind_getmask(name, &mask);
@@ -634,7 +634,7 @@ static int cursor_binds[] = {
 void
 conf_cursor(struct conf *c)
 {
-	u_int	 i;
+	unsigned int	 i;
 
 	for (i = 0; i < nitems(cursor_binds); i++)
 		c->cursor[i] = XCreateFontCursor(X_Dpy, cursor_binds[i]);
