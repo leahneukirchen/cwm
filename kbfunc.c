@@ -41,6 +41,7 @@ extern sig_atomic_t	xev_quit;
 void
 kbfunc_client_lower(struct client_ctx *cc, union arg *arg)
 {
+	client_ptrsave(cc);
 	client_lower(cc);
 }
 
