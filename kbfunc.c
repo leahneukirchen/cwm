@@ -151,13 +151,8 @@ kbfunc_client_search(struct client_ctx *cc, union arg *arg)
 	old_cc = client_current();
 
 	TAILQ_INIT(&menuq);
-
-	TAILQ_FOREACH(cc, &Clientq, entry) {
-		mi = xcalloc(1, sizeof(*mi));
-		(void)strlcpy(mi->text, cc->name, sizeof(mi->text));
-		mi->ctx = cc;
-		TAILQ_INSERT_TAIL(&menuq, mi, entry);
-	}
+	TAILQ_FOREACH(cc, &Clientq, entry)
+		menuq_add(&menuq, cc, "%s", cc->name);
 
 	if ((mi = menu_filter(sc, &menuq, "window", NULL, 0,
 	    search_match_client, search_print_client)) != NULL) {
@@ -182,13 +177,8 @@ kbfunc_menu_search(struct client_ctx *cc, union arg *arg)
 	struct menu_q		 menuq;
 
 	TAILQ_INIT(&menuq);
-
-	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
-		mi = xcalloc(1, sizeof(*mi));
-		(void)strlcpy(mi->text, cmd->label, sizeof(mi->text));
-		mi->ctx = cmd;
-		TAILQ_INSERT_TAIL(&menuq, mi, entry);
-	}
+	TAILQ_FOREACH(cmd, &Conf.cmdq, entry)
+		menuq_add(&menuq, cmd, "%s", cmd->label);
 
 	if ((mi = menu_filter(sc, &menuq, "application", NULL, 0,
 	    search_match_text, NULL)) != NULL)
@@ -284,12 +274,8 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 			/* check for truncation etc */
 			if (l == -1 || l >= (int)sizeof(tpath))
 				continue;
-			if (access(tpath, X_OK) == 0) {
-				mi = xcalloc(1, sizeof(*mi));
-				(void)strlcpy(mi->text,
-				    dp->d_name, sizeof(mi->text));
-				TAILQ_INSERT_TAIL(&menuq, mi, entry);
-			}
+			if (access(tpath, X_OK) == 0)
+				menuq_add(&menuq, NULL, "%s", dp->d_name);
 		}
 		(void)closedir(dirp);
 	}
@@ -360,9 +346,7 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 		if (p - buf + 1 > sizeof(hostbuf))
 			continue;
 		(void)strlcpy(hostbuf, buf, p - buf + 1);
-		mi = xcalloc(1, sizeof(*mi));
-		(void)strlcpy(mi->text, hostbuf, sizeof(mi->text));
-		TAILQ_INSERT_TAIL(&menuq, mi, entry);
+		menuq_add(&menuq, NULL, hostbuf);
 	}
 	free(lbuf);
 	(void)fclose(fp);

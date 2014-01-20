@@ -508,6 +508,7 @@ struct menu  		*menu_filter(struct screen_ctx *, struct menu_q *,
 			     char *, char *, int,
 			     void (*)(struct menu_q *, struct menu_q *, char *),
 			     void (*)(struct menu *, int));
+void			 menuq_add(struct menu_q *, void *, const char *, ...);
 void			 menuq_clear(struct menu_q *);
 
 int			 parse_config(const char *, struct conf *);

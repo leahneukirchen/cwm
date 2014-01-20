@@ -25,6 +25,7 @@
 #include <ctype.h>
 #include <err.h>
 #include <errno.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -602,6 +603,22 @@ menu_keycode(XKeyEvent *ev, enum ctltype *ctl, char *chr)
 		return (-1);
 
 	return (0);
+}
+
+void
+menuq_add(struct menu_q *mq, void *ctx, const char *fmt, ...)
+{
+	va_list		 ap;
+	struct menu	*mi;
+
+	mi = xcalloc(1, sizeof(*mi));
+	mi->ctx = ctx;
+
+	va_start(ap, fmt);
+	(void)vsnprintf(mi->text, sizeof(mi->text), fmt, ap);
+	va_end(ap);
+
+	TAILQ_INSERT_TAIL(mq, mi, entry);
 }
 
 void
