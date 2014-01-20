@@ -515,8 +515,10 @@ int			 parse_config(const char *, struct conf *);
 
 void			 conf_atoms(void);
 void			 conf_autogroup(struct conf *, int, char *);
-void			 conf_bind_kbd(struct conf *, char *, char *);
-int			 conf_bind_mouse(struct conf *, char *, char *);
+int			 conf_bind_kbd(struct conf *, const char *,
+    			     const char *);
+int			 conf_bind_mouse(struct conf *, const char *,
+    			     const char *);
 void			 conf_clear(struct conf *);
 void			 conf_client(struct client_ctx *);
 void			 conf_cmd_add(struct conf *, char *, char *);

@@ -472,48 +472,50 @@ conf_bind_getmask(const char *name, unsigned int *mask)
 	return (dash + 1);
 }
 
-void
-conf_bind_kbd(struct conf *c, char *name, char *binding)
+int
+conf_bind_kbd(struct conf *c, const char *bind, const char *cmd)
 {
-	struct keybinding	*current_binding;
-	const char		*substring;
-	unsigned int			 i, mask;
+	struct keybinding	*kb;
+	const char		*key;
+	unsigned int		 i, mask;
 
-	current_binding = xcalloc(1, sizeof(*current_binding));
-	substring = conf_bind_getmask(name, &mask);
-	current_binding->modmask |= mask;
+	kb = xcalloc(1, sizeof(*kb));
+	key = conf_bind_getmask(bind, &mask);
+	kb->modmask |= mask;
 
-	current_binding->keysym = XStringToKeysym(substring);
-	if (current_binding->keysym == NoSymbol) {
-		free(current_binding);
-		return;
+	kb->keysym = XStringToKeysym(key);
+	if (kb->keysym == NoSymbol) {
+		warnx("unknown symbol: %s", key);
+		free(kb);
+		return (0);
 	}
 
 	/* We now have the correct binding, remove duplicates. */
-	conf_unbind_kbd(c, current_binding);
+	conf_unbind_kbd(c, kb);
 
-	if (strcmp("unmap", binding) == 0) {
-		free(current_binding);
-		return;
+	if (strcmp("unmap", cmd) == 0) {
+		free(kb);
+		return (1);
 	}
 
 	for (i = 0; i < nitems(name_to_kbfunc); i++) {
-		if (strcmp(name_to_kbfunc[i].tag, binding) != 0)
+		if (strcmp(name_to_kbfunc[i].tag, cmd) != 0)
 			continue;
 
-		current_binding->callback = name_to_kbfunc[i].handler;
-		current_binding->flags = name_to_kbfunc[i].flags;
-		current_binding->argument = name_to_kbfunc[i].argument;
-		current_binding->argtype |= ARG_INT;
-		TAILQ_INSERT_TAIL(&c->keybindingq, current_binding, entry);
-		return;
+		kb->callback = name_to_kbfunc[i].handler;
+		kb->flags = name_to_kbfunc[i].flags;
+		kb->argument = name_to_kbfunc[i].argument;
+		kb->argtype |= ARG_INT;
+		TAILQ_INSERT_TAIL(&c->keybindingq, kb, entry);
+		return (1);
 	}
 
-	current_binding->callback = kbfunc_cmdexec;
-	current_binding->flags = 0;
-	current_binding->argument.c = xstrdup(binding);
-	current_binding->argtype |= ARG_CHAR;
-	TAILQ_INSERT_TAIL(&c->keybindingq, current_binding, entry);
+	kb->callback = kbfunc_cmdexec;
+	kb->flags = 0;
+	kb->argument.c = xstrdup(cmd);
+	kb->argtype |= ARG_CHAR;
+	TAILQ_INSERT_TAIL(&c->keybindingq, kb, entry);
+	return (1);
 }
 
 static void
@@ -555,52 +557,40 @@ static struct {
 	{ "menu_cmd", mousefunc_menu_cmd, MOUSEBIND_CTX_ROOT, {0} },
 };
 
-static unsigned int mouse_btns[] = {
-	Button1, Button2, Button3, Button4, Button5
-};
-
 int
-conf_bind_mouse(struct conf *c, char *name, char *binding)
+conf_bind_mouse(struct conf *c, const char *bind, const char *cmd)
 {
-	struct mousebinding	*current_binding;
-	const char		*errstr, *substring;
-	unsigned int		 button, i, mask;
+	struct mousebinding	*mb;
+	const char		*button, *errstr;
+	unsigned int		 i, mask;
 
-	current_binding = xcalloc(1, sizeof(*current_binding));
-	substring = conf_bind_getmask(name, &mask);
-	current_binding->modmask |= mask;
+	mb = xcalloc(1, sizeof(*mb));
+	button = conf_bind_getmask(bind, &mask);
+	mb->modmask |= mask;
 
-	button = strtonum(substring, 1, 5, &errstr);
-	if (errstr)
-		warnx("button number is %s: %s", errstr, substring);
-
-	for (i = 0; i < nitems(mouse_btns); i++) {
-		if (button == mouse_btns[i]) {
-			current_binding->button = button;
-			break;
-		}
-	}
-	if (!current_binding->button || errstr) {
-		free(current_binding);
+	mb->button = strtonum(button, Button1, Button5, &errstr);
+	if (errstr) {
+		warnx("button number is %s: %s", errstr, button);
+		free(mb);
 		return (0);
 	}
 
 	/* We now have the correct binding, remove duplicates. */
-	conf_unbind_mouse(c, current_binding);
+	conf_unbind_mouse(c, mb);
 
-	if (strcmp("unmap", binding) == 0) {
-		free(current_binding);
+	if (strcmp("unmap", cmd) == 0) {
+		free(mb);
 		return (1);
 	}
 
 	for (i = 0; i < nitems(name_to_mousefunc); i++) {
-		if (strcmp(name_to_mousefunc[i].tag, binding) != 0)
+		if (strcmp(name_to_mousefunc[i].tag, cmd) != 0)
 			continue;
 
-		current_binding->callback = name_to_mousefunc[i].handler;
-		current_binding->flags = name_to_mousefunc[i].flags;
-		current_binding->argument = name_to_mousefunc[i].argument;
-		TAILQ_INSERT_TAIL(&c->mousebindingq, current_binding, entry);
+		mb->callback = name_to_mousefunc[i].handler;
+		mb->flags = name_to_mousefunc[i].flags;
+		mb->argument = name_to_mousefunc[i].argument;
+		TAILQ_INSERT_TAIL(&c->mousebindingq, mb, entry);
 		return (1);
 	}
 
