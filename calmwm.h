@@ -495,8 +495,6 @@ void			 mousefunc_client_move(struct client_ctx *,
     			    union arg *);
 void			 mousefunc_client_raise(struct client_ctx *,
     			    union arg *);
-void			 mousefunc_client_rcyclegroup(struct client_ctx *,
-    			   union arg *);
 void			 mousefunc_client_resize(struct client_ctx *,
     			    union arg *);
 void			 mousefunc_menu_cmd(struct client_ctx *, union arg *);

@@ -200,13 +200,7 @@ mousefunc_client_hide(struct client_ctx *cc, union arg *arg)
 void
 mousefunc_client_cyclegroup(struct client_ctx *cc, union arg *arg)
 {
-	group_cycle(cc->sc, CWM_CYCLE);
-}
-
-void
-mousefunc_client_rcyclegroup(struct client_ctx *cc, union arg *arg)
-{
-	group_cycle(cc->sc, CWM_RCYCLE);
+	group_cycle(cc->sc, arg->i);
 }
 
 void
