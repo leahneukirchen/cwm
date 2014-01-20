@@ -265,13 +265,13 @@ mousefunc_menu_cmd(struct client_ctx *cc, union arg *arg)
 	TAILQ_INIT(&menuq);
 
 	TAILQ_FOREACH(cmd, &Conf.cmdq, entry)
-		menuq_add(&menuq, cmd, "%s", cmd->label);
+		menuq_add(&menuq, cmd, "%s", cmd->name);
 	if (TAILQ_EMPTY(&menuq))
 		return;
 
 	mi = menu_filter(sc, &menuq, NULL, NULL, 0, NULL, NULL);
 	if (mi != NULL)
-		u_spawn(((struct cmd *)mi->ctx)->image);
+		u_spawn(((struct cmd *)mi->ctx)->path);
 
 	menuq_clear(&menuq);
 }

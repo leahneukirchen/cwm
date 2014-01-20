@@ -37,23 +37,23 @@ static void	 	 conf_unbind_mouse(struct conf *, struct mousebinding *);
 
 /* Add an command menu entry to the end of the menu */
 void
-conf_cmd_add(struct conf *c, char *image, char *label)
+conf_cmd_add(struct conf *c, const char *name, const char *path)
 {
 	/* "term" and "lock" have special meanings. */
-	if (strcmp(label, "term") == 0)
-		(void)strlcpy(c->termpath, image, sizeof(c->termpath));
-	else if (strcmp(label, "lock") == 0)
-		(void)strlcpy(c->lockpath, image, sizeof(c->lockpath));
+	if (strcmp(name, "term") == 0)
+		(void)strlcpy(c->termpath, path, sizeof(c->termpath));
+	else if (strcmp(name, "lock") == 0)
+		(void)strlcpy(c->lockpath, path, sizeof(c->lockpath));
 	else {
 		struct cmd *cmd = xmalloc(sizeof(*cmd));
-		(void)strlcpy(cmd->image, image, sizeof(cmd->image));
-		(void)strlcpy(cmd->label, label, sizeof(cmd->label));
+		(void)strlcpy(cmd->name, name, sizeof(cmd->name));
+		(void)strlcpy(cmd->path, path, sizeof(cmd->path));
 		TAILQ_INSERT_TAIL(&c->cmdq, cmd, entry);
 	}
 }
 
 void
-conf_autogroup(struct conf *c, int no, char *val)
+conf_autogroup(struct conf *c, int no, const char *val)
 {
 	struct autogroupwin	*aw;
 	char			*p;
@@ -74,7 +74,7 @@ conf_autogroup(struct conf *c, int no, char *val)
 }
 
 void
-conf_ignore(struct conf *c, char *val)
+conf_ignore(struct conf *c, const char *val)
 {
 	struct winmatch	*wm;
 

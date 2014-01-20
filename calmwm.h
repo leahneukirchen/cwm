@@ -267,9 +267,9 @@ TAILQ_HEAD(mousebinding_q, mousebinding);
 
 struct cmd {
 	TAILQ_ENTRY(cmd)	entry;
-	char			image[MAXPATHLEN];
-#define CMD_MAXLABELLEN		256
-	char			label[CMD_MAXLABELLEN];
+#define CMD_MAXNAMELEN		256
+	char			name[CMD_MAXNAMELEN];
+	char			path[MAXPATHLEN];
 };
 TAILQ_HEAD(cmd_q, cmd);
 
@@ -514,19 +514,20 @@ void			 menuq_clear(struct menu_q *);
 int			 parse_config(const char *, struct conf *);
 
 void			 conf_atoms(void);
-void			 conf_autogroup(struct conf *, int, char *);
+void			 conf_autogroup(struct conf *, int, const char *);
 int			 conf_bind_kbd(struct conf *, const char *,
     			     const char *);
 int			 conf_bind_mouse(struct conf *, const char *,
     			     const char *);
 void			 conf_clear(struct conf *);
 void			 conf_client(struct client_ctx *);
-void			 conf_cmd_add(struct conf *, char *, char *);
+void			 conf_cmd_add(struct conf *, const char *,
+			     const char *);
 void			 conf_cursor(struct conf *);
 void			 conf_grab_kbd(Window);
 void			 conf_grab_mouse(Window);
 void			 conf_init(struct conf *);
-void			 conf_ignore(struct conf *, char *);
+void			 conf_ignore(struct conf *, const char *);
 void			 conf_screen(struct screen_ctx *);
 
 void			 xev_loop(void);
