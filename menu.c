@@ -25,6 +25,7 @@
 #include <ctype.h>
 #include <err.h>
 #include <errno.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -77,8 +78,8 @@ static struct menu 	*menu_complete_path(struct menu_ctx *);
 static int		 menu_keycode(XKeyEvent *, enum ctltype *, char *);
 
 struct menu *
-menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
-    char *initial, int flags,
+menu_filter(struct screen_ctx *sc, struct menu_q *menuq, const char *prompt,
+    const char *initial, int flags,
     void (*match)(struct menu_q *, struct menu_q *, char *),
     void (*print)(struct menu *, int))
 {
@@ -602,6 +603,22 @@ menu_keycode(XKeyEvent *ev, enum ctltype *ctl, char *chr)
 		return (-1);
 
 	return (0);
+}
+
+void
+menuq_add(struct menu_q *mq, void *ctx, const char *fmt, ...)
+{
+	va_list		 ap;
+	struct menu	*mi;
+
+	mi = xcalloc(1, sizeof(*mi));
+	mi->ctx = ctx;
+
+	va_start(ap, fmt);
+	(void)vsnprintf(mi->text, sizeof(mi->text), fmt, ap);
+	va_end(ap);
+
+	TAILQ_INSERT_TAIL(mq, mi, entry);
 }
 
 void

@@ -324,15 +324,8 @@ group_menu(struct screen_ctx *sc)
 		if (TAILQ_EMPTY(&gc->clients))
 			continue;
 
-		mi = xcalloc(1, sizeof(*mi));
-		if (gc->hidden)
-			(void)snprintf(mi->text, sizeof(mi->text), "%d: [%s]",
-			    gc->shortcut, sc->group_names[i]);
-		else
-			(void)snprintf(mi->text, sizeof(mi->text), "%d: %s",
-			    gc->shortcut, sc->group_names[i]);
-		mi->ctx = gc;
-		TAILQ_INSERT_TAIL(&menuq, mi, entry);
+		menuq_add(&menuq, gc, gc->hidden ? "%d: [%s]" : "%d: %s",
+		    gc->shortcut, sc->group_names[i]);
 	}
 
 	if (TAILQ_EMPTY(&menuq))

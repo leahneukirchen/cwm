@@ -139,7 +139,7 @@ main		: FONTNAME STRING		{
 			conf->snapdist = $2;
 		}
 		| COMMAND STRING string		{
-			conf_cmd_add(conf, $3, $2);
+			conf_cmd_add(conf, $2, $3);
 			free($2);
 			free($3);
 		}
@@ -157,7 +157,12 @@ main		: FONTNAME STRING		{
 			free($2);
 		}
 		| BIND STRING string		{
-			conf_bind_kbd(conf, $2, $3);
+			if (!conf_bind_kbd(conf, $2, $3)) {
+				yyerror("invalid bind: %s %s", $2, $3);
+				free($2);
+				free($3);
+				YYERROR;
+			}
 			free($2);
 			free($3);
 		}

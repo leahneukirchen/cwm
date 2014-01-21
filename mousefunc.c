@@ -200,13 +200,7 @@ mousefunc_client_hide(struct client_ctx *cc, union arg *arg)
 void
 mousefunc_client_cyclegroup(struct client_ctx *cc, union arg *arg)
 {
-	group_cycle(cc->sc, CWM_CYCLE);
-}
-
-void
-mousefunc_client_rcyclegroup(struct client_ctx *cc, union arg *arg)
-{
-	group_cycle(cc->sc, CWM_RCYCLE);
+	group_cycle(cc->sc, arg->i);
 }
 
 void
@@ -234,11 +228,8 @@ mousefunc_menu_unhide(struct client_ctx *cc, union arg *arg)
 			if (wname == NULL)
 				continue;
 
-			mi = xcalloc(1, sizeof(*mi));
-			(void)snprintf(mi->text, sizeof(mi->text), "(%d) %s",
+			menuq_add(&menuq, cc, "(%d) %s",
 			    cc->group ? cc->group->shortcut : 0, wname);
-			mi->ctx = cc;
-			TAILQ_INSERT_TAIL(&menuq, mi, entry);
 		}
 
 	if (TAILQ_EMPTY(&menuq))
@@ -267,18 +258,14 @@ mousefunc_menu_cmd(struct client_ctx *cc, union arg *arg)
 
 	TAILQ_INIT(&menuq);
 
-	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
-		mi = xcalloc(1, sizeof(*mi));
-		(void)strlcpy(mi->text, cmd->label, sizeof(mi->text));
-		mi->ctx = cmd;
-		TAILQ_INSERT_TAIL(&menuq, mi, entry);
-	}
+	TAILQ_FOREACH(cmd, &Conf.cmdq, entry)
+		menuq_add(&menuq, cmd, "%s", cmd->name);
 	if (TAILQ_EMPTY(&menuq))
 		return;
 
 	mi = menu_filter(sc, &menuq, NULL, NULL, 0, NULL, NULL);
 	if (mi != NULL)
-		u_spawn(((struct cmd *)mi->ctx)->image);
+		u_spawn(((struct cmd *)mi->ctx)->path);
 
 	menuq_clear(&menuq);
 }

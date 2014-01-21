@@ -37,23 +37,23 @@ static void	 	 conf_unbind_mouse(struct conf *, struct mousebinding *);
 
 /* Add an command menu entry to the end of the menu */
 void
-conf_cmd_add(struct conf *c, char *image, char *label)
+conf_cmd_add(struct conf *c, const char *name, const char *path)
 {
 	/* "term" and "lock" have special meanings. */
-	if (strcmp(label, "term") == 0)
-		(void)strlcpy(c->termpath, image, sizeof(c->termpath));
-	else if (strcmp(label, "lock") == 0)
-		(void)strlcpy(c->lockpath, image, sizeof(c->lockpath));
+	if (strcmp(name, "term") == 0)
+		(void)strlcpy(c->termpath, path, sizeof(c->termpath));
+	else if (strcmp(name, "lock") == 0)
+		(void)strlcpy(c->lockpath, path, sizeof(c->lockpath));
 	else {
 		struct cmd *cmd = xmalloc(sizeof(*cmd));
-		(void)strlcpy(cmd->image, image, sizeof(cmd->image));
-		(void)strlcpy(cmd->label, label, sizeof(cmd->label));
+		(void)strlcpy(cmd->name, name, sizeof(cmd->name));
+		(void)strlcpy(cmd->path, path, sizeof(cmd->path));
 		TAILQ_INSERT_TAIL(&c->cmdq, cmd, entry);
 	}
 }
 
 void
-conf_autogroup(struct conf *c, int no, char *val)
+conf_autogroup(struct conf *c, int no, const char *val)
 {
 	struct autogroupwin	*aw;
 	char			*p;
@@ -74,7 +74,7 @@ conf_autogroup(struct conf *c, int no, char *val)
 }
 
 void
-conf_ignore(struct conf *c, char *val)
+conf_ignore(struct conf *c, const char *val)
 {
 	struct winmatch	*wm;
 
@@ -85,7 +85,7 @@ conf_ignore(struct conf *c, char *val)
 	TAILQ_INSERT_TAIL(&c->ignoreq, wm, entry);
 }
 
-static char *color_binds[] = {
+static const char *color_binds[] = {
 	"#CCCCCC",	/* CWM_COLOR_BORDER_ACTIVE */
 	"#666666",	/* CWM_COLOR_BORDER_INACTIVE */
 	"#FC8814",	/* CWM_COLOR_BORDER_URGENCY */
@@ -147,9 +147,9 @@ conf_screen(struct screen_ctx *sc)
 	conf_grab_kbd(sc->rootwin);
 }
 
-static struct {
-	char	*key;
-	char	*func;
+static const struct {
+	const char	*key;
+	const char	*func;
 } kbd_binds[] = {
 	{ "CM-Return",	"terminal" },
 	{ "CM-Delete",	"lock" },
@@ -318,21 +318,21 @@ conf_client(struct client_ctx *cc)
 	cc->flags |= ignore ? CLIENT_IGNORE : 0;
 }
 
-static struct {
-	char		*tag;
+static const struct {
+	const char	*tag;
 	void		 (*handler)(struct client_ctx *, union arg *);
 	int		 flags;
 	union arg	 argument;
 } name_to_kbfunc[] = {
-	{ "lower", kbfunc_client_lower, KBFLAG_NEEDCLIENT, {0} },
-	{ "raise", kbfunc_client_raise, KBFLAG_NEEDCLIENT, {0} },
+	{ "lower", kbfunc_client_lower, CWM_WIN, {0} },
+	{ "raise", kbfunc_client_raise, CWM_WIN, {0} },
 	{ "search", kbfunc_client_search, 0, {0} },
 	{ "menusearch", kbfunc_menu_search, 0, {0} },
-	{ "hide", kbfunc_client_hide, KBFLAG_NEEDCLIENT, {0} },
+	{ "hide", kbfunc_client_hide, CWM_WIN, {0} },
 	{ "cycle", kbfunc_client_cycle, 0, {.i = CWM_CYCLE} },
 	{ "rcycle", kbfunc_client_cycle, 0, {.i = CWM_RCYCLE} },
-	{ "label", kbfunc_client_label, KBFLAG_NEEDCLIENT, {0} },
-	{ "delete", kbfunc_client_delete, KBFLAG_NEEDCLIENT, {0} },
+	{ "label", kbfunc_client_label, CWM_WIN, {0} },
+	{ "delete", kbfunc_client_delete, CWM_WIN, {0} },
 	{ "group1", kbfunc_client_group, 0, {.i = 1} },
 	{ "group2", kbfunc_client_group, 0, {.i = 2} },
 	{ "group3", kbfunc_client_group, 0, {.i = 3} },
@@ -351,37 +351,28 @@ static struct {
 	{ "grouponly7", kbfunc_client_grouponly, 0, {.i = 7} },
 	{ "grouponly8", kbfunc_client_grouponly, 0, {.i = 8} },
 	{ "grouponly9", kbfunc_client_grouponly, 0, {.i = 9} },
-	{ "movetogroup1", kbfunc_client_movetogroup, KBFLAG_NEEDCLIENT,
-	    {.i = 1} },
-	{ "movetogroup2", kbfunc_client_movetogroup, KBFLAG_NEEDCLIENT,
-	    {.i = 2} },
-	{ "movetogroup3", kbfunc_client_movetogroup, KBFLAG_NEEDCLIENT,
-	    {.i = 3} },
-	{ "movetogroup4", kbfunc_client_movetogroup, KBFLAG_NEEDCLIENT,
-	    {.i = 4} },
-	{ "movetogroup5", kbfunc_client_movetogroup, KBFLAG_NEEDCLIENT,
-	    {.i = 5} },
-	{ "movetogroup6", kbfunc_client_movetogroup, KBFLAG_NEEDCLIENT,
-	    {.i = 6} },
-	{ "movetogroup7", kbfunc_client_movetogroup, KBFLAG_NEEDCLIENT,
-	    {.i = 7} },
-	{ "movetogroup8", kbfunc_client_movetogroup, KBFLAG_NEEDCLIENT,
-	    {.i = 8} },
-	{ "movetogroup9", kbfunc_client_movetogroup, KBFLAG_NEEDCLIENT,
-	    {.i = 9} },
+	{ "movetogroup1", kbfunc_client_movetogroup, CWM_WIN, {.i = 1} },
+	{ "movetogroup2", kbfunc_client_movetogroup, CWM_WIN, {.i = 2} },
+	{ "movetogroup3", kbfunc_client_movetogroup, CWM_WIN, {.i = 3} },
+	{ "movetogroup4", kbfunc_client_movetogroup, CWM_WIN, {.i = 4} },
+	{ "movetogroup5", kbfunc_client_movetogroup, CWM_WIN, {.i = 5} },
+	{ "movetogroup6", kbfunc_client_movetogroup, CWM_WIN, {.i = 6} },
+	{ "movetogroup7", kbfunc_client_movetogroup, CWM_WIN, {.i = 7} },
+	{ "movetogroup8", kbfunc_client_movetogroup, CWM_WIN, {.i = 8} },
+	{ "movetogroup9", kbfunc_client_movetogroup, CWM_WIN, {.i = 9} },
 	{ "nogroup", kbfunc_client_nogroup, 0, {0} },
 	{ "cyclegroup", kbfunc_client_cyclegroup, 0, {.i = CWM_CYCLE} },
 	{ "rcyclegroup", kbfunc_client_cyclegroup, 0, {.i = CWM_RCYCLE} },
-	{ "cycleingroup", kbfunc_client_cycle, KBFLAG_NEEDCLIENT,
+	{ "cycleingroup", kbfunc_client_cycle, CWM_WIN,
 	    {.i = CWM_CYCLE|CWM_INGROUP} },
-	{ "rcycleingroup", kbfunc_client_cycle, KBFLAG_NEEDCLIENT,
+	{ "rcycleingroup", kbfunc_client_cycle, CWM_WIN,
 	    {.i = CWM_RCYCLE|CWM_INGROUP} },
-	{ "grouptoggle", kbfunc_client_grouptoggle, KBFLAG_NEEDCLIENT, {0}},
-	{ "fullscreen", kbfunc_client_fullscreen, KBFLAG_NEEDCLIENT, {0} },
-	{ "maximize", kbfunc_client_maximize, KBFLAG_NEEDCLIENT, {0} },
-	{ "vmaximize", kbfunc_client_vmaximize, KBFLAG_NEEDCLIENT, {0} },
-	{ "hmaximize", kbfunc_client_hmaximize, KBFLAG_NEEDCLIENT, {0} },
-	{ "freeze", kbfunc_client_freeze, KBFLAG_NEEDCLIENT, {0} },
+	{ "grouptoggle", kbfunc_client_grouptoggle, CWM_WIN, {0}},
+	{ "fullscreen", kbfunc_client_fullscreen, CWM_WIN, {0} },
+	{ "maximize", kbfunc_client_maximize, CWM_WIN, {0} },
+	{ "vmaximize", kbfunc_client_vmaximize, CWM_WIN, {0} },
+	{ "hmaximize", kbfunc_client_hmaximize, CWM_WIN, {0} },
+	{ "freeze", kbfunc_client_freeze, CWM_WIN, {0} },
 	{ "restart", kbfunc_restart, 0, {0} },
 	{ "quit", kbfunc_quit_wm, 0, {0} },
 	{ "exec", kbfunc_exec, 0, {.i = CWM_EXEC_PROGRAM} },
@@ -389,37 +380,37 @@ static struct {
 	{ "ssh", kbfunc_ssh, 0, {0} },
 	{ "terminal", kbfunc_term, 0, {0} },
 	{ "lock", kbfunc_lock, 0, {0} },
-	{ "moveup", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
+	{ "moveup", kbfunc_client_moveresize, CWM_WIN,
 	    {.i = (CWM_UP|CWM_MOVE)} },
-	{ "movedown", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
+	{ "movedown", kbfunc_client_moveresize, CWM_WIN,
 	    {.i = (CWM_DOWN|CWM_MOVE)} },
-	{ "moveright", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
+	{ "moveright", kbfunc_client_moveresize, CWM_WIN,
 	    {.i = (CWM_RIGHT|CWM_MOVE)} },
-	{ "moveleft", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
+	{ "moveleft", kbfunc_client_moveresize, CWM_WIN,
 	    {.i = (CWM_LEFT|CWM_MOVE)} },
-	{ "bigmoveup", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
+	{ "bigmoveup", kbfunc_client_moveresize, CWM_WIN,
 	    {.i = (CWM_UP|CWM_MOVE|CWM_BIGMOVE)} },
-	{ "bigmovedown", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
+	{ "bigmovedown", kbfunc_client_moveresize, CWM_WIN,
 	    {.i = (CWM_DOWN|CWM_MOVE|CWM_BIGMOVE)} },
-	{ "bigmoveright", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
+	{ "bigmoveright", kbfunc_client_moveresize, CWM_WIN,
 	    {.i = (CWM_RIGHT|CWM_MOVE|CWM_BIGMOVE)} },
-	{ "bigmoveleft", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
+	{ "bigmoveleft", kbfunc_client_moveresize, CWM_WIN,
 	    {.i = (CWM_LEFT|CWM_MOVE|CWM_BIGMOVE)} },
-	{ "resizeup", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
+	{ "resizeup", kbfunc_client_moveresize, CWM_WIN,
 	    {.i = (CWM_UP|CWM_RESIZE)} },
-	{ "resizedown", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
+	{ "resizedown", kbfunc_client_moveresize, CWM_WIN,
 	    {.i = (CWM_DOWN|CWM_RESIZE)} },
-	{ "resizeright", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
+	{ "resizeright", kbfunc_client_moveresize, CWM_WIN,
 	    {.i = (CWM_RIGHT|CWM_RESIZE)} },
-	{ "resizeleft", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
+	{ "resizeleft", kbfunc_client_moveresize, CWM_WIN,
 	    {.i = (CWM_LEFT|CWM_RESIZE)} },
-	{ "bigresizeup", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
+	{ "bigresizeup", kbfunc_client_moveresize, CWM_WIN,
 	    {.i = (CWM_UP|CWM_RESIZE|CWM_BIGMOVE)} },
-	{ "bigresizedown", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
+	{ "bigresizedown", kbfunc_client_moveresize, CWM_WIN,
 	    {.i = (CWM_DOWN|CWM_RESIZE|CWM_BIGMOVE)} },
-	{ "bigresizeright", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
+	{ "bigresizeright", kbfunc_client_moveresize, CWM_WIN,
 	    {.i = (CWM_RIGHT|CWM_RESIZE|CWM_BIGMOVE)} },
-	{ "bigresizeleft", kbfunc_client_moveresize, KBFLAG_NEEDCLIENT,
+	{ "bigresizeleft", kbfunc_client_moveresize, CWM_WIN,
 	    {.i = (CWM_LEFT|CWM_RESIZE|CWM_BIGMOVE)} },
 	{ "ptrmoveup", kbfunc_client_moveresize, 0,
 	    {.i = (CWM_UP|CWM_PTRMOVE)} },
@@ -437,15 +428,13 @@ static struct {
 	    {.i = (CWM_LEFT|CWM_PTRMOVE|CWM_BIGMOVE)} },
 	{ "bigptrmoveright", kbfunc_client_moveresize, 0,
 	    {.i = (CWM_RIGHT|CWM_PTRMOVE|CWM_BIGMOVE)} },
-	{ "htile", kbfunc_tile, KBFLAG_NEEDCLIENT,
-	    {.i = CWM_TILE_HORIZ } },
-	{ "vtile", kbfunc_tile, KBFLAG_NEEDCLIENT,
-	    {.i = CWM_TILE_VERT } },
+	{ "htile", kbfunc_tile, CWM_WIN, {.i = CWM_TILE_HORIZ} },
+	{ "vtile", kbfunc_tile, CWM_WIN, {.i = CWM_TILE_VERT} },
 };
 
-static struct {
-	char	ch;
-	int	mask;
+static const struct {
+	const char	ch;
+	int		mask;
 } bind_mods[] = {
 	{ 'C',	ControlMask },
 	{ 'M',	Mod1Mask },
@@ -472,48 +461,50 @@ conf_bind_getmask(const char *name, unsigned int *mask)
 	return (dash + 1);
 }
 
-void
-conf_bind_kbd(struct conf *c, char *name, char *binding)
+int
+conf_bind_kbd(struct conf *c, const char *bind, const char *cmd)
 {
-	struct keybinding	*current_binding;
-	const char		*substring;
-	unsigned int			 i, mask;
+	struct keybinding	*kb;
+	const char		*key;
+	unsigned int		 i, mask;
 
-	current_binding = xcalloc(1, sizeof(*current_binding));
-	substring = conf_bind_getmask(name, &mask);
-	current_binding->modmask |= mask;
+	kb = xcalloc(1, sizeof(*kb));
+	key = conf_bind_getmask(bind, &mask);
+	kb->modmask |= mask;
 
-	current_binding->keysym = XStringToKeysym(substring);
-	if (current_binding->keysym == NoSymbol) {
-		free(current_binding);
-		return;
+	kb->keysym = XStringToKeysym(key);
+	if (kb->keysym == NoSymbol) {
+		warnx("unknown symbol: %s", key);
+		free(kb);
+		return (0);
 	}
 
 	/* We now have the correct binding, remove duplicates. */
-	conf_unbind_kbd(c, current_binding);
+	conf_unbind_kbd(c, kb);
 
-	if (strcmp("unmap", binding) == 0) {
-		free(current_binding);
-		return;
+	if (strcmp("unmap", cmd) == 0) {
+		free(kb);
+		return (1);
 	}
 
 	for (i = 0; i < nitems(name_to_kbfunc); i++) {
-		if (strcmp(name_to_kbfunc[i].tag, binding) != 0)
+		if (strcmp(name_to_kbfunc[i].tag, cmd) != 0)
 			continue;
 
-		current_binding->callback = name_to_kbfunc[i].handler;
-		current_binding->flags = name_to_kbfunc[i].flags;
-		current_binding->argument = name_to_kbfunc[i].argument;
-		current_binding->argtype |= ARG_INT;
-		TAILQ_INSERT_TAIL(&c->keybindingq, current_binding, entry);
-		return;
+		kb->callback = name_to_kbfunc[i].handler;
+		kb->flags = name_to_kbfunc[i].flags;
+		kb->argument = name_to_kbfunc[i].argument;
+		kb->argtype |= ARG_INT;
+		TAILQ_INSERT_TAIL(&c->keybindingq, kb, entry);
+		return (1);
 	}
 
-	current_binding->callback = kbfunc_cmdexec;
-	current_binding->flags = 0;
-	current_binding->argument.c = xstrdup(binding);
-	current_binding->argtype |= ARG_CHAR;
-	TAILQ_INSERT_TAIL(&c->keybindingq, current_binding, entry);
+	kb->callback = kbfunc_cmdexec;
+	kb->flags = 0;
+	kb->argument.c = xstrdup(cmd);
+	kb->argtype |= ARG_CHAR;
+	TAILQ_INSERT_TAIL(&c->keybindingq, kb, entry);
+	return (1);
 }
 
 static void
@@ -534,73 +525,59 @@ conf_unbind_kbd(struct conf *c, struct keybinding *unbind)
 	}
 }
 
-static struct {
-	char		*tag;
+static const struct {
+	const char	*tag;
 	void		 (*handler)(struct client_ctx *, union arg *);
 	int		 flags;
 	union arg	 argument;
 } name_to_mousefunc[] = {
-	{ "window_move", mousefunc_client_move, MOUSEBIND_CTX_WIN, {0} },
-	{ "window_resize", mousefunc_client_resize, MOUSEBIND_CTX_WIN, {0} },
-	{ "window_grouptoggle", mousefunc_client_grouptoggle,
-	    MOUSEBIND_CTX_WIN, {0} },
-	{ "window_lower", mousefunc_client_lower, MOUSEBIND_CTX_WIN, {0} },
-	{ "window_raise", mousefunc_client_raise, MOUSEBIND_CTX_WIN, {0} },
-	{ "window_hide", mousefunc_client_hide, MOUSEBIND_CTX_WIN, {0} },
-	{ "cyclegroup", mousefunc_client_cyclegroup, MOUSEBIND_CTX_ROOT, {0} },
-	{ "rcyclegroup", mousefunc_client_rcyclegroup,
-	    MOUSEBIND_CTX_ROOT, {0} },
-	{ "menu_group", mousefunc_menu_group, MOUSEBIND_CTX_ROOT, {0} },
-	{ "menu_unhide", mousefunc_menu_unhide, MOUSEBIND_CTX_ROOT, {0} },
-	{ "menu_cmd", mousefunc_menu_cmd, MOUSEBIND_CTX_ROOT, {0} },
-};
-
-static unsigned int mouse_btns[] = {
-	Button1, Button2, Button3, Button4, Button5
+	{ "window_move", mousefunc_client_move, CWM_WIN, {0} },
+	{ "window_resize", mousefunc_client_resize, CWM_WIN, {0} },
+	{ "window_grouptoggle", mousefunc_client_grouptoggle, CWM_WIN, {0} },
+	{ "window_lower", mousefunc_client_lower, CWM_WIN, {0} },
+	{ "window_raise", mousefunc_client_raise, CWM_WIN, {0} },
+	{ "window_hide", mousefunc_client_hide, CWM_WIN, {0} },
+	{ "cyclegroup", mousefunc_client_cyclegroup, 0, {.i = CWM_CYCLE} },
+	{ "rcyclegroup", mousefunc_client_cyclegroup, 0, {.i = CWM_RCYCLE} },
+	{ "menu_group", mousefunc_menu_group, 0, {0} },
+	{ "menu_unhide", mousefunc_menu_unhide, 0, {0} },
+	{ "menu_cmd", mousefunc_menu_cmd, 0, {0} },
 };
 
 int
-conf_bind_mouse(struct conf *c, char *name, char *binding)
+conf_bind_mouse(struct conf *c, const char *bind, const char *cmd)
 {
-	struct mousebinding	*current_binding;
-	const char		*errstr, *substring;
-	unsigned int		 button, i, mask;
+	struct mousebinding	*mb;
+	const char		*button, *errstr;
+	unsigned int		 i, mask;
 
-	current_binding = xcalloc(1, sizeof(*current_binding));
-	substring = conf_bind_getmask(name, &mask);
-	current_binding->modmask |= mask;
+	mb = xcalloc(1, sizeof(*mb));
+	button = conf_bind_getmask(bind, &mask);
+	mb->modmask |= mask;
 
-	button = strtonum(substring, 1, 5, &errstr);
-	if (errstr)
-		warnx("button number is %s: %s", errstr, substring);
-
-	for (i = 0; i < nitems(mouse_btns); i++) {
-		if (button == mouse_btns[i]) {
-			current_binding->button = button;
-			break;
-		}
-	}
-	if (!current_binding->button || errstr) {
-		free(current_binding);
+	mb->button = strtonum(button, Button1, Button5, &errstr);
+	if (errstr) {
+		warnx("button number is %s: %s", errstr, button);
+		free(mb);
 		return (0);
 	}
 
 	/* We now have the correct binding, remove duplicates. */
-	conf_unbind_mouse(c, current_binding);
+	conf_unbind_mouse(c, mb);
 
-	if (strcmp("unmap", binding) == 0) {
-		free(current_binding);
+	if (strcmp("unmap", cmd) == 0) {
+		free(mb);
 		return (1);
 	}
 
 	for (i = 0; i < nitems(name_to_mousefunc); i++) {
-		if (strcmp(name_to_mousefunc[i].tag, binding) != 0)
+		if (strcmp(name_to_mousefunc[i].tag, cmd) != 0)
 			continue;
 
-		current_binding->callback = name_to_mousefunc[i].handler;
-		current_binding->flags = name_to_mousefunc[i].flags;
-		current_binding->argument = name_to_mousefunc[i].argument;
-		TAILQ_INSERT_TAIL(&c->mousebindingq, current_binding, entry);
+		mb->callback = name_to_mousefunc[i].handler;
+		mb->flags = name_to_mousefunc[i].flags;
+		mb->argument = name_to_mousefunc[i].argument;
+		TAILQ_INSERT_TAIL(&c->mousebindingq, mb, entry);
 		return (1);
 	}
 
@@ -648,9 +625,8 @@ conf_grab_mouse(Window win)
 	xu_btn_ungrab(win);
 
 	TAILQ_FOREACH(mb, &Conf.mousebindingq, entry) {
-		if (mb->flags != MOUSEBIND_CTX_WIN)
-			continue;
-		xu_btn_grab(win, mb->modmask, mb->button);
+		if (mb->flags & CWM_WIN)
+			xu_btn_grab(win, mb->modmask, mb->button);
 	}
 }
 

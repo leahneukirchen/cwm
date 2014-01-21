@@ -46,7 +46,7 @@ struct client_ctx_q		 Clientq = TAILQ_HEAD_INITIALIZER(Clientq);
 
 int				 HasRandr, Randr_ev;
 struct conf			 Conf;
-char				*homedir;
+const char			*homedir;
 
 static void	sigchld_cb(int);
 static int	x_errorhandler(Display *, XErrorEvent *);
