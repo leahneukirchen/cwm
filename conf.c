@@ -85,7 +85,7 @@ conf_ignore(struct conf *c, const char *val)
 	TAILQ_INSERT_TAIL(&c->ignoreq, wm, entry);
 }
 
-static char *color_binds[] = {
+static const char *color_binds[] = {
 	"#CCCCCC",	/* CWM_COLOR_BORDER_ACTIVE */
 	"#666666",	/* CWM_COLOR_BORDER_INACTIVE */
 	"#FC8814",	/* CWM_COLOR_BORDER_URGENCY */
@@ -147,9 +147,9 @@ conf_screen(struct screen_ctx *sc)
 	conf_grab_kbd(sc->rootwin);
 }
 
-static struct {
-	char	*key;
-	char	*func;
+static const struct {
+	const char	*key;
+	const char	*func;
 } kbd_binds[] = {
 	{ "CM-Return",	"terminal" },
 	{ "CM-Delete",	"lock" },
@@ -318,8 +318,8 @@ conf_client(struct client_ctx *cc)
 	cc->flags |= ignore ? CLIENT_IGNORE : 0;
 }
 
-static struct {
-	char		*tag;
+static const struct {
+	const char	*tag;
 	void		 (*handler)(struct client_ctx *, union arg *);
 	int		 flags;
 	union arg	 argument;
@@ -432,9 +432,9 @@ static struct {
 	{ "vtile", kbfunc_tile, CWM_WIN, {.i = CWM_TILE_VERT} },
 };
 
-static struct {
-	char	ch;
-	int	mask;
+static const struct {
+	const char	ch;
+	int		mask;
 } bind_mods[] = {
 	{ 'C',	ControlMask },
 	{ 'M',	Mod1Mask },
@@ -525,8 +525,8 @@ conf_unbind_kbd(struct conf *c, struct keybinding *unbind)
 	}
 }
 
-static struct {
-	char		*tag;
+static const struct {
+	const char	*tag;
 	void		 (*handler)(struct client_ctx *, union arg *);
 	int		 flags;
 	union arg	 argument;

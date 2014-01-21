@@ -229,8 +229,9 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 {
 #define NPATHS 256
 	struct screen_ctx	*sc = cc->sc;
-	char			**ap, *paths[NPATHS], *path, *pathcpy, *label;
+	char			**ap, *paths[NPATHS], *path, *pathcpy;
 	char			 tpath[MAXPATHLEN];
+	const char		*label;
 	DIR			*dirp;
 	struct dirent		*dp;
 	struct menu		*mi;

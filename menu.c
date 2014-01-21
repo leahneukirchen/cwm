@@ -78,8 +78,8 @@ static struct menu 	*menu_complete_path(struct menu_ctx *);
 static int		 menu_keycode(XKeyEvent *, enum ctltype *, char *);
 
 struct menu *
-menu_filter(struct screen_ctx *sc, struct menu_q *menuq, char *prompt,
-    char *initial, int flags,
+menu_filter(struct screen_ctx *sc, struct menu_q *menuq, const char *prompt,
+    const char *initial, int flags,
     void (*match)(struct menu_q *, struct menu_q *, char *),
     void (*print)(struct menu *, int))
 {

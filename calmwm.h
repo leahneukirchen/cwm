@@ -325,7 +325,7 @@ extern Time				 Last_Event_Time;
 extern struct screen_ctx_q		 Screenq;
 extern struct client_ctx_q		 Clientq;
 extern struct conf			 Conf;
-extern char				*homedir;
+extern const char			*homedir;
 extern int				 HasRandr, Randr_ev;
 
 enum {
@@ -502,7 +502,7 @@ void			 mousefunc_menu_unhide(struct client_ctx *,
     			    union arg *);
 
 struct menu  		*menu_filter(struct screen_ctx *, struct menu_q *,
-			     char *, char *, int,
+			     const char *, const char *, int,
 			     void (*)(struct menu_q *, struct menu_q *, char *),
 			     void (*)(struct menu *, int));
 void			 menuq_add(struct menu_q *, void *, const char *, ...);
