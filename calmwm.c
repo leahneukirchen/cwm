@@ -156,6 +156,25 @@ x_restart(void)
 static void
 x_teardown(void)
 {
+	struct screen_ctx	*sc;
+	unsigned int		 i;
+
+	TAILQ_FOREACH(sc, &Screenq, entry) {
+		for (i = 0; i < CWM_COLOR_NITEMS; i++)
+			XftColorFree(X_Dpy, sc->visual, sc->colormap,
+			    &sc->xftcolor[i]);
+		XftDrawDestroy(sc->xftdraw);
+		XftFontClose(X_Dpy, sc->xftfont);
+		XUnmapWindow(X_Dpy, sc->menuwin);
+		XDestroyWindow(X_Dpy, sc->menuwin);
+		XUngrabKey(X_Dpy, AnyKey, AnyModifier, sc->rootwin);
+	}
+	XUngrabPointer(X_Dpy, CurrentTime);
+	XUngrabKeyboard(X_Dpy, CurrentTime);
+	for (i = 0; i < CF_NITEMS; i++)
+		XFreeCursor(X_Dpy, Conf.cursor[i]);
+	XSync(X_Dpy, False);
+	XSetInputFocus(X_Dpy, PointerRoot, RevertToPointerRoot, CurrentTime);
 	XCloseDisplay(X_Dpy);
 }
 
