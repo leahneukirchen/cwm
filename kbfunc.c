@@ -236,15 +236,15 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 	int			 l, i, cmd = arg->i;
 
 	switch (cmd) {
-		case CWM_EXEC_PROGRAM:
-			label = "exec";
-			break;
-		case CWM_EXEC_WM:
-			label = "wm";
-			break;
-		default:
-			errx(1, "kbfunc_exec: invalid cmd %d", cmd);
-			/*NOTREACHED*/
+	case CWM_EXEC_PROGRAM:
+		label = "exec";
+		break;
+	case CWM_EXEC_WM:
+		label = "wm";
+		break;
+	default:
+		errx(1, "kbfunc_exec: invalid cmd %d", cmd);
+		/*NOTREACHED*/
 	}
 
 	TAILQ_INIT(&menuq);
@@ -286,16 +286,16 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 		if (mi->text[0] == '\0')
 			goto out;
 		switch (cmd) {
-			case CWM_EXEC_PROGRAM:
-				u_spawn(mi->text);
-				break;
-			case CWM_EXEC_WM:
-				u_exec(mi->text);
-				warn("%s", mi->text);
-				break;
-			default:
-				errx(1, "kb_func: egad, cmd changed value!");
-				break;
+		case CWM_EXEC_PROGRAM:
+			u_spawn(mi->text);
+			break;
+		case CWM_EXEC_WM:
+			u_exec(mi->text);
+			warn("%s", mi->text);
+			break;
+		default:
+			errx(1, "kb_func: egad, cmd changed value!");
+			break;
 		}
 	}
 out:
@@ -470,11 +470,11 @@ void
 kbfunc_tile(struct client_ctx *cc, union arg *arg)
 {
 	switch (arg->i) {
-		case CWM_TILE_HORIZ:
-			client_htile(cc);
-			break;
-		case CWM_TILE_VERT:
-			client_vtile(cc);
-			break;
+	case CWM_TILE_HORIZ:
+		client_htile(cc);
+		break;
+	case CWM_TILE_VERT:
+		client_vtile(cc);
+		break;
 	}
 }
