@@ -35,7 +35,6 @@
 
 #include "calmwm.h"
 
-char				**cwm_argv;
 Display				*X_Dpy;
 Time				 Last_Event_Time = CurrentTime;
 Atom				 cwmh[CWMH_NITEMS];
@@ -52,7 +51,7 @@ volatile sig_atomic_t		 cwm_status;
 static void	sigchld_cb(int);
 static int	x_errorhandler(Display *, XErrorEvent *);
 static void	x_init(const char *);
-static void	x_restart(void);
+static void	x_restart(char **);
 static void	x_teardown(void);
 static int	x_wmerrorhandler(Display *, XErrorEvent *);
 
@@ -61,6 +60,7 @@ main(int argc, char **argv)
 {
 	const char	*conf_file = NULL;
 	char		*conf_path, *display_name = NULL;
+	char		**cwm_argv;
 	int		 ch;
 	struct passwd	*pw;
 
@@ -118,7 +118,7 @@ main(int argc, char **argv)
 		xev_process();
 	x_teardown();
 	if (cwm_status == CWM_RESTART)
-		x_restart();
+		x_restart(cwm_argv);
 
 	return (0);
 }
@@ -147,10 +147,10 @@ x_init(const char *dpyname)
 }
 
 static void
-x_restart(void)
+x_restart(char **args)
 {
 	(void)setsid();
-	(void)execvp(cwm_argv[0], cwm_argv);
+	(void)execvp(args[0], args);
 }
 
 static void
