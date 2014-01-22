@@ -400,18 +400,14 @@ xev_handle_expose(XEvent *ee)
 		client_draw_border(cc);
 }
 
-volatile sig_atomic_t	xev_quit = 0;
-
 void
-xev_loop(void)
+xev_process(void)
 {
 	XEvent		 e;
 
-	while (xev_quit == 0) {
-		XNextEvent(X_Dpy, &e);
-		if (e.type - Randr_ev == RRScreenChangeNotify)
-			xev_handle_randr(&e);
-		else if (e.type < LASTEvent && xev_handlers[e.type] != NULL)
-			(*xev_handlers[e.type])(&e);
-	}
+	XNextEvent(X_Dpy, &e);
+	if (e.type - Randr_ev == RRScreenChangeNotify)
+		xev_handle_randr(&e);
+	else if (e.type < LASTEvent && xev_handlers[e.type] != NULL)
+		(*xev_handlers[e.type])(&e);
 }

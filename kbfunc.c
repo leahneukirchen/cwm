@@ -35,9 +35,6 @@
 
 #define HASH_MARKER	"|1|"
 
-extern char		**cwm_argv;
-extern sig_atomic_t	xev_quit;
-
 void
 kbfunc_client_lower(struct client_ctx *cc, union arg *arg)
 {
@@ -464,16 +461,9 @@ kbfunc_client_freeze(struct client_ctx *cc, union arg *arg)
 }
 
 void
-kbfunc_quit_wm(struct client_ctx *cc, union arg *arg)
+kbfunc_cwm_status(struct client_ctx *cc, union arg *arg)
 {
-	xev_quit = 1;
-}
-
-void
-kbfunc_restart(struct client_ctx *cc, union arg *arg)
-{
-	(void)setsid();
-	(void)execvp(cwm_argv[0], cwm_argv);
+	cwm_status = arg->i;
 }
 
 void
