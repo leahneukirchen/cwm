@@ -35,9 +35,6 @@
 
 #define HASH_MARKER	"|1|"
 
-extern char		**cwm_argv;
-extern sig_atomic_t	xev_quit;
-
 void
 kbfunc_client_lower(struct client_ctx *cc, union arg *arg)
 {
@@ -239,15 +236,15 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 	int			 l, i, cmd = arg->i;
 
 	switch (cmd) {
-		case CWM_EXEC_PROGRAM:
-			label = "exec";
-			break;
-		case CWM_EXEC_WM:
-			label = "wm";
-			break;
-		default:
-			errx(1, "kbfunc_exec: invalid cmd %d", cmd);
-			/*NOTREACHED*/
+	case CWM_EXEC_PROGRAM:
+		label = "exec";
+		break;
+	case CWM_EXEC_WM:
+		label = "wm";
+		break;
+	default:
+		errx(1, "kbfunc_exec: invalid cmd %d", cmd);
+		/*NOTREACHED*/
 	}
 
 	TAILQ_INIT(&menuq);
@@ -289,16 +286,16 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 		if (mi->text[0] == '\0')
 			goto out;
 		switch (cmd) {
-			case CWM_EXEC_PROGRAM:
-				u_spawn(mi->text);
-				break;
-			case CWM_EXEC_WM:
-				u_exec(mi->text);
-				warn("%s", mi->text);
-				break;
-			default:
-				errx(1, "kb_func: egad, cmd changed value!");
-				break;
+		case CWM_EXEC_PROGRAM:
+			u_spawn(mi->text);
+			break;
+		case CWM_EXEC_WM:
+			u_exec(mi->text);
+			warn("%s", mi->text);
+			break;
+		default:
+			errx(1, "kb_func: egad, cmd changed value!");
+			break;
 		}
 	}
 out:
@@ -357,8 +354,8 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 	    search_match_exec, NULL)) != NULL) {
 		if (mi->text[0] == '\0')
 			goto out;
-		l = snprintf(cmd, sizeof(cmd), "%s -e ssh %s", Conf.termpath,
-		    mi->text);
+		l = snprintf(cmd, sizeof(cmd), "%s -T '[ssh] %s' -e ssh %s",
+		    Conf.termpath, mi->text, mi->text);
 		if (l != -1 && l < sizeof(cmd))
 			u_spawn(cmd);
 	}
@@ -464,27 +461,20 @@ kbfunc_client_freeze(struct client_ctx *cc, union arg *arg)
 }
 
 void
-kbfunc_quit_wm(struct client_ctx *cc, union arg *arg)
+kbfunc_cwm_status(struct client_ctx *cc, union arg *arg)
 {
-	xev_quit = 1;
-}
-
-void
-kbfunc_restart(struct client_ctx *cc, union arg *arg)
-{
-	(void)setsid();
-	(void)execvp(cwm_argv[0], cwm_argv);
+	cwm_status = arg->i;
 }
 
 void
 kbfunc_tile(struct client_ctx *cc, union arg *arg)
 {
 	switch (arg->i) {
-		case CWM_TILE_HORIZ:
-			client_htile(cc);
-			break;
-		case CWM_TILE_VERT:
-			client_vtile(cc);
-			break;
+	case CWM_TILE_HORIZ:
+		client_htile(cc);
+		break;
+	case CWM_TILE_VERT:
+		client_vtile(cc);
+		break;
 	}
 }

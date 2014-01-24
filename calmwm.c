@@ -35,7 +35,6 @@
 
 #include "calmwm.h"
 
-char				**cwm_argv;
 Display				*X_Dpy;
 Time				 Last_Event_Time = CurrentTime;
 Atom				 cwmh[CWMH_NITEMS];
@@ -47,10 +46,12 @@ struct client_ctx_q		 Clientq = TAILQ_HEAD_INITIALIZER(Clientq);
 int				 HasRandr, Randr_ev;
 struct conf			 Conf;
 const char			*homedir;
+volatile sig_atomic_t		 cwm_status;
 
 static void	sigchld_cb(int);
 static int	x_errorhandler(Display *, XErrorEvent *);
 static void	x_init(const char *);
+static void	x_restart(char **);
 static void	x_teardown(void);
 static int	x_wmerrorhandler(Display *, XErrorEvent *);
 
@@ -59,6 +60,7 @@ main(int argc, char **argv)
 {
 	const char	*conf_file = NULL;
 	char		*conf_path, *display_name = NULL;
+	char		**cwm_argv;
 	int		 ch;
 	struct passwd	*pw;
 
@@ -111,8 +113,12 @@ main(int argc, char **argv)
 	free(conf_path);
 
 	x_init(display_name);
-	xev_loop();
+	cwm_status = CWM_RUNNING;
+	while (cwm_status == CWM_RUNNING)
+		xev_process();
 	x_teardown();
+	if (cwm_status == CWM_RESTART)
+		x_restart(cwm_argv);
 
 	return (0);
 }
@@ -141,8 +147,34 @@ x_init(const char *dpyname)
 }
 
 static void
+x_restart(char **args)
+{
+	(void)setsid();
+	(void)execvp(args[0], args);
+}
+
+static void
 x_teardown(void)
 {
+	struct screen_ctx	*sc;
+	unsigned int		 i;
+
+	TAILQ_FOREACH(sc, &Screenq, entry) {
+		for (i = 0; i < CWM_COLOR_NITEMS; i++)
+			XftColorFree(X_Dpy, sc->visual, sc->colormap,
+			    &sc->xftcolor[i]);
+		XftDrawDestroy(sc->xftdraw);
+		XftFontClose(X_Dpy, sc->xftfont);
+		XUnmapWindow(X_Dpy, sc->menuwin);
+		XDestroyWindow(X_Dpy, sc->menuwin);
+		XUngrabKey(X_Dpy, AnyKey, AnyModifier, sc->rootwin);
+	}
+	XUngrabPointer(X_Dpy, CurrentTime);
+	XUngrabKeyboard(X_Dpy, CurrentTime);
+	for (i = 0; i < CF_NITEMS; i++)
+		XFreeCursor(X_Dpy, Conf.cursor[i]);
+	XSync(X_Dpy, False);
+	XSetInputFocus(X_Dpy, PointerRoot, RevertToPointerRoot, CurrentTime);
 	XCloseDisplay(X_Dpy);
 }
 

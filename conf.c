@@ -120,7 +120,7 @@ conf_screen(struct screen_ctx *sc)
 			xu_xorcolor(sc->xftcolor[CWM_COLOR_MENU_FONT], xc, &xc);
 			if (!XftColorAllocValue(X_Dpy, sc->visual, sc->colormap,
 			    &xc.color, &sc->xftcolor[CWM_COLOR_MENU_FONT_SEL]))
-				warnx("XftColorAllocValue: '%s'", Conf.color[i]);
+				warnx("XftColorAllocValue: %s", Conf.color[i]);
 			break;
 		}
 		if (XftColorAllocName(X_Dpy, sc->visual, sc->colormap,
@@ -128,7 +128,7 @@ conf_screen(struct screen_ctx *sc)
 			sc->xftcolor[i] = xc;
 			XftColorFree(X_Dpy, sc->visual, sc->colormap, &xc);
 		} else {
-			warnx("XftColorAllocName: '%s'", Conf.color[i]);
+			warnx("XftColorAllocName: %s", Conf.color[i]);
 			XftColorAllocName(X_Dpy, sc->visual, sc->colormap,
 			    color_binds[i], &sc->xftcolor[i]);
 		}
@@ -373,8 +373,8 @@ static const struct {
 	{ "vmaximize", kbfunc_client_vmaximize, CWM_WIN, {0} },
 	{ "hmaximize", kbfunc_client_hmaximize, CWM_WIN, {0} },
 	{ "freeze", kbfunc_client_freeze, CWM_WIN, {0} },
-	{ "restart", kbfunc_restart, 0, {0} },
-	{ "quit", kbfunc_quit_wm, 0, {0} },
+	{ "restart", kbfunc_cwm_status, 0, {.i = CWM_RESTART} },
+	{ "quit", kbfunc_cwm_status, 0, {.i = CWM_QUIT} },
 	{ "exec", kbfunc_exec, 0, {.i = CWM_EXEC_PROGRAM} },
 	{ "exec_wm", kbfunc_exec, 0, {.i = CWM_EXEC_WM} },
 	{ "ssh", kbfunc_ssh, 0, {0} },
