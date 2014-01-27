@@ -119,7 +119,6 @@ client_init(Window win, struct screen_ctx *sc, int mapped)
 	TAILQ_INSERT_TAIL(&Clientq, cc, entry);
 
 	xu_ewmh_net_client_list(sc);
-
 	xu_ewmh_restore_net_wm_state(cc);
 
 	if (mapped)
