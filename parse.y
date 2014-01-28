@@ -545,7 +545,7 @@ popfile(void)
 int
 parse_config(const char *filename, struct conf *xconf)
 {
-	int			 errors = 0;
+	int		 errors = 0;
 
 	conf = xconf;
 
@@ -557,11 +557,6 @@ parse_config(const char *filename, struct conf *xconf)
 	yyparse();
 	errors = file->errors;
 	popfile();
-
-	if (errors) {
-		conf_clear(conf);
-		conf_init(conf);
-	}
 
 	return (errors ? -1 : 0);
 }
