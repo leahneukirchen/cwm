@@ -528,7 +528,7 @@ void			 conf_cursor(struct conf *);
 void			 conf_grab_kbd(Window);
 void			 conf_grab_mouse(Window);
 void			 conf_init(struct conf *);
-void			 conf_ignore(struct conf *, const char *);
+int			 conf_ignore(struct conf *, const char *);
 void			 conf_screen(struct screen_ctx *);
 
 void			 xev_process(void);
