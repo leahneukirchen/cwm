@@ -73,16 +73,18 @@ conf_autogroup(struct conf *c, int no, const char *val)
 	TAILQ_INSERT_TAIL(&c->autogroupq, aw, entry);
 }
 
-void
+int
 conf_ignore(struct conf *c, const char *val)
 {
 	struct winmatch	*wm;
 
 	wm = xcalloc(1, sizeof(*wm));
 
-	(void)strlcpy(wm->title, val, sizeof(wm->title));
+	if (strlcpy(wm->title, val, sizeof(wm->title)) >= sizeof(wm->title))
+		return (0);
 
 	TAILQ_INSERT_TAIL(&c->ignoreq, wm, entry);
+	return (1);
 }
 
 static const char *color_binds[] = {

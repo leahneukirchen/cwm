@@ -346,8 +346,17 @@ xev_handle_clientmessage(XEvent *ee)
 		client_ptrwarp(cc);
 	}
 
-	if (e->message_type == ewmh[_NET_WM_DESKTOP] && e->format == 32)
-		group_movetogroup(cc, e->data.l[0]);
+	if (e->message_type == ewmh[_NET_WM_DESKTOP] && e->format == 32) {
+		/*
+		 * The EWMH spec states that if the cardinal returned is
+		 * 0xFFFFFFFF (-1) then the window should appear on all
+		 * desktops, which in our case is assigned to group 0.
+		 */
+		if (e->data.l[0] == (unsigned long)-1)
+			group_movetogroup(cc, 0);
+		else
+			group_movetogroup(cc, e->data.l[0]);
+	}
 
 	if (e->message_type == ewmh[_NET_WM_STATE] && e->format == 32)
 		xu_ewmh_handle_net_wm_state_msg(cc,
