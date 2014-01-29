@@ -32,6 +32,7 @@
 #include "calmwm.h"
 
 static const char	*conf_bind_getmask(const char *, unsigned int *);
+static void	 	 conf_cmd_remove(struct conf *, const char *);
 static void	 	 conf_unbind_kbd(struct conf *, struct keybinding *);
 static void	 	 conf_unbind_mouse(struct conf *, struct mousebinding *);
 
@@ -52,6 +53,8 @@ conf_cmd_add(struct conf *c, const char *name, const char *path)
 	} else {
 		cmd = xmalloc(sizeof(*cmd));
 
+		conf_cmd_remove(c, name);
+
 		if (strlcpy(cmd->name, name, sizeof(cmd->name)) >=
 		    sizeof(cmd->name))
 			return (0);
@@ -63,6 +66,18 @@ conf_cmd_add(struct conf *c, const char *name, const char *path)
 	return (1);
 }
 
+static void
+conf_cmd_remove(struct conf *c, const char *name)
+{
+	struct cmd	*cmd = NULL, *cmdnxt;
+
+	TAILQ_FOREACH_SAFE(cmd, &c->cmdq, entry, cmdnxt) {
+		if (strcmp(cmd->name, name) == 0) {
+			TAILQ_REMOVE(&c->cmdq, cmd, entry);
+			free(cmd);
+		}
+	}
+}
 void
 conf_autogroup(struct conf *c, int no, const char *val)
 {
