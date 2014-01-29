@@ -221,7 +221,6 @@ mousefunc_menu_unhide(struct client_ctx *cc, union arg *arg)
 	old_cc = client_current();
 
 	TAILQ_INIT(&menuq);
-
 	TAILQ_FOREACH(cc, &Clientq, entry)
 		if (cc->flags & CLIENT_HIDDEN) {
 			wname = (cc->label) ? cc->label : cc->name;
@@ -235,8 +234,8 @@ mousefunc_menu_unhide(struct client_ctx *cc, union arg *arg)
 	if (TAILQ_EMPTY(&menuq))
 		return;
 
-	mi = menu_filter(sc, &menuq, NULL, NULL, 0, NULL, NULL);
-	if (mi != NULL) {
+	if ((mi = menu_filter(sc, &menuq, NULL, NULL, 0,
+	    NULL, NULL)) != NULL) {
 		cc = (struct client_ctx *)mi->ctx;
 		client_unhide(cc);
 
@@ -252,19 +251,19 @@ void
 mousefunc_menu_cmd(struct client_ctx *cc, union arg *arg)
 {
 	struct screen_ctx	*sc = cc->sc;
+	struct cmd		*cmd;
 	struct menu		*mi;
 	struct menu_q		 menuq;
-	struct cmd		*cmd;
 
 	TAILQ_INIT(&menuq);
-
 	TAILQ_FOREACH(cmd, &Conf.cmdq, entry)
 		menuq_add(&menuq, cmd, "%s", cmd->name);
+
 	if (TAILQ_EMPTY(&menuq))
 		return;
 
-	mi = menu_filter(sc, &menuq, NULL, NULL, 0, NULL, NULL);
-	if (mi != NULL)
+	if ((mi = menu_filter(sc, &menuq, NULL, NULL, 0,
+	    NULL, NULL)) != NULL)
 		u_spawn(((struct cmd *)mi->ctx)->path);
 
 	menuq_clear(&menuq);

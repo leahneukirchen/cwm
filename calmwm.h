@@ -106,6 +106,11 @@ union arg {
 	int	 i;
 };
 
+union press {
+	KeySym		 keysym;
+	unsigned int	 button;
+};
+
 enum cursor_font {
 	CF_DEFAULT,
 	CF_MOVE,
@@ -259,26 +264,17 @@ struct screen_ctx {
 };
 TAILQ_HEAD(screen_ctx_q, screen_ctx);
 
-struct keybinding {
-	TAILQ_ENTRY(keybinding)	 entry;
+struct binding {
+	TAILQ_ENTRY(binding)	 entry;
 	void			(*callback)(struct client_ctx *, union arg *);
 	union arg		 argument;
 	unsigned int		 modmask;
-	KeySym			 keysym;
+	union press		 press;
 	int			 flags;
 	int			 argtype;
 };
-TAILQ_HEAD(keybinding_q, keybinding);
-
-struct mousebinding {
-	TAILQ_ENTRY(mousebinding)	entry;
-	void			 	(*callback)(struct client_ctx *, union arg *);
-	union arg			argument;
-	unsigned int			modmask;
-	unsigned int		 	button;
-	int				flags;
-};
-TAILQ_HEAD(mousebinding_q, mousebinding);
+TAILQ_HEAD(keybinding_q, binding);
+TAILQ_HEAD(mousebinding_q, binding);
 
 struct cmd {
 	TAILQ_ENTRY(cmd)	entry;
@@ -302,10 +298,10 @@ TAILQ_HEAD(menu_q, menu);
 
 struct conf {
 	struct keybinding_q	 keybindingq;
+	struct mousebinding_q	 mousebindingq;
 	struct autogroupwin_q	 autogroupq;
 	struct winmatch_q	 ignoreq;
 	struct cmd_q		 cmdq;
-	struct mousebinding_q	 mousebindingq;
 #define	CONF_STICKY_GROUPS		0x0001
 	int			 flags;
 #define CONF_BWIDTH			1
@@ -493,7 +489,7 @@ void			 kbfunc_cmdexec(struct client_ctx *, union arg *);
 void			 kbfunc_cwm_status(struct client_ctx *, union arg *);
 void			 kbfunc_exec(struct client_ctx *, union arg *);
 void			 kbfunc_lock(struct client_ctx *, union arg *);
-void			 kbfunc_menu_search(struct client_ctx *, union arg *);
+void			 kbfunc_menu_cmd(struct client_ctx *, union arg *);
 void			 kbfunc_ssh(struct client_ctx *, union arg *);
 void			 kbfunc_term(struct client_ctx *, union arg *);
 void 			 kbfunc_tile(struct client_ctx *, union arg *);
@@ -534,7 +530,7 @@ int			 conf_bind_mouse(struct conf *, const char *,
     			     const char *);
 void			 conf_clear(struct conf *);
 void			 conf_client(struct client_ctx *);
-void			 conf_cmd_add(struct conf *, const char *,
+int			 conf_cmd_add(struct conf *, const char *,
 			     const char *);
 void			 conf_cursor(struct conf *);
 void			 conf_grab_kbd(Window);

@@ -139,7 +139,12 @@ main		: FONTNAME STRING		{
 			conf->snapdist = $2;
 		}
 		| COMMAND STRING string		{
-			conf_cmd_add(conf, $2, $3);
+			if (!conf_cmd_add(conf, $2, $3)) {
+				yyerror("command name/path too long");
+				free($2);
+				free($3);
+				YYERROR;
+			}
 			free($2);
 			free($3);
 		}

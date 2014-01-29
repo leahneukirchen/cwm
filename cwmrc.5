@@ -14,7 +14,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
-.Dd $Mdocdate: December 13 2013 $
+.Dd $Mdocdate: December 16 2013 $
 .Dt CWMRC 5
 .Os
 .Sh NAME
@@ -64,8 +64,8 @@ are both set in the WM_CLASS property and may be obtained using
 .Xr xprop 1 .
 .Pp
 .It Ic bind Ar keys command
-Cause the creation of a keybinding, or replacement of a default
-keybinding.
+Cause the creation of a key binding, or replacement of a default
+key binding.
 The modifier keys come first, followed by a
 .Sq - .
 .Pp
@@ -96,7 +96,7 @@ A special
 .Ar command
 keyword
 .Dq unmap
-can be used to remove the named keybinding.
+can be used to remove the named key binding.
 This can be used to remove a binding which conflicts with an
 application.
 .Pp
@@ -148,7 +148,7 @@ and
 .Nm lock
 have a special meaning.
 They point to the terminal and screen locking programs specified by
-keybindings.
+key bindings.
 The defaults are
 .Xr xterm 1
 and
@@ -258,7 +258,7 @@ ignore xwi
 ignore xapm
 ignore xclock
 
-# Keybindings
+# Key bindings
 bind CM-r	label
 bind CS-Return	"xterm -e top"
 bind 4-o	unmap
@@ -273,7 +273,7 @@ bind MS-1	movetogroup1
 bind MS-2	movetogroup2
 bind MS-3	movetogroup3
 
-# Mousebindings
+# Mouse bindings
 mousebind M-2	window_lower
 mousebind M-3	window_resize
 .Ed
