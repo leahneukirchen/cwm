@@ -33,8 +33,8 @@
 
 static const char	*conf_bind_getmask(const char *, unsigned int *);
 static void	 	 conf_cmd_remove(struct conf *, const char *);
-static void	 	 conf_unbind_kbd(struct conf *, struct keybinding *);
-static void	 	 conf_unbind_mouse(struct conf *, struct mousebinding *);
+static void	 	 conf_unbind_kbd(struct conf *, struct binding *);
+static void	 	 conf_unbind_mouse(struct conf *, struct binding *);
 
 int
 conf_cmd_add(struct conf *c, const char *name, const char *path)
@@ -288,10 +288,9 @@ void
 conf_clear(struct conf *c)
 {
 	struct autogroupwin	*ag;
-	struct keybinding	*kb;
+	struct binding		*kb, *mb;
 	struct winmatch		*wm;
 	struct cmd		*cmd;
-	struct mousebinding	*mb;
 	int			 i;
 
 	while ((cmd = TAILQ_FIRST(&c->cmdq)) != NULL) {
@@ -491,16 +490,16 @@ conf_bind_getmask(const char *name, unsigned int *mask)
 int
 conf_bind_kbd(struct conf *c, const char *bind, const char *cmd)
 {
-	struct keybinding	*kb;
-	const char		*key;
-	unsigned int		 i, mask;
+	struct binding	*kb;
+	const char	*key;
+	unsigned int	 i, mask;
 
 	kb = xcalloc(1, sizeof(*kb));
 	key = conf_bind_getmask(bind, &mask);
 	kb->modmask |= mask;
 
-	kb->keysym = XStringToKeysym(key);
-	if (kb->keysym == NoSymbol) {
+	kb->press.keysym = XStringToKeysym(key);
+	if (kb->press.keysym == NoSymbol) {
 		warnx("unknown symbol: %s", key);
 		free(kb);
 		return (0);
@@ -535,15 +534,15 @@ conf_bind_kbd(struct conf *c, const char *bind, const char *cmd)
 }
 
 static void
-conf_unbind_kbd(struct conf *c, struct keybinding *unbind)
+conf_unbind_kbd(struct conf *c, struct binding *unbind)
 {
-	struct keybinding	*key = NULL, *keynxt;
+	struct binding	*key = NULL, *keynxt;
 
 	TAILQ_FOREACH_SAFE(key, &c->keybindingq, entry, keynxt) {
 		if (key->modmask != unbind->modmask)
 			continue;
 
-		if (key->keysym == unbind->keysym) {
+		if (key->press.keysym == unbind->press.keysym) {
 			TAILQ_REMOVE(&c->keybindingq, key, entry);
 			if (key->argtype & ARG_CHAR)
 				free(key->argument.c);
@@ -574,15 +573,15 @@ static const struct {
 int
 conf_bind_mouse(struct conf *c, const char *bind, const char *cmd)
 {
-	struct mousebinding	*mb;
-	const char		*button, *errstr;
-	unsigned int		 i, mask;
+	struct binding	*mb;
+	const char	*button, *errstr;
+	unsigned int	 i, mask;
 
 	mb = xcalloc(1, sizeof(*mb));
 	button = conf_bind_getmask(bind, &mask);
 	mb->modmask |= mask;
 
-	mb->button = strtonum(button, Button1, Button5, &errstr);
+	mb->press.button = strtonum(button, Button1, Button5, &errstr);
 	if (errstr) {
 		warnx("button number is %s: %s", errstr, button);
 		free(mb);
@@ -612,15 +611,15 @@ conf_bind_mouse(struct conf *c, const char *bind, const char *cmd)
 }
 
 static void
-conf_unbind_mouse(struct conf *c, struct mousebinding *unbind)
+conf_unbind_mouse(struct conf *c, struct binding *unbind)
 {
-	struct mousebinding	*mb = NULL, *mbnxt;
+	struct binding		*mb = NULL, *mbnxt;
 
 	TAILQ_FOREACH_SAFE(mb, &c->mousebindingq, entry, mbnxt) {
 		if (mb->modmask != unbind->modmask)
 			continue;
 
-		if (mb->button == unbind->button) {
+		if (mb->press.button == unbind->press.button) {
 			TAILQ_REMOVE(&c->mousebindingq, mb, entry);
 			free(mb);
 		}
@@ -647,25 +646,25 @@ conf_cursor(struct conf *c)
 void
 conf_grab_mouse(Window win)
 {
-	struct mousebinding	*mb;
+	struct binding	*mb;
 
 	xu_btn_ungrab(win);
 
 	TAILQ_FOREACH(mb, &Conf.mousebindingq, entry) {
 		if (mb->flags & CWM_WIN)
-			xu_btn_grab(win, mb->modmask, mb->button);
+			xu_btn_grab(win, mb->modmask, mb->press.button);
 	}
 }
 
 void
 conf_grab_kbd(Window win)
 {
-	struct keybinding	*kb;
+	struct binding	*kb;
 
 	xu_key_ungrab(win);
 
 	TAILQ_FOREACH(kb, &Conf.keybindingq, entry)
-		xu_key_grab(win, kb->modmask, kb->keysym);
+		xu_key_grab(win, kb->modmask, kb->press.keysym);
 }
 
 static char *cwmhints[] = {
