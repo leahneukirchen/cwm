@@ -156,12 +156,7 @@ main		: FONTNAME STRING		{
 			free($3);
 		}
 		| IGNORE STRING {
-			if (!conf_ignore(conf, $2)) {
-				yyerror("ignore windowname too long");
-				free($2);
-				YYERROR;
-			}
-			free($2);
+			conf_ignore(conf, $2);
 		}
 		| BIND STRING string		{
 			if (!conf_bind_kbd(conf, $2, $3)) {

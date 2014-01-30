@@ -99,18 +99,14 @@ conf_autogroup(struct conf *c, int no, const char *val)
 	TAILQ_INSERT_TAIL(&c->autogroupq, aw, entry);
 }
 
-int
-conf_ignore(struct conf *c, const char *val)
+void
+conf_ignore(struct conf *c, const char *name)
 {
-	struct winmatch	*wm;
+	struct winname	*wn;
 
-	wm = xcalloc(1, sizeof(*wm));
-
-	if (strlcpy(wm->title, val, sizeof(wm->title)) >= sizeof(wm->title))
-		return (0);
-
-	TAILQ_INSERT_TAIL(&c->ignoreq, wm, entry);
-	return (1);
+	wn = xcalloc(1, sizeof(*wn));
+	wn->name = xstrdup(name);
+	TAILQ_INSERT_TAIL(&c->ignoreq, wn, entry);
 }
 
 static const char *color_binds[] = {
@@ -289,7 +285,7 @@ conf_clear(struct conf *c)
 {
 	struct autogroupwin	*aw;
 	struct binding		*kb, *mb;
-	struct winmatch		*wm;
+	struct winname		*wn;
 	struct cmd		*cmd;
 	int			 i;
 
@@ -310,9 +306,9 @@ conf_clear(struct conf *c)
 		free(aw);
 	}
 
-	while ((wm = TAILQ_FIRST(&c->ignoreq)) != NULL) {
-		TAILQ_REMOVE(&c->ignoreq, wm, entry);
-		free(wm);
+	while ((wn = TAILQ_FIRST(&c->ignoreq)) != NULL) {
+		TAILQ_REMOVE(&c->ignoreq, wn, entry);
+		free(wn);
 	}
 
 	while ((mb = TAILQ_FIRST(&c->mousebindingq)) != NULL) {
@@ -329,12 +325,11 @@ conf_clear(struct conf *c)
 void
 conf_client(struct client_ctx *cc)
 {
-	struct winmatch	*wm;
-	char		*wname = cc->name;
+	struct winname	*wn;
 	int		 ignore = 0;
 
-	TAILQ_FOREACH(wm, &Conf.ignoreq, entry) {
-		if (strncasecmp(wm->title, wname, strlen(wm->title)) == 0) {
+	TAILQ_FOREACH(wn, &Conf.ignoreq, entry) {
+		if (strncasecmp(wn->name, cc->name, strlen(wn->name)) == 0) {
 			ignore = 1;
 			break;
 		}
