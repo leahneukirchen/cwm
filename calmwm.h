@@ -327,7 +327,6 @@ extern struct client_ctx_q		 Clientq;
 extern struct conf			 Conf;
 extern const char			*homedir;
 extern int				 HasRandr, Randr_ev;
-extern volatile sig_atomic_t		 cwm_status;
 
 enum {
 	WM_STATE,
@@ -482,17 +481,9 @@ void			 kbfunc_ssh(struct client_ctx *, union arg *);
 void			 kbfunc_term(struct client_ctx *, union arg *);
 void 			 kbfunc_tile(struct client_ctx *, union arg *);
 
-void			 mousefunc_client_cyclegroup(struct client_ctx *,
-			    union arg *);
 void			 mousefunc_client_grouptoggle(struct client_ctx *,
 			    union arg *);
-void			 mousefunc_client_hide(struct client_ctx *,
-    			    union arg *);
-void			 mousefunc_client_lower(struct client_ctx *,
-    			    union arg *);
 void			 mousefunc_client_move(struct client_ctx *,
-    			    union arg *);
-void			 mousefunc_client_raise(struct client_ctx *,
     			    union arg *);
 void			 mousefunc_client_resize(struct client_ctx *,
     			    union arg *);
