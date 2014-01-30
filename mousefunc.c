@@ -179,31 +179,6 @@ mousefunc_client_grouptoggle(struct client_ctx *cc, union arg *arg)
 }
 
 void
-mousefunc_client_lower(struct client_ctx *cc, union arg *arg)
-{
-	client_ptrsave(cc);
-	client_lower(cc);
-}
-
-void
-mousefunc_client_raise(struct client_ctx *cc, union arg *arg)
-{
-	client_raise(cc);
-}
-
-void
-mousefunc_client_hide(struct client_ctx *cc, union arg *arg)
-{
-	client_hide(cc);
-}
-
-void
-mousefunc_client_cyclegroup(struct client_ctx *cc, union arg *arg)
-{
-	group_cycle(cc->sc, arg->i);
-}
-
-void
 mousefunc_menu_group(struct client_ctx *cc, union arg *arg)
 {
 	group_menu(cc->sc);

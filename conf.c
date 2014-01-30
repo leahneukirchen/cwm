@@ -99,18 +99,14 @@ conf_autogroup(struct conf *c, int no, const char *val)
 	TAILQ_INSERT_TAIL(&c->autogroupq, aw, entry);
 }
 
-int
-conf_ignore(struct conf *c, const char *val)
+void
+conf_ignore(struct conf *c, const char *name)
 {
-	struct winmatch	*wm;
+	struct winname	*wn;
 
-	wm = xcalloc(1, sizeof(*wm));
-
-	if (strlcpy(wm->title, val, sizeof(wm->title)) >= sizeof(wm->title))
-		return (0);
-
-	TAILQ_INSERT_TAIL(&c->ignoreq, wm, entry);
-	return (1);
+	wn = xcalloc(1, sizeof(*wn));
+	wn->name = xstrdup(name);
+	TAILQ_INSERT_TAIL(&c->ignoreq, wn, entry);
 }
 
 static const char *color_binds[] = {
@@ -287,9 +283,9 @@ conf_init(struct conf *c)
 void
 conf_clear(struct conf *c)
 {
-	struct autogroupwin	*ag;
+	struct autogroupwin	*aw;
 	struct binding		*kb, *mb;
-	struct winmatch		*wm;
+	struct winname		*wn;
 	struct cmd		*cmd;
 	int			 i;
 
@@ -303,16 +299,16 @@ conf_clear(struct conf *c)
 		free(kb);
 	}
 
-	while ((ag = TAILQ_FIRST(&c->autogroupq)) != NULL) {
-		TAILQ_REMOVE(&c->autogroupq, ag, entry);
-		free(ag->class);
-		free(ag->name);
-		free(ag);
+	while ((aw = TAILQ_FIRST(&c->autogroupq)) != NULL) {
+		TAILQ_REMOVE(&c->autogroupq, aw, entry);
+		free(aw->class);
+		free(aw->name);
+		free(aw);
 	}
 
-	while ((wm = TAILQ_FIRST(&c->ignoreq)) != NULL) {
-		TAILQ_REMOVE(&c->ignoreq, wm, entry);
-		free(wm);
+	while ((wn = TAILQ_FIRST(&c->ignoreq)) != NULL) {
+		TAILQ_REMOVE(&c->ignoreq, wn, entry);
+		free(wn);
 	}
 
 	while ((mb = TAILQ_FIRST(&c->mousebindingq)) != NULL) {
@@ -329,12 +325,11 @@ conf_clear(struct conf *c)
 void
 conf_client(struct client_ctx *cc)
 {
-	struct winmatch	*wm;
-	char		*wname = cc->name;
+	struct winname	*wn;
 	int		 ignore = 0;
 
-	TAILQ_FOREACH(wm, &Conf.ignoreq, entry) {
-		if (strncasecmp(wm->title, wname, strlen(wm->title)) == 0) {
+	TAILQ_FOREACH(wn, &Conf.ignoreq, entry) {
+		if (strncasecmp(wn->name, cc->name, strlen(wn->name)) == 0) {
 			ignore = 1;
 			break;
 		}
@@ -557,14 +552,14 @@ static const struct {
 	int		 flags;
 	union arg	 argument;
 } name_to_mousefunc[] = {
+	{ "window_lower", kbfunc_client_lower, CWM_WIN, {0} },
+	{ "window_raise", kbfunc_client_raise, CWM_WIN, {0} },
+	{ "window_hide", kbfunc_client_hide, CWM_WIN, {0} },
+	{ "cyclegroup", kbfunc_client_cyclegroup, 0, {.i = CWM_CYCLE} },
+	{ "rcyclegroup", kbfunc_client_cyclegroup, 0, {.i = CWM_RCYCLE} },
 	{ "window_move", mousefunc_client_move, CWM_WIN, {0} },
 	{ "window_resize", mousefunc_client_resize, CWM_WIN, {0} },
 	{ "window_grouptoggle", mousefunc_client_grouptoggle, CWM_WIN, {0} },
-	{ "window_lower", mousefunc_client_lower, CWM_WIN, {0} },
-	{ "window_raise", mousefunc_client_raise, CWM_WIN, {0} },
-	{ "window_hide", mousefunc_client_hide, CWM_WIN, {0} },
-	{ "cyclegroup", mousefunc_client_cyclegroup, 0, {.i = CWM_CYCLE} },
-	{ "rcyclegroup", mousefunc_client_cyclegroup, 0, {.i = CWM_RCYCLE} },
 	{ "menu_group", mousefunc_menu_group, 0, {0} },
 	{ "menu_unhide", mousefunc_menu_unhide, 0, {0} },
 	{ "menu_cmd", mousefunc_menu_cmd, 0, {0} },

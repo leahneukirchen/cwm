@@ -152,6 +152,7 @@ struct winname {
 	char			*name;
 };
 TAILQ_HEAD(winname_q, winname);
+TAILQ_HEAD(ignore_q, winname);
 
 struct client_ctx {
 	TAILQ_ENTRY(client_ctx) entry;
@@ -210,13 +211,6 @@ struct client_ctx {
 };
 TAILQ_HEAD(client_ctx_q, client_ctx);
 TAILQ_HEAD(cycle_entry_q, client_ctx);
-
-struct winmatch {
-	TAILQ_ENTRY(winmatch)	entry;
-#define WIN_MAXTITLELEN		256
-	char			title[WIN_MAXTITLELEN];
-};
-TAILQ_HEAD(winmatch_q, winmatch);
 
 struct group_ctx {
 	TAILQ_ENTRY(group_ctx)	 entry;
@@ -300,7 +294,7 @@ struct conf {
 	struct keybinding_q	 keybindingq;
 	struct mousebinding_q	 mousebindingq;
 	struct autogroupwin_q	 autogroupq;
-	struct winmatch_q	 ignoreq;
+	struct ignore_q		 ignoreq;
 	struct cmd_q		 cmdq;
 #define	CONF_STICKY_GROUPS		0x0001
 	int			 flags;
@@ -339,7 +333,6 @@ extern struct client_ctx_q		 Clientq;
 extern struct conf			 Conf;
 extern const char			*homedir;
 extern int				 HasRandr, Randr_ev;
-extern volatile sig_atomic_t		 cwm_status;
 
 enum {
 	WM_STATE,
@@ -494,17 +487,9 @@ void			 kbfunc_ssh(struct client_ctx *, union arg *);
 void			 kbfunc_term(struct client_ctx *, union arg *);
 void 			 kbfunc_tile(struct client_ctx *, union arg *);
 
-void			 mousefunc_client_cyclegroup(struct client_ctx *,
-			    union arg *);
 void			 mousefunc_client_grouptoggle(struct client_ctx *,
 			    union arg *);
-void			 mousefunc_client_hide(struct client_ctx *,
-    			    union arg *);
-void			 mousefunc_client_lower(struct client_ctx *,
-    			    union arg *);
 void			 mousefunc_client_move(struct client_ctx *,
-    			    union arg *);
-void			 mousefunc_client_raise(struct client_ctx *,
     			    union arg *);
 void			 mousefunc_client_resize(struct client_ctx *,
     			    union arg *);
@@ -536,7 +521,7 @@ void			 conf_cursor(struct conf *);
 void			 conf_grab_kbd(Window);
 void			 conf_grab_mouse(Window);
 void			 conf_init(struct conf *);
-int			 conf_ignore(struct conf *, const char *);
+void			 conf_ignore(struct conf *, const char *);
 void			 conf_screen(struct screen_ctx *);
 
 void			 xev_process(void);
