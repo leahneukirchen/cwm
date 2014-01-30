@@ -287,7 +287,7 @@ conf_init(struct conf *c)
 void
 conf_clear(struct conf *c)
 {
-	struct autogroupwin	*ag;
+	struct autogroupwin	*aw;
 	struct binding		*kb, *mb;
 	struct winmatch		*wm;
 	struct cmd		*cmd;
@@ -303,11 +303,11 @@ conf_clear(struct conf *c)
 		free(kb);
 	}
 
-	while ((ag = TAILQ_FIRST(&c->autogroupq)) != NULL) {
-		TAILQ_REMOVE(&c->autogroupq, ag, entry);
-		free(ag->class);
-		free(ag->name);
-		free(ag);
+	while ((aw = TAILQ_FIRST(&c->autogroupq)) != NULL) {
+		TAILQ_REMOVE(&c->autogroupq, aw, entry);
+		free(aw->class);
+		free(aw->name);
+		free(aw);
 	}
 
 	while ((wm = TAILQ_FIRST(&c->ignoreq)) != NULL) {
@@ -557,14 +557,14 @@ static const struct {
 	int		 flags;
 	union arg	 argument;
 } name_to_mousefunc[] = {
+	{ "window_lower", kbfunc_client_lower, CWM_WIN, {0} },
+	{ "window_raise", kbfunc_client_raise, CWM_WIN, {0} },
+	{ "window_hide", kbfunc_client_hide, CWM_WIN, {0} },
+	{ "cyclegroup", kbfunc_client_cyclegroup, 0, {.i = CWM_CYCLE} },
+	{ "rcyclegroup", kbfunc_client_cyclegroup, 0, {.i = CWM_RCYCLE} },
 	{ "window_move", mousefunc_client_move, CWM_WIN, {0} },
 	{ "window_resize", mousefunc_client_resize, CWM_WIN, {0} },
 	{ "window_grouptoggle", mousefunc_client_grouptoggle, CWM_WIN, {0} },
-	{ "window_lower", mousefunc_client_lower, CWM_WIN, {0} },
-	{ "window_raise", mousefunc_client_raise, CWM_WIN, {0} },
-	{ "window_hide", mousefunc_client_hide, CWM_WIN, {0} },
-	{ "cyclegroup", mousefunc_client_cyclegroup, 0, {.i = CWM_CYCLE} },
-	{ "rcyclegroup", mousefunc_client_cyclegroup, 0, {.i = CWM_RCYCLE} },
 	{ "menu_group", mousefunc_menu_group, 0, {0} },
 	{ "menu_unhide", mousefunc_menu_unhide, 0, {0} },
 	{ "menu_cmd", mousefunc_menu_cmd, 0, {0} },
