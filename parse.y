@@ -157,6 +157,7 @@ main		: FONTNAME STRING		{
 		}
 		| IGNORE STRING {
 			conf_ignore(conf, $2);
+			free($2);
 		}
 		| BIND STRING string		{
 			if (!conf_bind_kbd(conf, $2, $3)) {
