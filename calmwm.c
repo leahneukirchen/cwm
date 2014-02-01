@@ -108,11 +108,8 @@ main(int argc, char **argv)
 	}
 
 	conf_init(&Conf);
-	if (conf_path && (parse_config(conf_path, &Conf) == -1)) {
-		warnx("config file %s has errors, not loading", conf_path);
-		conf_clear(&Conf);
-		conf_init(&Conf);
-	}
+	if (conf_path && (parse_config(conf_path, &Conf) == -1))
+		warnx("config file %s has errors", conf_path);
 	free(conf_path);
 
 	x_init(display_name);
@@ -142,7 +139,6 @@ x_init(const char *dpyname)
 	HasRandr = XRRQueryExtension(X_Dpy, &Randr_ev, &i);
 
 	conf_atoms();
-
 	conf_cursor(&Conf);
 
 	for (i = 0; i < ScreenCount(X_Dpy); i++)
@@ -161,6 +157,8 @@ x_teardown(void)
 {
 	struct screen_ctx	*sc;
 	unsigned int		 i;
+
+	conf_clear(&Conf);
 
 	TAILQ_FOREACH(sc, &Screenq, entry) {
 		for (i = 0; i < CWM_COLOR_NITEMS; i++)

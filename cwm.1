@@ -14,7 +14,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
-.Dd $Mdocdate: October 31 2012 $
+.Dd $Mdocdate: December 16 2013 $
 .Dt CWM 1
 .Os
 .Sh NAME
@@ -52,7 +52,7 @@ Right mouse button.
 .Nm
 is very simple in its use.
 Most of the actions are initiated via key bindings.
-The current key bindings are described below;
+The default key bindings are described below;
 their functionality is described in more detail later.
 .Pp
 .Bl -tag -width "CM-EscapeXXXXX" -offset indent -compact
@@ -125,7 +125,7 @@ Quit
 .Nm .
 .El
 .Pp
-The mouse bindings are also important, they are:
+The default mouse bindings are:
 .Pp
 .Bl -tag -width Ds -offset indent -compact
 .It Ic M-M1
@@ -145,8 +145,17 @@ The options for
 are as follows:
 .Bl -tag -width Ds
 .It Fl c Ar file
-Specify the config file to use.  Defaults to
-.Pa ~/.cwmrc .
+Specify an alternative configuration file.
+By default,
+.Nm
+loads
+.Pa ~/.cwmrc ,
+if present.
+Any error messages from lines in the configuration file will be sent to
+.Em stderr ;
+however,
+.Nm
+will continue to process the rest of the configuration file.
 .It Fl d Ar display
 Specify the display to use.
 .El
