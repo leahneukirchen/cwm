@@ -382,8 +382,8 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 	}
 
 	xine = screen_find_xinerama(sc, mc->x, mc->y, CWM_GAP);
-	xine.w += xine.x;
-	xine.h += xine.y;
+	xine.w += xine.x - Conf.bwidth * 2;
+	xine.h += xine.y - Conf.bwidth * 2;
 
 	xsave = mc->x;
 	ysave = mc->y;
