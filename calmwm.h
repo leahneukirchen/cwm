@@ -233,8 +233,6 @@ TAILQ_HEAD(autogroupwin_q, autogroupwin);
 struct screen_ctx {
 	TAILQ_ENTRY(screen_ctx)	 entry;
 	int			 which;
-	Visual			*visual;
-	Colormap		 colormap;
 	Window			 rootwin;
 	Window			 menuwin;
 	int			 cycling;
@@ -271,10 +269,9 @@ TAILQ_HEAD(keybinding_q, binding);
 TAILQ_HEAD(mousebinding_q, binding);
 
 struct cmd {
-	TAILQ_ENTRY(cmd)	entry;
-#define CMD_MAXNAMELEN		256
-	char			name[CMD_MAXNAMELEN];
-	char			path[MAXPATHLEN];
+	TAILQ_ENTRY(cmd)	 entry;
+	char			*name;
+	char			 path[MAXPATHLEN];
 };
 TAILQ_HEAD(cmd_q, cmd);
 

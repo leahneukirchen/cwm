@@ -44,8 +44,6 @@ screen_init(int which)
 	TAILQ_INIT(&sc->mruq);
 
 	sc->which = which;
-	sc->visual = DefaultVisual(X_Dpy, sc->which);
-	sc->colormap = DefaultColormap(X_Dpy, sc->which);
 	sc->rootwin = RootWindow(X_Dpy, sc->which);
 	conf_screen(sc);
 
@@ -65,7 +63,6 @@ screen_init(int which)
 
 	/* Deal with existing clients. */
 	XQueryTree(X_Dpy, sc->rootwin, &w0, &w1, &wins, &nwins);
-
 	for (i = 0; i < nwins; i++) {
 		XGetWindowAttributes(X_Dpy, wins[i], &winattr);
 		if (winattr.override_redirect ||
@@ -73,7 +70,8 @@ screen_init(int which)
 			continue;
 		(void)client_init(wins[i], sc, winattr.map_state != IsUnmapped);
 	}
-	XFree(wins);
+	if (wins)
+		XFree(wins);
 
 	screen_updatestackingorder(sc);
 

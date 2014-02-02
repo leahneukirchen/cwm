@@ -162,7 +162,8 @@ x_teardown(void)
 
 	TAILQ_FOREACH(sc, &Screenq, entry) {
 		for (i = 0; i < CWM_COLOR_NITEMS; i++)
-			XftColorFree(X_Dpy, sc->visual, sc->colormap,
+			XftColorFree(X_Dpy, DefaultVisual(X_Dpy, sc->which),
+			    DefaultColormap(X_Dpy, sc->which),
 			    &sc->xftcolor[i]);
 		XftDrawDestroy(sc->xftdraw);
 		XftFontClose(X_Dpy, sc->xftfont);

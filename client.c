@@ -63,6 +63,10 @@ client_init(Window win, struct screen_ctx *sc, int mapped)
 
 	if (win == None)
 		return (NULL);
+	if (!XGetWindowAttributes(X_Dpy, win, &wattr))
+		return (NULL);
+	if (sc == NULL)
+		sc = screen_fromroot(wattr.root);
 
 	cc = xcalloc(1, sizeof(*cc));
 
@@ -86,7 +90,6 @@ client_init(Window win, struct screen_ctx *sc, int mapped)
 	cc->ptr.x = -1;
 	cc->ptr.y = -1;
 
-	XGetWindowAttributes(X_Dpy, cc->win, &wattr);
 	cc->geom.x = wattr.x;
 	cc->geom.y = wattr.y;
 	cc->geom.w = wattr.width;

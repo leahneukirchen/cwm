@@ -75,17 +75,14 @@ xev_handle_maprequest(XEvent *ee)
 {
 	XMapRequestEvent	*e = &ee->xmaprequest;
 	struct client_ctx	*cc = NULL, *old_cc;
-	XWindowAttributes	 xattr;
 
 	if ((old_cc = client_current()))
 		client_ptrsave(old_cc);
 
-	if ((cc = client_find(e->window)) == NULL) {
-		XGetWindowAttributes(X_Dpy, e->window, &xattr);
-		cc = client_init(e->window, screen_fromroot(xattr.root), 1);
-	}
+	if ((cc = client_find(e->window)) == NULL)
+		cc = client_init(e->window, NULL, 1);
 
-	if ((cc->flags & CLIENT_IGNORE) == 0)
+	if ((cc != NULL) && ((cc->flags & CLIENT_IGNORE) == 0))
 		client_ptrwarp(cc);
 }
 
