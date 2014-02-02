@@ -221,8 +221,6 @@ TAILQ_HEAD(autogroupwin_q, autogroupwin);
 struct screen_ctx {
 	TAILQ_ENTRY(screen_ctx)	 entry;
 	int			 which;
-	Visual			*visual;
-	Colormap		 colormap;
 	Window			 rootwin;
 	Window			 menuwin;
 	int			 cycling;

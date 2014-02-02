@@ -44,8 +44,6 @@ screen_init(int which)
 	TAILQ_INIT(&sc->mruq);
 
 	sc->which = which;
-	sc->visual = DefaultVisual(X_Dpy, sc->which);
-	sc->colormap = DefaultColormap(X_Dpy, sc->which);
 	sc->rootwin = RootWindow(X_Dpy, sc->which);
 	conf_screen(sc);
 
