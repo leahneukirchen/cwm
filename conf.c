@@ -51,13 +51,11 @@ conf_cmd_add(struct conf *c, const char *name, const char *path)
 		    sizeof(c->lockpath))
 			return (0);
 	} else {
-		cmd = xmalloc(sizeof(*cmd));
-
 		conf_cmd_remove(c, name);
 
-		if (strlcpy(cmd->name, name, sizeof(cmd->name)) >=
-		    sizeof(cmd->name))
-			return (0);
+		cmd = xmalloc(sizeof(*cmd));
+
+		cmd->name = xstrdup(name);
 		if (strlcpy(cmd->path, path, sizeof(cmd->path)) >=
 		    sizeof(cmd->path))
 			return (0);
@@ -74,6 +72,7 @@ conf_cmd_remove(struct conf *c, const char *name)
 	TAILQ_FOREACH_SAFE(cmd, &c->cmdq, entry, cmdnxt) {
 		if (strcmp(cmd->name, name) == 0) {
 			TAILQ_REMOVE(&c->cmdq, cmd, entry);
+			free(cmd->name);
 			free(cmd);
 		}
 	}
@@ -291,6 +290,7 @@ conf_clear(struct conf *c)
 
 	while ((cmd = TAILQ_FIRST(&c->cmdq)) != NULL) {
 		TAILQ_REMOVE(&c->cmdq, cmd, entry);
+		free(cmd->name);
 		free(cmd);
 	}
 
