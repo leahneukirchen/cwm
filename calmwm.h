@@ -230,6 +230,13 @@ struct autogroupwin {
 };
 TAILQ_HEAD(autogroupwin_q, autogroupwin);
 
+struct region_ctx {
+	TAILQ_ENTRY(region_ctx)	 entry;
+	int			 num;
+	struct geom		 area;
+};
+TAILQ_HEAD(region_ctx_q, region_ctx);
+
 struct screen_ctx {
 	TAILQ_ENTRY(screen_ctx)	 entry;
 	int			 which;
@@ -241,11 +248,10 @@ struct screen_ctx {
 	struct geom		 work; /* workable area, gap-applied */
 	struct gap		 gap;
 	struct cycle_entry_q	 mruq;
+	struct region_ctx_q	 regionq;
 	XftColor		 xftcolor[CWM_COLOR_NITEMS];
 	XftDraw			*xftdraw;
 	XftFont			*xftfont;
-	int			 xinerama_no;
-	XineramaScreenInfo	*xinerama;
 #define CALMWM_NGROUPS		 10
 	struct group_ctx	 groups[CALMWM_NGROUPS];
 	struct group_ctx_q	 groupq;
@@ -395,7 +401,7 @@ void			 client_map(struct client_ctx *);
 void			 client_maximize(struct client_ctx *);
 void			 client_msg(struct client_ctx *, Atom, Time);
 void			 client_move(struct client_ctx *);
-struct client_ctx	*client_init(Window, struct screen_ctx *, int);
+struct client_ctx	*client_init(Window, struct screen_ctx *);
 void			 client_ptrsave(struct client_ctx *);
 void			 client_ptrwarp(struct client_ctx *);
 void			 client_raise(struct client_ctx *);

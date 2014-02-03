@@ -55,18 +55,26 @@ client_find(Window win)
 }
 
 struct client_ctx *
-client_init(Window win, struct screen_ctx *sc, int mapped)
+client_init(Window win, struct screen_ctx *sc)
 {
 	struct client_ctx	*cc;
 	XWindowAttributes	 wattr;
 	long			 state;
+	int			 mapped;
 
 	if (win == None)
 		return (NULL);
 	if (!XGetWindowAttributes(X_Dpy, win, &wattr))
 		return (NULL);
-	if (sc == NULL)
+
+	if (sc == NULL) {
 		sc = screen_fromroot(wattr.root);
+		mapped = 1;
+	} else {
+		if (wattr.override_redirect || wattr.map_state != IsViewable)
+			return (NULL);
+		mapped = wattr.map_state != IsUnmapped;
+	}
 
 	cc = xcalloc(1, sizeof(*cc));
 
