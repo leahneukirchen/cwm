@@ -97,19 +97,17 @@ screen_updatestackingorder(struct screen_ctx *sc)
 	struct client_ctx	*cc;
 	unsigned int		 nwins, i, s;
 
-	if (!XQueryTree(X_Dpy, sc->rootwin, &w0, &w1, &wins, &nwins))
-		return;
-
-	for (s = 0, i = 0; i < nwins; i++) {
-		/* Skip hidden windows */
-		if ((cc = client_find(wins[i])) == NULL ||
-		    cc->flags & CLIENT_HIDDEN)
-			continue;
-
-		cc->stackingorder = s++;
+	if (XQueryTree(X_Dpy, sc->rootwin, &w0, &w1, &wins, &nwins)) {
+		for (s = 0, i = 0; i < nwins; i++) {
+			/* Skip hidden windows */
+			if ((cc = client_find(wins[i])) == NULL ||
+			    cc->flags & CLIENT_HIDDEN)
+				continue;
+	
+			cc->stackingorder = s++;
+		}
+		XFree(wins);
 	}
-
-	XFree(wins);
 }
 
 /*
