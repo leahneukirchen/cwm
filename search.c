@@ -143,7 +143,7 @@ search_print_client(struct menu *mi, int list)
 		cc->matchname = cc->name;
 
 	(void)snprintf(mi->print, sizeof(mi->print), "(%d) %c%s",
-	    cc->group ? cc->group->shortcut : 0, flag, cc->matchname);
+	    cc->group->shortcut, flag, cc->matchname);
 
 	if (!list && cc->matchname != cc->name &&
 	    strlen(mi->print) < sizeof(mi->print) - 1) {

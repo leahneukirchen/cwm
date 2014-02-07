@@ -291,11 +291,7 @@ xu_ewmh_net_desktop_names(struct screen_ctx *sc, char *data, int n)
 void
 xu_ewmh_net_wm_desktop(struct client_ctx *cc)
 {
-	struct group_ctx	*gc = cc->group;
-	long			 no = 0xffffffff;
-
-	if (gc)
-		no = gc->shortcut;
+	int	 no = cc->group->shortcut;
 
 	XChangeProperty(X_Dpy, cc->win, ewmh[_NET_WM_DESKTOP],
 	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&no, 1);
