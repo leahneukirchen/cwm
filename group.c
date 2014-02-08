@@ -148,6 +148,15 @@ group_init(struct screen_ctx *sc)
 	group_setactive(sc, 1);
 }
 
+void
+group_set_state(struct screen_ctx *sc)
+{
+	struct group_ctx	*gc;
+
+	TAILQ_FOREACH(gc, &sc->groupq, entry)
+		group_fix_hidden_state(gc);
+}
+
 static void
 group_setactive(struct screen_ctx *sc, long idx)
 {
