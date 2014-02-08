@@ -244,16 +244,16 @@ group_hidetoggle(struct screen_ctx *sc, int idx)
 void
 group_only(struct screen_ctx *sc, int idx)
 {
-	int	 i;
+	struct group_ctx	*gc;
 
 	if (idx < 0 || idx >= CALMWM_NGROUPS)
 		errx(1, "group_only: index out of range (%d)", idx);
 
-	for (i = 0; i < CALMWM_NGROUPS; i++) {
-		if (i == idx)
-			group_show(sc, &sc->groups[i]);
+	TAILQ_FOREACH(gc, &sc->groupq, entry) {
+		if (gc->shortcut == idx)
+			group_show(sc, gc);
 		else
-			group_hide(sc, &sc->groups[i]);
+			group_hide(sc, gc);
 	}
 }
 
@@ -300,18 +300,15 @@ group_menu(struct screen_ctx *sc)
 	struct group_ctx	*gc;
 	struct menu		*mi;
 	struct menu_q		 menuq;
-	int			 i;
 
 	TAILQ_INIT(&menuq);
 
-	for (i = 0; i < CALMWM_NGROUPS; i++) {
-		gc = &sc->groups[i];
-
+	TAILQ_FOREACH(gc, &sc->groupq, entry) {
 		if (TAILQ_EMPTY(&gc->clients))
 			continue;
 
 		menuq_add(&menuq, gc, gc->hidden ? "%d: [%s]" : "%d: %s",
-		    gc->shortcut, sc->group_names[i]);
+		    gc->shortcut, sc->group_names[gc->shortcut]);
 	}
 
 	if (TAILQ_EMPTY(&menuq))
@@ -329,16 +326,15 @@ group_menu(struct screen_ctx *sc)
 void
 group_alltoggle(struct screen_ctx *sc)
 {
-	int	 i;
+	struct group_ctx	*gc;
 
-	for (i = 0; i < CALMWM_NGROUPS; i++) {
+	TAILQ_FOREACH(gc, &sc->groupq, entry) {
 		if (sc->group_hideall)
-			group_show(sc, &sc->groups[i]);
+			group_show(sc, gc);
 		else
-			group_hide(sc, &sc->groups[i]);
+			group_hide(sc, gc);
 	}
-
-	sc->group_hideall = (!sc->group_hideall);
+	sc->group_hideall = !sc->group_hideall;
 }
 
 void
