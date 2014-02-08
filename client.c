@@ -491,7 +491,8 @@ client_unhide(struct client_ctx *cc)
 void
 client_urgency(struct client_ctx *cc)
 {
-	cc->flags |= CLIENT_URGENCY;
+	if (!cc->active)
+		cc->flags |= CLIENT_URGENCY;
 }
 
 void
