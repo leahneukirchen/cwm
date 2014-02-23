@@ -21,13 +21,7 @@
 #ifndef _CALMWM_H_
 #define _CALMWM_H_
 
-/* ugly stuff */
-#ifndef TAILQ_END
-#define TAILQ_END(head) NULL
-#endif
-#ifndef __dead
-#define __dead
-#endif
+/* prototypes for portable-included functions */
 char *fgetln(FILE *, size_t *);
 long long strtonum(const char *, long long, long long, const char **);
 size_t strlcpy(char *, const char *, size_t);
@@ -379,7 +373,7 @@ enum {
 extern Atom				 cwmh[CWMH_NITEMS];
 extern Atom				 ewmh[EWMH_NITEMS];
 
-__dead void		 usage(void);
+void			 usage(void);
 
 void			 client_applysizehints(struct client_ctx *);
 void			 client_config(struct client_ctx *);
