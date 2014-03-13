@@ -45,3 +45,7 @@ install: ${PROG}
 release:
 	VERSION=$$(git describe --tags | sed 's/^v//;s/-[^.]*$$//') && \
 	git archive --prefix=cwm-$$VERSION/ -o cwm-$$VERSION.tar.gz HEAD
+
+sign:
+	VERSION=$$(git describe --tags | sed 's/^v//;s/-[^.]*$$//') && \
+	gpg --armor --detach-sign cwm-$$VERSION.tar.gz
