@@ -6,8 +6,8 @@ Unices.
     management.  cwm also aims to maintain the simplest and most
     pleasant aesthetic.
 
-This port requires pkg-config, Xft, Xinerama and Xrandr.  The included
-Makefile should work with both GNU make and BSD make.
+This port requires pkg-config, Xft, Xinerama and Xrandr.  The included Makefile
+should work with both GNU make and BSD make.
 
 This version actively tracks changes in the OpenBSD CVS repository.
 Releases are roughly coordinated.
@@ -15,9 +15,73 @@ Releases are roughly coordinated.
 The revision controlled version is at https://github.com/chneukirchen/cwm
 Releases can be found at http://chneukirchen.org/releases
 
+You are welcome to join the IRC channel ##cwm on Freenode to talk about cwm.
+
+
 ChangeLog:
 
 2012-05-02: First public release 5.1 of portable cwm.
+
+2014-04-13: Second public release 5.5 of portable cwm.
+
+User visible changes (for a full list including smaller bug fixes, see
+http://www.openbsd.org/plus.html ff.)
+
+Changes made between OpenBSD 5.1 and 5.2
+* Fixed cwm(1) atom (WM_PROTOCOLS) style handing; closing a window will no
+  longer close entire application if the client supports CLIENT_PROTO_DELETE.
+* Re-implement atom handing for more consistent separation of cwm(1) and
+  Extended Window Manager Hints.
+* cwm(1) better integrated into the freedesktop.org Window Manager
+  Specification Project.
+
+Changes made between OpenBSD 5.2 and 5.3
+* Set the initial cwm(1) group to "1".
+* Added cwm(1) per-group vert/horiz tiling support with new bind commands
+  "vtile" and "htile."
+* Made cwm(1) screen font an Xft(3) font.
+* Specific last match for autogroup in cwmrc(5).
+* Tab completion support for cwm(1) menus.
+* Allow cwm(1) clients to be resized from a max state.
+* Multibyte input to cwm(1) menu code now possible.
+
+Changes made between OpenBSD 5.3 and 5.4
+* Added support for mouse based group {,r}cycle to cwmrc(5).
+* Allow mouse button4 and button5 in cwmrc(5).
+* Made cwm(1) check for, and honour, CWStackMode and CWSibling change requests
+  during a ConfigureRequest event.
+* Honour PATH search order for cwm(1)'s exec.
+
+Changes made between OpenBSD 5.5 and 5.4
+* Only set the cwm(1) urgency flag if the client is not active.
+* Allow the cwm(1) config parser continue parsing even after encountering an
+  error.
+* cwm(1) now follows the EWMH spec: if the cardinal returned is 0xFFFFFFFF (-1)
+  then the window should appear on all desktops.
+* Made cwm(1) supply a more useful title for windows launched via the ssh(1)
+  command menu ("[ssh] ").
+* Allowed cwm(1) to accept _NET_WM_DESKTOP and _NET_CURRENT_DESKTOP
+  ClientMessage.
+* Implemented cwm(1) support for _NET_WM_STATE_FULLSCREEN hint, with keybinding
+  changes: CM-f "fullscreen", CM-m "maximize".
+* Instead of using the work area, use the Xinerama area for cwm(1) snap
+  calculations.
+* Save-set when cwm(1) is re-exec'ing so as to not lose State on our hidden
+  clients.
+* Added cwmrc(5) support for XUrgency and matching
+  _NET_WM_STATE_DEMANDS_ATTENTION ewmh hint, with configurable urgencyborder.
+* Prepend the group shortcut in the cwm(1) client search menu;
+  prepend shortcut in unhide menu.
+* If not hidden during an UnmapNotify event, cwm(1) will now un-manage the
+  client.
+* Like "gap", made cwm(1) "snapdist" per-screen.
+* Removed cwmrc(5) option to bind a key by keycode with brackets, which never
+  worked. Users should be using keysym names not keycodes.
+* Re-added cwm(1) support for WM_TAKE_FOCUS. Solves keyboard input focus loss
+  for java apps.
+* For cwm(1) clients that support WM_TAKE_FOCUS in their WM_PROTOCOLS property,
+  send a ClientMessage event.
+
 
 --Christian Neukirchen <chneukirchen@gmail.com>
 
