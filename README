@@ -7,7 +7,8 @@ Unices.
     pleasant aesthetic.
 
 This port requires pkg-config, Xft, Xinerama and Xrandr.  The included Makefile
-should work with both GNU make and BSD make.
+should work with both GNU make and BSD make.  It has been built successfully on
+OpenBSD, FreeBSD, NetBSD and Linux.
 
 This version actively tracks changes in the OpenBSD CVS repository.
 Releases are roughly coordinated.
