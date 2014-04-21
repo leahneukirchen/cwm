@@ -309,6 +309,7 @@ conf_clear(struct conf *c)
 
 	while ((wn = TAILQ_FIRST(&c->ignoreq)) != NULL) {
 		TAILQ_REMOVE(&c->ignoreq, wn, entry);
+		free(wn->name);
 		free(wn);
 	}
 
