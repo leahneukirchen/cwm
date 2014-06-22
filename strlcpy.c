@@ -18,10 +18,11 @@
 
 /* OPENBSD ORIGINAL: lib/libc/string/strlcpy.c */
 
-#ifndef HAVE_STRLCPY
-
 #include <sys/types.h>
 #include <string.h>
+#include "calmwm.h"
+
+#ifndef HAVE_STRLCPY
 
 /*
  * Copy src to string dst of size siz.  At most siz-1 characters
