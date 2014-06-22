@@ -17,6 +17,7 @@ OBJS=		calmwm.o screen.o xmalloc.o client.o menu.o \
 CPPFLAGS+=	`pkg-config --cflags fontconfig x11 xft xinerama xrandr`
 
 CFLAGS?=	-Wall -O2 -g -D_GNU_SOURCE
+CFLAGS+=	`[ "\`uname -s\`" = "Darwin" ] && echo "-DHAVE_STRLCPY -DHAVE_STRLCAT"`
 
 LDFLAGS+=	`pkg-config --libs fontconfig x11 xft xinerama xrandr`
 
