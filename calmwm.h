@@ -24,8 +24,12 @@
 /* prototypes for portable-included functions */
 char *fgetln(FILE *, size_t *);
 long long strtonum(const char *, long long, long long, const char **);
+#ifndef HAVE_STRLCPY
 size_t strlcpy(char *, const char *, size_t);
+#endif
+#ifndef HAVE_STRLCAT
 size_t strlcat(char *, const char *, size_t);
+#endif
 
 #include <X11/XKBlib.h>
 #include <X11/Xatom.h>
