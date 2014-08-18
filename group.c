@@ -68,15 +68,13 @@ group_hide(struct screen_ctx *sc, struct group_ctx *gc)
 
 	screen_updatestackingorder(sc);
 
-	gc->nhidden = 0;
 	gc->highstack = 0;
 	TAILQ_FOREACH(cc, &gc->clients, group_entry) {
 		client_hide(cc);
-		gc->nhidden++;
 		if (cc->stackingorder > gc->highstack)
 			gc->highstack = cc->stackingorder;
 	}
-	gc->hidden = 1;		/* XXX: equivalent to gc->nhidden > 0 */
+	gc->hidden = 1;
 }
 
 static void
@@ -85,6 +83,7 @@ group_show(struct screen_ctx *sc, struct group_ctx *gc)
 	struct client_ctx	*cc;
 	Window			*winlist;
 	int			 i, lastempty = -1;
+	int			 nwins = 0;
 
 	gc->highstack = 0;
 	TAILQ_FOREACH(cc, &gc->clients, group_entry) {
@@ -100,6 +99,7 @@ group_show(struct screen_ctx *sc, struct group_ctx *gc)
 	TAILQ_FOREACH(cc, &gc->clients, group_entry) {
 		winlist[gc->highstack - cc->stackingorder] = cc->win;
 		client_unhide(cc);
+		nwins++;
 	}
 
 	/* Un-sparseify */
@@ -113,7 +113,7 @@ group_show(struct screen_ctx *sc, struct group_ctx *gc)
 		}
 	}
 
-	XRestackWindows(X_Dpy, winlist, gc->nhidden);
+	XRestackWindows(X_Dpy, winlist, nwins);
 	free(winlist);
 
 	gc->hidden = 0;
@@ -177,10 +177,8 @@ group_movetogroup(struct client_ctx *cc, int idx)
 	gc = &sc->groups[idx];
 	if (cc->group == gc)
 		return;
-	if (gc->hidden) {
+	if (gc->hidden)
 		client_hide(cc);
-		gc->nhidden++;
-	}
 	group_assign(gc, cc);
 }
 

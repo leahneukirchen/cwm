@@ -205,7 +205,6 @@ struct group_ctx {
 	struct client_ctx_q	 clients;
 	int			 shortcut;
 	int			 hidden;
-	int			 nhidden;
 	int			 highstack;
 };
 TAILQ_HEAD(group_ctx_q, group_ctx);
