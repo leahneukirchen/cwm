@@ -68,12 +68,9 @@ group_hide(struct screen_ctx *sc, struct group_ctx *gc)
 
 	screen_updatestackingorder(sc);
 
-	gc->highstack = 0;
-	TAILQ_FOREACH(cc, &gc->clients, group_entry) {
+	TAILQ_FOREACH(cc, &gc->clients, group_entry)
 		client_hide(cc);
-		if (cc->stackingorder > gc->highstack)
-			gc->highstack = cc->stackingorder;
-	}
+
 	gc->hidden = 1;
 }
 
@@ -83,27 +80,23 @@ group_show(struct screen_ctx *sc, struct group_ctx *gc)
 	struct client_ctx	*cc;
 	Window			*winlist;
 	int			 i, lastempty = -1;
-	int			 nwins = 0;
+	int			 nwins = 0, highstack = 0;
 
-	gc->highstack = 0;
 	TAILQ_FOREACH(cc, &gc->clients, group_entry) {
-		if (cc->stackingorder > gc->highstack)
-			gc->highstack = cc->stackingorder;
+		if (cc->stackingorder > highstack)
+			highstack = cc->stackingorder;
 	}
-	winlist = xcalloc((gc->highstack + 1), sizeof(*winlist));
+	winlist = xcalloc((highstack + 1), sizeof(*winlist));
 
-	/*
-	 * Invert the stacking order as XRestackWindows() expects them
-	 * top-to-bottom.
-	 */
+	/* Invert the stacking order for XRestackWindows(). */
 	TAILQ_FOREACH(cc, &gc->clients, group_entry) {
-		winlist[gc->highstack - cc->stackingorder] = cc->win;
+		winlist[highstack - cc->stackingorder] = cc->win;
 		client_unhide(cc);
 		nwins++;
 	}
 
 	/* Un-sparseify */
-	for (i = 0; i <= gc->highstack; i++) {
+	for (i = 0; i <= highstack; i++) {
 		if (!winlist[i] && lastempty == -1)
 			lastempty = i;
 		else if (winlist[i] && lastempty != -1) {
