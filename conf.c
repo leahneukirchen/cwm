@@ -250,8 +250,6 @@ conf_init(struct conf *c)
 {
 	unsigned int	i;
 
-	(void)memset(c, 0, sizeof(*c));
-
 	c->bwidth = CONF_BWIDTH;
 	c->mamount = CONF_MAMOUNT;
 	c->snapdist = CONF_SNAPDIST;
