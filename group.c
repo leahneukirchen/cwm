@@ -35,6 +35,7 @@
 static void		 group_assign(struct group_ctx *, struct client_ctx *);
 static void		 group_hide(struct screen_ctx *, struct group_ctx *);
 static void		 group_show(struct screen_ctx *, struct group_ctx *);
+static void		 group_restack(struct screen_ctx *, struct group_ctx *);
 static void		 group_set_hidden_state(struct group_ctx *);
 static void		 group_setactive(struct screen_ctx *, long);
 static void		 group_set_names(struct screen_ctx *);
@@ -78,6 +79,20 @@ static void
 group_show(struct screen_ctx *sc, struct group_ctx *gc)
 {
 	struct client_ctx	*cc;
+
+	TAILQ_FOREACH(cc, &gc->clients, group_entry)
+		client_unhide(cc);
+
+	gc->hidden = 0;
+
+	group_restack(sc, gc);
+	group_setactive(sc, gc->shortcut);
+}
+
+static void
+group_restack(struct screen_ctx *sc, struct group_ctx *gc)
+{
+	struct client_ctx	*cc;
 	Window			*winlist;
 	int			 i, lastempty = -1;
 	int			 nwins = 0, highstack = 0;
@@ -91,7 +106,6 @@ group_show(struct screen_ctx *sc, struct group_ctx *gc)
 	/* Invert the stacking order for XRestackWindows(). */
 	TAILQ_FOREACH(cc, &gc->clients, group_entry) {
 		winlist[highstack - cc->stackingorder] = cc->win;
-		client_unhide(cc);
 		nwins++;
 	}
 
@@ -108,9 +122,6 @@ group_show(struct screen_ctx *sc, struct group_ctx *gc)
 
 	XRestackWindows(X_Dpy, winlist, nwins);
 	free(winlist);
-
-	gc->hidden = 0;
-	group_setactive(sc, gc->shortcut);
 }
 
 void
