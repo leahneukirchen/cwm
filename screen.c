@@ -142,7 +142,7 @@ screen_update_geometry(struct screen_ctx *sc)
 {
 	XineramaScreenInfo	*info = NULL;
 	struct region_ctx	*region;
-	int			 info_no = 0, i;
+	int			 info_num = 0, i;
 
 	sc->view.x = 0;
 	sc->view.y = 0;
@@ -156,13 +156,13 @@ screen_update_geometry(struct screen_ctx *sc)
 
 	/* RandR event may have a CTRC added or removed. */
 	if (XineramaIsActive(X_Dpy))
-		info = XineramaQueryScreens(X_Dpy, &info_no);
+		info = XineramaQueryScreens(X_Dpy, &info_num);
 
 	while ((region = TAILQ_FIRST(&sc->regionq)) != NULL) {
 		TAILQ_REMOVE(&sc->regionq, region, entry);
 		free(region);
 	}
-	for (i = 0; i < info_no; i++) {
+	for (i = 0; i < info_num; i++) {
 		region = xmalloc(sizeof(*region));
 		region->num = i;
 		region->area.x = info[i].x_org;

@@ -40,7 +40,7 @@ static void		 group_set_hidden_state(struct group_ctx *);
 static void		 group_setactive(struct screen_ctx *, long);
 static void		 group_set_names(struct screen_ctx *);
 
-const char *shortcut_to_name[] = {
+const char *num_to_name[] = {
 	"nogroup", "one", "two", "three", "four", "five", "six",
 	"seven", "eight", "nine"
 };
@@ -86,7 +86,7 @@ group_show(struct screen_ctx *sc, struct group_ctx *gc)
 	gc->hidden = 0;
 
 	group_restack(sc, gc);
-	group_setactive(sc, gc->shortcut);
+	group_setactive(sc, gc->num);
 }
 
 static void
@@ -140,7 +140,7 @@ group_init(struct screen_ctx *sc)
 	for (i = 0; i < CALMWM_NGROUPS; i++) {
 		TAILQ_INIT(&sc->groups[i].clients);
 		sc->groups[i].hidden = 0;
-		sc->groups[i].shortcut = i;
+		sc->groups[i].num = i;
 		TAILQ_INSERT_TAIL(&sc->groupq, &sc->groups[i], entry);
 	}
 
@@ -261,7 +261,7 @@ group_only(struct screen_ctx *sc, int idx)
 		errx(1, "group_only: index out of range (%d)", idx);
 
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
-		if (gc->shortcut == idx)
+		if (gc->num == idx)
 			group_show(sc, gc);
 		else
 			group_hide(sc, gc);
@@ -302,7 +302,7 @@ group_cycle(struct screen_ctx *sc, int flags)
 	if (showgroup->hidden)
 		group_show(sc, showgroup);
 	else
-		group_setactive(sc, showgroup->shortcut);
+		group_setactive(sc, showgroup->num);
 }
 
 void
@@ -319,7 +319,7 @@ group_menu(struct screen_ctx *sc)
 			continue;
 
 		menuq_add(&menuq, gc, gc->hidden ? "%d: [%s]" : "%d: %s",
-		    gc->shortcut, sc->group_names[gc->shortcut]);
+		    gc->num, sc->group_names[gc->num]);
 	}
 
 	if (TAILQ_EMPTY(&menuq))
@@ -354,36 +354,36 @@ group_autogroup(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	struct autogroupwin	*aw;
 	struct group_ctx	*gc;
-	int			 no = -1, both_match = 0;
-	long			*grpno;
+	int			 num = -1, both_match = 0;
+	long			*grpnum;
 
 	if (cc->ch.res_class == NULL || cc->ch.res_name == NULL)
 		return;
 
 	if (xu_getprop(cc->win, ewmh[_NET_WM_DESKTOP],
-	    XA_CARDINAL, 1, (unsigned char **)&grpno) > 0) {
-		if (*grpno == -1)
-			no = 0;
-		else if (*grpno > CALMWM_NGROUPS || *grpno < 0)
-			no = CALMWM_NGROUPS - 1;
+	    XA_CARDINAL, 1, (unsigned char **)&grpnum) > 0) {
+		if (*grpnum == -1)
+			num = 0;
+		else if (*grpnum > CALMWM_NGROUPS || *grpnum < 0)
+			num = CALMWM_NGROUPS - 1;
 		else
-			no = *grpno;
-		XFree(grpno);
+			num = *grpnum;
+		XFree(grpnum);
 	} else {
 		TAILQ_FOREACH(aw, &Conf.autogroupq, entry) {
 			if (strcmp(aw->class, cc->ch.res_class) == 0) {
 				if ((aw->name != NULL) &&
 				    (strcmp(aw->name, cc->ch.res_name) == 0)) {
-					no = aw->num;
+					num = aw->num;
 					both_match = 1;
 				} else if (aw->name == NULL && !both_match)
-					no = aw->num;
+					num = aw->num;
 			}
 		}
 	}
 
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
-		if (gc->shortcut == no) {
+		if (gc->num == num) {
 			group_assign(gc, cc);
 			return;
 		}
@@ -427,7 +427,7 @@ group_update_names(struct screen_ctx *sc)
 		setnames = 1;
 		i = 0;
 		while (n < CALMWM_NGROUPS)
-			strings[n++] = xstrdup(shortcut_to_name[i++]);
+			strings[n++] = xstrdup(num_to_name[i++]);
 	}
 
 	if (prop_ret != NULL)

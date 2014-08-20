@@ -203,7 +203,7 @@ TAILQ_HEAD(cycle_entry_q, client_ctx);
 struct group_ctx {
 	TAILQ_ENTRY(group_ctx)	 entry;
 	struct client_ctx_q	 clients;
-	int			 shortcut;
+	int			 num;
 	int			 hidden;
 };
 TAILQ_HEAD(group_ctx_q, group_ctx);

@@ -202,8 +202,7 @@ mousefunc_menu_unhide(struct client_ctx *cc, union arg *arg)
 			if (wname == NULL)
 				continue;
 
-			menuq_add(&menuq, cc, "(%d) %s",
-			    cc->group->shortcut, wname);
+			menuq_add(&menuq, cc, "(%d) %s", cc->group->num, wname);
 		}
 
 	if (TAILQ_EMPTY(&menuq))
