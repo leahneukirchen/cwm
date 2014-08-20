@@ -105,7 +105,7 @@ screen_updatestackingorder(struct screen_ctx *sc)
 			if ((cc = client_find(wins[i])) == NULL ||
 			    cc->flags & CLIENT_HIDDEN)
 				continue;
-	
+
 			cc->stackingorder = s++;
 		}
 		XFree(wins);
