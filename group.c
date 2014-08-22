@@ -48,16 +48,13 @@ const char *num_to_name[] = {
 static void
 group_assign(struct group_ctx *gc, struct client_ctx *cc)
 {
-	if (gc == NULL)
-		gc = TAILQ_FIRST(&cc->sc->groupq);
-	if (cc->group == gc)
-		return;
-
 	if (cc->group != NULL)
 		TAILQ_REMOVE(&cc->group->clients, cc, group_entry);
 
-	TAILQ_INSERT_TAIL(&gc->clients, cc, group_entry);
 	cc->group = gc;
+
+	if (cc->group != NULL)
+		TAILQ_INSERT_TAIL(&gc->clients, cc, group_entry);
 
 	xu_ewmh_net_wm_desktop(cc);
 }
@@ -354,7 +351,7 @@ group_autogroup(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	struct autogroupwin	*aw;
 	struct group_ctx	*gc;
-	int			 num = -1, both_match = 0;
+	int			 num = -2, both_match = 0;
 	long			*grpnum;
 
 	if (cc->ch.res_class == NULL || cc->ch.res_name == NULL)
@@ -362,12 +359,9 @@ group_autogroup(struct client_ctx *cc)
 
 	if (xu_getprop(cc->win, ewmh[_NET_WM_DESKTOP],
 	    XA_CARDINAL, 1, (unsigned char **)&grpnum) > 0) {
-		if (*grpnum == -1)
-			num = 0;
-		else if (*grpnum > CALMWM_NGROUPS || *grpnum < 0)
+		num = *grpnum;
+		if (num > CALMWM_NGROUPS || num < -1)
 			num = CALMWM_NGROUPS - 1;
-		else
-			num = *grpnum;
 		XFree(grpnum);
 	} else {
 		TAILQ_FOREACH(aw, &Conf.autogroupq, entry) {
@@ -380,6 +374,11 @@ group_autogroup(struct client_ctx *cc)
 					num = aw->num;
 			}
 		}
+	}
+
+	if ((num == -1) || (num == 0)) {
+		group_assign(NULL, cc);
+		return;
 	}
 
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
