@@ -69,7 +69,6 @@ screen_init(int which)
 		XFree(wins);
 	}
 	screen_updatestackingorder(sc);
-	group_set_state(sc);
 
 	if (HasRandr)
 		XRRSelectInput(X_Dpy, sc->rootwin, RRScreenChangeNotifyMask);

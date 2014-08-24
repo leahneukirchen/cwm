@@ -36,7 +36,7 @@ static void		 group_assign(struct group_ctx *, struct client_ctx *);
 static void		 group_hide(struct screen_ctx *, struct group_ctx *);
 static void		 group_show(struct screen_ctx *, struct group_ctx *);
 static void		 group_restack(struct screen_ctx *, struct group_ctx *);
-static void		 group_set_hidden_state(struct group_ctx *);
+static int		 group_hidden_state(struct group_ctx *);
 static void		 group_setactive(struct screen_ctx *, long);
 static void		 group_set_names(struct screen_ctx *);
 
@@ -68,8 +68,6 @@ group_hide(struct screen_ctx *sc, struct group_ctx *gc)
 
 	TAILQ_FOREACH(cc, &gc->clients, group_entry)
 		client_hide(cc);
-
-	gc->hidden = 1;
 }
 
 static void
@@ -79,8 +77,6 @@ group_show(struct screen_ctx *sc, struct group_ctx *gc)
 
 	TAILQ_FOREACH(cc, &gc->clients, group_entry)
 		client_unhide(cc);
-
-	gc->hidden = 0;
 
 	group_restack(sc, gc);
 	group_setactive(sc, gc->num);
@@ -136,7 +132,6 @@ group_init(struct screen_ctx *sc)
 
 	for (i = 0; i < CALMWM_NGROUPS; i++) {
 		TAILQ_INIT(&sc->groups[i].clients);
-		sc->groups[i].hidden = 0;
 		sc->groups[i].num = i;
 		TAILQ_INSERT_TAIL(&sc->groupq, &sc->groups[i], entry);
 	}
@@ -147,15 +142,6 @@ group_init(struct screen_ctx *sc)
 	xu_ewmh_net_virtual_roots(sc);
 
 	group_setactive(sc, 1);
-}
-
-void
-group_set_state(struct screen_ctx *sc)
-{
-	struct group_ctx	*gc;
-
-	TAILQ_FOREACH(gc, &sc->groupq, entry)
-		group_set_hidden_state(gc);
 }
 
 static void
@@ -176,9 +162,10 @@ group_movetogroup(struct client_ctx *cc, int idx)
 		errx(1, "group_movetogroup: index out of range (%d)", idx);
 
 	gc = &sc->groups[idx];
+
 	if (cc->group == gc)
 		return;
-	if (gc->hidden)
+	if (group_hidden_state(gc))
 		client_hide(cc);
 	group_assign(gc, cc);
 }
@@ -211,21 +198,23 @@ group_sticky_toggle_exit(struct client_ctx *cc)
 }
 
 /*
- * If all clients in a group are hidden, then set the group state as hidden.
+ * If all clients in a group are hidden, then the group state is hidden.
  */
-static void
-group_set_hidden_state(struct group_ctx *gc)
+static int
+group_hidden_state(struct group_ctx *gc)
 {
 	struct client_ctx	*cc;
-	int			 same = 0;
+	int			 hidden = 0, same = 0;
 
 	TAILQ_FOREACH(cc, &gc->clients, group_entry) {
-		if (gc->hidden == ((cc->flags & CLIENT_HIDDEN) ? 1 : 0))
+		if (hidden == ((cc->flags & CLIENT_HIDDEN) ? 1 : 0))
 			same++;
 	}
 
 	if (same == 0)
-		gc->hidden = !gc->hidden;
+		hidden = !hidden;
+
+	return(hidden);
 }
 
 void
@@ -237,9 +226,8 @@ group_hidetoggle(struct screen_ctx *sc, int idx)
 		errx(1, "group_hidetoggle: index out of range (%d)", idx);
 
 	gc = &sc->groups[idx];
-	group_set_hidden_state(gc);
 
-	if (gc->hidden)
+	if (group_hidden_state(gc))
 		group_show(sc, gc);
 	else {
 		group_hide(sc, gc);
@@ -287,7 +275,7 @@ group_cycle(struct screen_ctx *sc, int flags)
 
 		if (!TAILQ_EMPTY(&gc->clients) && showgroup == NULL)
 			showgroup = gc;
-		else if (!gc->hidden)
+		else if (!group_hidden_state(gc))
 			group_hide(sc, gc);
 	}
 
@@ -296,7 +284,7 @@ group_cycle(struct screen_ctx *sc, int flags)
 
 	group_hide(sc, sc->group_active);
 
-	if (showgroup->hidden)
+	if (group_hidden_state(showgroup))
 		group_show(sc, showgroup);
 	else
 		group_setactive(sc, showgroup->num);
@@ -314,8 +302,8 @@ group_menu(struct screen_ctx *sc)
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
 		if (TAILQ_EMPTY(&gc->clients))
 			continue;
-
-		menuq_add(&menuq, gc, gc->hidden ? "%d: [%s]" : "%d: %s",
+		menuq_add(&menuq, gc,
+		    group_hidden_state(gc) ? "%d: [%s]" : "%d: %s",
 		    gc->num, sc->group_names[gc->num]);
 	}
 
@@ -325,7 +313,8 @@ group_menu(struct screen_ctx *sc)
 	mi = menu_filter(sc, &menuq, NULL, NULL, 0, NULL, NULL);
 	if (mi != NULL && mi->ctx != NULL) {
 		gc = (struct group_ctx *)mi->ctx;
-		(gc->hidden) ? group_show(sc, gc) : group_hide(sc, gc);
+		(group_hidden_state(gc)) ?
+		    group_show(sc, gc) : group_hide(sc, gc);
 	}
 
 	menuq_clear(&menuq);
