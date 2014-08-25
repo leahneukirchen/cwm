@@ -38,7 +38,6 @@ static void		 group_show(struct screen_ctx *, struct group_ctx *);
 static void		 group_restack(struct screen_ctx *, struct group_ctx *);
 static int		 group_hidden_state(struct group_ctx *);
 static void		 group_setactive(struct screen_ctx *, long);
-static void		 group_set_names(struct screen_ctx *);
 
 const char *num_to_name[] = {
 	"nogroup", "one", "two", "three", "four", "five", "six",
@@ -427,28 +426,7 @@ group_update_names(struct screen_ctx *sc)
 
 	sc->group_names = strings;
 	sc->group_nonames = n;
+
 	if (setnames)
-		group_set_names(sc);
-}
-
-static void
-group_set_names(struct screen_ctx *sc)
-{
-	char		*p, *q;
-	size_t		 len = 0, tlen, slen;
-	int		 i;
-
-	for (i = 0; i < sc->group_nonames; i++)
-		len += strlen(sc->group_names[i]) + 1;
-	q = p = xcalloc(len, sizeof(*p));
-
-	tlen = len;
-	for (i = 0; i < sc->group_nonames; i++) {
-		slen = strlen(sc->group_names[i]) + 1;
-		(void)strlcpy(q, sc->group_names[i], tlen);
-		tlen -= slen;
-		q += slen;
-	}
-
-	xu_ewmh_net_desktop_names(sc, p, len);
+		xu_ewmh_net_desktop_names(sc);
 }

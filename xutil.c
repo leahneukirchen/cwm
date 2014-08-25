@@ -281,10 +281,26 @@ xu_ewmh_net_current_desktop(struct screen_ctx *sc, long idx)
 }
 
 void
-xu_ewmh_net_desktop_names(struct screen_ctx *sc, char *data, int n)
+xu_ewmh_net_desktop_names(struct screen_ctx *sc)
 {
+	char		*p, *q;
+	size_t		 len = 0, tlen, slen;
+	int		 i;
+
+	for (i = 0; i < sc->group_nonames; i++)
+		len += strlen(sc->group_names[i]) + 1;
+	q = p = xcalloc(len, sizeof(*p));
+
+	tlen = len;
+	for (i = 0; i < sc->group_nonames; i++) {
+		slen = strlen(sc->group_names[i]) + 1;
+		(void)strlcpy(q, sc->group_names[i], tlen);
+		tlen -= slen;
+		q += slen;
+	}
+
 	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_DESKTOP_NAMES],
-	    cwmh[UTF8_STRING], 8, PropModeReplace, (unsigned char *)data, n);
+	    cwmh[UTF8_STRING], 8, PropModeReplace, (unsigned char *)p, len);
 }
 
 /* Application Window Properties */
