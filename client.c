@@ -239,6 +239,17 @@ client_freeze(struct client_ctx *cc)
 }
 
 void
+client_sticky(struct client_ctx *cc)
+{
+	if (cc->flags & CLIENT_STICKY)
+		cc->flags &= ~CLIENT_STICKY;
+	else
+		cc->flags |= CLIENT_STICKY;
+
+	xu_ewmh_set_net_wm_state(cc);
+}
+
+void
 client_fullscreen(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
@@ -468,6 +479,9 @@ client_ptrsave(struct client_ctx *cc)
 void
 client_hide(struct client_ctx *cc)
 {
+	if (cc->flags & CLIENT_STICKY)
+		return;
+
 	XUnmapWindow(X_Dpy, cc->win);
 
 	cc->active = 0;
@@ -481,6 +495,9 @@ client_hide(struct client_ctx *cc)
 void
 client_unhide(struct client_ctx *cc)
 {
+	if (cc->flags & CLIENT_STICKY)
+		return;
+
 	XMapRaised(X_Dpy, cc->win);
 
 	cc->flags &= ~CLIENT_HIDDEN;

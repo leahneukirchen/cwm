@@ -433,6 +433,12 @@ kbfunc_client_movetogroup(struct client_ctx *cc, union arg *arg)
 }
 
 void
+kbfunc_client_sticky(struct client_ctx *cc, union arg *arg)
+{
+	client_sticky(cc);
+}
+
+void
 kbfunc_client_fullscreen(struct client_ctx *cc, union arg *arg)
 {
 	client_fullscreen(cc);

@@ -326,6 +326,9 @@ xu_ewmh_handle_net_wm_state_msg(struct client_ctx *cc, int action,
 		int property;
 		void (*toggle)(struct client_ctx *);
 	} handlers[] = {
+		{ _NET_WM_STATE_STICKY,
+			CLIENT_STICKY,
+			client_sticky },
 		{ _NET_WM_STATE_MAXIMIZED_VERT,
 			CLIENT_VMAXIMIZED,
 			client_vmaximize },
@@ -367,6 +370,8 @@ xu_ewmh_restore_net_wm_state(struct client_ctx *cc)
 
 	atoms = xu_ewmh_get_net_wm_state(cc, &n);
 	for (i = 0; i < n; i++) {
+		if (atoms[i] == ewmh[_NET_WM_STATE_STICKY])
+			client_sticky(cc);
 		if (atoms[i] == ewmh[_NET_WM_STATE_MAXIMIZED_HORZ])
 			client_hmaximize(cc);
 		if (atoms[i] == ewmh[_NET_WM_STATE_MAXIMIZED_VERT])
@@ -391,10 +396,13 @@ xu_ewmh_set_net_wm_state(struct client_ctx *cc)
 		if (oatoms[i] != ewmh[_NET_WM_STATE_MAXIMIZED_HORZ] &&
 		    oatoms[i] != ewmh[_NET_WM_STATE_MAXIMIZED_VERT] &&
 		    oatoms[i] != ewmh[_NET_WM_STATE_FULLSCREEN] &&
+		    oatoms[i] != ewmh[_NET_WM_STATE_STICKY] &&
 		    oatoms[i] != ewmh[_NET_WM_STATE_DEMANDS_ATTENTION])
 			atoms[j++] = oatoms[i];
 	}
 	free(oatoms);
+	if (cc->flags & CLIENT_STICKY)
+		atoms[j++] = ewmh[_NET_WM_STATE_STICKY];
 	if (cc->flags & CLIENT_FULLSCREEN)
 		atoms[j++] = ewmh[_NET_WM_STATE_FULLSCREEN];
 	else {

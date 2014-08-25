@@ -207,6 +207,8 @@ group_hidden_state(struct group_ctx *gc)
 	int			 hidden = 0, same = 0;
 
 	TAILQ_FOREACH(cc, &gc->clients, group_entry) {
+		if (cc->flags & CLIENT_STICKY)
+			continue;
 		if (hidden == ((cc->flags & CLIENT_HIDDEN) ? 1 : 0))
 			same++;
 	}
