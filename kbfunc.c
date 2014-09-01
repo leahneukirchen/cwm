@@ -159,7 +159,6 @@ kbfunc_client_search(struct client_ctx *cc, union arg *arg)
 		cc = (struct client_ctx *)mi->ctx;
 		if (cc->flags & CLIENT_HIDDEN)
 			client_unhide(cc);
-
 		if (old_cc)
 			client_ptrsave(old_cc);
 		client_ptrwarp(cc);

@@ -194,7 +194,6 @@ mousefunc_menu_group(struct client_ctx *cc, union arg *arg)
 		    group_hidden_state(gc) ? "%d: [%s]" : "%d: %s",
 		    gc->num, sc->group_names[gc->num]);
 	}
-
 	if (TAILQ_EMPTY(&menuq))
 		return;
 
@@ -220,16 +219,15 @@ mousefunc_menu_unhide(struct client_ctx *cc, union arg *arg)
 	old_cc = client_current();
 
 	TAILQ_INIT(&menuq);
-	TAILQ_FOREACH(cc, &Clientq, entry)
+	TAILQ_FOREACH(cc, &Clientq, entry) {
 		if (cc->flags & CLIENT_HIDDEN) {
 			wname = (cc->label) ? cc->label : cc->name;
 			if (wname == NULL)
 				continue;
-
 			menuq_add(&menuq, cc, "(%d) %s",
 			    cc->group ? cc->group->num : 0, wname);
 		}
-
+	}
 	if (TAILQ_EMPTY(&menuq))
 		return;
 
@@ -257,7 +255,6 @@ mousefunc_menu_cmd(struct client_ctx *cc, union arg *arg)
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(cmd, &Conf.cmdq, entry)
 		menuq_add(&menuq, cmd, "%s", cmd->name);
-
 	if (TAILQ_EMPTY(&menuq))
 		return;
 
