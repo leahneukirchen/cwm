@@ -33,10 +33,7 @@
 #include "calmwm.h"
 
 static void		 group_assign(struct group_ctx *, struct client_ctx *);
-static void		 group_hide(struct screen_ctx *, struct group_ctx *);
-static void		 group_show(struct screen_ctx *, struct group_ctx *);
 static void		 group_restack(struct screen_ctx *, struct group_ctx *);
-static int		 group_hidden_state(struct group_ctx *);
 static void		 group_setactive(struct screen_ctx *, long);
 
 const char *num_to_name[] = {
@@ -58,7 +55,7 @@ group_assign(struct group_ctx *gc, struct client_ctx *cc)
 	xu_ewmh_net_wm_desktop(cc);
 }
 
-static void
+void
 group_hide(struct screen_ctx *sc, struct group_ctx *gc)
 {
 	struct client_ctx	*cc;
@@ -69,7 +66,7 @@ group_hide(struct screen_ctx *sc, struct group_ctx *gc)
 		client_hide(cc);
 }
 
-static void
+void
 group_show(struct screen_ctx *sc, struct group_ctx *gc)
 {
 	struct client_ctx	*cc;
@@ -199,7 +196,7 @@ group_sticky_toggle_exit(struct client_ctx *cc)
 /*
  * If all clients in a group are hidden, then the group state is hidden.
  */
-static int
+int
 group_hidden_state(struct group_ctx *gc)
 {
 	struct client_ctx	*cc;
@@ -289,36 +286,6 @@ group_cycle(struct screen_ctx *sc, int flags)
 		group_show(sc, showgroup);
 	else
 		group_setactive(sc, showgroup->num);
-}
-
-void
-group_menu(struct screen_ctx *sc)
-{
-	struct group_ctx	*gc;
-	struct menu		*mi;
-	struct menu_q		 menuq;
-
-	TAILQ_INIT(&menuq);
-
-	TAILQ_FOREACH(gc, &sc->groupq, entry) {
-		if (TAILQ_EMPTY(&gc->clients))
-			continue;
-		menuq_add(&menuq, gc,
-		    group_hidden_state(gc) ? "%d: [%s]" : "%d: %s",
-		    gc->num, sc->group_names[gc->num]);
-	}
-
-	if (TAILQ_EMPTY(&menuq))
-		return;
-
-	mi = menu_filter(sc, &menuq, NULL, NULL, 0, NULL, NULL);
-	if (mi != NULL && mi->ctx != NULL) {
-		gc = (struct group_ctx *)mi->ctx;
-		(group_hidden_state(gc)) ?
-		    group_show(sc, gc) : group_hide(sc, gc);
-	}
-
-	menuq_clear(&menuq);
 }
 
 void

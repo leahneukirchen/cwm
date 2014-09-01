@@ -181,7 +181,31 @@ mousefunc_client_grouptoggle(struct client_ctx *cc, union arg *arg)
 void
 mousefunc_menu_group(struct client_ctx *cc, union arg *arg)
 {
-	group_menu(cc->sc);
+	struct screen_ctx	*sc = cc->sc;
+	struct group_ctx	*gc;
+	struct menu		*mi;
+	struct menu_q		 menuq;
+
+	TAILQ_INIT(&menuq);
+	TAILQ_FOREACH(gc, &sc->groupq, entry) {
+		if (TAILQ_EMPTY(&gc->clients))
+			continue;
+		menuq_add(&menuq, gc,
+		    group_hidden_state(gc) ? "%d: [%s]" : "%d: %s",
+		    gc->num, sc->group_names[gc->num]);
+	}
+
+	if (TAILQ_EMPTY(&menuq))
+		return;
+
+	mi = menu_filter(sc, &menuq, NULL, NULL, 0, NULL, NULL);
+	if (mi != NULL && mi->ctx != NULL) {
+		gc = (struct group_ctx *)mi->ctx;
+		(group_hidden_state(gc)) ?
+		    group_show(sc, gc) : group_hide(sc, gc);
+	}
+
+	menuq_clear(&menuq);
 }
 
 void
