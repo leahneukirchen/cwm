@@ -197,8 +197,8 @@ mousefunc_menu_group(struct client_ctx *cc, union arg *arg)
 	if (TAILQ_EMPTY(&menuq))
 		return;
 
-	mi = menu_filter(sc, &menuq, NULL, NULL, 0, NULL, NULL);
-	if (mi != NULL && mi->ctx != NULL) {
+	if ((mi = menu_filter(sc, &menuq, NULL, NULL, 0,
+	    NULL, NULL)) != NULL) {
 		gc = (struct group_ctx *)mi->ctx;
 		(group_hidden_state(gc)) ?
 		    group_show(sc, gc) : group_hide(sc, gc);
@@ -235,7 +235,6 @@ mousefunc_menu_unhide(struct client_ctx *cc, union arg *arg)
 	    NULL, NULL)) != NULL) {
 		cc = (struct client_ctx *)mi->ctx;
 		client_unhide(cc);
-
 		if (old_cc != NULL)
 			client_ptrsave(old_cc);
 		client_ptrwarp(cc);
