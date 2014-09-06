@@ -41,27 +41,19 @@ conf_cmd_add(struct conf *c, const char *name, const char *path)
 {
 	struct cmd	*cmd;
 
-	/* "term" and "lock" have special meanings. */
-	if (strcmp(name, "term") == 0) {
-		if (strlcpy(c->termpath, path, sizeof(c->termpath)) >=
-		    sizeof(c->termpath))
-			return (0);
-	} else if (strcmp(name, "lock") == 0) {
-		if (strlcpy(c->lockpath, path, sizeof(c->lockpath)) >=
-		    sizeof(c->lockpath))
-			return (0);
-	} else {
-		conf_cmd_remove(c, name);
+	cmd = xmalloc(sizeof(*cmd));
 
-		cmd = xmalloc(sizeof(*cmd));
-
-		cmd->name = xstrdup(name);
-		if (strlcpy(cmd->path, path, sizeof(cmd->path)) >=
-		    sizeof(cmd->path))
-			return (0);
-		TAILQ_INSERT_TAIL(&c->cmdq, cmd, entry);
+	cmd->name = xstrdup(name);
+	if (strlcpy(cmd->path, path, sizeof(cmd->path)) >= sizeof(cmd->path)) {
+		free(cmd->name);
+		free(cmd);
+		return(0);
 	}
-	return (1);
+
+	conf_cmd_remove(c, name);
+
+	TAILQ_INSERT_TAIL(&c->cmdq, cmd, entry);
+	return(1);
 }
 
 static void

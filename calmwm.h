@@ -294,8 +294,6 @@ struct conf {
 	int			 snapdist;
 	struct gap		 gap;
 	char			*color[CWM_COLOR_NITEMS];
-	char			 termpath[MAXPATHLEN];
-	char			 lockpath[MAXPATHLEN];
 	char			 known_hosts[MAXPATHLEN];
 #define	CONF_FONT			"sans-serif:pixelsize=14:bold"
 	char			*font;
