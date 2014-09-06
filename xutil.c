@@ -283,18 +283,46 @@ xu_ewmh_net_current_desktop(struct screen_ctx *sc, long idx)
 void
 xu_ewmh_net_desktop_names(struct screen_ctx *sc)
 {
-	char		*p, *q;
-	size_t		 len = 0, tlen, slen;
-	int		 i;
+	struct group_ctx	*gc;
+	char			*p, *q;
+	unsigned char		*prop_ret;
+	int			 i = 0, j = 0, nstrings = 0, n = 0;
+	size_t			 len = 0, tlen, slen;
 
-	for (i = 0; i < sc->group_nonames; i++)
-		len += strlen(sc->group_names[i]) + 1;
+	/* Let group names be overwritten if _NET_DESKTOP_NAMES is set. */
+
+	if ((j = xu_getprop(sc->rootwin, ewmh[_NET_DESKTOP_NAMES],
+	    cwmh[UTF8_STRING], 0xffffff, (unsigned char **)&prop_ret)) > 0) {
+		prop_ret[j - 1] = '\0'; /* paranoia */
+		while (i < j) {
+			if (prop_ret[i++] == '\0')
+				nstrings++;
+		}
+	}
+
+	p = (char *)prop_ret;
+	while (n < nstrings) {
+		TAILQ_FOREACH(gc, &sc->groupq, entry) {
+			if (gc->num == n) {
+				free(gc->name);
+				gc->name = xstrdup(p);
+				p += strlen(p) + 1;
+				break;
+			}
+		}
+		n++;
+	}
+	if (prop_ret != NULL)
+		XFree(prop_ret);
+
+	TAILQ_FOREACH(gc, &sc->groupq, entry)
+		len += strlen(gc->name) + 1;
 	q = p = xcalloc(len, sizeof(*p));
 
 	tlen = len;
-	for (i = 0; i < sc->group_nonames; i++) {
-		slen = strlen(sc->group_names[i]) + 1;
-		(void)strlcpy(q, sc->group_names[i], tlen);
+	TAILQ_FOREACH(gc, &sc->groupq, entry) {
+		slen = strlen(gc->name) + 1;
+		(void)strlcpy(q, gc->name, tlen);
 		tlen -= slen;
 		q += slen;
 	}

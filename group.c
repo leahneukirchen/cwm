@@ -120,18 +120,15 @@ group_init(struct screen_ctx *sc)
 
 	TAILQ_INIT(&sc->groupq);
 	sc->group_hideall = 0;
-	/*
-	 * See if any group names have already been set and update the
-	 * property with ours if they'll have changed.
-	 */
-	group_update_names(sc);
 
 	for (i = 0; i < CALMWM_NGROUPS; i++) {
 		TAILQ_INIT(&sc->groups[i].clients);
+		sc->groups[i].name = xstrdup(num_to_name[i]);
 		sc->groups[i].num = i;
 		TAILQ_INSERT_TAIL(&sc->groupq, &sc->groups[i], entry);
 	}
 
+	xu_ewmh_net_desktop_names(sc);
 	xu_ewmh_net_wm_desktop_viewport(sc);
 	xu_ewmh_net_wm_number_of_desktops(sc);
 	xu_ewmh_net_showing_desktop(sc);
@@ -349,51 +346,4 @@ group_autogroup(struct client_ctx *cc)
 		group_assign(sc->group_active, cc);
 	else
 		group_assign(NULL, cc);
-}
-
-void
-group_update_names(struct screen_ctx *sc)
-{
-	char		**strings, *p;
-	unsigned char	*prop_ret;
-	int		 i = 0, j = 0, nstrings = 0, n = 0, setnames = 0;
-
-	if ((j = xu_getprop(sc->rootwin, ewmh[_NET_DESKTOP_NAMES],
-	    cwmh[UTF8_STRING], 0xffffff, (unsigned char **)&prop_ret)) > 0) {
-		prop_ret[j - 1] = '\0'; /* paranoia */
-		while (i < j) {
-			if (prop_ret[i++] == '\0')
-				nstrings++;
-		}
-	}
-
-	strings = xcalloc((nstrings < CALMWM_NGROUPS ? CALMWM_NGROUPS :
-	    nstrings), sizeof(*strings));
-
-	p = (char *)prop_ret;
-	while (n < nstrings) {
-		strings[n++] = xstrdup(p);
-		p += strlen(p) + 1;
-	}
-	/*
-	 * make sure we always set our defaults if nothing is there to
-	 * replace them.
-	 */
-	if (n < CALMWM_NGROUPS) {
-		setnames = 1;
-		i = 0;
-		while (n < CALMWM_NGROUPS)
-			strings[n++] = xstrdup(num_to_name[i++]);
-	}
-
-	if (prop_ret != NULL)
-		XFree(prop_ret);
-	if (sc->group_nonames != 0)
-		free(sc->group_names);
-
-	sc->group_names = strings;
-	sc->group_nonames = n;
-
-	if (setnames)
-		xu_ewmh_net_desktop_names(sc);
 }

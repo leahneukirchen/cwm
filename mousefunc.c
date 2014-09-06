@@ -192,7 +192,7 @@ mousefunc_menu_group(struct client_ctx *cc, union arg *arg)
 			continue;
 		menuq_add(&menuq, gc,
 		    group_hidden_state(gc) ? "%d: [%s]" : "%d: %s",
-		    gc->num, sc->group_names[gc->num]);
+		    gc->num, gc->name);
 	}
 	if (TAILQ_EMPTY(&menuq))
 		return;
