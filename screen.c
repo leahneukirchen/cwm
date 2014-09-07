@@ -79,12 +79,12 @@ screen_init(int which)
 }
 
 struct screen_ctx *
-screen_fromroot(Window rootwin)
+screen_find(Window win)
 {
 	struct screen_ctx	*sc;
 
 	TAILQ_FOREACH(sc, &Screenq, entry)
-		if (sc->rootwin == rootwin)
+		if (sc->rootwin == win)
 			return (sc);
 
 	/* XXX FAIL HERE */

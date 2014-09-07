@@ -239,7 +239,7 @@ xev_handle_buttonpress(XEvent *ee)
 		if (e->window != e->root)
 			return;
 		cc = &fakecc;
-		cc->sc = screen_fromroot(e->window);
+		cc->sc = screen_find(e->window);
 	}
 
 	(*mb->callback)(cc, &mb->argument);
@@ -289,7 +289,7 @@ xev_handle_keypress(XEvent *ee)
 			return;
 	} else {
 		cc = &fakecc;
-		cc->sc = screen_fromroot(e->window);
+		cc->sc = screen_find(e->window);
 	}
 
 	(*kb->callback)(cc, &kb->argument);
@@ -306,7 +306,7 @@ xev_handle_keyrelease(XEvent *ee)
 	KeySym			 keysym;
 	unsigned int		 i;
 
-	sc = screen_fromroot(e->root);
+	sc = screen_find(e->root);
 
 	keysym = XkbKeycodeToKeysym(X_Dpy, e->keycode, 0, 0);
 	for (i = 0; i < nitems(modkeys); i++) {
@@ -324,7 +324,7 @@ xev_handle_clientmessage(XEvent *ee)
 	struct client_ctx	*cc, *old_cc;
 	struct screen_ctx       *sc;
 
-	sc = screen_fromroot(e->window);
+	sc = screen_find(e->window);
 
 	if ((cc = client_find(e->window)) == NULL && e->window != sc->rootwin)
 		return;

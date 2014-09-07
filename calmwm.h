@@ -430,9 +430,9 @@ void			 search_match_text(struct menu_q *, struct menu_q *,
 			     char *);
 void			 search_print_client(struct menu *, int);
 
+struct screen_ctx	*screen_find(Window);
 struct geom		 screen_find_xinerama(struct screen_ctx *,
     			     int, int, int);
-struct screen_ctx	*screen_fromroot(Window);
 void			 screen_init(int);
 void			 screen_update_geometry(struct screen_ctx *);
 void			 screen_updatestackingorder(struct screen_ctx *);
