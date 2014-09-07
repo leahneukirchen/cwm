@@ -74,7 +74,7 @@ xu_key_ungrab(Window win)
 int
 xu_ptr_grab(Window win, unsigned int mask, Cursor curs)
 {
-	return (XGrabPointer(X_Dpy, win, False, mask,
+	return(XGrabPointer(X_Dpy, win, False, mask,
 	    GrabModeAsync, GrabModeAsync,
 	    None, curs, CurrentTime) == GrabSuccess ? 0 : -1);
 }
@@ -82,7 +82,7 @@ xu_ptr_grab(Window win, unsigned int mask, Cursor curs)
 int
 xu_ptr_regrab(unsigned int mask, Cursor curs)
 {
-	return (XChangeActivePointerGrab(X_Dpy, mask,
+	return(XChangeActivePointerGrab(X_Dpy, mask,
 	    curs, CurrentTime) == GrabSuccess ? 0 : -1);
 }
 
@@ -117,12 +117,12 @@ xu_getprop(Window win, Atom atm, Atom type, long len, unsigned char **p)
 
 	if (XGetWindowProperty(X_Dpy, win, atm, 0L, len, False, type,
 	    &realtype, &format, &n, &extra, p) != Success || *p == NULL)
-		return (-1);
+		return(-1);
 
 	if (n == 0)
 		XFree(*p);
 
-	return (n);
+	return(n);
 }
 
 int
@@ -135,7 +135,7 @@ xu_getstrprop(Window win, Atom atm, char **text) {
 
 	XGetTextProperty(X_Dpy, win, &prop, atm);
 	if (!prop.nitems)
-		return (0);
+		return(0);
 
 	if (Xutf8TextPropertyToTextList(X_Dpy, &prop, &list,
 	    &nitems) == Success && nitems > 0 && *list) {
@@ -154,7 +154,7 @@ xu_getstrprop(Window win, Atom atm, char **text) {
 
 	XFree(prop.value);
 
-	return (nitems);
+	return(nitems);
 }
 
 /* Root Window Properties */
@@ -351,13 +351,13 @@ xu_ewmh_get_net_wm_state(struct client_ctx *cc, int *n)
 
 	if ((*n = xu_getprop(cc->win, ewmh[_NET_WM_STATE], XA_ATOM, 64L,
 	    (unsigned char **)&p)) <= 0)
-		return (NULL);
+		return(NULL);
 
 	state = xcalloc(*n, sizeof(Atom));
 	(void)memcpy(state, p, *n * sizeof(Atom));
 	XFree((char *)p);
 
-	return (state);
+	return(state);
 }
 
 void
@@ -483,7 +483,7 @@ xu_xft_width(XftFont *xftfont, const char *text, int len)
 	XftTextExtentsUtf8(X_Dpy, xftfont, (const FcChar8*)text,
 	    len, &extents);
 
-	return (extents.xOff);
+	return(extents.xOff);
 }
 
 void

@@ -475,14 +475,14 @@ conf_bind_getmask(const char *name, unsigned int *mask)
 
 	*mask = 0;
 	if ((dash = strchr(name, '-')) == NULL)
-		return (name);
+		return(name);
 	for (i = 0; i < nitems(bind_mods); i++) {
 		if ((ch = strchr(name, bind_mods[i].ch)) != NULL && ch < dash)
 			*mask |= bind_mods[i].mask;
 	}
 
 	/* Skip past modifiers. */
-	return (dash + 1);
+	return(dash + 1);
 }
 
 int
@@ -500,7 +500,7 @@ conf_bind_kbd(struct conf *c, const char *bind, const char *cmd)
 	if (kb->press.keysym == NoSymbol) {
 		warnx("unknown symbol: %s", key);
 		free(kb);
-		return (0);
+		return(0);
 	}
 
 	/* We now have the correct binding, remove duplicates. */
@@ -508,7 +508,7 @@ conf_bind_kbd(struct conf *c, const char *bind, const char *cmd)
 
 	if (strcmp("unmap", cmd) == 0) {
 		free(kb);
-		return (1);
+		return(1);
 	}
 
 	for (i = 0; i < nitems(name_to_func); i++) {
@@ -520,7 +520,7 @@ conf_bind_kbd(struct conf *c, const char *bind, const char *cmd)
 		kb->argument = name_to_func[i].argument;
 		kb->argtype |= ARG_INT;
 		TAILQ_INSERT_TAIL(&c->keybindingq, kb, entry);
-		return (1);
+		return(1);
 	}
 
 	kb->callback = kbfunc_cmdexec;
@@ -528,7 +528,7 @@ conf_bind_kbd(struct conf *c, const char *bind, const char *cmd)
 	kb->argument.c = xstrdup(cmd);
 	kb->argtype |= ARG_CHAR;
 	TAILQ_INSERT_TAIL(&c->keybindingq, kb, entry);
-	return (1);
+	return(1);
 }
 
 static void
@@ -564,7 +564,7 @@ conf_bind_mouse(struct conf *c, const char *bind, const char *cmd)
 	if (errstr) {
 		warnx("button number is %s: %s", errstr, button);
 		free(mb);
-		return (0);
+		return(0);
 	}
 
 	/* We now have the correct binding, remove duplicates. */
@@ -572,7 +572,7 @@ conf_bind_mouse(struct conf *c, const char *bind, const char *cmd)
 
 	if (strcmp("unmap", cmd) == 0) {
 		free(mb);
-		return (1);
+		return(1);
 	}
 
 	for (i = 0; i < nitems(name_to_func); i++) {
@@ -583,10 +583,10 @@ conf_bind_mouse(struct conf *c, const char *bind, const char *cmd)
 		mb->flags = name_to_func[i].flags;
 		mb->argument = name_to_func[i].argument;
 		TAILQ_INSERT_TAIL(&c->mousebindingq, mb, entry);
-		return (1);
+		return(1);
 	}
 
-	return (0);
+	return(0);
 }
 
 static void

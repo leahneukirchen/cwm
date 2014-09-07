@@ -47,11 +47,11 @@ client_find(Window win)
 {
 	struct client_ctx	*cc;
 
-	TAILQ_FOREACH(cc, &Clientq, entry)
+	TAILQ_FOREACH(cc, &Clientq, entry) {
 		if (cc->win == win)
-			return (cc);
-
-	return (NULL);
+			return(cc);
+	}
+	return(NULL);
 }
 
 struct client_ctx *
@@ -63,16 +63,16 @@ client_init(Window win, struct screen_ctx *sc)
 	int			 mapped;
 
 	if (win == None)
-		return (NULL);
+		return(NULL);
 	if (!XGetWindowAttributes(X_Dpy, win, &wattr))
-		return (NULL);
+		return(NULL);
 
 	if (sc == NULL) {
 		sc = screen_find(wattr.root);
 		mapped = 1;
 	} else {
 		if (wattr.override_redirect || wattr.map_state != IsViewable)
-			return (NULL);
+			return(NULL);
 		mapped = wattr.map_state != IsUnmapped;
 	}
 
@@ -138,7 +138,7 @@ client_init(Window win, struct screen_ctx *sc)
 	XSync(X_Dpy, False);
 	XUngrabServer(X_Dpy);
 
-	return (cc);
+	return(cc);
 }
 
 void
@@ -226,7 +226,7 @@ client_none(struct screen_ctx *sc)
 struct client_ctx *
 client_current(void)
 {
-	return (curcc);
+	return(curcc);
 }
 
 void
@@ -696,7 +696,7 @@ client_mrunext(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	struct client_ctx	*ccc;
 
-	return ((ccc = TAILQ_NEXT(cc, mru_entry)) != NULL ?
+	return((ccc = TAILQ_NEXT(cc, mru_entry)) != NULL ?
 	    ccc : TAILQ_FIRST(&sc->mruq));
 }
 
@@ -706,7 +706,7 @@ client_mruprev(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	struct client_ctx	*ccc;
 
-	return ((ccc = TAILQ_PREV(cc, cycle_entry_q, mru_entry)) != NULL ?
+	return((ccc = TAILQ_PREV(cc, cycle_entry_q, mru_entry)) != NULL ?
 	    ccc : TAILQ_LAST(&sc->mruq, cycle_entry_q));
 }
 
@@ -896,7 +896,7 @@ client_transient(struct client_ctx *cc)
 static int
 client_inbound(struct client_ctx *cc, int x, int y)
 {
-	return (x < cc->geom.w && x >= 0 &&
+	return(x < cc->geom.w && x >= 0 &&
 	    y < cc->geom.h && y >= 0);
 }
 
@@ -916,15 +916,15 @@ client_snapcalc(int n0, int n1, int e0, int e1, int snapdist)
 	/* possible to snap in both directions */
 	if (s0 != 0 && s1 != 0)
 		if (abs(s0) < abs(s1))
-			return (s0);
+			return(s0);
 		else
-			return (s1);
+			return(s1);
 	else if (s0 != 0)
-		return (s0);
+		return(s0);
 	else if (s1 != 0)
-		return (s1);
+		return(s1);
 	else
-		return (0);
+		return(0);
 }
 
 void
