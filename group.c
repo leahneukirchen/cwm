@@ -116,16 +116,18 @@ group_restack(struct screen_ctx *sc, struct group_ctx *gc)
 void
 group_init(struct screen_ctx *sc)
 {
-	int	 i;
+	struct group_ctx	*gc;
+	int			 i;
 
 	TAILQ_INIT(&sc->groupq);
 	sc->group_hideall = 0;
 
 	for (i = 0; i < CALMWM_NGROUPS; i++) {
-		TAILQ_INIT(&sc->groups[i].clients);
-		sc->groups[i].name = xstrdup(num_to_name[i]);
-		sc->groups[i].num = i;
-		TAILQ_INSERT_TAIL(&sc->groupq, &sc->groups[i], entry);
+		gc = xcalloc(1, sizeof(*gc));
+		TAILQ_INIT(&gc->clients);
+		gc->name = xstrdup(num_to_name[i]);
+		gc->num = i;
+		TAILQ_INSERT_TAIL(&sc->groupq, gc, entry);
 	}
 
 	xu_ewmh_net_desktop_names(sc);
@@ -140,7 +142,13 @@ group_init(struct screen_ctx *sc)
 static void
 group_setactive(struct screen_ctx *sc, long idx)
 {
-	sc->group_active = &sc->groups[idx];
+	struct group_ctx	*gc;
+
+	TAILQ_FOREACH(gc, &sc->groupq, entry) {
+		if (gc->num == idx)
+			break;
+	}
+	sc->group_active = gc;
 
 	xu_ewmh_net_current_desktop(sc, idx);
 }
@@ -154,7 +162,10 @@ group_movetogroup(struct client_ctx *cc, int idx)
 	if (idx < 0 || idx >= CALMWM_NGROUPS)
 		errx(1, "group_movetogroup: index out of range (%d)", idx);
 
-	gc = &sc->groups[idx];
+	TAILQ_FOREACH(gc, &sc->groupq, entry) {
+		if (gc->num == idx)
+			break;
+	}
 
 	if (cc->group == gc)
 		return;
@@ -220,7 +231,10 @@ group_hidetoggle(struct screen_ctx *sc, int idx)
 	if (idx < 0 || idx >= CALMWM_NGROUPS)
 		errx(1, "group_hidetoggle: index out of range (%d)", idx);
 
-	gc = &sc->groups[idx];
+	TAILQ_FOREACH(gc, &sc->groupq, entry) {
+		if (gc->num == idx)
+			break;
+	}
 
 	if (group_hidden_state(gc))
 		group_show(sc, gc);

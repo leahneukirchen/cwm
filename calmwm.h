@@ -240,7 +240,6 @@ struct screen_ctx {
 	XftDraw			*xftdraw;
 	XftFont			*xftfont;
 #define CALMWM_NGROUPS		 10
-	struct group_ctx	 groups[CALMWM_NGROUPS];
 	struct group_ctx_q	 groupq;
 	int			 group_hideall;
 	struct group_ctx	*group_active;
