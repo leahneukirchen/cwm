@@ -199,6 +199,7 @@ struct client_ctx {
 #define CLIENT_WM_TAKE_FOCUS		0x0200
 #define CLIENT_URGENCY			0x0400
 #define CLIENT_FULLSCREEN		0x0800
+#define CLIENT_STICKY			0x1000
 
 #define CLIENT_HIGHLIGHT		(CLIENT_GROUP | CLIENT_UNGROUP)
 #define CLIENT_MAXFLAGS			(CLIENT_VMAXIMIZED | CLIENT_HMAXIMIZED)
@@ -222,10 +223,8 @@ TAILQ_HEAD(cycle_entry_q, client_ctx);
 struct group_ctx {
 	TAILQ_ENTRY(group_ctx)	 entry;
 	struct client_ctx_q	 clients;
-	int			 shortcut;
-	int			 hidden;
-	int			 nhidden;
-	int			 highstack;
+	char			*name;
+	int			 num;
 };
 TAILQ_HEAD(group_ctx_q, group_ctx);
 
@@ -263,9 +262,7 @@ struct screen_ctx {
 	struct group_ctx	 groups[CALMWM_NGROUPS];
 	struct group_ctx_q	 groupq;
 	int			 group_hideall;
-	int			 group_nonames;
 	struct group_ctx	*group_active;
-	char 			**group_names;
 };
 TAILQ_HEAD(screen_ctx_q, screen_ctx);
 
@@ -316,8 +313,6 @@ struct conf {
 	int			 snapdist;
 	struct gap		 gap;
 	char			*color[CWM_COLOR_NITEMS];
-	char			 termpath[MAXPATHLEN];
-	char			 lockpath[MAXPATHLEN];
 	char			 known_hosts[MAXPATHLEN];
 #define	CONF_FONT			"sans-serif:pixelsize=14:bold"
 	char			*font;
@@ -371,7 +366,8 @@ enum {
 	_NET_WM_DESKTOP,
 	_NET_CLOSE_WINDOW,
 	_NET_WM_STATE,
-#define	_NET_WM_STATES_NITEMS	4
+#define	_NET_WM_STATES_NITEMS	5
+	_NET_WM_STATE_STICKY,
 	_NET_WM_STATE_MAXIMIZED_VERT,
 	_NET_WM_STATE_MAXIMIZED_HORZ,
 	_NET_WM_STATE_FULLSCREEN,
@@ -418,6 +414,7 @@ void			 client_set_wm_state(struct client_ctx *, long);
 void			 client_setactive(struct client_ctx *);
 void			 client_setname(struct client_ctx *);
 int			 client_snapcalc(int, int, int, int, int);
+void			 client_sticky(struct client_ctx *);
 void			 client_transient(struct client_ctx *);
 void			 client_unhide(struct client_ctx *);
 void			 client_urgency(struct client_ctx *);
@@ -429,12 +426,13 @@ void			 client_wm_hints(struct client_ctx *);
 void			 group_alltoggle(struct screen_ctx *);
 void			 group_autogroup(struct client_ctx *);
 void			 group_cycle(struct screen_ctx *, int);
+int			 group_hidden_state(struct group_ctx *);
+void			 group_hide(struct screen_ctx *, struct group_ctx *);
 void			 group_hidetoggle(struct screen_ctx *, int);
 void			 group_init(struct screen_ctx *);
-void			 group_menu(struct screen_ctx *);
 void			 group_movetogroup(struct client_ctx *, int);
 void			 group_only(struct screen_ctx *, int);
-void			 group_set_state(struct screen_ctx *);
+void			 group_show(struct screen_ctx *, struct group_ctx *);
 void			 group_sticky(struct client_ctx *);
 void			 group_sticky_toggle_enter(struct client_ctx *);
 void			 group_sticky_toggle_exit(struct client_ctx *);
@@ -487,6 +485,7 @@ void			 kbfunc_client_nogroup(struct client_ctx *,
 void			 kbfunc_client_raise(struct client_ctx *, union arg *);
 void			 kbfunc_client_rcycle(struct client_ctx *, union arg *);
 void			 kbfunc_client_search(struct client_ctx *, union arg *);
+void			 kbfunc_client_sticky(struct client_ctx *, union arg *);
 void			 kbfunc_client_vmaximize(struct client_ctx *,
 			     union arg *);
 void			 kbfunc_cmdexec(struct client_ctx *, union arg *);
@@ -564,8 +563,7 @@ void			 xu_ewmh_net_wm_number_of_desktops(struct screen_ctx *);
 void			 xu_ewmh_net_showing_desktop(struct screen_ctx *);
 void			 xu_ewmh_net_virtual_roots(struct screen_ctx *);
 void			 xu_ewmh_net_current_desktop(struct screen_ctx *, long);
-void			 xu_ewmh_net_desktop_names(struct screen_ctx *, char *,
-			     int);
+void			 xu_ewmh_net_desktop_names(struct screen_ctx *);
 
 void			 xu_ewmh_net_wm_desktop(struct client_ctx *);
 Atom 			*xu_ewmh_get_net_wm_state(struct client_ctx *, int *);

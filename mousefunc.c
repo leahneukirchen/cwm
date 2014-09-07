@@ -181,7 +181,30 @@ mousefunc_client_grouptoggle(struct client_ctx *cc, union arg *arg)
 void
 mousefunc_menu_group(struct client_ctx *cc, union arg *arg)
 {
-	group_menu(cc->sc);
+	struct screen_ctx	*sc = cc->sc;
+	struct group_ctx	*gc;
+	struct menu		*mi;
+	struct menu_q		 menuq;
+
+	TAILQ_INIT(&menuq);
+	TAILQ_FOREACH(gc, &sc->groupq, entry) {
+		if (TAILQ_EMPTY(&gc->clients))
+			continue;
+		menuq_add(&menuq, gc,
+		    group_hidden_state(gc) ? "%d: [%s]" : "%d: %s",
+		    gc->num, gc->name);
+	}
+	if (TAILQ_EMPTY(&menuq))
+		return;
+
+	if ((mi = menu_filter(sc, &menuq, NULL, NULL, 0,
+	    NULL, NULL)) != NULL) {
+		gc = (struct group_ctx *)mi->ctx;
+		(group_hidden_state(gc)) ?
+		    group_show(sc, gc) : group_hide(sc, gc);
+	}
+
+	menuq_clear(&menuq);
 }
 
 void
@@ -196,16 +219,15 @@ mousefunc_menu_unhide(struct client_ctx *cc, union arg *arg)
 	old_cc = client_current();
 
 	TAILQ_INIT(&menuq);
-	TAILQ_FOREACH(cc, &Clientq, entry)
+	TAILQ_FOREACH(cc, &Clientq, entry) {
 		if (cc->flags & CLIENT_HIDDEN) {
 			wname = (cc->label) ? cc->label : cc->name;
 			if (wname == NULL)
 				continue;
-
 			menuq_add(&menuq, cc, "(%d) %s",
-			    cc->group->shortcut, wname);
+			    cc->group ? cc->group->num : 0, wname);
 		}
-
+	}
 	if (TAILQ_EMPTY(&menuq))
 		return;
 
@@ -213,7 +235,6 @@ mousefunc_menu_unhide(struct client_ctx *cc, union arg *arg)
 	    NULL, NULL)) != NULL) {
 		cc = (struct client_ctx *)mi->ctx;
 		client_unhide(cc);
-
 		if (old_cc != NULL)
 			client_ptrsave(old_cc);
 		client_ptrwarp(cc);
@@ -233,7 +254,6 @@ mousefunc_menu_cmd(struct client_ctx *cc, union arg *arg)
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(cmd, &Conf.cmdq, entry)
 		menuq_add(&menuq, cmd, "%s", cmd->name);
-
 	if (TAILQ_EMPTY(&menuq))
 		return;
 

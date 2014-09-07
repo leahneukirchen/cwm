@@ -260,7 +260,7 @@ menu_handle_key(XEvent *e, struct menu_ctx *mc, struct menu_q *menuq,
 		 * even if dummy is zero, we need to return something.
 		 */
 		if ((mi = TAILQ_FIRST(resultq)) == NULL) {
-			mi = xmalloc(sizeof *mi);
+			mi = xmalloc(sizeof(*mi));
 			(void)strlcpy(mi->text,
 			    mc->searchstr, sizeof(mi->text));
 			mi->dummy = 1;
@@ -302,7 +302,7 @@ menu_handle_key(XEvent *e, struct menu_ctx *mc, struct menu_q *menuq,
 		mc->list = !mc->list;
 		break;
 	case CTL_ABORT:
-		mi = xmalloc(sizeof *mi);
+		mi = xmalloc(sizeof(*mi));
 		mi->text[0] = '\0';
 		mi->dummy = 1;
 		mi->abort = 1;

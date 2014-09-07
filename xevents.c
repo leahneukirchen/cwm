@@ -196,7 +196,7 @@ xev_handle_propertynotify(XEvent *ee)
 		TAILQ_FOREACH(sc, &Screenq, entry) {
 			if (sc->rootwin == e->window) {
 				if (e->atom == ewmh[_NET_DESKTOP_NAMES])
-					group_update_names(sc);
+					xu_ewmh_net_desktop_names(sc);
 			}
 		}
 	}

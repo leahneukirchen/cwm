@@ -281,20 +281,67 @@ xu_ewmh_net_current_desktop(struct screen_ctx *sc, long idx)
 }
 
 void
-xu_ewmh_net_desktop_names(struct screen_ctx *sc, char *data, int n)
+xu_ewmh_net_desktop_names(struct screen_ctx *sc)
 {
+	struct group_ctx	*gc;
+	char			*p, *q;
+	unsigned char		*prop_ret;
+	int			 i = 0, j = 0, nstrings = 0, n = 0;
+	size_t			 len = 0, tlen, slen;
+
+	/* Let group names be overwritten if _NET_DESKTOP_NAMES is set. */
+
+	if ((j = xu_getprop(sc->rootwin, ewmh[_NET_DESKTOP_NAMES],
+	    cwmh[UTF8_STRING], 0xffffff, (unsigned char **)&prop_ret)) > 0) {
+		prop_ret[j - 1] = '\0'; /* paranoia */
+		while (i < j) {
+			if (prop_ret[i++] == '\0')
+				nstrings++;
+		}
+	}
+
+	p = (char *)prop_ret;
+	while (n < nstrings) {
+		TAILQ_FOREACH(gc, &sc->groupq, entry) {
+			if (gc->num == n) {
+				free(gc->name);
+				gc->name = xstrdup(p);
+				p += strlen(p) + 1;
+				break;
+			}
+		}
+		n++;
+	}
+	if (prop_ret != NULL)
+		XFree(prop_ret);
+
+	TAILQ_FOREACH(gc, &sc->groupq, entry)
+		len += strlen(gc->name) + 1;
+	q = p = xcalloc(len, sizeof(*p));
+
+	tlen = len;
+	TAILQ_FOREACH(gc, &sc->groupq, entry) {
+		slen = strlen(gc->name) + 1;
+		(void)strlcpy(q, gc->name, tlen);
+		tlen -= slen;
+		q += slen;
+	}
+
 	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_DESKTOP_NAMES],
-	    cwmh[UTF8_STRING], 8, PropModeReplace, (unsigned char *)data, n);
+	    cwmh[UTF8_STRING], 8, PropModeReplace, (unsigned char *)p, len);
 }
 
 /* Application Window Properties */
 void
 xu_ewmh_net_wm_desktop(struct client_ctx *cc)
 {
-	long	 no = cc->group->shortcut;
+	long	 num = 0xffffffff;
+
+	if (cc->group)
+		num = cc->group->num;
 
 	XChangeProperty(X_Dpy, cc->win, ewmh[_NET_WM_DESKTOP],
-	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&no, 1);
+	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&num, 1);
 }
 
 Atom *
@@ -323,6 +370,9 @@ xu_ewmh_handle_net_wm_state_msg(struct client_ctx *cc, int action,
 		int property;
 		void (*toggle)(struct client_ctx *);
 	} handlers[] = {
+		{ _NET_WM_STATE_STICKY,
+			CLIENT_STICKY,
+			client_sticky },
 		{ _NET_WM_STATE_MAXIMIZED_VERT,
 			CLIENT_VMAXIMIZED,
 			client_vmaximize },
@@ -364,6 +414,8 @@ xu_ewmh_restore_net_wm_state(struct client_ctx *cc)
 
 	atoms = xu_ewmh_get_net_wm_state(cc, &n);
 	for (i = 0; i < n; i++) {
+		if (atoms[i] == ewmh[_NET_WM_STATE_STICKY])
+			client_sticky(cc);
 		if (atoms[i] == ewmh[_NET_WM_STATE_MAXIMIZED_HORZ])
 			client_hmaximize(cc);
 		if (atoms[i] == ewmh[_NET_WM_STATE_MAXIMIZED_VERT])
@@ -388,10 +440,13 @@ xu_ewmh_set_net_wm_state(struct client_ctx *cc)
 		if (oatoms[i] != ewmh[_NET_WM_STATE_MAXIMIZED_HORZ] &&
 		    oatoms[i] != ewmh[_NET_WM_STATE_MAXIMIZED_VERT] &&
 		    oatoms[i] != ewmh[_NET_WM_STATE_FULLSCREEN] &&
+		    oatoms[i] != ewmh[_NET_WM_STATE_STICKY] &&
 		    oatoms[i] != ewmh[_NET_WM_STATE_DEMANDS_ATTENTION])
 			atoms[j++] = oatoms[i];
 	}
 	free(oatoms);
+	if (cc->flags & CLIENT_STICKY)
+		atoms[j++] = ewmh[_NET_WM_STATE_STICKY];
 	if (cc->flags & CLIENT_FULLSCREEN)
 		atoms[j++] = ewmh[_NET_WM_STATE_FULLSCREEN];
 	else {
