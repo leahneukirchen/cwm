@@ -124,6 +124,7 @@ group_init(struct screen_ctx *sc)
 
 	for (i = 0; i < CALMWM_NGROUPS; i++) {
 		gc = xcalloc(1, sizeof(*gc));
+		gc->sc = sc;
 		TAILQ_INIT(&gc->clients);
 		gc->name = xstrdup(num_to_name[i]);
 		gc->num = i;
