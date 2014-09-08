@@ -45,11 +45,14 @@ struct client_ctx	*curcc = NULL;
 struct client_ctx *
 client_find(Window win)
 {
+	struct screen_ctx	*sc;
 	struct client_ctx	*cc;
 
-	TAILQ_FOREACH(cc, &Clientq, entry) {
-		if (cc->win == win)
-			return(cc);
+	TAILQ_FOREACH(sc, &Screenq, entry) {
+		TAILQ_FOREACH(cc, &sc->clientq, entry) {
+			if (cc->win == win)
+				return(cc);
+		}
 	}
 	return(NULL);
 }
@@ -126,8 +129,7 @@ client_init(Window win, struct screen_ctx *sc)
 
 	(state == IconicState) ? client_hide(cc) : client_unhide(cc);
 
-	TAILQ_INSERT_TAIL(&sc->mruq, cc, mru_entry);
-	TAILQ_INSERT_TAIL(&Clientq, cc, entry);
+	TAILQ_INSERT_TAIL(&sc->clientq, cc, entry);
 
 	xu_ewmh_net_client_list(sc);
 	xu_ewmh_restore_net_wm_state(cc);
@@ -147,8 +149,7 @@ client_delete(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	struct winname		*wn;
 
-	TAILQ_REMOVE(&sc->mruq, cc, mru_entry);
-	TAILQ_REMOVE(&Clientq, cc, entry);
+	TAILQ_REMOVE(&sc->clientq, cc, entry);
 
 	xu_ewmh_net_client_list(sc);
 
@@ -641,13 +642,13 @@ client_cycle(struct screen_ctx *sc, int flags)
 	oldcc = client_current();
 
 	/* If no windows then you cant cycle */
-	if (TAILQ_EMPTY(&sc->mruq))
+	if (TAILQ_EMPTY(&sc->clientq))
 		return;
 
 	if (oldcc == NULL)
 		oldcc = (flags & CWM_RCYCLE ?
-		    TAILQ_LAST(&sc->mruq, cycle_entry_q) :
-		    TAILQ_FIRST(&sc->mruq));
+		    TAILQ_LAST(&sc->clientq, client_ctx_q) :
+		    TAILQ_FIRST(&sc->clientq));
 
 	newcc = oldcc;
 	while (again) {
@@ -696,8 +697,8 @@ client_mrunext(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	struct client_ctx	*ccc;
 
-	return((ccc = TAILQ_NEXT(cc, mru_entry)) != NULL ?
-	    ccc : TAILQ_FIRST(&sc->mruq));
+	return((ccc = TAILQ_NEXT(cc, entry)) != NULL ?
+	    ccc : TAILQ_FIRST(&sc->clientq));
 }
 
 static struct client_ctx *
@@ -706,8 +707,8 @@ client_mruprev(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	struct client_ctx	*ccc;
 
-	return((ccc = TAILQ_PREV(cc, cycle_entry_q, mru_entry)) != NULL ?
-	    ccc : TAILQ_LAST(&sc->mruq, cycle_entry_q));
+	return((ccc = TAILQ_PREV(cc, client_ctx_q, entry)) != NULL ?
+	    ccc : TAILQ_LAST(&sc->clientq, client_ctx_q));
 }
 
 static void
@@ -765,8 +766,8 @@ client_mtf(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
 
-	TAILQ_REMOVE(&sc->mruq, cc, mru_entry);
-	TAILQ_INSERT_HEAD(&sc->mruq, cc, mru_entry);
+	TAILQ_REMOVE(&sc->clientq, cc, entry);
+	TAILQ_INSERT_HEAD(&sc->clientq, cc, entry);
 }
 
 void

@@ -143,9 +143,8 @@ TAILQ_HEAD(winname_q, winname);
 TAILQ_HEAD(ignore_q, winname);
 
 struct client_ctx {
-	TAILQ_ENTRY(client_ctx) entry;
-	TAILQ_ENTRY(client_ctx) group_entry;
-	TAILQ_ENTRY(client_ctx) mru_entry;
+	TAILQ_ENTRY(client_ctx)	 entry;
+	TAILQ_ENTRY(client_ctx)	 group_entry;
 	struct screen_ctx	*sc;
 	Window			 win;
 	Colormap		 colormap;
@@ -199,7 +198,6 @@ struct client_ctx {
 	XWMHints		*wmh;
 };
 TAILQ_HEAD(client_ctx_q, client_ctx);
-TAILQ_HEAD(cycle_entry_q, client_ctx);
 
 struct group_ctx {
 	TAILQ_ENTRY(group_ctx)	 entry;
@@ -235,7 +233,7 @@ struct screen_ctx {
 	struct geom		 view; /* viewable area */
 	struct geom		 work; /* workable area, gap-applied */
 	struct gap		 gap;
-	struct cycle_entry_q	 mruq;
+	struct client_ctx_q	 clientq;
 	struct region_ctx_q	 regionq;
 	XftColor		 xftcolor[CWM_COLOR_NITEMS];
 	XftDraw			*xftdraw;
@@ -315,7 +313,6 @@ struct mwm_hints {
 extern Display				*X_Dpy;
 extern Time				 Last_Event_Time;
 extern struct screen_ctx_q		 Screenq;
-extern struct client_ctx_q		 Clientq;
 extern struct conf			 Conf;
 extern const char			*homedir;
 extern int				 HasRandr, Randr_ev;

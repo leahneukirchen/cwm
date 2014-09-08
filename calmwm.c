@@ -41,7 +41,6 @@ Atom				 cwmh[CWMH_NITEMS];
 Atom				 ewmh[EWMH_NITEMS];
 
 struct screen_ctx_q		 Screenq = TAILQ_HEAD_INITIALIZER(Screenq);
-struct client_ctx_q		 Clientq = TAILQ_HEAD_INITIALIZER(Clientq);
 
 int				 HasRandr, Randr_ev;
 struct conf			 Conf;

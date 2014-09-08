@@ -40,7 +40,7 @@ screen_init(int which)
 
 	sc = xcalloc(1, sizeof(*sc));
 
-	TAILQ_INIT(&sc->mruq);
+	TAILQ_INIT(&sc->clientq);
 	TAILQ_INIT(&sc->regionq);
 
 	sc->which = which;

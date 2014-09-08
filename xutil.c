@@ -214,13 +214,13 @@ xu_ewmh_net_client_list(struct screen_ctx *sc)
 	Window			*winlist;
 	int			 i = 0, j = 0;
 
-	TAILQ_FOREACH(cc, &Clientq, entry)
+	TAILQ_FOREACH(cc, &sc->clientq, entry)
 		i++;
 	if (i == 0)
 		return;
 
 	winlist = xcalloc(i, sizeof(*winlist));
-	TAILQ_FOREACH(cc, &Clientq, entry)
+	TAILQ_FOREACH(cc, &sc->clientq, entry)
 		winlist[j++] = cc->win;
 	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_CLIENT_LIST],
 	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)winlist, i);
