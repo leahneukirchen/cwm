@@ -606,14 +606,14 @@ client_setname(struct client_ctx *cc)
 		if (!xu_getstrprop(cc->win, XA_WM_NAME, &newname))
 			newname = xstrdup("");
 
-	TAILQ_FOREACH(wn, &cc->nameq, entry)
+	TAILQ_FOREACH(wn, &cc->nameq, entry) {
 		if (strcmp(wn->name, newname) == 0) {
 			/* Move to the last since we got a hit. */
 			TAILQ_REMOVE(&cc->nameq, wn, entry);
 			TAILQ_INSERT_TAIL(&cc->nameq, wn, entry);
 			goto match;
 		}
-
+	}
 	wn = xmalloc(sizeof(*wn));
 	wn->name = newname;
 	TAILQ_INSERT_TAIL(&cc->nameq, wn, entry);
@@ -659,7 +659,8 @@ client_cycle(struct screen_ctx *sc, int flags)
 
 		/* Only cycle visible and non-ignored windows. */
 		if ((newcc->flags & (CLIENT_HIDDEN|CLIENT_IGNORE))
-			|| ((flags & CWM_INGROUP) && (newcc->group != oldcc->group)))
+		    || ((flags & CWM_INGROUP) &&
+			(newcc->group != oldcc->group)))
 			again = 1;
 
 		/* Is oldcc the only non-hidden window? */
@@ -872,11 +873,12 @@ client_mwm_hints(struct client_ctx *cc)
 	struct mwm_hints	*mwmh;
 
 	if (xu_getprop(cc->win, cwmh[_MOTIF_WM_HINTS], cwmh[_MOTIF_WM_HINTS],
-	    PROP_MWM_HINTS_ELEMENTS, (unsigned char **)&mwmh) == MWM_NUMHINTS)
+	    PROP_MWM_HINTS_ELEMENTS, (unsigned char **)&mwmh) == MWM_NUMHINTS) {
 		if (mwmh->flags & MWM_HINTS_DECORATIONS &&
 		    !(mwmh->decorations & MWM_DECOR_ALL) &&
 		    !(mwmh->decorations & MWM_DECOR_BORDER))
 			cc->bwidth = 0;
+	}
 }
 
 void
