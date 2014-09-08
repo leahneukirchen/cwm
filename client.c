@@ -639,12 +639,10 @@ client_cycle(struct screen_ctx *sc, int flags)
 	struct client_ctx	*oldcc, *newcc;
 	int			 again = 1;
 
-	oldcc = client_current();
-
-	/* If no windows then you cant cycle */
 	if (TAILQ_EMPTY(&sc->clientq))
 		return;
 
+	oldcc = client_current();
 	if (oldcc == NULL)
 		oldcc = (flags & CWM_RCYCLE ?
 		    TAILQ_LAST(&sc->clientq, client_ctx_q) :
