@@ -201,7 +201,7 @@ mousefunc_menu_group(struct client_ctx *cc, union arg *arg)
 	    NULL, NULL)) != NULL) {
 		gc = (struct group_ctx *)mi->ctx;
 		(group_hidden_state(gc)) ?
-		    group_show(sc, gc) : group_hide(sc, gc);
+		    group_show(gc) : group_hide(gc);
 	}
 
 	menuq_clear(&menuq);

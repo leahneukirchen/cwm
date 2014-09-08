@@ -33,7 +33,7 @@
 #include "calmwm.h"
 
 static void		 group_assign(struct group_ctx *, struct client_ctx *);
-static void		 group_restack(struct screen_ctx *, struct group_ctx *);
+static void		 group_restack(struct group_ctx *);
 static void		 group_setactive(struct screen_ctx *, long);
 
 const char *num_to_name[] = {
@@ -56,30 +56,30 @@ group_assign(struct group_ctx *gc, struct client_ctx *cc)
 }
 
 void
-group_hide(struct screen_ctx *sc, struct group_ctx *gc)
+group_hide(struct group_ctx *gc)
 {
 	struct client_ctx	*cc;
 
-	screen_updatestackingorder(sc);
+	screen_updatestackingorder(gc->sc);
 
 	TAILQ_FOREACH(cc, &gc->clients, group_entry)
 		client_hide(cc);
 }
 
 void
-group_show(struct screen_ctx *sc, struct group_ctx *gc)
+group_show(struct group_ctx *gc)
 {
 	struct client_ctx	*cc;
 
 	TAILQ_FOREACH(cc, &gc->clients, group_entry)
 		client_unhide(cc);
 
-	group_restack(sc, gc);
-	group_setactive(sc, gc->num);
+	group_restack(gc);
+	group_setactive(gc->sc, gc->num);
 }
 
 static void
-group_restack(struct screen_ctx *sc, struct group_ctx *gc)
+group_restack(struct group_ctx *gc)
 {
 	struct client_ctx	*cc;
 	Window			*winlist;
@@ -238,9 +238,9 @@ group_hidetoggle(struct screen_ctx *sc, int idx)
 	}
 
 	if (group_hidden_state(gc))
-		group_show(sc, gc);
+		group_show(gc);
 	else {
-		group_hide(sc, gc);
+		group_hide(gc);
 		/* make clients stick to empty group */
 		if (TAILQ_EMPTY(&gc->clients))
 			group_setactive(sc, idx);
@@ -257,9 +257,9 @@ group_only(struct screen_ctx *sc, int idx)
 
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
 		if (gc->num == idx)
-			group_show(sc, gc);
+			group_show(gc);
 		else
-			group_hide(sc, gc);
+			group_hide(gc);
 	}
 }
 
@@ -286,16 +286,16 @@ group_cycle(struct screen_ctx *sc, int flags)
 		if (!TAILQ_EMPTY(&gc->clients) && showgroup == NULL)
 			showgroup = gc;
 		else if (!group_hidden_state(gc))
-			group_hide(sc, gc);
+			group_hide(gc);
 	}
 
 	if (showgroup == NULL)
 		return;
 
-	group_hide(sc, sc->group_active);
+	group_hide(sc->group_active);
 
 	if (group_hidden_state(showgroup))
-		group_show(sc, showgroup);
+		group_show(showgroup);
 	else
 		group_setactive(sc, showgroup->num);
 }
@@ -307,9 +307,9 @@ group_alltoggle(struct screen_ctx *sc)
 
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
 		if (sc->group_hideall)
-			group_show(sc, gc);
+			group_show(gc);
 		else
-			group_hide(sc, gc);
+			group_hide(gc);
 	}
 	sc->group_hideall = !sc->group_hideall;
 }
