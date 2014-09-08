@@ -154,7 +154,7 @@ client_delete(struct client_ctx *cc)
 	xu_ewmh_net_client_list(sc);
 
 	if (cc->group != NULL)
-		TAILQ_REMOVE(&cc->group->clients, cc, group_entry);
+		TAILQ_REMOVE(&cc->group->clientq, cc, group_entry);
 
 	if (cc == client_current())
 		client_none(sc);
@@ -943,7 +943,7 @@ client_htile(struct client_ctx *cc)
 		return;
 	i = n = 0;
 
-	TAILQ_FOREACH(ci, &gc->clients, group_entry) {
+	TAILQ_FOREACH(ci, &gc->clientq, group_entry) {
 		if (ci->flags & CLIENT_HIDDEN ||
 		    ci->flags & CLIENT_IGNORE || (ci == cc))
 			continue;
@@ -971,7 +971,7 @@ client_htile(struct client_ctx *cc)
 	x = xine.x;
 	w = xine.w / n;
 	h = xine.h - mh;
-	TAILQ_FOREACH(ci, &gc->clients, group_entry) {
+	TAILQ_FOREACH(ci, &gc->clientq, group_entry) {
 		if (ci->flags & CLIENT_HIDDEN ||
 		    ci->flags & CLIENT_IGNORE || (ci == cc))
 			continue;
@@ -1002,7 +1002,7 @@ client_vtile(struct client_ctx *cc)
 		return;
 	i = n = 0;
 
-	TAILQ_FOREACH(ci, &gc->clients, group_entry) {
+	TAILQ_FOREACH(ci, &gc->clientq, group_entry) {
 		if (ci->flags & CLIENT_HIDDEN ||
 		    ci->flags & CLIENT_IGNORE || (ci == cc))
 			continue;
@@ -1030,7 +1030,7 @@ client_vtile(struct client_ctx *cc)
 	y = xine.y;
 	h = xine.h / n;
 	w = xine.w - mw;
-	TAILQ_FOREACH(ci, &gc->clients, group_entry) {
+	TAILQ_FOREACH(ci, &gc->clientq, group_entry) {
 		if (ci->flags & CLIENT_HIDDEN ||
 		    ci->flags & CLIENT_IGNORE || (ci == cc))
 			continue;

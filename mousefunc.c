@@ -188,7 +188,7 @@ mousefunc_menu_group(struct client_ctx *cc, union arg *arg)
 
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
-		if (TAILQ_EMPTY(&gc->clients))
+		if (TAILQ_EMPTY(&gc->clientq))
 			continue;
 		menuq_add(&menuq, gc,
 		    group_hidden_state(gc) ? "%d: [%s]" : "%d: %s",

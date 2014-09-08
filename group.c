@@ -45,12 +45,12 @@ static void
 group_assign(struct group_ctx *gc, struct client_ctx *cc)
 {
 	if (cc->group != NULL)
-		TAILQ_REMOVE(&cc->group->clients, cc, group_entry);
+		TAILQ_REMOVE(&cc->group->clientq, cc, group_entry);
 
 	cc->group = gc;
 
 	if (cc->group != NULL)
-		TAILQ_INSERT_TAIL(&gc->clients, cc, group_entry);
+		TAILQ_INSERT_TAIL(&gc->clientq, cc, group_entry);
 
 	xu_ewmh_net_wm_desktop(cc);
 }
@@ -62,7 +62,7 @@ group_hide(struct group_ctx *gc)
 
 	screen_updatestackingorder(gc->sc);
 
-	TAILQ_FOREACH(cc, &gc->clients, group_entry)
+	TAILQ_FOREACH(cc, &gc->clientq, group_entry)
 		client_hide(cc);
 }
 
@@ -71,7 +71,7 @@ group_show(struct group_ctx *gc)
 {
 	struct client_ctx	*cc;
 
-	TAILQ_FOREACH(cc, &gc->clients, group_entry)
+	TAILQ_FOREACH(cc, &gc->clientq, group_entry)
 		client_unhide(cc);
 
 	group_restack(gc);
@@ -86,14 +86,14 @@ group_restack(struct group_ctx *gc)
 	int			 i, lastempty = -1;
 	int			 nwins = 0, highstack = 0;
 
-	TAILQ_FOREACH(cc, &gc->clients, group_entry) {
+	TAILQ_FOREACH(cc, &gc->clientq, group_entry) {
 		if (cc->stackingorder > highstack)
 			highstack = cc->stackingorder;
 	}
 	winlist = xcalloc((highstack + 1), sizeof(*winlist));
 
 	/* Invert the stacking order for XRestackWindows(). */
-	TAILQ_FOREACH(cc, &gc->clients, group_entry) {
+	TAILQ_FOREACH(cc, &gc->clientq, group_entry) {
 		winlist[highstack - cc->stackingorder] = cc->win;
 		nwins++;
 	}
@@ -125,7 +125,7 @@ group_init(struct screen_ctx *sc)
 	for (i = 0; i < CALMWM_NGROUPS; i++) {
 		gc = xcalloc(1, sizeof(*gc));
 		gc->sc = sc;
-		TAILQ_INIT(&gc->clients);
+		TAILQ_INIT(&gc->clientq);
 		gc->name = xstrdup(num_to_name[i]);
 		gc->num = i;
 		TAILQ_INSERT_TAIL(&sc->groupq, gc, entry);
@@ -211,7 +211,7 @@ group_hidden_state(struct group_ctx *gc)
 	struct client_ctx	*cc;
 	int			 hidden = 0, same = 0;
 
-	TAILQ_FOREACH(cc, &gc->clients, group_entry) {
+	TAILQ_FOREACH(cc, &gc->clientq, group_entry) {
 		if (cc->flags & CLIENT_STICKY)
 			continue;
 		if (hidden == ((cc->flags & CLIENT_HIDDEN) ? 1 : 0))
@@ -242,7 +242,7 @@ group_hidetoggle(struct screen_ctx *sc, int idx)
 	else {
 		group_hide(gc);
 		/* make clients stick to empty group */
-		if (TAILQ_EMPTY(&gc->clients))
+		if (TAILQ_EMPTY(&gc->clientq))
 			group_setactive(sc, idx);
 	}
 }
@@ -283,7 +283,7 @@ group_cycle(struct screen_ctx *sc, int flags)
 		if (gc == sc->group_active)
 			break;
 
-		if (!TAILQ_EMPTY(&gc->clients) && showgroup == NULL)
+		if (!TAILQ_EMPTY(&gc->clientq) && showgroup == NULL)
 			showgroup = gc;
 		else if (!group_hidden_state(gc))
 			group_hide(gc);

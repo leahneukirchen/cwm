@@ -202,7 +202,7 @@ TAILQ_HEAD(client_ctx_q, client_ctx);
 struct group_ctx {
 	TAILQ_ENTRY(group_ctx)	 entry;
 	struct screen_ctx	*sc;
-	struct client_ctx_q	 clients;
+	struct client_ctx_q	 clientq;
 	char			*name;
 	int			 num;
 };
