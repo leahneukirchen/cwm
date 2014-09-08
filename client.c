@@ -31,8 +31,8 @@
 
 #include "calmwm.h"
 
-static struct client_ctx	*client_mrunext(struct client_ctx *);
-static struct client_ctx	*client_mruprev(struct client_ctx *);
+static struct client_ctx	*client_next(struct client_ctx *);
+static struct client_ctx	*client_prev(struct client_ctx *);
 static void			 client_mtf(struct client_ctx *);
 static void			 client_none(struct screen_ctx *);
 static void			 client_placecalc(struct client_ctx *);
@@ -654,8 +654,8 @@ client_cycle(struct screen_ctx *sc, int flags)
 	while (again) {
 		again = 0;
 
-		newcc = (flags & CWM_RCYCLE ? client_mruprev(newcc) :
-		    client_mrunext(newcc));
+		newcc = (flags & CWM_RCYCLE ? client_prev(newcc) :
+		    client_next(newcc));
 
 		/* Only cycle visible and non-ignored windows. */
 		if ((newcc->flags & (CLIENT_HIDDEN|CLIENT_IGNORE))
@@ -692,7 +692,7 @@ client_cycle_leave(struct screen_ctx *sc)
 }
 
 static struct client_ctx *
-client_mrunext(struct client_ctx *cc)
+client_next(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
 	struct client_ctx	*ccc;
@@ -702,7 +702,7 @@ client_mrunext(struct client_ctx *cc)
 }
 
 static struct client_ctx *
-client_mruprev(struct client_ctx *cc)
+client_prev(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
 	struct client_ctx	*ccc;
