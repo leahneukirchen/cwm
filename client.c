@@ -195,7 +195,7 @@ client_setactive(struct client_ctx *cc)
 		client_msg(cc, cwmh[WM_TAKE_FOCUS], Last_Event_Time);
 
 	if ((oldcc = client_current())) {
-		oldcc->active = 0;
+		oldcc->flags &= ~CLIENT_ACTIVE;
 		client_draw_border(oldcc);
 	}
 
@@ -204,7 +204,7 @@ client_setactive(struct client_ctx *cc)
 		client_mtf(cc);
 
 	curcc = cc;
-	cc->active = 1;
+	cc->flags |= CLIENT_ACTIVE;
 	cc->flags &= ~CLIENT_URGENCY;
 	client_draw_border(cc);
 	conf_grab_mouse(cc->win);
@@ -485,7 +485,7 @@ client_hide(struct client_ctx *cc)
 
 	XUnmapWindow(X_Dpy, cc->win);
 
-	cc->active = 0;
+	cc->flags &= ~CLIENT_ACTIVE;
 	cc->flags |= CLIENT_HIDDEN;
 	client_set_wm_state(cc, IconicState);
 
@@ -509,7 +509,7 @@ client_unhide(struct client_ctx *cc)
 void
 client_urgency(struct client_ctx *cc)
 {
-	if (!cc->active)
+	if (!(cc->flags & CLIENT_ACTIVE))
 		cc->flags |= CLIENT_URGENCY;
 }
 
@@ -519,7 +519,7 @@ client_draw_border(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	unsigned long		 pixel;
 
-	if (cc->active)
+	if (cc->flags & CLIENT_ACTIVE)
 		switch (cc->flags & CLIENT_HIGHLIGHT) {
 		case CLIENT_GROUP:
 			pixel = sc->xftcolor[CWM_COLOR_BORDER_GROUP].pixel;

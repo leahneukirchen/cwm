@@ -180,12 +180,12 @@ struct client_ctx {
 #define CLIENT_URGENCY			0x0400
 #define CLIENT_FULLSCREEN		0x0800
 #define CLIENT_STICKY			0x1000
+#define CLIENT_ACTIVE			0x2000
 
 #define CLIENT_HIGHLIGHT		(CLIENT_GROUP | CLIENT_UNGROUP)
 #define CLIENT_MAXFLAGS			(CLIENT_VMAXIMIZED | CLIENT_HMAXIMIZED)
 #define CLIENT_MAXIMIZED		(CLIENT_VMAXIMIZED | CLIENT_HMAXIMIZED)
 	int			 flags;
-	int			 active;
 	int			 stackingorder;
 	struct winname_q	 nameq;
 #define CLIENT_MAXNAMEQLEN		5
