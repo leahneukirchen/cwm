@@ -281,8 +281,7 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 			(void)memset(tpath, '\0', sizeof(tpath));
 			l = snprintf(tpath, sizeof(tpath), "%s/%s", paths[i],
 			    dp->d_name);
-			/* check for truncation etc */
-			if (l == -1 || l >= (int)sizeof(tpath))
+			if (l == -1 || l >= sizeof(tpath))
 				continue;
 			if (access(tpath, X_OK) == 0)
 				menuq_add(&menuq, NULL, "%s", dp->d_name);
@@ -373,8 +372,9 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 			goto out;
 		l = snprintf(path, sizeof(path), "%s -T '[ssh] %s' -e ssh %s",
 		    cmd->path, mi->text, mi->text);
-		if (l != -1 && l < sizeof(path))
-			u_spawn(path);
+		if (l == -1 || l >= sizeof(path))
+			goto out;
+		u_spawn(path);
 	}
 out:
 	if (mi != NULL && mi->dummy)
