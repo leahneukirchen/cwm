@@ -393,7 +393,7 @@ xu_ewmh_handle_net_wm_state_msg(struct client_ctx *cc, int action,
 			continue;
 		switch (action) {
 		case _NET_WM_STATE_ADD:
-			if ((cc->flags & handlers[i].property) == 0)
+			if (!(cc->flags & handlers[i].property))
 				handlers[i].toggle(cc);
 			break;
 		case _NET_WM_STATE_REMOVE:

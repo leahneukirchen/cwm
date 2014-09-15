@@ -82,7 +82,7 @@ xev_handle_maprequest(XEvent *ee)
 	if ((cc = client_find(e->window)) == NULL)
 		cc = client_init(e->window, NULL);
 
-	if ((cc != NULL) && ((cc->flags & CLIENT_IGNORE) == 0))
+	if ((cc != NULL) && (!(cc->flags & CLIENT_IGNORE)))
 		client_ptrwarp(cc);
 }
 

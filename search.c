@@ -102,7 +102,7 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 			tier++;
 
 		/* Clients that are hidden get ranked one up. */
-		if (cc->flags & CLIENT_HIDDEN && tier > 0)
+		if ((cc->flags & CLIENT_HIDDEN) && (tier > 0))
 			tier--;
 
 		assert(tier < nitems(tierp));
