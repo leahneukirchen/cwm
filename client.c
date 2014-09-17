@@ -497,7 +497,7 @@ client_hide(struct client_ctx *cc)
 	XUnmapWindow(X_Dpy, cc->win);
 
 	cc->flags &= ~CLIENT_ACTIVE;
-	client_hidden(cc);
+	cc->flags |= CLIENT_HIDDEN;
 	client_set_wm_state(cc, IconicState);
 
 	if (cc == client_current())
@@ -512,7 +512,7 @@ client_unhide(struct client_ctx *cc)
 
 	XMapRaised(X_Dpy, cc->win);
 
-	client_hidden(cc);
+	cc->flags &= ~CLIENT_HIDDEN;
 	client_set_wm_state(cc, NormalState);
 	client_draw_border(cc);
 }
