@@ -379,6 +379,9 @@ xu_ewmh_handle_net_wm_state_msg(struct client_ctx *cc, int action,
 		{ _NET_WM_STATE_MAXIMIZED_HORZ,
 			CLIENT_HMAXIMIZED,
 			client_hmaximize },
+		{ _NET_WM_STATE_HIDDEN,
+			CLIENT_HIDDEN,
+			client_hidden },
 		{ _NET_WM_STATE_FULLSCREEN,
 			CLIENT_FULLSCREEN,
 			client_fullscreen },
@@ -420,6 +423,8 @@ xu_ewmh_restore_net_wm_state(struct client_ctx *cc)
 			client_hmaximize(cc);
 		if (atoms[i] == ewmh[_NET_WM_STATE_MAXIMIZED_VERT])
 			client_vmaximize(cc);
+		if (atoms[i] == ewmh[_NET_WM_STATE_HIDDEN])
+			client_hidden(cc);
 		if (atoms[i] == ewmh[_NET_WM_STATE_FULLSCREEN])
 			client_fullscreen(cc);
 		if (atoms[i] == ewmh[_NET_WM_STATE_DEMANDS_ATTENTION])
@@ -437,16 +442,19 @@ xu_ewmh_set_net_wm_state(struct client_ctx *cc)
 	oatoms = xu_ewmh_get_net_wm_state(cc, &n);
 	atoms = xcalloc((n + _NET_WM_STATES_NITEMS), sizeof(Atom));
 	for (i = j = 0; i < n; i++) {
-		if (oatoms[i] != ewmh[_NET_WM_STATE_MAXIMIZED_HORZ] &&
+		if (oatoms[i] != ewmh[_NET_WM_STATE_STICKY] &&
+		    oatoms[i] != ewmh[_NET_WM_STATE_MAXIMIZED_HORZ] &&
 		    oatoms[i] != ewmh[_NET_WM_STATE_MAXIMIZED_VERT] &&
+		    oatoms[i] != ewmh[_NET_WM_STATE_HIDDEN] &&
 		    oatoms[i] != ewmh[_NET_WM_STATE_FULLSCREEN] &&
-		    oatoms[i] != ewmh[_NET_WM_STATE_STICKY] &&
 		    oatoms[i] != ewmh[_NET_WM_STATE_DEMANDS_ATTENTION])
 			atoms[j++] = oatoms[i];
 	}
 	free(oatoms);
 	if (cc->flags & CLIENT_STICKY)
 		atoms[j++] = ewmh[_NET_WM_STATE_STICKY];
+	if (cc->flags & CLIENT_HIDDEN)
+		atoms[j++] = ewmh[_NET_WM_STATE_HIDDEN];
 	if (cc->flags & CLIENT_FULLSCREEN)
 		atoms[j++] = ewmh[_NET_WM_STATE_FULLSCREEN];
 	else {

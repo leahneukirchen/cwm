@@ -240,6 +240,17 @@ client_freeze(struct client_ctx *cc)
 }
 
 void
+client_hidden(struct client_ctx *cc)
+{
+	if (cc->flags & CLIENT_HIDDEN)
+		cc->flags &= ~CLIENT_HIDDEN;
+	else
+		cc->flags |= CLIENT_HIDDEN;
+
+	xu_ewmh_set_net_wm_state(cc);
+}
+
+void
 client_sticky(struct client_ctx *cc)
 {
 	if (cc->flags & CLIENT_STICKY)
@@ -486,7 +497,7 @@ client_hide(struct client_ctx *cc)
 	XUnmapWindow(X_Dpy, cc->win);
 
 	cc->flags &= ~CLIENT_ACTIVE;
-	cc->flags |= CLIENT_HIDDEN;
+	client_hidden(cc);
 	client_set_wm_state(cc, IconicState);
 
 	if (cc == client_current())
@@ -501,7 +512,7 @@ client_unhide(struct client_ctx *cc)
 
 	XMapRaised(X_Dpy, cc->win);
 
-	cc->flags &= ~CLIENT_HIDDEN;
+	client_hidden(cc);
 	client_set_wm_state(cc, NormalState);
 	client_draw_border(cc);
 }
