@@ -170,7 +170,7 @@ group_movetogroup(struct client_ctx *cc, int idx)
 
 	if (cc->group == gc)
 		return;
-	if (group_hidden_state(gc))
+	if (group_holds_only_hidden(gc))
 		client_hide(cc);
 	group_assign(gc, cc);
 }
@@ -207,7 +207,6 @@ group_holds_only_sticky(struct group_ctx *gc)
 {
 	struct client_ctx	*cc;
 
-	/* Check if all clients in the group are 'sticky'. */
 	TAILQ_FOREACH(cc, &gc->clientq, group_entry) {
 		if (!(cc->flags & CLIENT_STICKY))
 			return(0);
@@ -215,11 +214,8 @@ group_holds_only_sticky(struct group_ctx *gc)
 	return(1);
 }
 
-/*
- * If all clients in a group are hidden, then the group state is hidden.
- */
 int
-group_hidden_state(struct group_ctx *gc)
+group_holds_only_hidden(struct group_ctx *gc)
 {
 	struct client_ctx	*cc;
 	int			 hidden = 0, same = 0;
@@ -250,7 +246,7 @@ group_hidetoggle(struct screen_ctx *sc, int idx)
 			break;
 	}
 
-	if (group_hidden_state(gc))
+	if (group_holds_only_hidden(gc))
 		group_show(gc);
 	else {
 		group_hide(gc);
@@ -298,7 +294,7 @@ group_cycle(struct screen_ctx *sc, int flags)
 
 		if (!group_holds_only_sticky(gc) && showgroup == NULL)
 			showgroup = gc;
-		else if (!group_hidden_state(gc))
+		else if (!group_holds_only_hidden(gc))
 			group_hide(gc);
 	}
 
@@ -307,7 +303,7 @@ group_cycle(struct screen_ctx *sc, int flags)
 
 	group_hide(sc->group_active);
 
-	if (group_hidden_state(showgroup))
+	if (group_holds_only_hidden(showgroup))
 		group_show(showgroup);
 	else
 		group_setactive(sc, showgroup->num);

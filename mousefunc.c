@@ -191,7 +191,7 @@ mousefunc_menu_group(struct client_ctx *cc, union arg *arg)
 		if (group_holds_only_sticky(gc))
 			continue;
 		menuq_add(&menuq, gc,
-		    group_hidden_state(gc) ? "%d: [%s]" : "%d: %s",
+		    group_holds_only_hidden(gc) ? "%d: [%s]" : "%d: %s",
 		    gc->num, gc->name);
 	}
 	if (TAILQ_EMPTY(&menuq))
@@ -200,7 +200,7 @@ mousefunc_menu_group(struct client_ctx *cc, union arg *arg)
 	if ((mi = menu_filter(sc, &menuq, NULL, NULL, 0,
 	    NULL, NULL)) != NULL) {
 		gc = (struct group_ctx *)mi->ctx;
-		(group_hidden_state(gc)) ?
+		(group_holds_only_hidden(gc)) ?
 		    group_show(gc) : group_hide(gc);
 	}
 
