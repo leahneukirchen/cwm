@@ -371,17 +371,12 @@ void			 client_cycle_leave(struct screen_ctx *);
 void			 client_delete(struct client_ctx *);
 void			 client_draw_border(struct client_ctx *);
 struct client_ctx	*client_find(Window);
-void			 client_freeze(struct client_ctx *);
-void			 client_fullscreen(struct client_ctx *);
 long			 client_get_wm_state(struct client_ctx *);
 void			 client_getsizehints(struct client_ctx *);
-void			 client_hidden(struct client_ctx *);
 void			 client_hide(struct client_ctx *);
-void			 client_hmaximize(struct client_ctx *);
 void 			 client_htile(struct client_ctx *);
 void			 client_lower(struct client_ctx *);
 void			 client_map(struct client_ctx *);
-void			 client_maximize(struct client_ctx *);
 void			 client_msg(struct client_ctx *, Atom, Time);
 void			 client_move(struct client_ctx *);
 struct client_ctx	*client_init(Window, struct screen_ctx *);
@@ -394,11 +389,16 @@ void			 client_set_wm_state(struct client_ctx *, long);
 void			 client_setactive(struct client_ctx *);
 void			 client_setname(struct client_ctx *);
 int			 client_snapcalc(int, int, int, int, int);
-void			 client_sticky(struct client_ctx *);
+void			 client_toggle_freeze(struct client_ctx *);
+void			 client_toggle_fullscreen(struct client_ctx *);
+void			 client_toggle_hidden(struct client_ctx *);
+void			 client_toggle_hmaximize(struct client_ctx *);
+void			 client_toggle_maximize(struct client_ctx *);
+void			 client_toggle_sticky(struct client_ctx *);
+void			 client_toggle_vmaximize(struct client_ctx *);
 void			 client_transient(struct client_ctx *);
 void			 client_unhide(struct client_ctx *);
 void			 client_urgency(struct client_ctx *);
-void			 client_vmaximize(struct client_ctx *);
 void 			 client_vtile(struct client_ctx *);
 void			 client_warp(struct client_ctx *);
 void			 client_wm_hints(struct client_ctx *);
@@ -441,21 +441,14 @@ void			 kbfunc_client_cycle(struct client_ctx *, union arg *);
 void			 kbfunc_client_cyclegroup(struct client_ctx *,
 			     union arg *);
 void			 kbfunc_client_delete(struct client_ctx *, union arg *);
-void			 kbfunc_client_freeze(struct client_ctx *, union arg *);
-void			 kbfunc_client_fullscreen(struct client_ctx *,
-			     union arg *);
 void			 kbfunc_client_group(struct client_ctx *, union arg *);
 void			 kbfunc_client_grouponly(struct client_ctx *,
 			     union arg *);
 void			 kbfunc_client_grouptoggle(struct client_ctx *,
 			     union arg *);
 void			 kbfunc_client_hide(struct client_ctx *, union arg *);
-void			 kbfunc_client_hmaximize(struct client_ctx *,
-			     union arg *);
 void			 kbfunc_client_label(struct client_ctx *, union arg *);
 void			 kbfunc_client_lower(struct client_ctx *, union arg *);
-void			 kbfunc_client_maximize(struct client_ctx *,
-			     union arg *);
 void			 kbfunc_client_moveresize(struct client_ctx *,
 			     union arg *);
 void			 kbfunc_client_movetogroup(struct client_ctx *,
@@ -465,8 +458,17 @@ void			 kbfunc_client_nogroup(struct client_ctx *,
 void			 kbfunc_client_raise(struct client_ctx *, union arg *);
 void			 kbfunc_client_rcycle(struct client_ctx *, union arg *);
 void			 kbfunc_client_search(struct client_ctx *, union arg *);
-void			 kbfunc_client_sticky(struct client_ctx *, union arg *);
-void			 kbfunc_client_vmaximize(struct client_ctx *,
+void			 kbfunc_client_toggle_freeze(struct client_ctx *,
+    			     union arg *);
+void			 kbfunc_client_toggle_fullscreen(struct client_ctx *,
+			     union arg *);
+void			 kbfunc_client_toggle_hmaximize(struct client_ctx *,
+			     union arg *);
+void			 kbfunc_client_toggle_maximize(struct client_ctx *,
+			     union arg *);
+void			 kbfunc_client_toggle_sticky(struct client_ctx *,
+    			     union arg *);
+void			 kbfunc_client_toggle_vmaximize(struct client_ctx *,
 			     union arg *);
 void			 kbfunc_cmdexec(struct client_ctx *, union arg *);
 void			 kbfunc_cwm_status(struct client_ctx *, union arg *);

@@ -448,39 +448,39 @@ kbfunc_client_movetogroup(struct client_ctx *cc, union arg *arg)
 }
 
 void
-kbfunc_client_sticky(struct client_ctx *cc, union arg *arg)
+kbfunc_client_toggle_sticky(struct client_ctx *cc, union arg *arg)
 {
-	client_sticky(cc);
+	client_toggle_sticky(cc);
 }
 
 void
-kbfunc_client_fullscreen(struct client_ctx *cc, union arg *arg)
+kbfunc_client_toggle_fullscreen(struct client_ctx *cc, union arg *arg)
 {
-	client_fullscreen(cc);
+	client_toggle_fullscreen(cc);
 }
 
 void
-kbfunc_client_maximize(struct client_ctx *cc, union arg *arg)
+kbfunc_client_toggle_maximize(struct client_ctx *cc, union arg *arg)
 {
-	client_maximize(cc);
+	client_toggle_maximize(cc);
 }
 
 void
-kbfunc_client_vmaximize(struct client_ctx *cc, union arg *arg)
+kbfunc_client_toggle_vmaximize(struct client_ctx *cc, union arg *arg)
 {
-	client_vmaximize(cc);
+	client_toggle_vmaximize(cc);
 }
 
 void
-kbfunc_client_hmaximize(struct client_ctx *cc, union arg *arg)
+kbfunc_client_toggle_hmaximize(struct client_ctx *cc, union arg *arg)
 {
-	client_hmaximize(cc);
+	client_toggle_hmaximize(cc);
 }
 
 void
-kbfunc_client_freeze(struct client_ctx *cc, union arg *arg)
+kbfunc_client_toggle_freeze(struct client_ctx *cc, union arg *arg)
 {
-	client_freeze(cc);
+	client_toggle_freeze(cc);
 }
 
 void

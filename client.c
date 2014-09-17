@@ -231,7 +231,7 @@ client_current(void)
 }
 
 void
-client_freeze(struct client_ctx *cc)
+client_toggle_freeze(struct client_ctx *cc)
 {
 	if (cc->flags & CLIENT_FREEZE)
 		cc->flags &= ~CLIENT_FREEZE;
@@ -240,7 +240,7 @@ client_freeze(struct client_ctx *cc)
 }
 
 void
-client_hidden(struct client_ctx *cc)
+client_toggle_hidden(struct client_ctx *cc)
 {
 	if (cc->flags & CLIENT_HIDDEN)
 		cc->flags &= ~CLIENT_HIDDEN;
@@ -251,7 +251,7 @@ client_hidden(struct client_ctx *cc)
 }
 
 void
-client_sticky(struct client_ctx *cc)
+client_toggle_sticky(struct client_ctx *cc)
 {
 	if (cc->flags & CLIENT_STICKY)
 		cc->flags &= ~CLIENT_STICKY;
@@ -262,7 +262,7 @@ client_sticky(struct client_ctx *cc)
 }
 
 void
-client_fullscreen(struct client_ctx *cc)
+client_toggle_fullscreen(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
 	struct geom		 xine;
@@ -294,7 +294,7 @@ resize:
 }
 
 void
-client_maximize(struct client_ctx *cc)
+client_toggle_maximize(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
 	struct geom		 xine;
@@ -339,7 +339,7 @@ resize:
 }
 
 void
-client_vmaximize(struct client_ctx *cc)
+client_toggle_vmaximize(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
 	struct geom		 xine;
@@ -371,7 +371,7 @@ resize:
 }
 
 void
-client_hmaximize(struct client_ctx *cc)
+client_toggle_hmaximize(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
 	struct geom		 xine;
