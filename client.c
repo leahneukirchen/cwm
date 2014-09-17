@@ -299,7 +299,7 @@ client_maximize(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	struct geom		 xine;
 
-	if (cc->flags & CLIENT_FREEZE)
+	if (cc->flags & (CLIENT_FREEZE|CLIENT_STICKY))
 		return;
 
 	if ((cc->flags & CLIENT_MAXFLAGS) == CLIENT_MAXIMIZED) {
@@ -344,7 +344,7 @@ client_vmaximize(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	struct geom		 xine;
 
-	if (cc->flags & CLIENT_FREEZE)
+	if (cc->flags & (CLIENT_FREEZE|CLIENT_STICKY))
 		return;
 
 	if (cc->flags & CLIENT_VMAXIMIZED) {
@@ -376,7 +376,7 @@ client_hmaximize(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	struct geom		 xine;
 
-	if (cc->flags & CLIENT_FREEZE)
+	if (cc->flags & (CLIENT_FREEZE|CLIENT_STICKY))
 		return;
 
 	if (cc->flags & CLIENT_HMAXIMIZED) {

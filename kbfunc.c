@@ -60,7 +60,7 @@ kbfunc_client_moveresize(struct client_ctx *cc, union arg *arg)
 	int			 x, y, flags, amt;
 	unsigned int		 mx, my;
 
-	if (cc->flags & CLIENT_FREEZE)
+	if (cc->flags & (CLIENT_FREEZE|CLIENT_STICKY))
 		return;
 
 	mx = my = 0;
