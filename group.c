@@ -202,6 +202,19 @@ group_sticky_toggle_exit(struct client_ctx *cc)
 	client_draw_border(cc);
 }
 
+int
+group_holds_only_sticky(struct group_ctx *gc)
+{
+	struct client_ctx	*cc;
+
+	/* Check if all clients in the group are 'sticky'. */
+	TAILQ_FOREACH(cc, &gc->clientq, group_entry) {
+		if (!(cc->flags & CLIENT_STICKY))
+			return(0);
+	}
+	return(1);
+}
+
 /*
  * If all clients in a group are hidden, then the group state is hidden.
  */
@@ -283,7 +296,7 @@ group_cycle(struct screen_ctx *sc, int flags)
 		if (gc == sc->group_active)
 			break;
 
-		if (!TAILQ_EMPTY(&gc->clientq) && showgroup == NULL)
+		if (!group_holds_only_sticky(gc) && showgroup == NULL)
 			showgroup = gc;
 		else if (!group_hidden_state(gc))
 			group_hide(gc);
