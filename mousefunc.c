@@ -90,19 +90,18 @@ mousefunc_client_resize(struct client_ctx *cc, union arg *arg)
 
 		switch (ev.type) {
 		case MotionNotify:
+			/* not more than 60 times / second */
+			if ((ev.xmotion.time - ltime) <= (1000 / 60))
+				continue;
+			ltime = ev.xmotion.time;
+
 			mousefunc_sweep_calc(cc, x, y,
 			    ev.xmotion.x_root, ev.xmotion.y_root);
-
-			/* don't resize more than 60 times / second */
-			if ((ev.xmotion.time - ltime) > (1000 / 60)) {
-				ltime = ev.xmotion.time;
-				client_resize(cc, 1);
-				mousefunc_sweep_draw(cc);
-			}
+			client_resize(cc, 1);
+			mousefunc_sweep_draw(cc);
 			break;
 		case ButtonRelease:
-			if (ltime)
-				client_resize(cc, 1);
+			client_resize(cc, 1);
 			XUnmapWindow(X_Dpy, sc->menuwin);
 			XReparentWindow(X_Dpy, sc->menuwin, sc->rootwin, 0, 0);
 			xu_ptr_ungrab();
@@ -143,6 +142,11 @@ mousefunc_client_move(struct client_ctx *cc, union arg *arg)
 
 		switch (ev.type) {
 		case MotionNotify:
+			/* not more than 60 times / second */
+			if ((ev.xmotion.time - ltime) <= (1000 / 60))
+				continue;
+			ltime = ev.xmotion.time;
+
 			cc->geom.x = ev.xmotion.x_root - px - cc->bwidth;
 			cc->geom.y = ev.xmotion.y_root - py - cc->bwidth;
 
@@ -156,15 +160,10 @@ mousefunc_client_move(struct client_ctx *cc, union arg *arg)
 			    cc->geom.y + cc->geom.h + (cc->bwidth * 2),
 			    xine.y, xine.y + xine.h, sc->snapdist);
 
-			/* don't move more than 60 times / second */
-			if ((ev.xmotion.time - ltime) > (1000 / 60)) {
-				ltime = ev.xmotion.time;
-				client_move(cc);
-			}
+			client_move(cc);
 			break;
 		case ButtonRelease:
-			if (ltime)
-				client_move(cc);
+			client_move(cc);
 			xu_ptr_ungrab();
 			return;
 		}
