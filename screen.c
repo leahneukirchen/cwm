@@ -40,7 +40,7 @@ screen_init(int which)
 
 	sc = xcalloc(1, sizeof(*sc));
 
-	TAILQ_INIT(&sc->mruq);
+	TAILQ_INIT(&sc->clientq);
 	TAILQ_INIT(&sc->regionq);
 
 	sc->which = which;
@@ -79,16 +79,16 @@ screen_init(int which)
 }
 
 struct screen_ctx *
-screen_fromroot(Window rootwin)
+screen_find(Window win)
 {
 	struct screen_ctx	*sc;
 
-	TAILQ_FOREACH(sc, &Screenq, entry)
-		if (sc->rootwin == rootwin)
-			return (sc);
-
+	TAILQ_FOREACH(sc, &Screenq, entry) {
+		if (sc->rootwin == win)
+			return(sc);
+	}
 	/* XXX FAIL HERE */
-	return (TAILQ_FIRST(&Screenq));
+	return(TAILQ_FIRST(&Screenq));
 }
 
 void
@@ -133,7 +133,7 @@ screen_find_xinerama(struct screen_ctx *sc, int x, int y, int flags)
 		geom.w -= (sc->gap.left + sc->gap.right);
 		geom.h -= (sc->gap.top + sc->gap.bottom);
 	}
-	return (geom);
+	return(geom);
 }
 
 void

@@ -60,7 +60,7 @@ kbfunc_client_moveresize(struct client_ctx *cc, union arg *arg)
 	int			 x, y, flags, amt;
 	unsigned int		 mx, my;
 
-	if (cc->flags & CLIENT_FREEZE)
+	if (cc->flags & (CLIENT_FREEZE|CLIENT_STICKY))
 		return;
 
 	mx = my = 0;
@@ -151,7 +151,7 @@ kbfunc_client_search(struct client_ctx *cc, union arg *arg)
 	old_cc = client_current();
 
 	TAILQ_INIT(&menuq);
-	TAILQ_FOREACH(cc, &Clientq, entry)
+	TAILQ_FOREACH(cc, &sc->clientq, entry)
 		menuq_add(&menuq, cc, "%s", cc->name);
 
 	if ((mi = menu_filter(sc, &menuq, "window", NULL, 0,
@@ -281,8 +281,7 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 			(void)memset(tpath, '\0', sizeof(tpath));
 			l = snprintf(tpath, sizeof(tpath), "%s/%s", paths[i],
 			    dp->d_name);
-			/* check for truncation etc */
-			if (l == -1 || l >= (int)sizeof(tpath))
+			if (l == -1 || l >= sizeof(tpath))
 				continue;
 			if (access(tpath, X_OK) == 0)
 				menuq_add(&menuq, NULL, "%s", dp->d_name);
@@ -373,8 +372,9 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 			goto out;
 		l = snprintf(path, sizeof(path), "%s -T '[ssh] %s' -e ssh %s",
 		    cmd->path, mi->text, mi->text);
-		if (l != -1 && l < sizeof(path))
-			u_spawn(path);
+		if (l == -1 || l >= sizeof(path))
+			goto out;
+		u_spawn(path);
 	}
 out:
 	if (mi != NULL && mi->dummy)
@@ -448,39 +448,39 @@ kbfunc_client_movetogroup(struct client_ctx *cc, union arg *arg)
 }
 
 void
-kbfunc_client_sticky(struct client_ctx *cc, union arg *arg)
+kbfunc_client_toggle_sticky(struct client_ctx *cc, union arg *arg)
 {
-	client_sticky(cc);
+	client_toggle_sticky(cc);
 }
 
 void
-kbfunc_client_fullscreen(struct client_ctx *cc, union arg *arg)
+kbfunc_client_toggle_fullscreen(struct client_ctx *cc, union arg *arg)
 {
-	client_fullscreen(cc);
+	client_toggle_fullscreen(cc);
 }
 
 void
-kbfunc_client_maximize(struct client_ctx *cc, union arg *arg)
+kbfunc_client_toggle_maximize(struct client_ctx *cc, union arg *arg)
 {
-	client_maximize(cc);
+	client_toggle_maximize(cc);
 }
 
 void
-kbfunc_client_vmaximize(struct client_ctx *cc, union arg *arg)
+kbfunc_client_toggle_vmaximize(struct client_ctx *cc, union arg *arg)
 {
-	client_vmaximize(cc);
+	client_toggle_vmaximize(cc);
 }
 
 void
-kbfunc_client_hmaximize(struct client_ctx *cc, union arg *arg)
+kbfunc_client_toggle_hmaximize(struct client_ctx *cc, union arg *arg)
 {
-	client_hmaximize(cc);
+	client_toggle_hmaximize(cc);
 }
 
 void
-kbfunc_client_freeze(struct client_ctx *cc, union arg *arg)
+kbfunc_client_toggle_freeze(struct client_ctx *cc, union arg *arg)
 {
-	client_freeze(cc);
+	client_toggle_freeze(cc);
 }
 
 void

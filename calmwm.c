@@ -41,7 +41,6 @@ Atom				 cwmh[CWMH_NITEMS];
 Atom				 ewmh[EWMH_NITEMS];
 
 struct screen_ctx_q		 Screenq = TAILQ_HEAD_INITIALIZER(Screenq);
-struct client_ctx_q		 Clientq = TAILQ_HEAD_INITIALIZER(Clientq);
 
 int				 HasRandr, Randr_ev;
 struct conf			 Conf;
@@ -120,7 +119,7 @@ main(int argc, char **argv)
 	if (cwm_status == CWM_RESTART)
 		x_restart(cwm_argv);
 
-	return (0);
+	return(0);
 }
 
 static void
@@ -185,7 +184,7 @@ x_wmerrorhandler(Display *dpy, XErrorEvent *e)
 {
 	errx(1, "root window unavailable - perhaps another wm is running?");
 
-	return (0);
+	return(0);
 }
 
 static int
@@ -201,7 +200,7 @@ x_errorhandler(Display *dpy, XErrorEvent *e)
 
 	warnx("%s(0x%x): %s", req, (unsigned int)e->resourceid, msg);
 #endif
-	return (0);
+	return(0);
 }
 
 static void

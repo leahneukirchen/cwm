@@ -74,7 +74,7 @@ xu_key_ungrab(Window win)
 int
 xu_ptr_grab(Window win, unsigned int mask, Cursor curs)
 {
-	return (XGrabPointer(X_Dpy, win, False, mask,
+	return(XGrabPointer(X_Dpy, win, False, mask,
 	    GrabModeAsync, GrabModeAsync,
 	    None, curs, CurrentTime) == GrabSuccess ? 0 : -1);
 }
@@ -82,7 +82,7 @@ xu_ptr_grab(Window win, unsigned int mask, Cursor curs)
 int
 xu_ptr_regrab(unsigned int mask, Cursor curs)
 {
-	return (XChangeActivePointerGrab(X_Dpy, mask,
+	return(XChangeActivePointerGrab(X_Dpy, mask,
 	    curs, CurrentTime) == GrabSuccess ? 0 : -1);
 }
 
@@ -117,12 +117,12 @@ xu_getprop(Window win, Atom atm, Atom type, long len, unsigned char **p)
 
 	if (XGetWindowProperty(X_Dpy, win, atm, 0L, len, False, type,
 	    &realtype, &format, &n, &extra, p) != Success || *p == NULL)
-		return (-1);
+		return(-1);
 
 	if (n == 0)
 		XFree(*p);
 
-	return (n);
+	return(n);
 }
 
 int
@@ -135,7 +135,7 @@ xu_getstrprop(Window win, Atom atm, char **text) {
 
 	XGetTextProperty(X_Dpy, win, &prop, atm);
 	if (!prop.nitems)
-		return (0);
+		return(0);
 
 	if (Xutf8TextPropertyToTextList(X_Dpy, &prop, &list,
 	    &nitems) == Success && nitems > 0 && *list) {
@@ -154,7 +154,7 @@ xu_getstrprop(Window win, Atom atm, char **text) {
 
 	XFree(prop.value);
 
-	return (nitems);
+	return(nitems);
 }
 
 /* Root Window Properties */
@@ -214,13 +214,13 @@ xu_ewmh_net_client_list(struct screen_ctx *sc)
 	Window			*winlist;
 	int			 i = 0, j = 0;
 
-	TAILQ_FOREACH(cc, &Clientq, entry)
+	TAILQ_FOREACH(cc, &sc->clientq, entry)
 		i++;
 	if (i == 0)
 		return;
 
 	winlist = xcalloc(i, sizeof(*winlist));
-	TAILQ_FOREACH(cc, &Clientq, entry)
+	TAILQ_FOREACH(cc, &sc->clientq, entry)
 		winlist[j++] = cc->win;
 	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_CLIENT_LIST],
 	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)winlist, i);
@@ -351,13 +351,13 @@ xu_ewmh_get_net_wm_state(struct client_ctx *cc, int *n)
 
 	if ((*n = xu_getprop(cc->win, ewmh[_NET_WM_STATE], XA_ATOM, 64L,
 	    (unsigned char **)&p)) <= 0)
-		return (NULL);
+		return(NULL);
 
 	state = xcalloc(*n, sizeof(Atom));
 	(void)memcpy(state, p, *n * sizeof(Atom));
 	XFree((char *)p);
 
-	return (state);
+	return(state);
 }
 
 void
@@ -372,16 +372,19 @@ xu_ewmh_handle_net_wm_state_msg(struct client_ctx *cc, int action,
 	} handlers[] = {
 		{ _NET_WM_STATE_STICKY,
 			CLIENT_STICKY,
-			client_sticky },
+			client_toggle_sticky },
 		{ _NET_WM_STATE_MAXIMIZED_VERT,
 			CLIENT_VMAXIMIZED,
-			client_vmaximize },
+			client_toggle_vmaximize },
 		{ _NET_WM_STATE_MAXIMIZED_HORZ,
 			CLIENT_HMAXIMIZED,
-			client_hmaximize },
+			client_toggle_hmaximize },
+		{ _NET_WM_STATE_HIDDEN,
+			CLIENT_HIDDEN,
+			client_toggle_hidden },
 		{ _NET_WM_STATE_FULLSCREEN,
 			CLIENT_FULLSCREEN,
-			client_fullscreen },
+			client_toggle_fullscreen },
 		{ _NET_WM_STATE_DEMANDS_ATTENTION,
 			CLIENT_URGENCY,
 			client_urgency },
@@ -393,7 +396,7 @@ xu_ewmh_handle_net_wm_state_msg(struct client_ctx *cc, int action,
 			continue;
 		switch (action) {
 		case _NET_WM_STATE_ADD:
-			if ((cc->flags & handlers[i].property) == 0)
+			if (!(cc->flags & handlers[i].property))
 				handlers[i].toggle(cc);
 			break;
 		case _NET_WM_STATE_REMOVE:
@@ -415,13 +418,15 @@ xu_ewmh_restore_net_wm_state(struct client_ctx *cc)
 	atoms = xu_ewmh_get_net_wm_state(cc, &n);
 	for (i = 0; i < n; i++) {
 		if (atoms[i] == ewmh[_NET_WM_STATE_STICKY])
-			client_sticky(cc);
+			client_toggle_sticky(cc);
 		if (atoms[i] == ewmh[_NET_WM_STATE_MAXIMIZED_HORZ])
-			client_hmaximize(cc);
+			client_toggle_hmaximize(cc);
 		if (atoms[i] == ewmh[_NET_WM_STATE_MAXIMIZED_VERT])
-			client_vmaximize(cc);
+			client_toggle_vmaximize(cc);
+		if (atoms[i] == ewmh[_NET_WM_STATE_HIDDEN])
+			client_toggle_hidden(cc);
 		if (atoms[i] == ewmh[_NET_WM_STATE_FULLSCREEN])
-			client_fullscreen(cc);
+			client_toggle_fullscreen(cc);
 		if (atoms[i] == ewmh[_NET_WM_STATE_DEMANDS_ATTENTION])
 			client_urgency(cc);
 	}
@@ -437,16 +442,19 @@ xu_ewmh_set_net_wm_state(struct client_ctx *cc)
 	oatoms = xu_ewmh_get_net_wm_state(cc, &n);
 	atoms = xcalloc((n + _NET_WM_STATES_NITEMS), sizeof(Atom));
 	for (i = j = 0; i < n; i++) {
-		if (oatoms[i] != ewmh[_NET_WM_STATE_MAXIMIZED_HORZ] &&
+		if (oatoms[i] != ewmh[_NET_WM_STATE_STICKY] &&
+		    oatoms[i] != ewmh[_NET_WM_STATE_MAXIMIZED_HORZ] &&
 		    oatoms[i] != ewmh[_NET_WM_STATE_MAXIMIZED_VERT] &&
+		    oatoms[i] != ewmh[_NET_WM_STATE_HIDDEN] &&
 		    oatoms[i] != ewmh[_NET_WM_STATE_FULLSCREEN] &&
-		    oatoms[i] != ewmh[_NET_WM_STATE_STICKY] &&
 		    oatoms[i] != ewmh[_NET_WM_STATE_DEMANDS_ATTENTION])
 			atoms[j++] = oatoms[i];
 	}
 	free(oatoms);
 	if (cc->flags & CLIENT_STICKY)
 		atoms[j++] = ewmh[_NET_WM_STATE_STICKY];
+	if (cc->flags & CLIENT_HIDDEN)
+		atoms[j++] = ewmh[_NET_WM_STATE_HIDDEN];
 	if (cc->flags & CLIENT_FULLSCREEN)
 		atoms[j++] = ewmh[_NET_WM_STATE_FULLSCREEN];
 	else {
@@ -483,7 +491,7 @@ xu_xft_width(XftFont *xftfont, const char *text, int len)
 	XftTextExtentsUtf8(X_Dpy, xftfont, (const FcChar8*)text,
 	    len, &extents);
 
-	return (extents.xOff);
+	return(extents.xOff);
 }
 
 void

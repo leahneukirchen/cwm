@@ -382,12 +382,12 @@ static const struct {
 	{ "rcycleingroup", kbfunc_client_cycle, CWM_WIN,
 	    {.i = CWM_RCYCLE|CWM_INGROUP} },
 	{ "grouptoggle", kbfunc_client_grouptoggle, CWM_WIN, {0}},
-	{ "sticky", kbfunc_client_sticky, CWM_WIN, {0} },
-	{ "fullscreen", kbfunc_client_fullscreen, CWM_WIN, {0} },
-	{ "maximize", kbfunc_client_maximize, CWM_WIN, {0} },
-	{ "vmaximize", kbfunc_client_vmaximize, CWM_WIN, {0} },
-	{ "hmaximize", kbfunc_client_hmaximize, CWM_WIN, {0} },
-	{ "freeze", kbfunc_client_freeze, CWM_WIN, {0} },
+	{ "sticky", kbfunc_client_toggle_sticky, CWM_WIN, {0} },
+	{ "fullscreen", kbfunc_client_toggle_fullscreen, CWM_WIN, {0} },
+	{ "maximize", kbfunc_client_toggle_maximize, CWM_WIN, {0} },
+	{ "vmaximize", kbfunc_client_toggle_vmaximize, CWM_WIN, {0} },
+	{ "hmaximize", kbfunc_client_toggle_hmaximize, CWM_WIN, {0} },
+	{ "freeze", kbfunc_client_toggle_freeze, CWM_WIN, {0} },
 	{ "restart", kbfunc_cwm_status, 0, {.i = CWM_RESTART} },
 	{ "quit", kbfunc_cwm_status, 0, {.i = CWM_QUIT} },
 	{ "exec", kbfunc_exec, 0, {.i = CWM_EXEC_PROGRAM} },
@@ -475,14 +475,14 @@ conf_bind_getmask(const char *name, unsigned int *mask)
 
 	*mask = 0;
 	if ((dash = strchr(name, '-')) == NULL)
-		return (name);
+		return(name);
 	for (i = 0; i < nitems(bind_mods); i++) {
 		if ((ch = strchr(name, bind_mods[i].ch)) != NULL && ch < dash)
 			*mask |= bind_mods[i].mask;
 	}
 
 	/* Skip past modifiers. */
-	return (dash + 1);
+	return(dash + 1);
 }
 
 int
@@ -500,7 +500,7 @@ conf_bind_kbd(struct conf *c, const char *bind, const char *cmd)
 	if (kb->press.keysym == NoSymbol) {
 		warnx("unknown symbol: %s", key);
 		free(kb);
-		return (0);
+		return(0);
 	}
 
 	/* We now have the correct binding, remove duplicates. */
@@ -508,7 +508,7 @@ conf_bind_kbd(struct conf *c, const char *bind, const char *cmd)
 
 	if (strcmp("unmap", cmd) == 0) {
 		free(kb);
-		return (1);
+		return(1);
 	}
 
 	for (i = 0; i < nitems(name_to_func); i++) {
@@ -520,7 +520,7 @@ conf_bind_kbd(struct conf *c, const char *bind, const char *cmd)
 		kb->argument = name_to_func[i].argument;
 		kb->argtype |= ARG_INT;
 		TAILQ_INSERT_TAIL(&c->keybindingq, kb, entry);
-		return (1);
+		return(1);
 	}
 
 	kb->callback = kbfunc_cmdexec;
@@ -528,7 +528,7 @@ conf_bind_kbd(struct conf *c, const char *bind, const char *cmd)
 	kb->argument.c = xstrdup(cmd);
 	kb->argtype |= ARG_CHAR;
 	TAILQ_INSERT_TAIL(&c->keybindingq, kb, entry);
-	return (1);
+	return(1);
 }
 
 static void
@@ -564,7 +564,7 @@ conf_bind_mouse(struct conf *c, const char *bind, const char *cmd)
 	if (errstr) {
 		warnx("button number is %s: %s", errstr, button);
 		free(mb);
-		return (0);
+		return(0);
 	}
 
 	/* We now have the correct binding, remove duplicates. */
@@ -572,7 +572,7 @@ conf_bind_mouse(struct conf *c, const char *bind, const char *cmd)
 
 	if (strcmp("unmap", cmd) == 0) {
 		free(mb);
-		return (1);
+		return(1);
 	}
 
 	for (i = 0; i < nitems(name_to_func); i++) {
@@ -583,10 +583,10 @@ conf_bind_mouse(struct conf *c, const char *bind, const char *cmd)
 		mb->flags = name_to_func[i].flags;
 		mb->argument = name_to_func[i].argument;
 		TAILQ_INSERT_TAIL(&c->mousebindingq, mb, entry);
-		return (1);
+		return(1);
 	}
 
-	return (0);
+	return(0);
 }
 
 static void
@@ -675,6 +675,7 @@ static char *ewmhints[] = {
 	"_NET_WM_STATE_STICKY",
 	"_NET_WM_STATE_MAXIMIZED_VERT",
 	"_NET_WM_STATE_MAXIMIZED_HORZ",
+	"_NET_WM_STATE_HIDDEN",
 	"_NET_WM_STATE_FULLSCREEN",
 	"_NET_WM_STATE_DEMANDS_ATTENTION",
 };

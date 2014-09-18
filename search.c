@@ -102,7 +102,7 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 			tier++;
 
 		/* Clients that are hidden get ranked one up. */
-		if (cc->flags & CLIENT_HIDDEN && tier > 0)
+		if ((cc->flags & CLIENT_HIDDEN) && (tier > 0))
 			tier--;
 
 		assert(tier < nitems(tierp));
@@ -194,13 +194,13 @@ search_match_path(struct menu_q *menuq, struct menu_q *resultq, char *search, in
 static void
 search_match_path_exec(struct menu_q *menuq, struct menu_q *resultq, char *search)
 {
-	return (search_match_path(menuq, resultq, search, PATH_EXEC));
+	return(search_match_path(menuq, resultq, search, PATH_EXEC));
 }
 
 void
 search_match_path_any(struct menu_q *menuq, struct menu_q *resultq, char *search)
 {
-	return (search_match_path(menuq, resultq, search, PATH_ANY));
+	return(search_match_path(menuq, resultq, search, PATH_ANY));
 }
 
 void
@@ -254,13 +254,13 @@ strsubmatch(char *sub, char *str, int zeroidx)
 	unsigned int	 n, flen;
 
 	if (sub == NULL || str == NULL)
-		return (0);
+		return(0);
 
 	len = strlen(str);
 	sublen = strlen(sub);
 
 	if (sublen > len)
-		return (0);
+		return(0);
 
 	if (!zeroidx)
 		flen = len - sublen;
@@ -269,7 +269,7 @@ strsubmatch(char *sub, char *str, int zeroidx)
 
 	for (n = 0; n <= flen; n++)
 		if (strncasecmp(sub, str + n, sublen) == 0)
-			return (1);
+			return(1);
 
-	return (0);
+	return(0);
 }

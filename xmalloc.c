@@ -42,7 +42,7 @@ xmalloc(size_t siz)
 	if ((p = malloc(siz)) == NULL)
 		err(1, "malloc");
 
-	return (p);
+	return(p);
 }
 
 void *
@@ -57,7 +57,7 @@ xcalloc(size_t no, size_t siz)
 	if ((p = calloc(no, siz)) == NULL)
 		err(1, "calloc");
 
-	return (p);
+	return(p);
 }
 
 char *
@@ -68,7 +68,7 @@ xstrdup(const char *str)
 	if ((p = strdup(str)) == NULL)
 		err(1, "strdup");
 
-	return (p);
+	return(p);
 }
 
 int
@@ -84,5 +84,5 @@ xasprintf(char **ret, const char *fmt, ...)
 	if (i < 0 || *ret == NULL)
 		err(1, "asprintf");
 
-	return (i);
+	return(i);
 }
