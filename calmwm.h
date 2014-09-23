@@ -544,7 +544,7 @@ void			 xu_ewmh_net_wm_desktop_viewport(struct screen_ctx *);
 void			 xu_ewmh_net_wm_number_of_desktops(struct screen_ctx *);
 void			 xu_ewmh_net_showing_desktop(struct screen_ctx *);
 void			 xu_ewmh_net_virtual_roots(struct screen_ctx *);
-void			 xu_ewmh_net_current_desktop(struct screen_ctx *, long);
+void			 xu_ewmh_net_current_desktop(struct screen_ctx *);
 void			 xu_ewmh_net_desktop_names(struct screen_ctx *);
 
 void			 xu_ewmh_net_wm_desktop(struct client_ctx *);

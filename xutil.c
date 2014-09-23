@@ -274,10 +274,12 @@ xu_ewmh_net_virtual_roots(struct screen_ctx *sc)
 }
 
 void
-xu_ewmh_net_current_desktop(struct screen_ctx *sc, long idx)
+xu_ewmh_net_current_desktop(struct screen_ctx *sc)
 {
+	long	 num = sc->group_active->num;
+
 	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_CURRENT_DESKTOP],
-	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&idx, 1);
+	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&num, 1);
 }
 
 void
