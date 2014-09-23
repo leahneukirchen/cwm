@@ -119,9 +119,6 @@ group_init(struct screen_ctx *sc)
 	struct group_ctx	*gc;
 	int			 i;
 
-	TAILQ_INIT(&sc->groupq);
-	sc->group_hideall = 0;
-
 	for (i = 0; i < CALMWM_NGROUPS; i++) {
 		gc = xcalloc(1, sizeof(*gc));
 		gc->sc = sc;
@@ -130,12 +127,6 @@ group_init(struct screen_ctx *sc)
 		gc->num = i;
 		TAILQ_INSERT_TAIL(&sc->groupq, gc, entry);
 	}
-
-	xu_ewmh_net_desktop_names(sc);
-	xu_ewmh_net_wm_desktop_viewport(sc);
-	xu_ewmh_net_wm_number_of_desktops(sc);
-	xu_ewmh_net_showing_desktop(sc);
-	xu_ewmh_net_virtual_roots(sc);
 
 	group_setactive(sc, 1);
 }
@@ -315,12 +306,12 @@ group_alltoggle(struct screen_ctx *sc)
 	struct group_ctx	*gc;
 
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
-		if (sc->group_hideall)
+		if (sc->hideall)
 			group_show(gc);
 		else
 			group_hide(gc);
 	}
-	sc->group_hideall = !sc->group_hideall;
+	sc->hideall = !sc->hideall;
 }
 
 void
