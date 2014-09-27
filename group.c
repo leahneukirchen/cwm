@@ -34,7 +34,7 @@
 
 static void		 group_assign(struct group_ctx *, struct client_ctx *);
 static void		 group_restack(struct group_ctx *);
-static void		 group_setactive(struct screen_ctx *, long);
+static void		 group_setactive(struct group_ctx *);
 
 const char *num_to_name[] = {
 	"nogroup", "one", "two", "three", "four", "five", "six",
@@ -75,7 +75,7 @@ group_show(struct group_ctx *gc)
 		client_unhide(cc);
 
 	group_restack(gc);
-	group_setactive(gc->sc, gc->num);
+	group_setactive(gc);
 }
 
 static void
@@ -119,9 +119,6 @@ group_init(struct screen_ctx *sc)
 	struct group_ctx	*gc;
 	int			 i;
 
-	TAILQ_INIT(&sc->groupq);
-	sc->group_hideall = 0;
-
 	for (i = 0; i < CALMWM_NGROUPS; i++) {
 		gc = xcalloc(1, sizeof(*gc));
 		gc->sc = sc;
@@ -129,29 +126,19 @@ group_init(struct screen_ctx *sc)
 		gc->name = xstrdup(num_to_name[i]);
 		gc->num = i;
 		TAILQ_INSERT_TAIL(&sc->groupq, gc, entry);
+		if (i == 1)
+			group_setactive(gc);
 	}
-
-	xu_ewmh_net_desktop_names(sc);
-	xu_ewmh_net_wm_desktop_viewport(sc);
-	xu_ewmh_net_wm_number_of_desktops(sc);
-	xu_ewmh_net_showing_desktop(sc);
-	xu_ewmh_net_virtual_roots(sc);
-
-	group_setactive(sc, 1);
 }
 
 static void
-group_setactive(struct screen_ctx *sc, long idx)
+group_setactive(struct group_ctx *gc)
 {
-	struct group_ctx	*gc;
+	struct screen_ctx	*sc = gc->sc;
 
-	TAILQ_FOREACH(gc, &sc->groupq, entry) {
-		if (gc->num == idx)
-			break;
-	}
 	sc->group_active = gc;
 
-	xu_ewmh_net_current_desktop(sc, idx);
+	xu_ewmh_net_current_desktop(sc);
 }
 
 void
@@ -175,11 +162,8 @@ group_movetogroup(struct client_ctx *cc, int idx)
 	group_assign(gc, cc);
 }
 
-/*
- * Colouring for groups upon add/remove.
- */
 void
-group_sticky_toggle_enter(struct client_ctx *cc)
+group_toggle_membership_enter(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
 	struct group_ctx	*gc = sc->group_active;
@@ -196,7 +180,7 @@ group_sticky_toggle_enter(struct client_ctx *cc)
 }
 
 void
-group_sticky_toggle_exit(struct client_ctx *cc)
+group_toggle_membership_leave(struct client_ctx *cc)
 {
 	cc->flags &= ~CLIENT_HIGHLIGHT;
 	client_draw_border(cc);
@@ -252,7 +236,7 @@ group_hidetoggle(struct screen_ctx *sc, int idx)
 		group_hide(gc);
 		/* make clients stick to empty group */
 		if (TAILQ_EMPTY(&gc->clientq))
-			group_setactive(sc, idx);
+			group_setactive(gc);
 	}
 }
 
@@ -306,7 +290,7 @@ group_cycle(struct screen_ctx *sc, int flags)
 	if (group_holds_only_hidden(showgroup))
 		group_show(showgroup);
 	else
-		group_setactive(sc, showgroup->num);
+		group_setactive(showgroup);
 }
 
 void
@@ -315,12 +299,12 @@ group_alltoggle(struct screen_ctx *sc)
 	struct group_ctx	*gc;
 
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
-		if (sc->group_hideall)
+		if (sc->hideall)
 			group_show(gc);
 		else
 			group_hide(gc);
 	}
-	sc->group_hideall = !sc->group_hideall;
+	sc->hideall = !sc->hideall;
 }
 
 void

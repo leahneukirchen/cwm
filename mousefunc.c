@@ -174,7 +174,7 @@ mousefunc_client_move(struct client_ctx *cc, union arg *arg)
 void
 mousefunc_client_grouptoggle(struct client_ctx *cc, union arg *arg)
 {
-	group_sticky_toggle_enter(cc);
+	group_toggle_membership_enter(cc);
 }
 
 void

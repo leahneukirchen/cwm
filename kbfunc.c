@@ -438,7 +438,7 @@ kbfunc_client_grouptoggle(struct client_ctx *cc, union arg *arg)
 	XGrabKeyboard(X_Dpy, cc->win, True,
 	    GrabModeAsync, GrabModeAsync, CurrentTime);
 
-	group_sticky_toggle_enter(cc);
+	group_toggle_membership_enter(cc);
 }
 
 void

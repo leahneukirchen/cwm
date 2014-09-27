@@ -248,19 +248,19 @@ struct screen_ctx {
 	Window			 rootwin;
 	Window			 menuwin;
 	int			 cycling;
+	int			 hideall;
 	int			 snapdist;
 	struct geom		 view; /* viewable area */
 	struct geom		 work; /* workable area, gap-applied */
 	struct gap		 gap;
 	struct client_ctx_q	 clientq;
 	struct region_ctx_q	 regionq;
+#define CALMWM_NGROUPS		 10
+	struct group_ctx_q	 groupq;
+	struct group_ctx	*group_active;
 	XftColor		 xftcolor[CWM_COLOR_NITEMS];
 	XftDraw			*xftdraw;
 	XftFont			*xftfont;
-#define CALMWM_NGROUPS		 10
-	struct group_ctx_q	 groupq;
-	int			 group_hideall;
-	struct group_ctx	*group_active;
 };
 TAILQ_HEAD(screen_ctx_q, screen_ctx);
 
@@ -433,8 +433,8 @@ void			 group_init(struct screen_ctx *);
 void			 group_movetogroup(struct client_ctx *, int);
 void			 group_only(struct screen_ctx *, int);
 void			 group_show(struct group_ctx *);
-void			 group_sticky_toggle_enter(struct client_ctx *);
-void			 group_sticky_toggle_exit(struct client_ctx *);
+void			 group_toggle_membership_enter(struct client_ctx *);
+void			 group_toggle_membership_leave(struct client_ctx *);
 void			 group_update_names(struct screen_ctx *);
 
 void			 search_match_client(struct menu_q *, struct menu_q *,
@@ -563,7 +563,7 @@ void			 xu_ewmh_net_wm_desktop_viewport(struct screen_ctx *);
 void			 xu_ewmh_net_wm_number_of_desktops(struct screen_ctx *);
 void			 xu_ewmh_net_showing_desktop(struct screen_ctx *);
 void			 xu_ewmh_net_virtual_roots(struct screen_ctx *);
-void			 xu_ewmh_net_current_desktop(struct screen_ctx *, long);
+void			 xu_ewmh_net_current_desktop(struct screen_ctx *);
 void			 xu_ewmh_net_desktop_names(struct screen_ctx *);
 
 void			 xu_ewmh_net_wm_desktop(struct client_ctx *);
