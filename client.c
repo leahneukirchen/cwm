@@ -696,7 +696,7 @@ client_cycle_leave(struct screen_ctx *sc)
 
 	if ((cc = client_current())) {
 		client_mtf(cc);
-		group_sticky_toggle_exit(cc);
+		group_toggle_membership_leave(cc);
 		XUngrabKeyboard(X_Dpy, CurrentTime);
 	}
 }

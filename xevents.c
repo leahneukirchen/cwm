@@ -251,7 +251,7 @@ xev_handle_buttonrelease(XEvent *ee)
 	struct client_ctx *cc;
 
 	if ((cc = client_current()))
-		group_sticky_toggle_exit(cc);
+		group_toggle_membership_leave(cc);
 }
 
 static void
