@@ -34,7 +34,7 @@
 
 static void		 group_assign(struct group_ctx *, struct client_ctx *);
 static void		 group_restack(struct group_ctx *);
-static void		 group_setactive(struct screen_ctx *, int);
+static void		 group_setactive(struct group_ctx *);
 
 const char *num_to_name[] = {
 	"nogroup", "one", "two", "three", "four", "five", "six",
@@ -75,7 +75,7 @@ group_show(struct group_ctx *gc)
 		client_unhide(cc);
 
 	group_restack(gc);
-	group_setactive(gc->sc, gc->num);
+	group_setactive(gc);
 }
 
 static void
@@ -126,20 +126,16 @@ group_init(struct screen_ctx *sc)
 		gc->name = xstrdup(num_to_name[i]);
 		gc->num = i;
 		TAILQ_INSERT_TAIL(&sc->groupq, gc, entry);
+		if (i == 1)
+			group_setactive(gc);
 	}
-
-	group_setactive(sc, 1);
 }
 
 static void
-group_setactive(struct screen_ctx *sc, int idx)
+group_setactive(struct group_ctx *gc)
 {
-	struct group_ctx	*gc;
+	struct screen_ctx	*sc = gc->sc;
 
-	TAILQ_FOREACH(gc, &sc->groupq, entry) {
-		if (gc->num == idx)
-			break;
-	}
 	sc->group_active = gc;
 
 	xu_ewmh_net_current_desktop(sc);
@@ -243,7 +239,7 @@ group_hidetoggle(struct screen_ctx *sc, int idx)
 		group_hide(gc);
 		/* make clients stick to empty group */
 		if (TAILQ_EMPTY(&gc->clientq))
-			group_setactive(sc, idx);
+			group_setactive(gc);
 	}
 }
 
@@ -297,7 +293,7 @@ group_cycle(struct screen_ctx *sc, int flags)
 	if (group_holds_only_hidden(showgroup))
 		group_show(showgroup);
 	else
-		group_setactive(sc, showgroup->num);
+		group_setactive(showgroup);
 }
 
 void
