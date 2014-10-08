@@ -54,7 +54,9 @@ screen_init(int which)
 	xu_ewmh_net_supported_wm_check(sc);
 
 	screen_update_geometry(sc);
-	group_init(sc);
+
+	for (i = 0; i < CALMWM_NGROUPS; i++)
+		group_init(sc, i);
 
 	xu_ewmh_net_desktop_names(sc);
 	xu_ewmh_net_wm_desktop_viewport(sc);
