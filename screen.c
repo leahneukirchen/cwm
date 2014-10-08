@@ -38,7 +38,7 @@ screen_init(int which)
 	XSetWindowAttributes	 rootattr;
 	unsigned int		 nwins, i;
 
-	sc = xcalloc(1, sizeof(*sc));
+	sc = xmalloc(sizeof(*sc));
 
 	TAILQ_INIT(&sc->clientq);
 	TAILQ_INIT(&sc->regionq);
@@ -48,13 +48,16 @@ screen_init(int which)
 	sc->rootwin = RootWindow(X_Dpy, sc->which);
 	sc->cycling = 0;
 	sc->hideall = 0;
+
 	conf_screen(sc);
 
 	xu_ewmh_net_supported(sc);
 	xu_ewmh_net_supported_wm_check(sc);
 
 	screen_update_geometry(sc);
-	group_init(sc);
+
+	for (i = 0; i < CALMWM_NGROUPS; i++)
+		group_init(sc, i);
 
 	xu_ewmh_net_desktop_names(sc);
 	xu_ewmh_net_wm_desktop_viewport(sc);

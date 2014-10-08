@@ -114,24 +114,23 @@ group_restack(struct group_ctx *gc)
 }
 
 void
-group_init(struct screen_ctx *sc)
+group_init(struct screen_ctx *sc, int num)
 {
 	struct group_ctx	*gc;
-	int			 i;
 
-	for (i = 0; i < CALMWM_NGROUPS; i++) {
-		gc = xcalloc(1, sizeof(*gc));
-		gc->sc = sc;
-		TAILQ_INIT(&gc->clientq);
-		gc->name = xstrdup(num_to_name[i]);
-		gc->num = i;
-		TAILQ_INSERT_TAIL(&sc->groupq, gc, entry);
-		if (i == 1)
-			group_setactive(gc);
-	}
+	gc = xmalloc(sizeof(*gc));
+	gc->sc = sc;
+	gc->name = xstrdup(num_to_name[num]);
+	gc->num = num;
+	TAILQ_INIT(&gc->clientq);
+
+	TAILQ_INSERT_TAIL(&sc->groupq, gc, entry);
+
+	if (num == 1)
+		group_setactive(gc);
 }
 
-static void
+void
 group_setactive(struct group_ctx *gc)
 {
 	struct screen_ctx	*sc = gc->sc;
