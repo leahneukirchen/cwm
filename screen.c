@@ -38,7 +38,7 @@ screen_init(int which)
 	XSetWindowAttributes	 rootattr;
 	unsigned int		 nwins, i;
 
-	sc = xcalloc(1, sizeof(*sc));
+	sc = xmalloc(sizeof(*sc));
 
 	TAILQ_INIT(&sc->clientq);
 	TAILQ_INIT(&sc->regionq);
@@ -48,6 +48,7 @@ screen_init(int which)
 	sc->rootwin = RootWindow(X_Dpy, sc->which);
 	sc->cycling = 0;
 	sc->hideall = 0;
+
 	conf_screen(sc);
 
 	xu_ewmh_net_supported(sc);
