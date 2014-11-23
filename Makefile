@@ -48,4 +48,6 @@ release:
 
 sign:
 	VERSION=$$(git describe --tags | sed 's/^v//;s/-[^.]*$$//') && \
-	gpg --armor --detach-sign cwm-$$VERSION.tar.gz
+	gpg --armor --detach-sign cwm-$$VERSION.tar.gz && \
+	signify -S -s ~/.signify/cwm.sec -m cwm-$$VERSION.tar.gz && \
+	sed -i '1cuntrusted comment: verify with cwm.pub' cwm-$$VERSION.tar.gz.sig
