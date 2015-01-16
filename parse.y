@@ -47,7 +47,9 @@ struct file	*pushfile(const char *);
 int		 popfile(void);
 int		 yyparse(void);
 int		 yylex(void);
-int		 yyerror(const char *, ...);
+int		 yyerror(const char *, ...)
+    __attribute__((__format__ (printf, 1, 2)))
+    __attribute__((__nonnull__ (1)));
 int		 kw_cmp(const void *, const void *);
 int		 lookup(char *);
 int		 lgetc(int);
@@ -117,21 +119,21 @@ main		: FONTNAME STRING		{
 		}
 		| BORDERWIDTH NUMBER {
 			if ($2 < 0 || $2 > UINT_MAX) {
-				yyerror("invalid borderwidth: %d", $2);
+				yyerror("invalid borderwidth: %lld", $2);
 				YYERROR;
 			}
 			conf->bwidth = $2;
 		}
 		| MOVEAMOUNT NUMBER {
 			if ($2 < 0 || $2 > INT_MAX) {
-				yyerror("invalid movemount: %d", $2);
+				yyerror("invalid movemount: %lld", $2);
 				YYERROR;
 			}
 			conf->mamount = $2;
 		}
 		| SNAPDIST NUMBER {
 			if ($2 < 0 || $2 > INT_MAX) {
-				yyerror("invalid snapdist: %d", $2);
+				yyerror("invalid snapdist: %lld", $2);
 				YYERROR;
 			}
 			conf->snapdist = $2;
@@ -149,7 +151,7 @@ main		: FONTNAME STRING		{
 		| AUTOGROUP NUMBER STRING	{
 			if ($2 < 0 || $2 > 9) {
 				free($3);
-				yyerror("invalid autogroup: %d", $2);
+				yyerror("invalid autogroup: %lld", $2);
 				YYERROR;
 			}
 			conf_autogroup(conf, $2, $3);
@@ -174,7 +176,7 @@ main		: FONTNAME STRING		{
 			    $3 < 0 || $3 > INT_MAX ||
 			    $4 < 0 || $4 > INT_MAX ||
 			    $5 < 0 || $5 > INT_MAX) {
-				yyerror("invalid gap: %d %d %d %d",
+				yyerror("invalid gap: %lld %lld %lld %lld",
 				    $2, $3, $4, $5);
 				YYERROR;
 			}
