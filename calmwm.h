@@ -260,7 +260,7 @@ TAILQ_HEAD(mousebinding_q, binding);
 struct cmd {
 	TAILQ_ENTRY(cmd)	 entry;
 	char			*name;
-	char			 path[MAXPATHLEN];
+	char			 path[PATH_MAX];
 };
 TAILQ_HEAD(cmd_q, cmd);
 
@@ -292,7 +292,7 @@ struct conf {
 	int			 snapdist;
 	struct gap		 gap;
 	char			*color[CWM_COLOR_NITEMS];
-	char			 known_hosts[MAXPATHLEN];
+	char			 known_hosts[PATH_MAX];
 #define	CONF_FONT			"sans-serif:pixelsize=14:bold"
 	char			*font;
 	Cursor			 cursor[CF_NITEMS];

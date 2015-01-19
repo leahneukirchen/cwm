@@ -18,7 +18,7 @@
  * $OpenBSD$
  */
 
-#include <sys/param.h>
+#include <sys/types.h>
 #include <sys/queue.h>
 
 #include <assert.h>
@@ -26,6 +26,7 @@
 #include <errno.h>
 #include <fnmatch.h>
 #include <glob.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -172,7 +173,7 @@ search_print_client(struct menu *mi, int list)
 static void
 search_match_path(struct menu_q *menuq, struct menu_q *resultq, char *search, int flag)
 {
-	char 	 pattern[MAXPATHLEN];
+	char 	 pattern[PATH_MAX];
 	glob_t	 g;
 	int	 i;
 
