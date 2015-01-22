@@ -18,11 +18,12 @@
  * $OpenBSD$
  */
 
-#include <sys/param.h>
+#include <sys/types.h>
 #include "queue.h"
 
 #include <err.h>
 #include <errno.h>
+#include <limits.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>

@@ -18,12 +18,13 @@
  * $OpenBSD$
  */
 
-#include <sys/param.h>
+#include <sys/types.h>
 #include "queue.h"
 
 #include <dirent.h>
 #include <err.h>
 #include <errno.h>
+#include <limits.h>
 #include <paths.h>
 #include <signal.h>
 #include <stdio.h>
@@ -238,7 +239,7 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 #define NPATHS 256
 	struct screen_ctx	*sc = cc->sc;
 	char			**ap, *paths[NPATHS], *path, *pathcpy;
-	char			 tpath[MAXPATHLEN];
+	char			 tpath[PATH_MAX];
 	const char		*label;
 	DIR			*dirp;
 	struct dirent		*dp;
@@ -323,8 +324,8 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 	struct menu_q		 menuq;
 	FILE			*fp;
 	char			*buf, *lbuf, *p;
-	char			 hostbuf[MAXHOSTNAMELEN];
-	char			 path[MAXPATHLEN];
+	char			 hostbuf[HOST_NAME_MAX+1];
+	char			 path[PATH_MAX];
 	int			 l;
 	size_t			 len;
 
