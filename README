@@ -83,6 +83,11 @@ Changes made between OpenBSD 5.5 and 5.4
 * For cwm(1) clients that support WM_TAKE_FOCUS in their WM_PROTOCOLS property,
   send a ClientMessage event.
 
+2015-01-24: Third public release 5.6 of portable cwm.
+
+* Support building on FreeBSD and OS X.
+* Support for sticky windows (_NET_WM_STATE_STICKY).
+* Internal cleanups and bug fixes.
 
 --Christian Neukirchen <chneukirchen@gmail.com>
 
