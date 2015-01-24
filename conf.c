@@ -76,7 +76,7 @@ conf_autogroup(struct conf *c, int num, const char *val)
 	struct autogroupwin	*aw;
 	char			*p;
 
-	aw = xcalloc(1, sizeof(*aw));
+	aw = xmalloc(sizeof(*aw));
 
 	if ((p = strchr(val, ',')) == NULL) {
 		aw->name = NULL;
