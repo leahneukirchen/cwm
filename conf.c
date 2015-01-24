@@ -96,7 +96,7 @@ conf_ignore(struct conf *c, const char *name)
 {
 	struct winname	*wn;
 
-	wn = xcalloc(1, sizeof(*wn));
+	wn = xmalloc(sizeof(*wn));
 	wn->name = xstrdup(name);
 	TAILQ_INSERT_TAIL(&c->ignoreq, wn, entry);
 }
