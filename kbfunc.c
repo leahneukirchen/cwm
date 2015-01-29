@@ -326,6 +326,8 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 	char			*buf, *lbuf, *p;
 	char			 hostbuf[HOST_NAME_MAX+1];
 	char			 path[PATH_MAX];
+	long			 color = 0;
+	char			 colorarg[32];
 	int			 l;
 	size_t			 len;
 
@@ -371,8 +373,15 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 	    search_match_exec, NULL)) != NULL) {
 		if (mi->text[0] == '\0')
 			goto out;
-		l = snprintf(path, sizeof(path), "%s -T '[ssh] %s' -e ssh %s",
-		    cmd->path, mi->text, mi->text);
+		if (Conf.flags & CONF_COLORIZE_SSH) {
+			color = crc24(mi->text);
+			l = snprintf(colorarg, sizeof(colorarg),
+			    " -fg #%.6x -bg #%.6x", tint(color), shade(color));
+			if (l == -1 || l >= sizeof(colorarg))
+				goto out;
+		}
+		l = snprintf(path, sizeof(path), "%s -T '[ssh] %s'%s -e ssh %s",
+		    cmd->path, mi->text, color ? colorarg : "", mi->text);
 		if (l == -1 || l >= sizeof(path))
 			goto out;
 		u_spawn(path);

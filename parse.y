@@ -70,7 +70,7 @@ typedef struct {
 
 %}
 
-%token	FONTNAME STICKY GAP MOUSEBIND
+%token	FONTNAME STICKY COLORIZE GAP MOUSEBIND
 %token	AUTOGROUP BIND COMMAND IGNORE
 %token	YES NO BORDERWIDTH MOVEAMOUNT
 %token	COLOR SNAPDIST
@@ -118,6 +118,12 @@ main		: FONTNAME STRING		{
 				conf->flags &= ~CONF_STICKY_GROUPS;
 			else
 				conf->flags |= CONF_STICKY_GROUPS;
+		}
+		| COLORIZE yesno {
+			if ($2 == 0)
+				conf->flags &= ~CONF_COLORIZE_SSH;
+			else
+				conf->flags |= CONF_COLORIZE_SSH;
 		}
 		| BORDERWIDTH NUMBER {
 			if ($2 < 0 || $2 > UINT_MAX) {
@@ -276,6 +282,7 @@ lookup(char *s)
 		{ "bind",		BIND},
 		{ "borderwidth",	BORDERWIDTH},
 		{ "color",		COLOR},
+		{ "colorize",		COLORIZE},
 		{ "command",		COMMAND},
 		{ "font",		FONTCOLOR},
 		{ "fontname",		FONTNAME},
