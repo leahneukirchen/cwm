@@ -302,6 +302,7 @@ struct conf {
 	struct ignore_q		 ignoreq;
 	struct cmd_q		 cmdq;
 #define	CONF_STICKY_GROUPS		0x0001
+#define	CONF_COLORIZE_SSH		0x0002
 	int			 flags;
 #define CONF_BWIDTH			1
 	int			 bwidth;
@@ -582,5 +583,9 @@ char			*xstrdup(const char *);
 int			 xasprintf(char **, const char *, ...)
 			    __attribute__((__format__ (printf, 2, 3)))
 			    __attribute__((__nonnull__ (2)));
+
+long			 crc24(char *);
+long			 tint(long);
+long			 shade(long);
 
 #endif /* _CALMWM_H_ */
