@@ -491,11 +491,10 @@ conf_bind_kbd(struct conf *c, const char *bind, const char *cmd)
 {
 	struct binding	*kb;
 	const char	*key;
-	unsigned int	 i, mask;
+	unsigned int	 i;
 
-	kb = xcalloc(1, sizeof(*kb));
-	key = conf_bind_getmask(bind, &mask);
-	kb->modmask |= mask;
+	kb = xmalloc(sizeof(*kb));
+	key = conf_bind_getmask(bind, &kb->modmask);
 
 	kb->press.keysym = XStringToKeysym(key);
 	if (kb->press.keysym == NoSymbol) {
@@ -519,15 +518,13 @@ conf_bind_kbd(struct conf *c, const char *bind, const char *cmd)
 		kb->callback = name_to_func[i].handler;
 		kb->flags = name_to_func[i].flags;
 		kb->argument = name_to_func[i].argument;
-		kb->argtype |= ARG_INT;
 		TAILQ_INSERT_TAIL(&c->keybindingq, kb, entry);
 		return(1);
 	}
 
 	kb->callback = kbfunc_cmdexec;
-	kb->flags = 0;
+	kb->flags = CWM_CMD;
 	kb->argument.c = xstrdup(cmd);
-	kb->argtype |= ARG_CHAR;
 	TAILQ_INSERT_TAIL(&c->keybindingq, kb, entry);
 	return(1);
 }
@@ -543,7 +540,7 @@ conf_unbind_kbd(struct conf *c, struct binding *unbind)
 
 		if (key->press.keysym == unbind->press.keysym) {
 			TAILQ_REMOVE(&c->keybindingq, key, entry);
-			if (key->argtype & ARG_CHAR)
+			if (key->flags & CWM_CMD)
 				free(key->argument.c);
 			free(key);
 		}
@@ -555,11 +552,10 @@ conf_bind_mouse(struct conf *c, const char *bind, const char *cmd)
 {
 	struct binding	*mb;
 	const char	*button, *errstr;
-	unsigned int	 i, mask;
+	unsigned int	 i;
 
-	mb = xcalloc(1, sizeof(*mb));
-	button = conf_bind_getmask(bind, &mask);
-	mb->modmask |= mask;
+	mb = xmalloc(sizeof(*mb));
+	button = conf_bind_getmask(bind, &mb->modmask);
 
 	mb->press.button = strtonum(button, Button1, Button5, &errstr);
 	if (errstr) {
