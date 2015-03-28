@@ -559,6 +559,7 @@ void			 u_spawn(char *);
 
 void			*xcalloc(size_t, size_t);
 void			*xmalloc(size_t);
+void			*xreallocarray(void *, size_t, size_t);
 char			*xstrdup(const char *);
 int			 xasprintf(char **, const char *, ...)
 			    __attribute__((__format__ (printf, 2, 3)))
