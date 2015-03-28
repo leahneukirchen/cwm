@@ -332,6 +332,7 @@ xu_ewmh_net_desktop_names(struct screen_ctx *sc)
 
 	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_DESKTOP_NAMES],
 	    cwmh[UTF8_STRING], 8, PropModeReplace, (unsigned char *)p, len);
+	free(p);
 }
 
 /* Application Window Properties */
