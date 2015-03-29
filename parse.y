@@ -121,21 +121,21 @@ main		: FONTNAME STRING		{
 		}
 		| BORDERWIDTH NUMBER {
 			if ($2 < 0 || $2 > UINT_MAX) {
-				yyerror("invalid borderwidth: %lld", $2);
+				yyerror("invalid borderwidth");
 				YYERROR;
 			}
 			conf->bwidth = $2;
 		}
 		| MOVEAMOUNT NUMBER {
 			if ($2 < 0 || $2 > INT_MAX) {
-				yyerror("invalid movemount: %lld", $2);
+				yyerror("invalid movemount");
 				YYERROR;
 			}
 			conf->mamount = $2;
 		}
 		| SNAPDIST NUMBER {
 			if ($2 < 0 || $2 > INT_MAX) {
-				yyerror("invalid snapdist: %lld", $2);
+				yyerror("invalid snapdist");
 				YYERROR;
 			}
 			conf->snapdist = $2;
@@ -152,8 +152,8 @@ main		: FONTNAME STRING		{
 		}
 		| AUTOGROUP NUMBER STRING	{
 			if ($2 < 0 || $2 > 9) {
+				yyerror("invalid autogroup");
 				free($3);
-				yyerror("invalid autogroup: %lld", $2);
 				YYERROR;
 			}
 			conf_autogroup(conf, $2, $3);
@@ -178,8 +178,7 @@ main		: FONTNAME STRING		{
 			    $3 < 0 || $3 > INT_MAX ||
 			    $4 < 0 || $4 > INT_MAX ||
 			    $5 < 0 || $5 > INT_MAX) {
-				yyerror("invalid gap: %lld %lld %lld %lld",
-				    $2, $3, $4, $5);
+				yyerror("invalid gap");
 				YYERROR;
 			}
 			conf->gap.top = $2;

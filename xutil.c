@@ -220,7 +220,7 @@ xu_ewmh_net_client_list(struct screen_ctx *sc)
 	if (i == 0)
 		return;
 
-	winlist = xcalloc(i, sizeof(*winlist));
+	winlist = xreallocarray(NULL, i, sizeof(*winlist));
 	TAILQ_FOREACH(cc, &sc->clientq, entry)
 		winlist[j++] = cc->win;
 	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_CLIENT_LIST],
@@ -320,7 +320,7 @@ xu_ewmh_net_desktop_names(struct screen_ctx *sc)
 
 	TAILQ_FOREACH(gc, &sc->groupq, entry)
 		len += strlen(gc->name) + 1;
-	q = p = xcalloc(len, sizeof(*p));
+	q = p = xreallocarray(NULL, len, sizeof(*p));
 
 	tlen = len;
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
@@ -332,6 +332,7 @@ xu_ewmh_net_desktop_names(struct screen_ctx *sc)
 
 	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_DESKTOP_NAMES],
 	    cwmh[UTF8_STRING], 8, PropModeReplace, (unsigned char *)p, len);
+	free(p);
 }
 
 /* Application Window Properties */
@@ -356,7 +357,7 @@ xu_ewmh_get_net_wm_state(struct client_ctx *cc, int *n)
 	    (unsigned char **)&p)) <= 0)
 		return(NULL);
 
-	state = xcalloc(*n, sizeof(Atom));
+	state = xreallocarray(NULL, *n, sizeof(Atom));
 	(void)memcpy(state, p, *n * sizeof(Atom));
 	XFree((char *)p);
 
@@ -443,7 +444,7 @@ xu_ewmh_set_net_wm_state(struct client_ctx *cc)
 	int	 n, i, j;
 
 	oatoms = xu_ewmh_get_net_wm_state(cc, &n);
-	atoms = xcalloc((n + _NET_WM_STATES_NITEMS), sizeof(Atom));
+	atoms = xreallocarray(NULL, (n + _NET_WM_STATES_NITEMS), sizeof(Atom));
 	for (i = j = 0; i < n; i++) {
 		if (oatoms[i] != ewmh[_NET_WM_STATE_STICKY] &&
 		    oatoms[i] != ewmh[_NET_WM_STATE_MAXIMIZED_HORZ] &&

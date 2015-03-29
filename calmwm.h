@@ -103,6 +103,7 @@ size_t strlcpy(char *, const char *, size_t);
 #define CWM_NOGAP		0x0002
 
 #define CWM_WIN			0x0001
+#define CWM_CMD			0x0002
 
 #define CWM_QUIT		0x0000
 #define CWM_RUNNING		0x0001
@@ -271,7 +272,6 @@ struct binding {
 	unsigned int		 modmask;
 	union press		 press;
 	int			 flags;
-	int			 argtype;
 };
 TAILQ_HEAD(keybinding_q, binding);
 TAILQ_HEAD(mousebinding_q, binding);
@@ -578,6 +578,7 @@ void			 u_spawn(char *);
 
 void			*xcalloc(size_t, size_t);
 void			*xmalloc(size_t);
+void			*xreallocarray(void *, size_t, size_t);
 char			*xstrdup(const char *);
 int			 xasprintf(char **, const char *, ...)
 			    __attribute__((__format__ (printf, 2, 3)))

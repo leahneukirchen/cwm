@@ -91,7 +91,7 @@ group_restack(struct group_ctx *gc)
 		if (cc->stackingorder > highstack)
 			highstack = cc->stackingorder;
 	}
-	winlist = xcalloc((highstack + 1), sizeof(*winlist));
+	winlist = xreallocarray(NULL, (highstack + 1), sizeof(*winlist));
 
 	/* Invert the stacking order for XRestackWindows(). */
 	TAILQ_FOREACH(cc, &gc->clientq, group_entry) {

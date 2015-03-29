@@ -61,6 +61,18 @@ xcalloc(size_t no, size_t siz)
 	return(p);
 }
 
+void *
+xreallocarray(void *ptr, size_t nmemb, size_t size)
+{
+	void	*p;
+
+	p = reallocarray(ptr, nmemb, size);
+	if (p == NULL)
+		errx(1, "xreallocarray: out of memory (new_size %zu bytes)",
+		    nmemb * size);
+	return(p);
+}
+
 char *
 xstrdup(const char *str)
 {

@@ -189,9 +189,7 @@ menu_complete_path(struct menu_ctx *mc)
 {
 	struct menu		*mi, *mr;
 	struct menu_q		 menuq;
-	char			*path = NULL;
 
-	path = xcalloc(1, sizeof(mr->text));
 	mr = xcalloc(1, sizeof(*mr));
 
 	TAILQ_INIT(&menuq);
@@ -200,17 +198,15 @@ menu_complete_path(struct menu_ctx *mc)
 	    CWM_MENU_DUMMY, search_match_path_any, NULL)) != NULL) {
 		mr->abort = mi->abort;
 		mr->dummy = mi->dummy;
-		strlcpy(path, mi->text, sizeof(mi->text));
+		if (mi->text[0] != '\0')
+			snprintf(mr->text, sizeof(mr->text), "%s \"%s\"",
+			    mc->searchstr, mi->text);
+		else if (!mr->abort)
+			strlcpy(mr->text, mc->searchstr, sizeof(mr->text));
 	}
 	
 	menuq_clear(&menuq);
 
-	if (path[0] != '\0')
-		snprintf(mr->text, sizeof(mr->text), "%s \"%s\"",
-			mc->searchstr, path);
-	else if (!mr->abort)
-		strlcpy(mr->text,  mc->searchstr, sizeof(mr->text));
-	free(path);
 	return(mr);
 }
 
