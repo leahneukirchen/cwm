@@ -887,6 +887,7 @@ client_mwm_hints(struct client_ctx *cc)
 		    !(mwmh->decorations & MWM_DECOR_ALL) &&
 		    !(mwmh->decorations & MWM_DECOR_BORDER))
 			cc->bwidth = 0;
+		XFree(mwmh);
 	}
 }
 
