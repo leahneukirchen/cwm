@@ -28,6 +28,8 @@
 /* prototypes for portable-included functions */
 char *fgetln(FILE *, size_t *);
 long long strtonum(const char *, long long, long long, const char **);
+void *reallocarray(void *, size_t, size_t);
+
 
 #ifdef strlcat
 #define HAVE_STRLCAT
