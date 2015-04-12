@@ -246,6 +246,7 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 	struct menu		*mi;
 	struct menu_q		 menuq;
 	int			 l, i, cmd = arg->i;
+	struct stat		 sb;
 
 	switch (cmd) {
 	case CWM_EXEC_PROGRAM:
@@ -276,12 +277,16 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 			continue;
 
 		while ((dp = readdir(dirp)) != NULL) {
-			/* skip everything but regular files and symlinks */
-			if (dp->d_type != DT_REG && dp->d_type != DT_LNK)
-				continue;
 			(void)memset(tpath, '\0', sizeof(tpath));
 			l = snprintf(tpath, sizeof(tpath), "%s/%s", paths[i],
 			    dp->d_name);
+			/* skip everything but regular files and symlinks */
+			if (dp->d_type != DT_REG && dp->d_type != DT_LNK) {
+				/* use an additional stat-based check in case d_type isn't supported */
+				stat(tpath, &sb);
+				if (!S_ISREG(sb.st_mode) && !S_ISLNK(sb.st_mode))
+					continue;
+			}
 			if (l == -1 || l >= sizeof(tpath))
 				continue;
 			if (access(tpath, X_OK) == 0)
