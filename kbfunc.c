@@ -280,15 +280,16 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 			(void)memset(tpath, '\0', sizeof(tpath));
 			l = snprintf(tpath, sizeof(tpath), "%s/%s", paths[i],
 			    dp->d_name);
+			if (l == -1 || l >= sizeof(tpath))
+				continue;
 			/* skip everything but regular files and symlinks */
 			if (dp->d_type != DT_REG && dp->d_type != DT_LNK) {
 				/* use an additional stat-based check in case d_type isn't supported */
-				stat(tpath, &sb);
+				if (lstat(tpath, &sb) < 0)
+					continue;
 				if (!S_ISREG(sb.st_mode) && !S_ISLNK(sb.st_mode))
 					continue;
 			}
-			if (l == -1 || l >= sizeof(tpath))
-				continue;
 			if (access(tpath, X_OK) == 0)
 				menuq_add(&menuq, NULL, "%s", dp->d_name);
 		}
