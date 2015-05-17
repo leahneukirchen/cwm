@@ -154,7 +154,7 @@ main		: FONTNAME STRING		{
 				free($3);
 				YYERROR;
 			}
-			conf_autogroup(conf, $2, $3);
+			conf_autogroup(conf, $2, NULL, $3);
 			free($3);
 		}
 		| IGNORE STRING {

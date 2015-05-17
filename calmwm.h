@@ -500,7 +500,8 @@ void			 menuq_clear(struct menu_q *);
 int			 parse_config(const char *, struct conf *);
 
 void			 conf_atoms(void);
-void			 conf_autogroup(struct conf *, int, const char *);
+void			 conf_autogroup(struct conf *, int, const char *,
+			     const char *);
 int			 conf_bind_kbd(struct conf *, const char *,
     			     const char *);
 int			 conf_bind_mouse(struct conf *, const char *,
