@@ -304,11 +304,27 @@ struct mwm_hints {
 	unsigned long	functions;
 	unsigned long	decorations;
 };
-#define MWM_NUMHINTS		3
-#define	PROP_MWM_HINTS_ELEMENTS	3
-#define	MWM_HINTS_DECORATIONS	(1<<1)
+#define MWM_HINTS_ELEMENTS	3L
+
+#define MWM_FLAGS_FUNCTIONS	(1<<0)
+#define MWM_FLAGS_DECORATIONS	(1<<1)
+#define MWM_FLAGS_INPUT_MODE	(1<<2)
+#define MWM_FLAGS_STATUS	(1<<3)
+
+#define MWM_FUNCS_ALL		(1<<0)
+#define MWM_FUNCS_RESIZE	(1<<1)
+#define MWM_FUNCS_MOVE		(1<<2)
+#define MWM_FUNCS_MINIMIZE	(1<<3)
+#define MWM_FUNCS_MAXIMIZE	(1<<4)
+#define MWM_FUNCS_CLOSE		(1<<5)
+
 #define	MWM_DECOR_ALL		(1<<0)
 #define	MWM_DECOR_BORDER	(1<<1)
+#define MWM_DECOR_RESIZE_HANDLE	(1<<2)
+#define MWM_DECOR_TITLEBAR	(1<<3)
+#define MWM_DECOR_MENU		(1<<4)
+#define MWM_DECOR_MINIMIZE	(1<<5)
+#define MWM_DECOR_MAXIMIZE	(1<<6)
 
 extern Display				*X_Dpy;
 extern Time				 Last_Event_Time;
