@@ -495,8 +495,6 @@ void			 kbfunc_ssh(struct client_ctx *, union arg *);
 void			 kbfunc_term(struct client_ctx *, union arg *);
 void 			 kbfunc_tile(struct client_ctx *, union arg *);
 
-void			 mousefunc_client_grouptoggle(struct client_ctx *,
-			    union arg *);
 void			 mousefunc_client_move(struct client_ctx *,
     			    union arg *);
 void			 mousefunc_client_resize(struct client_ctx *,

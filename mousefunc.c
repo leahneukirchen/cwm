@@ -173,12 +173,6 @@ mousefunc_client_move(struct client_ctx *cc, union arg *arg)
 }
 
 void
-mousefunc_client_grouptoggle(struct client_ctx *cc, union arg *arg)
-{
-	group_toggle_membership_enter(cc);
-}
-
-void
 mousefunc_menu_group(struct client_ctx *cc, union arg *arg)
 {
 	struct screen_ctx	*sc = cc->sc;

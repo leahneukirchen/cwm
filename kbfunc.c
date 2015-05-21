@@ -435,9 +435,11 @@ kbfunc_client_nogroup(struct client_ctx *cc, union arg *arg)
 void
 kbfunc_client_grouptoggle(struct client_ctx *cc, union arg *arg)
 {
-	/* XXX for stupid X apps like xpdf and gvim */
-	XGrabKeyboard(X_Dpy, cc->win, True,
-	    GrabModeAsync, GrabModeAsync, CurrentTime);
+	if (arg->i == 0) {
+		/* XXX for stupid X apps like xpdf and gvim */
+		XGrabKeyboard(X_Dpy, cc->win, True,
+		    GrabModeAsync, GrabModeAsync, CurrentTime);
+	}
 
 	group_toggle_membership_enter(cc);
 }
