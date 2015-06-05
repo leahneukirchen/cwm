@@ -55,12 +55,9 @@ struct menu_ctx {
 	int			 noresult;
 	int			 prev;
 	int			 entry;
-	int			 height;
-	int			 width;
 	int			 num;
 	int 			 flags;
-	int			 x;
-	int			 y;
+	struct geom		 geom;
 	void (*match)(struct menu_q *, struct menu_q *, char *);
 	void (*print)(struct menu *, int);
 };
@@ -96,10 +93,10 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, const char *prompt,
 
 	(void)memset(&mc, 0, sizeof(mc));
 
-	xu_ptr_getpos(sc->rootwin, &mc.x, &mc.y);
+	xu_ptr_getpos(sc->rootwin, &mc.geom.x, &mc.geom.y);
 
-	xsave = mc.x;
-	ysave = mc.y;
+	xsave = mc.geom.x;
+	ysave = mc.geom.y;
 
 	mc.sc = sc;
 	mc.flags = flags;
@@ -175,7 +172,7 @@ out:
 	XSetInputFocus(X_Dpy, focuswin, focusrevert, CurrentTime);
 	/* restore if user didn't move */
 	xu_ptr_getpos(sc->rootwin, &xcur, &ycur);
-	if (xcur == mc.x && ycur == mc.y)
+	if (xcur == mc.geom.x && ycur == mc.geom.y)
 		xu_ptr_setpos(sc->rootwin, xsave, ysave);
 	xu_ptr_ungrab();
 
@@ -352,14 +349,14 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 	}
 
 	mc->num = 0;
-	mc->width = 0;
-	mc->height = 0;
+	mc->geom.w = 0;
+	mc->geom.h = 0;
 	if (mc->hasprompt) {
 		(void)snprintf(mc->dispstr, sizeof(mc->dispstr), "%s%s%s%s",
 		    mc->promptstr, PROMPT_SCHAR, mc->searchstr, PROMPT_ECHAR);
-		mc->width = xu_xft_width(sc->xftfont, mc->dispstr,
+		mc->geom.w = xu_xft_width(sc->xftfont, mc->dispstr,
 		    strlen(mc->dispstr));
-		mc->height = sc->xftfont->height + 1;
+		mc->geom.h = sc->xftfont->height + 1;
 		mc->num = 1;
 	}
 
@@ -374,39 +371,39 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 			text = mi->text;
 		}
 
-		mc->width = MAX(mc->width, xu_xft_width(sc->xftfont, text,
+		mc->geom.w = MAX(mc->geom.w, xu_xft_width(sc->xftfont, text,
 		    MIN(strlen(text), MENU_MAXENTRY)));
-		mc->height += sc->xftfont->height + 1;
+		mc->geom.h += sc->xftfont->height + 1;
 		mc->num++;
 	}
 
-	xine = screen_find_xinerama(sc, mc->x, mc->y, CWM_GAP);
+	xine = screen_find_xinerama(sc, mc->geom.x, mc->geom.y, CWM_GAP);
 	xine.w += xine.x - Conf.bwidth * 2;
 	xine.h += xine.y - Conf.bwidth * 2;
 
-	xsave = mc->x;
-	ysave = mc->y;
+	xsave = mc->geom.x;
+	ysave = mc->geom.y;
 
 	/* Never hide the top, or left side, of the menu. */
-	if (mc->x + mc->width >= xine.w)
-		mc->x = xine.w - mc->width;
-	if (mc->x < xine.x) {
-		mc->x = xine.x;
-		mc->width = MIN(mc->width, (xine.w - xine.x));
+	if (mc->geom.x + mc->geom.w >= xine.w)
+		mc->geom.x = xine.w - mc->geom.w;
+	if (mc->geom.x < xine.x) {
+		mc->geom.x = xine.x;
+		mc->geom.w = MIN(mc->geom.w, (xine.w - xine.x));
 	}
-	if (mc->y + mc->height >= xine.h)
-		mc->y = xine.h - mc->height;
-	if (mc->y < xine.y) {
-		mc->y = xine.y;
-		mc->height = MIN(mc->height, (xine.h - xine.y));
+	if (mc->geom.y + mc->geom.h >= xine.h)
+		mc->geom.y = xine.h - mc->geom.h;
+	if (mc->geom.y < xine.y) {
+		mc->geom.y = xine.y;
+		mc->geom.h = MIN(mc->geom.h, (xine.h - xine.y));
 	}
 
-	if (mc->x != xsave || mc->y != ysave)
-		xu_ptr_setpos(sc->rootwin, mc->x, mc->y);
+	if (mc->geom.x != xsave || mc->geom.y != ysave)
+		xu_ptr_setpos(sc->rootwin, mc->geom.x, mc->geom.y);
 
 	XClearWindow(X_Dpy, sc->menuwin);
-	XMoveResizeWindow(X_Dpy, sc->menuwin, mc->x, mc->y,
-	    mc->width, mc->height);
+	XMoveResizeWindow(X_Dpy, sc->menuwin, mc->geom.x, mc->geom.y,
+	    mc->geom.w, mc->geom.h);
 
 	if (mc->hasprompt) {
 		xu_xft_draw(sc, mc->dispstr, CWM_COLOR_MENU_FONT,
@@ -421,7 +418,7 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 		int y = n * (sc->xftfont->height + 1) + sc->xftfont->ascent + 1;
 
 		/* Stop drawing when menu doesn't fit inside the screen. */
-		if (mc->y + y > xine.h)
+		if (mc->geom.y + y > xine.h)
 			break;
 
 		xu_xft_draw(sc, text, CWM_COLOR_MENU_FONT, 0, y);
@@ -452,7 +449,7 @@ menu_draw_entry(struct menu_ctx *mc, struct menu_q *resultq,
 	color = active ? CWM_COLOR_MENU_FG : CWM_COLOR_MENU_BG;
 	text = mi->print[0] != '\0' ? mi->print : mi->text;
 	XftDrawRect(sc->xftdraw, &sc->xftcolor[color], 0,
-	    (sc->xftfont->height + 1) * entry, mc->width,
+	    (sc->xftfont->height + 1) * entry, mc->geom.w,
 	    (sc->xftfont->height + 1) + sc->xftfont->descent);
 	color = active ? CWM_COLOR_MENU_FONT_SEL : CWM_COLOR_MENU_FONT;
 	xu_xft_draw(sc, text, color,
@@ -508,7 +505,7 @@ menu_calc_entry(struct menu_ctx *mc, int x, int y)
 	entry = y / (sc->xftfont->height + 1);
 
 	/* in bounds? */
-	if (x < 0 || x > mc->width || y < 0 ||
+	if (x < 0 || x > mc->geom.w || y < 0 ||
 	    y > (sc->xftfont->height + 1) * mc->num ||
 	    entry < 0 || entry >= mc->num)
 		entry = -1;
