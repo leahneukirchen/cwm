@@ -109,8 +109,10 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, const char *prompt,
 		mc.hasprompt = 1;
 	} else {
 		evmask = MENUMASK;
-		mc.list = 1;
 	}
+
+	if (mc.flags & CWM_MENU_LIST)
+		mc.list = 1;
 
 	if (initial != NULL)
 		(void)strlcpy(mc.searchstr, initial, sizeof(mc.searchstr));

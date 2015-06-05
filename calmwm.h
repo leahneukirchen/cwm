@@ -73,6 +73,7 @@
 /* menu */
 #define CWM_MENU_DUMMY		0x0001
 #define CWM_MENU_FILE		0x0002
+#define CWM_MENU_LIST		0x0004
 
 #define ARG_CHAR		0x0001
 #define ARG_INT			0x0002
