@@ -338,7 +338,7 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 	int			 n, xsave, ysave;
 
 	if (mc->list) {
-		if (TAILQ_EMPTY(resultq) && mc->list) {
+		if (TAILQ_EMPTY(resultq)) {
 			/* Copy them all over. */
 			TAILQ_FOREACH(mi, menuq, entry)
 				TAILQ_INSERT_TAIL(resultq, mi,
