@@ -188,8 +188,6 @@ mousefunc_menu_group(struct client_ctx *cc, union arg *arg)
 		    group_holds_only_hidden(gc) ? "%d: [%s]" : "%d: %s",
 		    gc->num, gc->name);
 	}
-	if (TAILQ_EMPTY(&menuq))
-		return;
 
 	if ((mi = menu_filter(sc, &menuq, NULL, NULL, CWM_MENU_LIST,
 	    NULL, NULL)) != NULL) {
@@ -222,8 +220,6 @@ mousefunc_menu_unhide(struct client_ctx *cc, union arg *arg)
 			    cc->group ? cc->group->num : 0, wname);
 		}
 	}
-	if (TAILQ_EMPTY(&menuq))
-		return;
 
 	if ((mi = menu_filter(sc, &menuq, NULL, NULL, CWM_MENU_LIST,
 	    NULL, NULL)) != NULL) {
@@ -248,8 +244,6 @@ mousefunc_menu_cmd(struct client_ctx *cc, union arg *arg)
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(cmd, &Conf.cmdq, entry)
 		menuq_add(&menuq, cmd, "%s", cmd->name);
-	if (TAILQ_EMPTY(&menuq))
-		return;
 
 	if ((mi = menu_filter(sc, &menuq, NULL, NULL, CWM_MENU_LIST,
 	    NULL, NULL)) != NULL)
