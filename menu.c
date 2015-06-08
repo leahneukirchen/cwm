@@ -93,20 +93,15 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, const char *prompt,
 
 	(void)memset(&mc, 0, sizeof(mc));
 
-	xu_ptr_getpos(sc->rootwin, &mc.geom.x, &mc.geom.y);
-
-	xsave = mc.geom.x;
-	ysave = mc.geom.y;
+	xu_ptr_getpos(sc->rootwin, &xsave, &ysave);
 
 	mc.sc = sc;
 	mc.flags = flags;
-	if (prompt != NULL) {
-		evmask = MENUMASK | KEYMASK; /* accept keys as well */
-		(void)strlcpy(mc.promptstr, prompt, sizeof(mc.promptstr));
-		mc.hasprompt = 1;
-	} else {
-		evmask = MENUMASK;
-	}
+	mc.match = match;
+	mc.print = print;
+	mc.entry = mc.prev = -1;
+	mc.geom.x = xsave;
+	mc.geom.y = ysave;
 
 	if (mc.flags & CWM_MENU_LIST)
 		mc.list = 1;
@@ -116,9 +111,12 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, const char *prompt,
 	else
 		mc.searchstr[0] = '\0';
 
-	mc.match = match;
-	mc.print = print;
-	mc.entry = mc.prev = -1;
+	evmask = MENUMASK;
+	if (prompt != NULL) {
+		evmask |= KEYMASK; /* accept keys as well */
+		(void)strlcpy(mc.promptstr, prompt, sizeof(mc.promptstr));
+		mc.hasprompt = 1;
+	}
 
 	XSelectInput(X_Dpy, sc->menuwin, evmask);
 	XMapRaised(X_Dpy, sc->menuwin);
@@ -340,8 +338,7 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 		if (TAILQ_EMPTY(resultq)) {
 			/* Copy them all over. */
 			TAILQ_FOREACH(mi, menuq, entry)
-				TAILQ_INSERT_TAIL(resultq, mi,
-				    resultentry);
+				TAILQ_INSERT_TAIL(resultq, mi, resultentry);
 
 			mc->listing = 1;
 		} else if (mc->changed)
