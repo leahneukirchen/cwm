@@ -874,6 +874,9 @@ client_applysizehints(struct client_ctx *cc)
 
 	cc->geom.w = MAX(cc->geom.w, 1);
 	cc->geom.h = MAX(cc->geom.h, 1);
+
+	cc->dim.w = (cc->geom.w - cc->hint.basew) / cc->hint.incw;
+	cc->dim.h = (cc->geom.h - cc->hint.baseh) / cc->hint.inch;
 }
 
 static void

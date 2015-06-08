@@ -169,6 +169,10 @@ struct client_ctx {
 		int		 x;	/* x position */
 		int		 y;	/* y position */
 	} ptr;
+	struct {
+		int		 h;	/* hieght */
+		int		 w;	/* width */
+	} dim;
 #define CLIENT_HIDDEN			0x0001
 #define CLIENT_IGNORE			0x0002
 #define CLIENT_VMAXIMIZED		0x0004
