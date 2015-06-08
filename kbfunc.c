@@ -153,7 +153,7 @@ kbfunc_client_search(struct client_ctx *cc, union arg *arg)
 
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(cc, &sc->clientq, entry)
-		menuq_add(&menuq, cc, "%s", cc->name);
+		menuq_add(&menuq, cc, NULL);
 
 	if ((mi = menu_filter(sc, &menuq, "window", NULL, 0,
 	    search_match_client, search_print_client)) != NULL) {
