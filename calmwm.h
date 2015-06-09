@@ -170,7 +170,7 @@ struct client_ctx {
 		int		 y;	/* y position */
 	} ptr;
 	struct {
-		int		 h;	/* hieght */
+		int		 h;	/* height */
 		int		 w;	/* width */
 	} dim;
 #define CLIENT_HIDDEN			0x0001
