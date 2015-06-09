@@ -53,9 +53,7 @@ mousefunc_sweep_draw(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	char			 s[14]; /* fits " nnnn x nnnn \0" */
 
-	(void)snprintf(s, sizeof(s), " %4d x %-4d ",
-	    (cc->geom.w - cc->hint.basew) / cc->hint.incw,
-	    (cc->geom.h - cc->hint.baseh) / cc->hint.inch);
+	(void)snprintf(s, sizeof(s), " %4d x %-4d ", cc->dim.w, cc->dim.h);
 
 	XReparentWindow(X_Dpy, sc->menuwin, cc->win, 0, 0);
 	XMoveResizeWindow(X_Dpy, sc->menuwin, 0, 0,
@@ -173,12 +171,6 @@ mousefunc_client_move(struct client_ctx *cc, union arg *arg)
 }
 
 void
-mousefunc_client_grouptoggle(struct client_ctx *cc, union arg *arg)
-{
-	group_toggle_membership_enter(cc);
-}
-
-void
 mousefunc_menu_group(struct client_ctx *cc, union arg *arg)
 {
 	struct screen_ctx	*sc = cc->sc;
@@ -194,10 +186,8 @@ mousefunc_menu_group(struct client_ctx *cc, union arg *arg)
 		    group_holds_only_hidden(gc) ? "%d: [%s]" : "%d: %s",
 		    gc->num, gc->name);
 	}
-	if (TAILQ_EMPTY(&menuq))
-		return;
 
-	if ((mi = menu_filter(sc, &menuq, NULL, NULL, 0,
+	if ((mi = menu_filter(sc, &menuq, NULL, NULL, CWM_MENU_LIST,
 	    NULL, NULL)) != NULL) {
 		gc = (struct group_ctx *)mi->ctx;
 		(group_holds_only_hidden(gc)) ?
@@ -214,25 +204,18 @@ mousefunc_menu_unhide(struct client_ctx *cc, union arg *arg)
 	struct client_ctx	*old_cc;
 	struct menu		*mi;
 	struct menu_q		 menuq;
-	char			*wname;
 
 	old_cc = client_current();
 
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(cc, &sc->clientq, entry) {
 		if (cc->flags & CLIENT_HIDDEN) {
-			wname = (cc->label) ? cc->label : cc->name;
-			if (wname == NULL)
-				continue;
-			menuq_add(&menuq, cc, "(%d) %s",
-			    cc->group ? cc->group->num : 0, wname);
+			menuq_add(&menuq, cc, NULL);
 		}
 	}
-	if (TAILQ_EMPTY(&menuq))
-		return;
 
-	if ((mi = menu_filter(sc, &menuq, NULL, NULL, 0,
-	    NULL, NULL)) != NULL) {
+	if ((mi = menu_filter(sc, &menuq, NULL, NULL, CWM_MENU_LIST,
+	    NULL, search_print_client)) != NULL) {
 		cc = (struct client_ctx *)mi->ctx;
 		client_unhide(cc);
 		if (old_cc != NULL)
@@ -254,10 +237,8 @@ mousefunc_menu_cmd(struct client_ctx *cc, union arg *arg)
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(cmd, &Conf.cmdq, entry)
 		menuq_add(&menuq, cmd, "%s", cmd->name);
-	if (TAILQ_EMPTY(&menuq))
-		return;
 
-	if ((mi = menu_filter(sc, &menuq, NULL, NULL, 0,
+	if ((mi = menu_filter(sc, &menuq, NULL, NULL, CWM_MENU_LIST,
 	    NULL, NULL)) != NULL)
 		u_spawn(((struct cmd *)mi->ctx)->path);
 

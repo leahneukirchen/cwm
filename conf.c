@@ -71,19 +71,28 @@ conf_cmd_remove(struct conf *c, const char *name)
 	}
 }
 void
-conf_autogroup(struct conf *c, int num, const char *val)
+conf_autogroup(struct conf *c, int num, const char *name, const char *class)
 {
 	struct autogroupwin	*aw;
 	char			*p;
 
 	aw = xmalloc(sizeof(*aw));
 
-	if ((p = strchr(val, ',')) == NULL) {
-		aw->name = NULL;
-		aw->class = xstrdup(val);
+	if ((p = strchr(class, ',')) == NULL) {
+		if (name == NULL)
+			aw->name = NULL;
+		else
+			aw->name = xstrdup(name);
+
+		aw->class = xstrdup(class);
 	} else {
 		*(p++) = '\0';
-		aw->name = xstrdup(val);
+
+		if (name == NULL)
+			aw->name = xstrdup(class);
+		else
+			aw->name = xstrdup(name);
+
 		aw->class = xstrdup(p);
 	}
 	aw->num = num;
@@ -382,7 +391,7 @@ static const struct {
 	    {.i = CWM_CYCLE|CWM_INGROUP} },
 	{ "rcycleingroup", kbfunc_client_cycle, CWM_WIN,
 	    {.i = CWM_RCYCLE|CWM_INGROUP} },
-	{ "grouptoggle", kbfunc_client_grouptoggle, CWM_WIN, {0}},
+	{ "grouptoggle", kbfunc_client_grouptoggle, CWM_WIN, {.i = 0}},
 	{ "sticky", kbfunc_client_toggle_sticky, CWM_WIN, {0} },
 	{ "fullscreen", kbfunc_client_toggle_fullscreen, CWM_WIN, {0} },
 	{ "maximize", kbfunc_client_toggle_maximize, CWM_WIN, {0} },
@@ -451,7 +460,7 @@ static const struct {
 	{ "window_hide", kbfunc_client_hide, CWM_WIN, {0} },
 	{ "window_move", mousefunc_client_move, CWM_WIN, {0} },
 	{ "window_resize", mousefunc_client_resize, CWM_WIN, {0} },
-	{ "window_grouptoggle", mousefunc_client_grouptoggle, CWM_WIN, {0} },
+	{ "window_grouptoggle", kbfunc_client_grouptoggle, CWM_WIN, {.i = 1} },
 	{ "menu_group", mousefunc_menu_group, 0, {0} },
 	{ "menu_unhide", mousefunc_menu_unhide, 0, {0} },
 	{ "menu_cmd", mousefunc_menu_cmd, 0, {0} },

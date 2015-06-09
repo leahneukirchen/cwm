@@ -28,19 +28,40 @@
 .Sh DESCRIPTION
 .Nm
 is a window manager for X11 which contains many features that
-concentrate on the efficiency and transparency of window management.
-.Nm
-also aims to maintain the simplest and most pleasant aesthetic.
+concentrate on the efficiency and transparency of window management,
+while maintaining the simplest and most pleasant aesthetic.
 .Pp
-The following notation is used throughout this page:
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl c Ar file
+Specify an alternative configuration file.
+By default,
+.Nm
+loads
+.Pa ~/.cwmrc ,
+if present.
+Any error messages from lines in the configuration file will be sent to
+.Em stderr ;
+however,
+.Nm
+will continue to process the rest of the configuration file.
+.It Fl d Ar display
+Specify the display to use.
+.El
+.Pp
+.Nm
+actions are initiated either via key or mouse bindings.
+The following notations are used throughout this page:
 .Pp
 .Bl -tag -width Ds -offset indent -compact
 .It Ic C
-Control.
+Control key.
 .It Ic M
-Meta.
+Meta key.
 .It Ic S
-Shift.
+Shift key.
+.It Ic 4
+Mod4 (windows) key.
 .It Ic M1
 Left mouse button.
 .It Ic M2
@@ -49,11 +70,7 @@ Middle mouse button.
 Right mouse button.
 .El
 .Pp
-.Nm
-is very simple in its use.
-Most of the actions are initiated via key bindings.
-The default key bindings are described below;
-their functionality is described in more detail later.
+The default key bindings are:
 .Pp
 .Bl -tag -width "CM-EscapeXXXXX" -offset indent -compact
 .It Ic CM-Return
@@ -100,6 +117,21 @@ Toggle maximization of current window.
 Toggle vertical maximization of current window.
 .It Ic CMS-=
 Toggle horizontal maximization of current window.
+.It Ic C-[Up|Down|Left|Right]
+Move pointer by a small amount.
+.It Ic CS-[Up|Down|Left|Right]
+Move pointer by a large amount; see
+.Xr cwmrc 5 .
+.It Ic M-[hjkl]
+Move window by a small amount.
+.It Ic MS-[hjkl]
+Move window by a large amount; see
+.Xr cwmrc 5 .
+.It Ic CM-[hjkl]
+Resize window by a small amount.
+.It Ic CMS-[hjkl]
+Resize window by a large amount; see
+.Xr cwmrc 5 .
 .It Ic M-?
 Spawn
 .Dq exec program
@@ -116,20 +148,16 @@ will be executed via the configured terminal emulator.
 .It Ic CM-w
 Spawn
 .Dq exec WindowManager
-dialog; allows you to switch from
-.Nm
-to another window manager without restarting the X server.
+dialog, allowing a switch to another window manager.
 .It Ic CMS-r
-Restart the running
-.Xr cwm 1 .
+Restart.
 .It Ic CMS-q
-Quit
-.Nm .
+Quit.
 .El
 .Pp
 The default mouse bindings are:
 .Pp
-.Bl -tag -width Ds -offset indent -compact
+.Bl -tag -width "CM-EscapeXXXXX" -offset indent -compact
 .It Ic M-M1
 Move current window.
 .It Ic CM-M1
@@ -142,56 +170,25 @@ Lower current window.
 Hide current window.
 .El
 .Pp
-The options for
-.Nm
-are as follows:
-.Bl -tag -width Ds
-.It Fl c Ar file
-Specify an alternative configuration file.
-By default,
-.Nm
-loads
-.Pa ~/.cwmrc ,
-if present.
-Any error messages from lines in the configuration file will be sent to
-.Em stderr ;
-however,
-.Nm
-will continue to process the rest of the configuration file.
-.It Fl d Ar display
-Specify the display to use.
-.El
-.Sh POINTER MOVEMENT
-The pointer can be moved with the use of the keyboard through bindings.
-.Ic C-[Up|Down|Left|Right]
-moves the pointer a small amount, while
-.Ic CS-[Up|Down|Left|Right]
-moves the pointer a larger amount.
-For example, to move the pointer to the left by a small amount,
-press
-.Ic C-Left .
-To move the pointer down by a larger amount, press
-.Ic CS-Down .
-.Sh WINDOW MOVEMENT AND RESIZING
-.Nm
-windows can be moved with the use of the keyboard through
-.Cm vi Ns -like
-bindings.
-.Ic M-[hjkl]
-moves the current window a small amount, while
-.Ic MS-[hjkl]
-moves the current window a larger amount.
-For example, to move the current window to the left a small amount, press
-.Ic M-h .
-To move the current window down by a larger amount, press
-.Ic MS-j .
+The following key bindings may be used to navigate
+search and exec dialogs:
 .Pp
-Similarly, windows may be resized with the same key bindings with the addition
-of the Control key.
-.Ic CM-[hjkl]
-resizes the window a small amount and
-.Ic CMS-[hjkl]
-resizes by a larger increment.
+.Bl -tag -width "[Down] or C-s or M-j" -offset indent -compact
+.It Ic [Return]
+Select item.
+.It Ic [Down], C-s No or Ic M-j
+Next item.
+.It Ic [Up], C-r No or Ic M-k
+Previous item.
+.It Ic [Backspace] No or Ic C-h
+Backspace.
+.It Ic C-u
+Clear input.
+.It Ic C-a
+List all available items.
+.It Ic [Esc]
+Cancel.
+.El
 .Sh SEARCH
 .Nm
 features the ability to search for windows by their current title,
@@ -204,37 +201,16 @@ keeps a history of the 5 previous titles of a window.
 When searching, the leftmost character of the result list may show a
 flag:
 .Pp
-.Bl -tag -width 10n -offset indent -compact
+.Bl -tag -width Ds -offset indent -compact
 .It !
-The window is the currently focused window.
+Window is currently focused.
 .It &
-The window is hidden.
-.El
-.Pp
-The following key bindings may be used to navigate the result list:
-.Pp
-.Bl -tag -width "[Down] or C-s or M-j" -offset indent -compact
-.It Ic [Down], C-s No or Ic M-j
-Select the next window in the list.
-.It Ic [Up], C-r No or Ic M-k
-Select the previous window in the list.
-.It Ic [Backspace] No or Ic C-h
-Backspace.
-.It Ic C-u
-Clear the input.
-.It Ic [Return]
-Focus the selected window.
-.It Ic [Esc]
-Cancel.
-.It Ic C-a
-Whenever there are no matching windows, list every window.
+Window is hidden.
 .El
 .Sh GROUPS
 .Nm
 has the ability to group windows together, and use the groups to
 perform operations on the entire group instead of just one window.
-Currently, the only operation that is supported is to hide and unhide
-the grouped windows.
 Together with the
 .Pa sticky
 option, this can be used to emulate virtual desktops.
@@ -246,20 +222,20 @@ and a red border will be shown on those just removed.
 .Sh MENUS
 Menus are recalled by clicking the mouse on the root window:
 .Pp
-.Bl -tag -width 10n -offset indent -compact
+.Bl -tag -width Ds -offset indent -compact
 .It Ic M1
 Show list of currently hidden windows.
-Clicking on an item will unhide that window.
+Selecting an item will unhide that window.
 .It Ic M2
 Show list of currently defined groups.
-Clicking on an item will hide/unhide that group.
+Selecting an item will hide/unhide that group.
 .It Ic M3
 Show list of applications as defined in
 .Pa ~/.cwmrc .
-Clicking on an item will spawn that application.
+Selecting an item will spawn that application.
 .El
 .Sh ENVIRONMENT
-.Bl -tag -width "DISPLAYXXX"
+.Bl -tag -width "DISPLAYXXX" -compact
 .It DISPLAY
 .Nm
 starts on this display unless the
@@ -267,8 +243,11 @@ starts on this display unless the
 option is given.
 .El
 .Sh FILES
-.Bl -tag -width Ds
+.Bl -tag -width "~/.cwmrcXX" -compact
 .It Pa ~/.cwmrc
+Default
+.Nm
+configuration file.
 .El
 .Sh SEE ALSO
 .Xr cwmrc 5

@@ -156,8 +156,19 @@ main		: FONTNAME STRING		{
 				free($3);
 				YYERROR;
 			}
-			conf_autogroup(conf, $2, $3);
+			conf_autogroup(conf, $2, NULL, $3);
 			free($3);
+		}
+		| AUTOGROUP NUMBER STRING ',' STRING {
+			if ($2 < 0 || $2 > 9) {
+				yyerror("invalid autogroup");
+				free($3);
+				free($5);
+				YYERROR;
+			}
+			conf_autogroup(conf, $2, $3, $5);
+			free($3);
+			free($5);
 		}
 		| IGNORE STRING {
 			conf_ignore(conf, $2);

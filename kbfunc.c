@@ -153,7 +153,7 @@ kbfunc_client_search(struct client_ctx *cc, union arg *arg)
 
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(cc, &sc->clientq, entry)
-		menuq_add(&menuq, cc, "%s", cc->name);
+		menuq_add(&menuq, cc, NULL);
 
 	if ((mi = menu_filter(sc, &menuq, "window", NULL, 0,
 	    search_match_client, search_print_client)) != NULL) {
@@ -441,9 +441,11 @@ kbfunc_client_nogroup(struct client_ctx *cc, union arg *arg)
 void
 kbfunc_client_grouptoggle(struct client_ctx *cc, union arg *arg)
 {
-	/* XXX for stupid X apps like xpdf and gvim */
-	XGrabKeyboard(X_Dpy, cc->win, True,
-	    GrabModeAsync, GrabModeAsync, CurrentTime);
+	if (arg->i == 0) {
+		/* XXX for stupid X apps like xpdf and gvim */
+		XGrabKeyboard(X_Dpy, cc->win, True,
+		    GrabModeAsync, GrabModeAsync, CurrentTime);
+	}
 
 	group_toggle_membership_enter(cc);
 }

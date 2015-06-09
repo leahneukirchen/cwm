@@ -94,6 +94,7 @@ size_t strlcpy(char *, const char *, size_t);
 /* menu */
 #define CWM_MENU_DUMMY		0x0001
 #define CWM_MENU_FILE		0x0002
+#define CWM_MENU_LIST		0x0004
 
 #define ARG_CHAR		0x0001
 #define ARG_INT			0x0002
@@ -189,6 +190,10 @@ struct client_ctx {
 		int		 x;	/* x position */
 		int		 y;	/* y position */
 	} ptr;
+	struct {
+		int		 h;	/* height */
+		int		 w;	/* width */
+	} dim;
 #define CLIENT_HIDDEN			0x0001
 #define CLIENT_IGNORE			0x0002
 #define CLIENT_VMAXIMIZED		0x0004
@@ -325,11 +330,27 @@ struct mwm_hints {
 	unsigned long	functions;
 	unsigned long	decorations;
 };
-#define MWM_NUMHINTS		3
-#define	PROP_MWM_HINTS_ELEMENTS	3
-#define	MWM_HINTS_DECORATIONS	(1<<1)
+#define MWM_HINTS_ELEMENTS	3L
+
+#define MWM_FLAGS_FUNCTIONS	(1<<0)
+#define MWM_FLAGS_DECORATIONS	(1<<1)
+#define MWM_FLAGS_INPUT_MODE	(1<<2)
+#define MWM_FLAGS_STATUS	(1<<3)
+
+#define MWM_FUNCS_ALL		(1<<0)
+#define MWM_FUNCS_RESIZE	(1<<1)
+#define MWM_FUNCS_MOVE		(1<<2)
+#define MWM_FUNCS_MINIMIZE	(1<<3)
+#define MWM_FUNCS_MAXIMIZE	(1<<4)
+#define MWM_FUNCS_CLOSE		(1<<5)
+
 #define	MWM_DECOR_ALL		(1<<0)
 #define	MWM_DECOR_BORDER	(1<<1)
+#define MWM_DECOR_RESIZE_HANDLE	(1<<2)
+#define MWM_DECOR_TITLEBAR	(1<<3)
+#define MWM_DECOR_MENU		(1<<4)
+#define MWM_DECOR_MINIMIZE	(1<<5)
+#define MWM_DECOR_MAXIMIZE	(1<<6)
 
 extern Display				*X_Dpy;
 extern Time				 Last_Event_Time;
@@ -500,8 +521,6 @@ void			 kbfunc_ssh(struct client_ctx *, union arg *);
 void			 kbfunc_term(struct client_ctx *, union arg *);
 void 			 kbfunc_tile(struct client_ctx *, union arg *);
 
-void			 mousefunc_client_grouptoggle(struct client_ctx *,
-			    union arg *);
 void			 mousefunc_client_move(struct client_ctx *,
     			    union arg *);
 void			 mousefunc_client_resize(struct client_ctx *,
@@ -521,7 +540,8 @@ void			 menuq_clear(struct menu_q *);
 int			 parse_config(const char *, struct conf *);
 
 void			 conf_atoms(void);
-void			 conf_autogroup(struct conf *, int, const char *);
+void			 conf_autogroup(struct conf *, int, const char *,
+			     const char *);
 int			 conf_bind_kbd(struct conf *, const char *,
     			     const char *);
 int			 conf_bind_mouse(struct conf *, const char *,

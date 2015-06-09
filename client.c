@@ -874,6 +874,9 @@ client_applysizehints(struct client_ctx *cc)
 
 	cc->geom.w = MAX(cc->geom.w, 1);
 	cc->geom.h = MAX(cc->geom.h, 1);
+
+	cc->dim.w = (cc->geom.w - cc->hint.basew) / cc->hint.incw;
+	cc->dim.h = (cc->geom.h - cc->hint.baseh) / cc->hint.inch;
 }
 
 static void
@@ -882,8 +885,8 @@ client_mwm_hints(struct client_ctx *cc)
 	struct mwm_hints	*mwmh;
 
 	if (xu_getprop(cc->win, cwmh[_MOTIF_WM_HINTS], cwmh[_MOTIF_WM_HINTS],
-	    PROP_MWM_HINTS_ELEMENTS, (unsigned char **)&mwmh) == MWM_NUMHINTS) {
-		if (mwmh->flags & MWM_HINTS_DECORATIONS &&
+	    MWM_HINTS_ELEMENTS, (unsigned char **)&mwmh) == MWM_HINTS_ELEMENTS) {
+		if (mwmh->flags & MWM_FLAGS_DECORATIONS &&
 		    !(mwmh->decorations & MWM_DECOR_ALL) &&
 		    !(mwmh->decorations & MWM_DECOR_BORDER))
 			cc->bwidth = 0;
