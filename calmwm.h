@@ -452,8 +452,7 @@ void			 search_print_client(struct menu *, int);
 
 struct geom		 screen_apply_gap(struct screen_ctx *, struct geom);
 struct screen_ctx	*screen_find(Window);
-struct geom		 screen_find_xinerama(struct screen_ctx *,
-    			     int, int, int);
+struct geom		 screen_area(struct screen_ctx *, int, int, int);
 void			 screen_init(int);
 void			 screen_update_geometry(struct screen_ctx *);
 void			 screen_updatestackingorder(struct screen_ctx *);

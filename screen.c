@@ -124,25 +124,22 @@ screen_updatestackingorder(struct screen_ctx *sc)
 	}
 }
 
-/*
- * Find which xinerama screen the coordinates (x,y) is on.
- */
 struct geom
-screen_find_xinerama(struct screen_ctx *sc, int x, int y, int flags)
+screen_area(struct screen_ctx *sc, int x, int y, int flags)
 {
 	struct region_ctx	*region;
-	struct geom		 geom = sc->work;
+	struct geom		 area = sc->work;
 
 	TAILQ_FOREACH(region, &sc->regionq, entry) {
 		if (x >= region->area.x && x < region->area.x+region->area.w &&
 		    y >= region->area.y && y < region->area.y+region->area.h) {
-			geom = region->area;
+			area = region->area;
 			break;
 		}
 	}
 	if (flags & CWM_GAP)
-		geom = screen_apply_gap(sc, geom);
-	return(geom);
+		area = screen_apply_gap(sc, area);
+	return(area);
 }
 
 void
