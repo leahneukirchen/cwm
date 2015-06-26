@@ -152,9 +152,8 @@ screen_find_xinerama(struct screen_ctx *sc, int x, int y, int flags)
 void
 screen_update_geometry(struct screen_ctx *sc)
 {
-	XineramaScreenInfo	*info = NULL;
 	struct region_ctx	*region;
-	int			 info_num = 0, i;
+	int			 i;
 
 	sc->view.x = 0;
 	sc->view.y = 0;
@@ -166,25 +165,37 @@ screen_update_geometry(struct screen_ctx *sc)
 	sc->work.w = sc->view.w - (sc->gap.left + sc->gap.right);
 	sc->work.h = sc->view.h - (sc->gap.top + sc->gap.bottom);
 
-	/* RandR event may have a CTRC added or removed. */
-	if (XineramaIsActive(X_Dpy))
-		info = XineramaQueryScreens(X_Dpy, &info_num);
-
 	while ((region = TAILQ_FIRST(&sc->regionq)) != NULL) {
 		TAILQ_REMOVE(&sc->regionq, region, entry);
 		free(region);
 	}
-	for (i = 0; i < info_num; i++) {
-		region = xmalloc(sizeof(*region));
-		region->num = i;
-		region->area.x = info[i].x_org;
-		region->area.y = info[i].y_org;
-		region->area.w = info[i].width;
-		region->area.h = info[i].height;
-		TAILQ_INSERT_TAIL(&sc->regionq, region, entry);
+
+	if (HasRandr) {
+		XRRScreenResources *sr;
+		XRRCrtcInfo *ci;
+
+		sr = XRRGetScreenResources(X_Dpy, sc->rootwin);
+		for (i = 0, ci = NULL; i < sr->ncrtc; i++) {
+			ci = XRRGetCrtcInfo(X_Dpy, sr, sr->crtcs[i]);
+			if (ci == NULL)
+				continue;
+			if (ci->noutput == 0) {
+				XRRFreeCrtcInfo(ci);
+				continue;
+			}
+
+			region = xmalloc(sizeof(*region));
+			region->num = i;
+			region->area.x = ci->x;
+			region->area.y = ci->y;
+			region->area.w = ci->width;
+			region->area.h = ci->height;
+			TAILQ_INSERT_TAIL(&sc->regionq, region, entry);
+
+			XRRFreeCrtcInfo(ci);
+		}
+		XRRFreeScreenResources(sr);
 	}
-	if (info)
-		XFree(info);
 
 	xu_ewmh_net_desktop_geometry(sc);
 	xu_ewmh_net_workarea(sc);

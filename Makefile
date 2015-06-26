@@ -13,7 +13,7 @@ CPPFLAGS+=	-I${X11BASE}/include -I${X11BASE}/include/freetype2 -I${.CURDIR}
 CFLAGS+=	-Wall
 
 LDADD+=		-L${X11BASE}/lib -lXft -lXrender -lX11 -lxcb -lXau -lXdmcp \
-		-lfontconfig -lexpat -lfreetype -lz -lXinerama -lXrandr -lXext
+		-lfontconfig -lexpat -lfreetype -lz -lXrandr -lXext
 
 MANDIR=		${X11BASE}/man/man
 MAN=		cwm.1 cwmrc.5
