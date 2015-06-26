@@ -127,13 +127,13 @@ screen_updatestackingorder(struct screen_ctx *sc)
 struct geom
 screen_area(struct screen_ctx *sc, int x, int y, int flags)
 {
-	struct region_ctx	*region;
+	struct region_ctx	*rc;
 	struct geom		 area = sc->work;
 
-	TAILQ_FOREACH(region, &sc->regionq, entry) {
-		if (x >= region->area.x && x < region->area.x+region->area.w &&
-		    y >= region->area.y && y < region->area.y+region->area.h) {
-			area = region->area;
+	TAILQ_FOREACH(rc, &sc->regionq, entry) {
+		if ((x >= rc->area.x) && (x < (rc->area.x + rc->area.w)) &&
+		    (y >= rc->area.y) && (y < (rc->area.y + rc->area.h))) {
+			area = rc->area;
 			break;
 		}
 	}
@@ -145,7 +145,7 @@ screen_area(struct screen_ctx *sc, int x, int y, int flags)
 void
 screen_update_geometry(struct screen_ctx *sc)
 {
-	struct region_ctx	*region;
+	struct region_ctx	*rc;
 	int			 i;
 
 	sc->view.x = 0;
@@ -155,9 +155,9 @@ screen_update_geometry(struct screen_ctx *sc)
 
 	sc->work = screen_apply_gap(sc, sc->view);
 
-	while ((region = TAILQ_FIRST(&sc->regionq)) != NULL) {
-		TAILQ_REMOVE(&sc->regionq, region, entry);
-		free(region);
+	while ((rc = TAILQ_FIRST(&sc->regionq)) != NULL) {
+		TAILQ_REMOVE(&sc->regionq, rc, entry);
+		free(rc);
 	}
 
 	if (HasRandr) {
@@ -174,13 +174,13 @@ screen_update_geometry(struct screen_ctx *sc)
 				continue;
 			}
 
-			region = xmalloc(sizeof(*region));
-			region->num = i;
-			region->area.x = ci->x;
-			region->area.y = ci->y;
-			region->area.w = ci->width;
-			region->area.h = ci->height;
-			TAILQ_INSERT_TAIL(&sc->regionq, region, entry);
+			rc = xmalloc(sizeof(*rc));
+			rc->num = i;
+			rc->area.x = ci->x;
+			rc->area.y = ci->y;
+			rc->area.w = ci->width;
+			rc->area.h = ci->height;
+			TAILQ_INSERT_TAIL(&sc->regionq, rc, entry);
 
 			XRRFreeCrtcInfo(ci);
 		}
