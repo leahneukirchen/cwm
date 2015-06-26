@@ -140,12 +140,8 @@ screen_find_xinerama(struct screen_ctx *sc, int x, int y, int flags)
 			break;
 		}
 	}
-	if (flags & CWM_GAP) {
-		geom.x += sc->gap.left;
-		geom.y += sc->gap.top;
-		geom.w -= (sc->gap.left + sc->gap.right);
-		geom.h -= (sc->gap.top + sc->gap.bottom);
-	}
+	if (flags & CWM_GAP)
+		geom = screen_apply_gap(sc, geom);
 	return(geom);
 }
 
@@ -160,10 +156,7 @@ screen_update_geometry(struct screen_ctx *sc)
 	sc->view.w = DisplayWidth(X_Dpy, sc->which);
 	sc->view.h = DisplayHeight(X_Dpy, sc->which);
 
-	sc->work.x = sc->view.x + sc->gap.left;
-	sc->work.y = sc->view.y + sc->gap.top;
-	sc->work.w = sc->view.w - (sc->gap.left + sc->gap.right);
-	sc->work.h = sc->view.h - (sc->gap.top + sc->gap.bottom);
+	sc->work = screen_apply_gap(sc, sc->view);
 
 	while ((region = TAILQ_FIRST(&sc->regionq)) != NULL) {
 		TAILQ_REMOVE(&sc->regionq, region, entry);
@@ -199,4 +192,15 @@ screen_update_geometry(struct screen_ctx *sc)
 
 	xu_ewmh_net_desktop_geometry(sc);
 	xu_ewmh_net_workarea(sc);
+}
+
+struct geom
+screen_apply_gap(struct screen_ctx *sc, struct geom geom)
+{
+	geom.x += sc->gap.left;
+	geom.y += sc->gap.top;
+	geom.w -= (sc->gap.left + sc->gap.right);
+	geom.h -= (sc->gap.top + sc->gap.bottom);
+
+	return(geom);
 }
