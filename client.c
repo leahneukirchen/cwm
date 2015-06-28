@@ -21,7 +21,6 @@
 #include <sys/types.h>
 #include <sys/queue.h>
 
-#include <assert.h>
 #include <err.h>
 #include <errno.h>
 #include <limits.h>
@@ -635,8 +634,8 @@ match:
 
 	/* Now, do some garbage collection. */
 	if (cc->nameqlen > CLIENT_MAXNAMEQLEN) {
-		wn = TAILQ_FIRST(&cc->nameq);
-		assert(wn != NULL);
+		if ((wn = TAILQ_FIRST(&cc->nameq)) == NULL)
+			errx(1, "client_setname: window name queue empty");
 		TAILQ_REMOVE(&cc->nameq, wn, entry);
 		free(wn->name);
 		free(wn);

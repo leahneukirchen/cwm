@@ -21,7 +21,6 @@
 #include <sys/types.h>
 #include <sys/queue.h>
 
-#include <assert.h>
 #include <err.h>
 #include <errno.h>
 #include <fnmatch.h>
@@ -106,7 +105,8 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 		if ((cc->flags & CLIENT_HIDDEN) && (tier > 0))
 			tier--;
 
-		assert(tier < nitems(tierp));
+		if (tier >= nitems(tierp))
+			errx(1, "search_match_client: invalid tier");
 
 		/*
 		 * If you have a tierp, insert after it, and make it

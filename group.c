@@ -22,7 +22,6 @@
 #include <sys/types.h>
 #include <sys/queue.h>
 
-#include <assert.h>
 #include <err.h>
 #include <errno.h>
 #include <limits.h>
@@ -264,9 +263,9 @@ group_cycle(struct screen_ctx *sc, int flags)
 {
 	struct group_ctx	*gc, *showgroup = NULL;
 
-	assert(sc->group_active != NULL);
+	if (((gc = sc->group_active)) == NULL)
+		errx(1, "group_cycle: no active group");
 
-	gc = sc->group_active;
 	for (;;) {
 		gc = (flags & CWM_RCYCLE) ? TAILQ_PREV(gc, group_ctx_q,
 		    entry) : TAILQ_NEXT(gc, entry);
