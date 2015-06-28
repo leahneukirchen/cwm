@@ -43,21 +43,6 @@ static int			 client_inbound(struct client_ctx *, int, int);
 struct client_ctx	*curcc = NULL;
 
 struct client_ctx *
-client_find(Window win)
-{
-	struct screen_ctx	*sc;
-	struct client_ctx	*cc;
-
-	TAILQ_FOREACH(sc, &Screenq, entry) {
-		TAILQ_FOREACH(cc, &sc->clientq, entry) {
-			if (cc->win == win)
-				return(cc);
-		}
-	}
-	return(NULL);
-}
-
-struct client_ctx *
 client_init(Window win, struct screen_ctx *sc)
 {
 	struct client_ctx	*cc;
@@ -140,6 +125,21 @@ client_init(Window win, struct screen_ctx *sc)
 	XUngrabServer(X_Dpy);
 
 	return(cc);
+}
+
+struct client_ctx *
+client_find(Window win)
+{
+	struct screen_ctx	*sc;
+	struct client_ctx	*cc;
+
+	TAILQ_FOREACH(sc, &Screenq, entry) {
+		TAILQ_FOREACH(cc, &sc->clientq, entry) {
+			if (cc->win == win)
+				return(cc);
+		}
+	}
+	return(NULL);
 }
 
 void
