@@ -329,17 +329,16 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 	int			 l;
 	size_t			 len;
 
-	if ((fp = fopen(Conf.known_hosts, "r")) == NULL) {
-		warn("kbfunc_ssh: %s", Conf.known_hosts);
-		return;
-	}
-
 	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
 		if (strcmp(cmd->name, "term") == 0)
 			break;
 	}
-
 	TAILQ_INIT(&menuq);
+
+	if ((fp = fopen(Conf.known_hosts, "r")) == NULL) {
+		warn("kbfunc_ssh: %s", Conf.known_hosts);
+		goto menu;
+	}
 
 	lbuf = NULL;
 	while ((buf = fgetln(fp, &len))) {
@@ -366,7 +365,7 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 	}
 	free(lbuf);
 	(void)fclose(fp);
-
+menu:
 	if ((mi = menu_filter(sc, &menuq, "ssh", NULL, CWM_MENU_DUMMY,
 	    search_match_exec, NULL)) != NULL) {
 		if (mi->text[0] == '\0')
