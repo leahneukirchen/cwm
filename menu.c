@@ -72,7 +72,7 @@ static void		 menu_draw(struct menu_ctx *, struct menu_q *,
 static void 		 menu_draw_entry(struct menu_ctx *, struct menu_q *,
 			     int, int);
 static int		 menu_calc_entry(struct menu_ctx *, int, int);
-static struct menu 	*menu_complete_path(struct menu_ctx *);
+static struct menu	*menu_complete_path(struct menu_ctx *);
 static int		 menu_keycode(XKeyEvent *, enum ctltype *, char *);
 
 struct menu *
@@ -184,6 +184,7 @@ out:
 static struct menu *
 menu_complete_path(struct menu_ctx *mc)
 {
+	struct screen_ctx	*sc = mc->sc;
 	struct menu		*mi, *mr;
 	struct menu_q		 menuq;
 
@@ -191,7 +192,7 @@ menu_complete_path(struct menu_ctx *mc)
 
 	TAILQ_INIT(&menuq);
 
-	if ((mi = menu_filter(mc->sc, &menuq, mc->searchstr, NULL,
+	if ((mi = menu_filter(sc, &menuq, mc->searchstr, NULL,
 	    CWM_MENU_DUMMY, search_match_path_any, NULL)) != NULL) {
 		mr->abort = mi->abort;
 		mr->dummy = mi->dummy;

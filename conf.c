@@ -33,9 +33,9 @@
 #include "calmwm.h"
 
 static const char	*conf_bind_getmask(const char *, unsigned int *);
-static void	 	 conf_cmd_remove(struct conf *, const char *);
-static void	 	 conf_unbind_kbd(struct conf *, struct binding *);
-static void	 	 conf_unbind_mouse(struct conf *, struct binding *);
+static void		 conf_cmd_remove(struct conf *, const char *);
+static void		 conf_unbind_kbd(struct conf *, struct binding *);
+static void		 conf_unbind_mouse(struct conf *, struct binding *);
 
 int
 conf_cmd_add(struct conf *c, const char *name, const char *path)
