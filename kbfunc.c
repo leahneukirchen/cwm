@@ -181,7 +181,7 @@ kbfunc_menu_cmd(struct client_ctx *cc, union arg *arg)
 		menuq_add(&menuq, cmd, "%s", cmd->name);
 
 	if ((mi = menu_filter(sc, &menuq, "application", NULL, 0,
-	    search_match_text, NULL)) != NULL)
+	    search_match_text, search_print_cmd)) != NULL)
 		u_spawn(((struct cmd *)mi->ctx)->path);
 
 	menuq_clear(&menuq);

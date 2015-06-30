@@ -124,6 +124,20 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 }
 
 void
+search_print_cmd(struct menu *mi, int i)
+{
+	struct cmd	*cmd = (struct cmd *)mi->ctx;
+	int		 special = 0;
+
+	if ((strcmp(cmd->name, "lock") == 0) ||
+	    (strcmp(cmd->name, "term") == 0))
+		special = 1;
+
+	(void)snprintf(mi->print, sizeof(mi->print),
+		(special) ? "[%s]" : "%s", cmd->name);
+}
+
+void
 search_print_client(struct menu *mi, int list)
 {
 	struct client_ctx	*cc = (struct client_ctx *)mi->ctx;

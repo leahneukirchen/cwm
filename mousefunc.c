@@ -239,7 +239,7 @@ mousefunc_menu_cmd(struct client_ctx *cc, union arg *arg)
 		menuq_add(&menuq, cmd, "%s", cmd->name);
 
 	if ((mi = menu_filter(sc, &menuq, NULL, NULL, CWM_MENU_LIST,
-	    NULL, NULL)) != NULL)
+	    NULL, search_print_cmd)) != NULL)
 		u_spawn(((struct cmd *)mi->ctx)->path);
 
 	menuq_clear(&menuq);
