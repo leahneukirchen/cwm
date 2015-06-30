@@ -100,8 +100,8 @@ screen_find(Window win)
 		if (sc->rootwin == win)
 			return(sc);
 	}
-	/* XXX FAIL HERE */
-	return(TAILQ_FIRST(&Screenq));
+	warnx("screen_find failure win 0x%lu\n", win);
+	return(NULL);
 }
 
 void

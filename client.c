@@ -55,7 +55,8 @@ client_init(Window win, struct screen_ctx *sc)
 		return(NULL);
 
 	if (sc == NULL) {
-		sc = screen_find(wattr.root);
+		if ((sc = screen_find(wattr.root)) == NULL)
+			return(NULL);
 		mapped = 1;
 	} else {
 		if (wattr.override_redirect || wattr.map_state != IsViewable)
