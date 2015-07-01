@@ -57,7 +57,7 @@ void
 kbfunc_client_moveresize(struct client_ctx *cc, union arg *arg)
 {
 	struct screen_ctx	*sc = cc->sc;
-	struct geom		 xine;
+	struct geom		 area;
 	int			 x, y, flags, amt;
 	unsigned int		 mx, my;
 
@@ -101,15 +101,15 @@ kbfunc_client_moveresize(struct client_ctx *cc, union arg *arg)
 		if (cc->geom.y > sc->view.h - 1)
 			cc->geom.y = sc->view.h - 1;
 
-		xine = screen_find_xinerama(sc,
+		area = screen_area(sc,
 		    cc->geom.x + cc->geom.w / 2,
 		    cc->geom.y + cc->geom.h / 2, CWM_GAP);
 		cc->geom.x += client_snapcalc(cc->geom.x,
 		    cc->geom.x + cc->geom.w + (cc->bwidth * 2),
-		    xine.x, xine.x + xine.w, sc->snapdist);
+		    area.x, area.x + area.w, sc->snapdist);
 		cc->geom.y += client_snapcalc(cc->geom.y,
 		    cc->geom.y + cc->geom.h + (cc->bwidth * 2),
-		    xine.y, xine.y + xine.h, sc->snapdist);
+		    area.y, area.y + area.h, sc->snapdist);
 
 		client_move(cc);
 		xu_ptr_getpos(cc->win, &x, &y);
@@ -178,10 +178,10 @@ kbfunc_menu_cmd(struct client_ctx *cc, union arg *arg)
 
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(cmd, &Conf.cmdq, entry)
-		menuq_add(&menuq, cmd, "%s", cmd->name);
+		menuq_add(&menuq, cmd, NULL);
 
 	if ((mi = menu_filter(sc, &menuq, "application", NULL, 0,
-	    search_match_text, NULL)) != NULL)
+	    search_match_text, search_print_cmd)) != NULL)
 		u_spawn(((struct cmd *)mi->ctx)->path);
 
 	menuq_clear(&menuq);
@@ -335,17 +335,16 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 	int			 l;
 	size_t			 len;
 
-	if ((fp = fopen(Conf.known_hosts, "r")) == NULL) {
-		warn("kbfunc_ssh: %s", Conf.known_hosts);
-		return;
-	}
-
 	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
 		if (strcmp(cmd->name, "term") == 0)
 			break;
 	}
-
 	TAILQ_INIT(&menuq);
+
+	if ((fp = fopen(Conf.known_hosts, "r")) == NULL) {
+		warn("kbfunc_ssh: %s", Conf.known_hosts);
+		goto menu;
+	}
 
 	lbuf = NULL;
 	while ((buf = fgetln(fp, &len))) {
@@ -372,7 +371,7 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 	}
 	free(lbuf);
 	(void)fclose(fp);
-
+menu:
 	if ((mi = menu_filter(sc, &menuq, "ssh", NULL, CWM_MENU_DUMMY,
 	    search_match_exec, NULL)) != NULL) {
 		if (mi->text[0] == '\0')

@@ -240,7 +240,8 @@ xev_handle_buttonpress(XEvent *ee)
 		if (e->window != e->root)
 			return;
 		cc = &fakecc;
-		cc->sc = screen_find(e->window);
+		if ((cc->sc = screen_find(e->window)) == NULL)
+			return;
 	}
 
 	(*mb->callback)(cc, &mb->argument);
@@ -290,7 +291,8 @@ xev_handle_keypress(XEvent *ee)
 			return;
 	} else {
 		cc = &fakecc;
-		cc->sc = screen_find(e->window);
+		if ((cc->sc = screen_find(e->window)) == NULL)
+			return;
 	}
 
 	(*kb->callback)(cc, &kb->argument);
@@ -307,7 +309,8 @@ xev_handle_keyrelease(XEvent *ee)
 	KeySym			 keysym;
 	unsigned int		 i;
 
-	sc = screen_find(e->root);
+	if ((sc = screen_find(e->root)) == NULL)
+		return;
 
 	keysym = XkbKeycodeToKeysym(X_Dpy, e->keycode, 0, 0);
 	for (i = 0; i < nitems(modkeys); i++) {
@@ -325,42 +328,43 @@ xev_handle_clientmessage(XEvent *ee)
 	struct client_ctx	*cc, *old_cc;
 	struct screen_ctx       *sc;
 
-	sc = screen_find(e->window);
-
-	if ((cc = client_find(e->window)) == NULL && e->window != sc->rootwin)
-		return;
-
-	if (e->message_type == cwmh[WM_CHANGE_STATE] && e->format == 32 &&
-	    e->data.l[0] == IconicState)
-		client_hide(cc);
-
-	if (e->message_type == ewmh[_NET_CLOSE_WINDOW])
-		client_send_delete(cc);
-
-	if (e->message_type == ewmh[_NET_ACTIVE_WINDOW] && e->format == 32) {
-		if ((old_cc = client_current()))
-			client_ptrsave(old_cc);
-		client_ptrwarp(cc);
+	if (e->message_type == cwmh[WM_CHANGE_STATE]) {
+		if ((cc = client_find(e->window)) != NULL) {
+	    		if (e->data.l[0] == IconicState)
+				client_hide(cc);
+		}
+	} else if (e->message_type == ewmh[_NET_CLOSE_WINDOW]) {
+		if ((cc = client_find(e->window)) != NULL) {
+			client_send_delete(cc);
+		}
+	} else if (e->message_type == ewmh[_NET_ACTIVE_WINDOW]) {
+		if ((cc = client_find(e->window)) != NULL) {
+			if ((old_cc = client_current()))
+				client_ptrsave(old_cc);
+			client_ptrwarp(cc);
+		}
+	} else if (e->message_type == ewmh[_NET_WM_DESKTOP]) {
+		if ((cc = client_find(e->window)) != NULL) {
+			/*
+			 * The EWMH spec states that if the cardinal returned
+			 * is 0xFFFFFFFF (-1) then the window should appear
+			 * on all desktops, in our case, group 0.
+			 */
+			if (e->data.l[0] == (unsigned long)-1)
+				group_movetogroup(cc, 0);
+			else
+				group_movetogroup(cc, e->data.l[0]);
+		}
+	} else if (e->message_type == ewmh[_NET_WM_STATE]) {
+		if ((cc = client_find(e->window)) != NULL) {
+			xu_ewmh_handle_net_wm_state_msg(cc,
+			    e->data.l[0], e->data.l[1], e->data.l[2]);
+		}
+	} else if (e->message_type == ewmh[_NET_CURRENT_DESKTOP]) {
+		if ((sc = screen_find(e->window)) != NULL) {
+			group_only(sc, e->data.l[0]);
+		}
 	}
-
-	if (e->message_type == ewmh[_NET_WM_DESKTOP] && e->format == 32) {
-		/*
-		 * The EWMH spec states that if the cardinal returned is
-		 * 0xFFFFFFFF (-1) then the window should appear on all
-		 * desktops, which in our case is assigned to group 0.
-		 */
-		if (e->data.l[0] == (unsigned long)-1)
-			group_movetogroup(cc, 0);
-		else
-			group_movetogroup(cc, e->data.l[0]);
-	}
-
-	if (e->message_type == ewmh[_NET_WM_STATE] && e->format == 32)
-		xu_ewmh_handle_net_wm_state_msg(cc,
-		    e->data.l[0], e->data.l[1], e->data.l[2]);
-
-	if (e->message_type == ewmh[_NET_CURRENT_DESKTOP] && e->format == 32)
-		group_only(sc, e->data.l[0]);
 }
 
 static void

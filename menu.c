@@ -72,7 +72,7 @@ static void		 menu_draw(struct menu_ctx *, struct menu_q *,
 static void 		 menu_draw_entry(struct menu_ctx *, struct menu_q *,
 			     int, int);
 static int		 menu_calc_entry(struct menu_ctx *, int, int);
-static struct menu 	*menu_complete_path(struct menu_ctx *);
+static struct menu	*menu_complete_path(struct menu_ctx *);
 static int		 menu_keycode(XKeyEvent *, enum ctltype *, char *);
 
 struct menu *
@@ -184,6 +184,7 @@ out:
 static struct menu *
 menu_complete_path(struct menu_ctx *mc)
 {
+	struct screen_ctx	*sc = mc->sc;
 	struct menu		*mi, *mr;
 	struct menu_q		 menuq;
 
@@ -191,7 +192,7 @@ menu_complete_path(struct menu_ctx *mc)
 
 	TAILQ_INIT(&menuq);
 
-	if ((mi = menu_filter(mc->sc, &menuq, mc->searchstr, NULL,
+	if ((mi = menu_filter(sc, &menuq, mc->searchstr, NULL,
 	    CWM_MENU_DUMMY, search_match_path_any, NULL)) != NULL) {
 		mr->abort = mi->abort;
 		mr->dummy = mi->dummy;
@@ -331,7 +332,7 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 {
 	struct screen_ctx	*sc = mc->sc;
 	struct menu		*mi;
-	struct geom		 xine;
+	struct geom		 area;
 	int			 n, xsave, ysave;
 
 	if (mc->list) {
@@ -374,25 +375,25 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 		mc->num++;
 	}
 
-	xine = screen_find_xinerama(sc, mc->geom.x, mc->geom.y, CWM_GAP);
-	xine.w += xine.x - Conf.bwidth * 2;
-	xine.h += xine.y - Conf.bwidth * 2;
+	area = screen_area(sc, mc->geom.x, mc->geom.y, CWM_GAP);
+	area.w += area.x - Conf.bwidth * 2;
+	area.h += area.y - Conf.bwidth * 2;
 
 	xsave = mc->geom.x;
 	ysave = mc->geom.y;
 
 	/* Never hide the top, or left side, of the menu. */
-	if (mc->geom.x + mc->geom.w >= xine.w)
-		mc->geom.x = xine.w - mc->geom.w;
-	if (mc->geom.x < xine.x) {
-		mc->geom.x = xine.x;
-		mc->geom.w = MIN(mc->geom.w, (xine.w - xine.x));
+	if (mc->geom.x + mc->geom.w >= area.w)
+		mc->geom.x = area.w - mc->geom.w;
+	if (mc->geom.x < area.x) {
+		mc->geom.x = area.x;
+		mc->geom.w = MIN(mc->geom.w, (area.w - area.x));
 	}
-	if (mc->geom.y + mc->geom.h >= xine.h)
-		mc->geom.y = xine.h - mc->geom.h;
-	if (mc->geom.y < xine.y) {
-		mc->geom.y = xine.y;
-		mc->geom.h = MIN(mc->geom.h, (xine.h - xine.y));
+	if (mc->geom.y + mc->geom.h >= area.h)
+		mc->geom.y = area.h - mc->geom.h;
+	if (mc->geom.y < area.y) {
+		mc->geom.y = area.y;
+		mc->geom.h = MIN(mc->geom.h, (area.h - area.y));
 	}
 
 	if (mc->geom.x != xsave || mc->geom.y != ysave)
@@ -415,7 +416,7 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 		int y = n * (sc->xftfont->height + 1) + sc->xftfont->ascent + 1;
 
 		/* Stop drawing when menu doesn't fit inside the screen. */
-		if (mc->geom.y + y > xine.h)
+		if (mc->geom.y + y > area.h)
 			break;
 
 		xu_xft_draw(sc, text, CWM_COLOR_MENU_FONT, 0, y);

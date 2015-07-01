@@ -100,8 +100,8 @@ screen_find(Window win)
 		if (sc->rootwin == win)
 			return(sc);
 	}
-	/* XXX FAIL HERE */
-	return(TAILQ_FIRST(&Screenq));
+	warnx("screen_find failure win 0x%lu\n", win);
+	return(NULL);
 }
 
 void
@@ -124,68 +124,80 @@ screen_updatestackingorder(struct screen_ctx *sc)
 	}
 }
 
-/*
- * Find which xinerama screen the coordinates (x,y) is on.
- */
 struct geom
-screen_find_xinerama(struct screen_ctx *sc, int x, int y, int flags)
+screen_area(struct screen_ctx *sc, int x, int y, int flags)
 {
-	struct region_ctx	*region;
-	struct geom		 geom = sc->work;
+	struct region_ctx	*rc;
+	struct geom		 area = sc->work;
 
-	TAILQ_FOREACH(region, &sc->regionq, entry) {
-		if (x >= region->area.x && x < region->area.x+region->area.w &&
-		    y >= region->area.y && y < region->area.y+region->area.h) {
-			geom = region->area;
+	TAILQ_FOREACH(rc, &sc->regionq, entry) {
+		if ((x >= rc->area.x) && (x < (rc->area.x + rc->area.w)) &&
+		    (y >= rc->area.y) && (y < (rc->area.y + rc->area.h))) {
+			area = rc->area;
 			break;
 		}
 	}
-	if (flags & CWM_GAP) {
-		geom.x += sc->gap.left;
-		geom.y += sc->gap.top;
-		geom.w -= (sc->gap.left + sc->gap.right);
-		geom.h -= (sc->gap.top + sc->gap.bottom);
-	}
-	return(geom);
+	if (flags & CWM_GAP)
+		area = screen_apply_gap(sc, area);
+	return(area);
 }
 
 void
 screen_update_geometry(struct screen_ctx *sc)
 {
-	XineramaScreenInfo	*info = NULL;
-	struct region_ctx	*region;
-	int			 info_num = 0, i;
+	struct region_ctx	*rc;
+	int			 i;
 
 	sc->view.x = 0;
 	sc->view.y = 0;
 	sc->view.w = DisplayWidth(X_Dpy, sc->which);
 	sc->view.h = DisplayHeight(X_Dpy, sc->which);
 
-	sc->work.x = sc->view.x + sc->gap.left;
-	sc->work.y = sc->view.y + sc->gap.top;
-	sc->work.w = sc->view.w - (sc->gap.left + sc->gap.right);
-	sc->work.h = sc->view.h - (sc->gap.top + sc->gap.bottom);
+	sc->work = screen_apply_gap(sc, sc->view);
 
-	/* RandR event may have a CTRC added or removed. */
-	if (XineramaIsActive(X_Dpy))
-		info = XineramaQueryScreens(X_Dpy, &info_num);
+	while ((rc = TAILQ_FIRST(&sc->regionq)) != NULL) {
+		TAILQ_REMOVE(&sc->regionq, rc, entry);
+		free(rc);
+	}
 
-	while ((region = TAILQ_FIRST(&sc->regionq)) != NULL) {
-		TAILQ_REMOVE(&sc->regionq, region, entry);
-		free(region);
+	if (HasRandr) {
+		XRRScreenResources *sr;
+		XRRCrtcInfo *ci;
+
+		sr = XRRGetScreenResources(X_Dpy, sc->rootwin);
+		for (i = 0, ci = NULL; i < sr->ncrtc; i++) {
+			ci = XRRGetCrtcInfo(X_Dpy, sr, sr->crtcs[i]);
+			if (ci == NULL)
+				continue;
+			if (ci->noutput == 0) {
+				XRRFreeCrtcInfo(ci);
+				continue;
+			}
+
+			rc = xmalloc(sizeof(*rc));
+			rc->num = i;
+			rc->area.x = ci->x;
+			rc->area.y = ci->y;
+			rc->area.w = ci->width;
+			rc->area.h = ci->height;
+			TAILQ_INSERT_TAIL(&sc->regionq, rc, entry);
+
+			XRRFreeCrtcInfo(ci);
+		}
+		XRRFreeScreenResources(sr);
 	}
-	for (i = 0; i < info_num; i++) {
-		region = xmalloc(sizeof(*region));
-		region->num = i;
-		region->area.x = info[i].x_org;
-		region->area.y = info[i].y_org;
-		region->area.w = info[i].width;
-		region->area.h = info[i].height;
-		TAILQ_INSERT_TAIL(&sc->regionq, region, entry);
-	}
-	if (info)
-		XFree(info);
 
 	xu_ewmh_net_desktop_geometry(sc);
 	xu_ewmh_net_workarea(sc);
+}
+
+struct geom
+screen_apply_gap(struct screen_ctx *sc, struct geom geom)
+{
+	geom.x += sc->gap.left;
+	geom.y += sc->gap.top;
+	geom.w -= (sc->gap.left + sc->gap.right);
+	geom.h -= (sc->gap.top + sc->gap.bottom);
+
+	return(geom);
 }

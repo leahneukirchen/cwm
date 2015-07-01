@@ -21,7 +21,6 @@
 #include <sys/types.h>
 #include "queue.h"
 
-#include <assert.h>
 #include <err.h>
 #include <errno.h>
 #include <fnmatch.h>
@@ -43,10 +42,6 @@ static void	search_match_path_exec(struct menu_q *, struct menu_q *,
 		    char *);
 static int	strsubmatch(char *, char *, int);
 
-/*
- * Match: label, title, class.
- */
-
 void
 search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 {
@@ -67,7 +62,7 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 
 	TAILQ_FOREACH(mi, menuq, entry) {
 		int tier = -1, t;
-		struct client_ctx *cc = mi->ctx;
+		struct client_ctx *cc = (struct client_ctx *)mi->ctx;
 
 		/* First, try to match on labels. */
 		if (cc->label != NULL && strsubmatch(search, cc->label, 0)) {
@@ -106,7 +101,8 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 		if ((cc->flags & CLIENT_HIDDEN) && (tier > 0))
 			tier--;
 
-		assert(tier < nitems(tierp));
+		if (tier >= nitems(tierp))
+			errx(1, "search_match_client: invalid tier");
 
 		/*
 		 * If you have a tierp, insert after it, and make it
@@ -128,12 +124,24 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 }
 
 void
+search_print_cmd(struct menu *mi, int i)
+{
+	struct cmd	*cmd = (struct cmd *)mi->ctx;
+	int		 special = 0;
+
+	if ((strcmp(cmd->name, "lock") == 0) ||
+	    (strcmp(cmd->name, "term") == 0))
+		special = 1;
+
+	(void)snprintf(mi->print, sizeof(mi->print),
+		(special) ? "[%s]" : "%s", cmd->name);
+}
+
+void
 search_print_client(struct menu *mi, int list)
 {
-	struct client_ctx	*cc;
+	struct client_ctx	*cc = (struct client_ctx *)mi->ctx;
 	char			 flag = ' ';
-
-	cc = mi->ctx;
 
 	if (cc == client_current())
 		flag = '!';

@@ -123,7 +123,7 @@ mousefunc_client_move(struct client_ctx *cc, union arg *arg)
 	XEvent			 ev;
 	Time			 ltime = 0;
 	struct screen_ctx	*sc = cc->sc;
-	struct geom		 xine;
+	struct geom		 area;
 	int			 px, py;
 
 	client_raise(cc);
@@ -149,15 +149,15 @@ mousefunc_client_move(struct client_ctx *cc, union arg *arg)
 			cc->geom.x = ev.xmotion.x_root - px - cc->bwidth;
 			cc->geom.y = ev.xmotion.y_root - py - cc->bwidth;
 
-			xine = screen_find_xinerama(sc,
+			area = screen_area(sc,
 			    cc->geom.x + cc->geom.w / 2,
 			    cc->geom.y + cc->geom.h / 2, CWM_GAP);
 			cc->geom.x += client_snapcalc(cc->geom.x,
 			    cc->geom.x + cc->geom.w + (cc->bwidth * 2),
-			    xine.x, xine.x + xine.w, sc->snapdist);
+			    area.x, area.x + area.w, sc->snapdist);
 			cc->geom.y += client_snapcalc(cc->geom.y,
 			    cc->geom.y + cc->geom.h + (cc->bwidth * 2),
-			    xine.y, xine.y + xine.h, sc->snapdist);
+			    area.y, area.y + area.h, sc->snapdist);
 
 			client_move(cc);
 			break;
@@ -236,10 +236,10 @@ mousefunc_menu_cmd(struct client_ctx *cc, union arg *arg)
 
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(cmd, &Conf.cmdq, entry)
-		menuq_add(&menuq, cmd, "%s", cmd->name);
+		menuq_add(&menuq, cmd, NULL);
 
 	if ((mi = menu_filter(sc, &menuq, NULL, NULL, CWM_MENU_LIST,
-	    NULL, NULL)) != NULL)
+	    NULL, search_print_cmd)) != NULL)
 		u_spawn(((struct cmd *)mi->ctx)->path);
 
 	menuq_clear(&menuq);
