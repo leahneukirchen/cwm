@@ -43,8 +43,8 @@ mousefunc_sweep_calc(struct client_ctx *cc, int x, int y, int mx, int my)
 
 	client_applysizehints(cc);
 
-	cc->geom.x = x <= mx ? x : x - cc->geom.w;
-	cc->geom.y = y <= my ? y : y - cc->geom.h;
+	cc->geom.x = (x <= mx) ? x : x - cc->geom.w;
+	cc->geom.y = (y <= my) ? y : y - cc->geom.h;
 }
 
 static void
@@ -183,7 +183,7 @@ mousefunc_menu_group(struct client_ctx *cc, union arg *arg)
 		if (group_holds_only_sticky(gc))
 			continue;
 		menuq_add(&menuq, gc,
-		    group_holds_only_hidden(gc) ? "%d: [%s]" : "%d: %s",
+		    (group_holds_only_hidden(gc)) ? "%d: [%s]" : "%d: %s",
 		    gc->num, gc->name);
 	}
 

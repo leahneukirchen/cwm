@@ -134,7 +134,7 @@ search_print_cmd(struct menu *mi, int i)
 		special = 1;
 
 	(void)snprintf(mi->print, sizeof(mi->print),
-		(special) ? "[%s]" : "%s", cmd->name);
+	    (special) ? "[%s]" : "%s", cmd->name);
 }
 
 void
@@ -148,35 +148,12 @@ search_print_client(struct menu *mi, int list)
 	else if (cc->flags & CLIENT_HIDDEN)
 		flag = '&';
 
-	if (list)
+	if ((list) || (cc->matchname == cc->label))
 		cc->matchname = cc->name;
 
 	(void)snprintf(mi->print, sizeof(mi->print), "(%d) %c[%s] %s",
-	    cc->group ? cc->group->num : 0, flag,
-	    cc->label ? cc->label : "", cc->matchname);
-
-	if (!list && cc->matchname != cc->name &&
-	    strlen(mi->print) < sizeof(mi->print) - 1) {
-		const char	*marker = "";
-		char		 buf[MENU_MAXENTRY + 1];
-		int		 diff;
-
-		diff = sizeof(mi->print) - 1 - strlen(mi->print);
-
-		/* One for the ':' */
-		diff -= 1;
-
-		if (strlen(cc->name) > diff) {
-			marker = "..";
-			diff -= 2;
-		} else {
-			diff = strlen(cc->name);
-		}
-
-		(void)strlcpy(buf, mi->print, sizeof(buf));
-		(void)snprintf(mi->print, sizeof(mi->print),
-		    "%s:%.*s%s", buf, diff, cc->name, marker);
-	}
+	    (cc->group) ? cc->group->num : 0, flag,
+	    (cc->label) ? cc->label : "", cc->matchname);
 }
 
 static void

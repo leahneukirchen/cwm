@@ -346,8 +346,8 @@ conf_client(struct client_ctx *cc)
 		}
 	}
 
-	cc->bwidth = ignore ? 0 : Conf.bwidth;
-	cc->flags |= ignore ? CLIENT_IGNORE : 0;
+	cc->bwidth = (ignore) ? 0 : Conf.bwidth;
+	cc->flags |= (ignore) ? CLIENT_IGNORE : 0;
 }
 
 static const struct {
