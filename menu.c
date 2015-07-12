@@ -359,18 +359,14 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 	}
 
 	TAILQ_FOREACH(mi, resultq, resultentry) {
-		char *text;
-
-		if (mc->print != NULL) {
+		if (mc->print != NULL)
 			(*mc->print)(mi, mc->listing);
-			text = mi->print;
-		} else {
-			mi->print[0] = '\0';
-			text = mi->text;
-		}
+		else
+			(void)snprintf(mi->print, sizeof(mi->print),
+			    "%s", mi->text);
 
-		mc->geom.w = MAX(mc->geom.w, xu_xft_width(sc->xftfont, text,
-		    MIN(strlen(text), MENU_MAXENTRY)));
+		mc->geom.w = MAX(mc->geom.w, xu_xft_width(sc->xftfont,
+		    mi->print, MIN(strlen(mi->print), MENU_MAXENTRY)));
 		mc->geom.h += sc->xftfont->height + 1;
 		mc->num++;
 	}
@@ -411,14 +407,13 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 		n = 0;
 
 	TAILQ_FOREACH(mi, resultq, resultentry) {
-		char *text = (mi->print[0] != '\0') ? mi->print : mi->text;
 		int y = n * (sc->xftfont->height + 1) + sc->xftfont->ascent + 1;
 
 		/* Stop drawing when menu doesn't fit inside the screen. */
 		if (mc->geom.y + y > area.h)
 			break;
 
-		xu_xft_draw(sc, text, CWM_COLOR_MENU_FONT, 0, y);
+		xu_xft_draw(sc, mi->print, CWM_COLOR_MENU_FONT, 0, y);
 		n++;
 	}
 	if (mc->hasprompt && n > 1)
@@ -431,7 +426,6 @@ menu_draw_entry(struct menu_ctx *mc, struct menu_q *resultq,
 {
 	struct screen_ctx	*sc = mc->sc;
 	struct menu		*mi;
-	char 			*text;
 	int			 color, i = 0;
 
 	if (mc->hasprompt)
@@ -444,12 +438,11 @@ menu_draw_entry(struct menu_ctx *mc, struct menu_q *resultq,
 		return;
 
 	color = (active) ? CWM_COLOR_MENU_FG : CWM_COLOR_MENU_BG;
-	text = (mi->print[0] != '\0') ? mi->print : mi->text;
 	XftDrawRect(sc->xftdraw, &sc->xftcolor[color], 0,
 	    (sc->xftfont->height + 1) * entry, mc->geom.w,
 	    (sc->xftfont->height + 1) + sc->xftfont->descent);
 	color = (active) ? CWM_COLOR_MENU_FONT_SEL : CWM_COLOR_MENU_FONT;
-	xu_xft_draw(sc, text, color,
+	xu_xft_draw(sc, mi->print, color,
 	    0, (sc->xftfont->height + 1) * entry + sc->xftfont->ascent + 1);
 }
 
