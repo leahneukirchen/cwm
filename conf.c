@@ -360,6 +360,7 @@ static const struct {
 	{ "raise", kbfunc_client_raise, CWM_WIN, {0} },
 	{ "search", kbfunc_client_search, 0, {0} },
 	{ "menusearch", kbfunc_menu_cmd, 0, {0} },
+	{ "groupsearch", kbfunc_menu_group, 0, {0} },
 	{ "hide", kbfunc_client_hide, CWM_WIN, {0} },
 	{ "cycle", kbfunc_client_cycle, 0, {.i = CWM_CYCLE} },
 	{ "rcycle", kbfunc_client_cycle, 0, {.i = CWM_RCYCLE} },

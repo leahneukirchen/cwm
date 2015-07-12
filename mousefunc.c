@@ -182,13 +182,11 @@ mousefunc_menu_group(struct client_ctx *cc, union arg *arg)
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
 		if (group_holds_only_sticky(gc))
 			continue;
-		menuq_add(&menuq, gc,
-		    (group_holds_only_hidden(gc)) ? "%d: [%s]" : "%d: %s",
-		    gc->num, gc->name);
+		menuq_add(&menuq, gc, "%d %s", gc->num, gc->name);
 	}
 
 	if ((mi = menu_filter(sc, &menuq, NULL, NULL, CWM_MENU_LIST,
-	    NULL, NULL)) != NULL) {
+	    NULL, search_print_group)) != NULL) {
 		gc = (struct group_ctx *)mi->ctx;
 		(group_holds_only_hidden(gc)) ?
 		    group_show(gc) : group_hide(gc);
