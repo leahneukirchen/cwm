@@ -237,6 +237,8 @@ client_toggle_freeze(struct client_ctx *cc)
 		cc->flags &= ~CLIENT_FREEZE;
 	else
 		cc->flags |= CLIENT_FREEZE;
+
+	xu_ewmh_set_net_wm_state(cc);
 }
 
 void
