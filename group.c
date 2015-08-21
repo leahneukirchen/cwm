@@ -32,6 +32,8 @@
 
 #include "calmwm.h"
 
+static struct group_ctx	*group_next(struct group_ctx *);
+static struct group_ctx	*group_prev(struct group_ctx *);
 static void		 group_assign(struct group_ctx *, struct client_ctx *);
 static void		 group_restack(struct group_ctx *);
 static void		 group_setactive(struct group_ctx *);
@@ -255,41 +257,53 @@ group_only(struct screen_ctx *sc, int idx)
 	}
 }
 
-/*
- * Cycle through active groups.  If none exist, then just stay put.
- */
 void
 group_cycle(struct screen_ctx *sc, int flags)
 {
-	struct group_ctx	*gc, *showgroup = NULL;
+	struct group_ctx	*newgc, *oldgc, *showgroup = NULL;
 
-	if (((gc = sc->group_active)) == NULL)
-		errx(1, "group_cycle: no active group");
+	oldgc = sc->group_active;
 
+	newgc = oldgc;
 	for (;;) {
-		gc = (flags & CWM_RCYCLE) ? TAILQ_PREV(gc, group_ctx_q,
-		    entry) : TAILQ_NEXT(gc, entry);
-		if (gc == NULL)
-			gc = (flags & CWM_RCYCLE) ? TAILQ_LAST(&sc->groupq,
-			    group_ctx_q) : TAILQ_FIRST(&sc->groupq);
-		if (gc == sc->group_active)
+		newgc = (flags & CWM_RCYCLE) ? group_prev(newgc) :
+		    group_next(newgc);
+
+		if (newgc == oldgc)
 			break;
 
-		if (!group_holds_only_sticky(gc) && showgroup == NULL)
-			showgroup = gc;
-		else if (!group_holds_only_hidden(gc))
-			group_hide(gc);
+		if (!group_holds_only_sticky(newgc) && showgroup == NULL)
+			showgroup = newgc;
+		else if (!group_holds_only_hidden(newgc))
+			group_hide(newgc);
 	}
 
-	if (showgroup == NULL)
-		return;
-
-	group_hide(sc->group_active);
+	group_hide(oldgc);
 
 	if (group_holds_only_hidden(showgroup))
 		group_show(showgroup);
 	else
 		group_setactive(showgroup);
+}
+
+static struct group_ctx *
+group_next(struct group_ctx *gc)
+{
+	struct screen_ctx	*sc = gc->sc;
+	struct group_ctx	*newgc;
+
+	return(((newgc = TAILQ_NEXT(gc, entry)) != NULL) ?
+	    newgc : TAILQ_FIRST(&sc->groupq));
+}
+
+static struct group_ctx *
+group_prev(struct group_ctx *gc)
+{
+	struct screen_ctx	*sc = gc->sc;
+	struct group_ctx	*newgc;
+
+	return(((newgc = TAILQ_PREV(gc, group_ctx_q, entry)) != NULL) ?
+	    newgc : TAILQ_LAST(&sc->groupq, group_ctx_q));
 }
 
 void
