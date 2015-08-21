@@ -67,12 +67,12 @@ screen_init(int which)
 	xu_ewmh_net_virtual_roots(sc);
 
 	rootattr.cursor = Conf.cursor[CF_NORMAL];
-	rootattr.event_mask = SubstructureRedirectMask|SubstructureNotifyMask|
-	    PropertyChangeMask|EnterWindowMask|LeaveWindowMask|
-	    ColormapChangeMask|BUTTONMASK;
+	rootattr.event_mask = SubstructureRedirectMask |
+	    SubstructureNotifyMask | PropertyChangeMask | EnterWindowMask |
+	    LeaveWindowMask | ColormapChangeMask | BUTTONMASK;
 
 	XChangeWindowAttributes(X_Dpy, sc->rootwin,
-	    CWEventMask|CWCursor, &rootattr);
+	    (CWEventMask | CWCursor), &rootattr);
 
 	/* Deal with existing clients. */
 	if (XQueryTree(X_Dpy, sc->rootwin, &w0, &w1, &wins, &nwins)) {

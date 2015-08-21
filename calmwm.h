@@ -43,12 +43,12 @@
 #define	CONFFILE	".cwmrc"
 #define	WMNAME	 	"CWM"
 
-#define BUTTONMASK	(ButtonPressMask|ButtonReleaseMask)
-#define MOUSEMASK	(BUTTONMASK|PointerMotionMask)
-#define MENUMASK 	(MOUSEMASK|ButtonMotionMask|ExposureMask)
-#define MENUGRABMASK	(MOUSEMASK|ButtonMotionMask|StructureNotifyMask)
-#define KEYMASK		(KeyPressMask|ExposureMask)
-#define IGNOREMODMASK	(LockMask|Mod2Mask)
+#define BUTTONMASK	(ButtonPressMask | ButtonReleaseMask)
+#define MOUSEMASK	(BUTTONMASK | PointerMotionMask)
+#define MENUMASK 	(MOUSEMASK | ButtonMotionMask | ExposureMask)
+#define MENUGRABMASK	(MOUSEMASK | ButtonMotionMask | StructureNotifyMask)
+#define KEYMASK		(KeyPressMask | ExposureMask)
+#define IGNOREMODMASK	(LockMask | Mod2Mask)
 
 /* kb movement */
 #define CWM_MOVE		0x0001
