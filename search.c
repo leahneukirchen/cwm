@@ -127,14 +127,8 @@ void
 search_print_cmd(struct menu *mi, int i)
 {
 	struct cmd	*cmd = (struct cmd *)mi->ctx;
-	int		 special = 0;
 
-	if ((strcmp(cmd->name, "lock") == 0) ||
-	    (strcmp(cmd->name, "term") == 0))
-		special = 1;
-
-	(void)snprintf(mi->print, sizeof(mi->print),
-	    (special) ? "[%s]" : "%s", cmd->name);
+	(void)snprintf(mi->print, sizeof(mi->print), "%s", cmd->name);
 }
 
 void

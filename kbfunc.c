@@ -177,8 +177,12 @@ kbfunc_menu_cmd(struct client_ctx *cc, union arg *arg)
 	struct menu_q		 menuq;
 
 	TAILQ_INIT(&menuq);
-	TAILQ_FOREACH(cmd, &Conf.cmdq, entry)
-		menuq_add(&menuq, cmd, "%s", cmd->name);
+	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
+		if ((strcmp(cmd->name, "lock") == 0) ||
+		    (strcmp(cmd->name, "term") == 0))
+			continue;
+		menuq_add(&menuq, cmd, NULL);
+	}
 
 	if ((mi = menu_filter(sc, &menuq, "application", NULL, 0,
 	    search_match_text, search_print_cmd)) != NULL)
