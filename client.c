@@ -233,6 +233,9 @@ client_current(void)
 void
 client_toggle_freeze(struct client_ctx *cc)
 {
+	if (cc->flags & CLIENT_FULLSCREEN)
+		return;
+
 	if (cc->flags & CLIENT_FREEZE)
 		cc->flags &= ~CLIENT_FREEZE;
 	else
