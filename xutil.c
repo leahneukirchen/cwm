@@ -229,6 +229,27 @@ xu_ewmh_net_client_list(struct screen_ctx *sc)
 }
 
 void
+xu_ewmh_net_client_list_stacking(struct screen_ctx *sc)
+{
+	struct client_ctx	*cc;
+	Window			*winlist;
+	int			 i = 0, j;
+
+	TAILQ_FOREACH(cc, &sc->clientq, entry)
+		i++;
+	if (i == 0)
+		return;
+
+	j = i;
+	winlist = xreallocarray(NULL, i, sizeof(*winlist));
+	TAILQ_FOREACH(cc, &sc->clientq, entry)
+		winlist[--j] = cc->win;
+	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_CLIENT_LIST_STACKING],
+	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)winlist, i);
+	free(winlist);
+}
+
+void
 xu_ewmh_net_active_window(struct screen_ctx *sc, Window w)
 {
 	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_ACTIVE_WINDOW],

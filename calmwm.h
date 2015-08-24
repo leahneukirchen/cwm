@@ -352,6 +352,7 @@ enum {
 	_NET_SUPPORTING_WM_CHECK,
 	_NET_ACTIVE_WINDOW,
 	_NET_CLIENT_LIST,
+	_NET_CLIENT_LIST_STACKING,
 	_NET_NUMBER_OF_DESKTOPS,
 	_NET_CURRENT_DESKTOP,
 	_NET_DESKTOP_VIEWPORT,
@@ -562,6 +563,7 @@ void			 xu_ewmh_net_supported_wm_check(struct screen_ctx *);
 void			 xu_ewmh_net_desktop_geometry(struct screen_ctx *);
 void			 xu_ewmh_net_workarea(struct screen_ctx *);
 void			 xu_ewmh_net_client_list(struct screen_ctx *);
+void			 xu_ewmh_net_client_list_stacking(struct screen_ctx *);
 void			 xu_ewmh_net_active_window(struct screen_ctx *, Window);
 void			 xu_ewmh_net_wm_desktop_viewport(struct screen_ctx *);
 void			 xu_ewmh_net_wm_number_of_desktops(struct screen_ctx *);
