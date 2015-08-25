@@ -132,8 +132,6 @@ group_init(struct screen_ctx *sc, int num)
 	gc->num = num;
 	TAILQ_INIT(&gc->clientq);
 
-	fprintf(stderr, "%d: %s\n", gc->num, gc->name);
-
 	TAILQ_INSERT_TAIL(&sc->groupq, gc, entry);
 
 	if (num == 1)
