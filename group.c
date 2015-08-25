@@ -331,20 +331,17 @@ group_restore(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
 	struct group_ctx	*gc;
-	int			 num = -1;
+	int			 num;
 	long			*grpnum;
 
 	if (xu_getprop(cc->win, ewmh[_NET_WM_DESKTOP], XA_CARDINAL, 1L,
 	    (unsigned char **)&grpnum) <= 0)
 		return(0);
 
-	num = MIN(*grpnum, (CALMWM_NGROUPS - 1));
+	num = (*grpnum == -1) ? 0 : *grpnum;
+	num = MIN(num, (CALMWM_NGROUPS - 1));
 	XFree(grpnum);
 
-	if (num == -1) {
-		group_assign(NULL, cc);
-		return(1);
-	}
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
 		if (gc->num == num) {
 			group_assign(gc, cc);
