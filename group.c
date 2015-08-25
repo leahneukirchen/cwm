@@ -34,7 +34,6 @@
 
 static struct group_ctx	*group_next(struct group_ctx *);
 static struct group_ctx	*group_prev(struct group_ctx *);
-static void		 group_assign(struct group_ctx *, struct client_ctx *);
 static void		 group_restack(struct group_ctx *);
 static void		 group_setactive(struct group_ctx *);
 
@@ -43,7 +42,7 @@ const char *num_to_name[] = {
 	"seven", "eight", "nine"
 };
 
-static void
+void
 group_assign(struct group_ctx *gc, struct client_ctx *cc)
 {
 	if (cc->group != NULL)
@@ -324,51 +323,65 @@ group_alltoggle(struct screen_ctx *sc)
 	sc->hideall = !sc->hideall;
 }
 
-void
+int
+group_restore(struct client_ctx *cc)
+{
+	struct screen_ctx	*sc = cc->sc;
+	struct group_ctx	*gc;
+	int			 num = -1;
+	long			*grpnum;
+
+	if (xu_getprop(cc->win, ewmh[_NET_WM_DESKTOP], XA_CARDINAL, 1L,
+	    (unsigned char **)&grpnum) <= 0)
+		return(0);
+
+	num = MIN(*grpnum, (CALMWM_NGROUPS - 1));
+	XFree(grpnum);
+
+	if ((num == -1) || (num == 0)) {
+		group_assign(NULL, cc);
+		return(1);
+	}
+	TAILQ_FOREACH(gc, &sc->groupq, entry) {
+		if (gc->num == num) {
+			group_assign(gc, cc);
+			return(1);
+		}
+	}
+	return(0);
+}
+
+int
 group_autogroup(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
 	struct autogroupwin	*aw;
 	struct group_ctx	*gc;
-	int			 num = -2, both_match = 0;
-	long			*grpnum;
+	int			 num = -1, both_match = 0;
 
 	if (cc->ch.res_class == NULL || cc->ch.res_name == NULL)
-		return;
+		return(0);
 
-	if (xu_getprop(cc->win, ewmh[_NET_WM_DESKTOP],
-	    XA_CARDINAL, 1, (unsigned char **)&grpnum) > 0) {
-		num = *grpnum;
-		if (num > CALMWM_NGROUPS || num < -1)
-			num = CALMWM_NGROUPS - 1;
-		XFree(grpnum);
-	} else {
-		TAILQ_FOREACH(aw, &Conf.autogroupq, entry) {
-			if (strcmp(aw->class, cc->ch.res_class) == 0) {
-				if ((aw->name != NULL) &&
-				    (strcmp(aw->name, cc->ch.res_name) == 0)) {
-					num = aw->num;
-					both_match = 1;
-				} else if (aw->name == NULL && !both_match)
-					num = aw->num;
-			}
+	TAILQ_FOREACH(aw, &Conf.autogroupq, entry) {
+		if (strcmp(aw->class, cc->ch.res_class) == 0) {
+			if ((aw->name != NULL) &&
+			    (strcmp(aw->name, cc->ch.res_name) == 0)) {
+				num = aw->num;
+				both_match = 1;
+			} else if (aw->name == NULL && !both_match)
+				num = aw->num;
 		}
 	}
 
-	if ((num == -1) || (num == 0)) {
+	if (num == 0) {
 		group_assign(NULL, cc);
-		return;
+		return(1);
 	}
-
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
 		if (gc->num == num) {
 			group_assign(gc, cc);
-			return;
+			return(1);
 		}
 	}
-
-	if (Conf.flags & CONF_STICKY_GROUPS)
-		group_assign(sc->group_active, cc);
-	else
-		group_assign(NULL, cc);
+	return(0);
 }

@@ -426,7 +426,8 @@ void			 client_warp(struct client_ctx *);
 void			 client_wm_hints(struct client_ctx *);
 
 void			 group_alltoggle(struct screen_ctx *);
-void			 group_autogroup(struct client_ctx *);
+void			 group_assign(struct group_ctx *, struct client_ctx *);
+int			 group_autogroup(struct client_ctx *);
 void			 group_cycle(struct screen_ctx *, int);
 void			 group_hide(struct group_ctx *);
 void			 group_hidetoggle(struct screen_ctx *, int);
@@ -435,6 +436,7 @@ int			 group_holds_only_sticky(struct group_ctx *);
 void			 group_init(struct screen_ctx *, int);
 void			 group_movetogroup(struct client_ctx *, int);
 void			 group_only(struct screen_ctx *, int);
+int			 group_restore(struct client_ctx *);
 void			 group_show(struct group_ctx *);
 void			 group_toggle_membership_enter(struct client_ctx *);
 void			 group_toggle_membership_leave(struct client_ctx *);

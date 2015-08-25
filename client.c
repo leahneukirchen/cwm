@@ -120,9 +120,17 @@ client_init(Window win, struct screen_ctx *sc)
 	else
 		client_unhide(cc);
 
-	if (mapped)
-		group_autogroup(cc);
-
+	if (mapped) {
+		if (group_restore(cc))
+			goto out;
+		if (group_autogroup(cc))
+			goto out;
+		if (Conf.flags & CONF_STICKY_GROUPS)
+			group_assign(sc->group_active, cc);
+		else
+			group_assign(NULL, cc);
+	}
+out:
 	XSync(X_Dpy, False);
 	XUngrabServer(X_Dpy);
 
