@@ -48,6 +48,9 @@ group_assign(struct group_ctx *gc, struct client_ctx *cc)
 	if (cc->group != NULL)
 		TAILQ_REMOVE(&cc->group->clientq, cc, group_entry);
 
+	if ((gc != NULL) && (gc->num == 0))
+		gc = NULL;
+
 	cc->group = gc;
 
 	if (cc->group != NULL)
@@ -128,6 +131,8 @@ group_init(struct screen_ctx *sc, int num)
 	gc->name = xstrdup(num_to_name[num]);
 	gc->num = num;
 	TAILQ_INIT(&gc->clientq);
+
+	fprintf(stderr, "%d: %s\n", gc->num, gc->name);
 
 	TAILQ_INSERT_TAIL(&sc->groupq, gc, entry);
 
@@ -338,7 +343,7 @@ group_restore(struct client_ctx *cc)
 	num = MIN(*grpnum, (CALMWM_NGROUPS - 1));
 	XFree(grpnum);
 
-	if ((num == -1) || (num == 0)) {
+	if (num == -1) {
 		group_assign(NULL, cc);
 		return(1);
 	}
@@ -373,10 +378,6 @@ group_autogroup(struct client_ctx *cc)
 		}
 	}
 
-	if (num == 0) {
-		group_assign(NULL, cc);
-		return(1);
-	}
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
 		if (gc->num == num) {
 			group_assign(gc, cc);
