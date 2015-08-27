@@ -284,6 +284,9 @@ group_cycle(struct screen_ctx *sc, int flags)
 			group_hide(newgc);
 	}
 
+	if (showgroup == NULL)
+		return;
+
 	group_hide(oldgc);
 
 	if (group_holds_only_hidden(showgroup))
