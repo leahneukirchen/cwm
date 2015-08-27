@@ -204,7 +204,7 @@ client_setactive(struct client_ctx *cc)
 	if (cc->flags & CLIENT_WM_TAKE_FOCUS)
 		client_msg(cc, cwmh[WM_TAKE_FOCUS], Last_Event_Time);
 
-	if ((oldcc = client_current())) {
+	if ((oldcc = client_current()) != NULL) {
 		oldcc->flags &= ~CLIENT_ACTIVE;
 		client_draw_border(oldcc);
 	}
@@ -707,9 +707,10 @@ client_cycle_leave(struct screen_ctx *sc)
 
 	sc->cycling = 0;
 
-	if ((cc = client_current())) {
+	if ((cc = client_current()) != NULL) {
 		client_mtf(cc);
-		group_toggle_membership_leave(cc);
+		cc->flags &= ~CLIENT_HIGHLIGHT;
+		client_draw_border(cc);
 		XUngrabKeyboard(X_Dpy, CurrentTime);
 	}
 }
@@ -914,7 +915,7 @@ client_transient(struct client_ctx *cc)
 	Window			 trans;
 
 	if (XGetTransientForHint(X_Dpy, cc->win, &trans)) {
-		if ((tc = client_find(trans)) && tc->group) {
+		if ((tc = client_find(trans)) != NULL && tc->group) {
 			group_movetogroup(cc, tc->group->num);
 			if (tc->flags & CLIENT_IGNORE)
 				cc->flags |= CLIENT_IGNORE;
