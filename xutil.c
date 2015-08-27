@@ -362,8 +362,8 @@ xu_ewmh_net_wm_desktop(struct client_ctx *cc)
 {
 	long	 num = 0xffffffff;
 
-	if (cc->group)
-		num = cc->group->num;
+	if (cc->gc)
+		num = cc->gc->num;
 
 	XChangeProperty(X_Dpy, cc->win, ewmh[_NET_WM_DESKTOP],
 	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&num, 1);

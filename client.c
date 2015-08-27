@@ -163,8 +163,8 @@ client_delete(struct client_ctx *cc)
 	xu_ewmh_net_client_list(sc);
 	xu_ewmh_net_client_list_stacking(sc);
 
-	if (cc->group != NULL)
-		TAILQ_REMOVE(&cc->group->clientq, cc, group_entry);
+	if (cc->gc != NULL)
+		TAILQ_REMOVE(&cc->gc->clientq, cc, group_entry);
 
 	if (cc == client_current())
 		client_none(sc);
@@ -682,7 +682,7 @@ client_cycle(struct screen_ctx *sc, int flags)
 		/* Only cycle visible and non-ignored windows. */
 		if ((newcc->flags & (CLIENT_HIDDEN | CLIENT_IGNORE))
 		    || ((flags & CWM_INGROUP) &&
-			(newcc->group != oldcc->group)))
+			(newcc->gc != oldcc->gc)))
 			again = 1;
 
 		/* Is oldcc the only non-hidden window? */
@@ -915,8 +915,8 @@ client_transient(struct client_ctx *cc)
 	Window			 trans;
 
 	if (XGetTransientForHint(X_Dpy, cc->win, &trans)) {
-		if ((tc = client_find(trans)) != NULL && tc->group) {
-			group_movetogroup(cc, tc->group->num);
+		if ((tc = client_find(trans)) != NULL && tc->gc) {
+			group_movetogroup(cc, tc->gc->num);
 			if (tc->flags & CLIENT_IGNORE)
 				cc->flags |= CLIENT_IGNORE;
 		}
@@ -961,7 +961,7 @@ void
 client_htile(struct client_ctx *cc)
 {
 	struct client_ctx	*ci;
-	struct group_ctx 	*gc = cc->group;
+	struct group_ctx 	*gc = cc->gc;
 	struct screen_ctx 	*sc = cc->sc;
 	struct geom 		 area;
 	int 			 i, n, mh, x, h, w;
@@ -1020,7 +1020,7 @@ void
 client_vtile(struct client_ctx *cc)
 {
 	struct client_ctx	*ci;
-	struct group_ctx 	*gc = cc->group;
+	struct group_ctx 	*gc = cc->gc;
 	struct screen_ctx 	*sc = cc->sc;
 	struct geom 		 area;
 	int 			 i, n, mw, y, h, w;
