@@ -659,6 +659,10 @@ client_cycle(struct screen_ctx *sc, int flags)
 	struct client_ctx	*newcc, *oldcc;
 	int			 again = 1;
 
+	/* For X apps that ignore events. */
+	XGrabKeyboard(X_Dpy, sc->rootwin, True,
+	    GrabModeAsync, GrabModeAsync, CurrentTime);
+
 	if (TAILQ_EMPTY(&sc->clientq))
 		return;
 
