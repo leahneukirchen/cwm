@@ -181,7 +181,8 @@ kbfunc_menu_cmd(struct client_ctx *cc, union arg *arg)
 		if ((strcmp(cmd->name, "lock") == 0) ||
 		    (strcmp(cmd->name, "term") == 0))
 			continue;
-		menuq_add(&menuq, cmd, NULL);
+		/* search_match_text() needs mi->text */
+		menuq_add(&menuq, cmd, "%s", cmd->name);
 	}
 
 	if ((mi = menu_filter(sc, &menuq, "application", NULL, 0,
