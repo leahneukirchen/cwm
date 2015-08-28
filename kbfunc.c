@@ -61,7 +61,7 @@ kbfunc_client_moveresize(struct client_ctx *cc, union arg *arg)
 	int			 x, y, flags, amt;
 	unsigned int		 mx, my;
 
-	if (cc->flags & (CLIENT_FREEZE|CLIENT_STICKY))
+	if (cc->flags & CLIENT_FREEZE)
 		return;
 
 	mx = my = 0;
@@ -177,8 +177,13 @@ kbfunc_menu_cmd(struct client_ctx *cc, union arg *arg)
 	struct menu_q		 menuq;
 
 	TAILQ_INIT(&menuq);
-	TAILQ_FOREACH(cmd, &Conf.cmdq, entry)
+	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
+		if ((strcmp(cmd->name, "lock") == 0) ||
+		    (strcmp(cmd->name, "term") == 0))
+			continue;
+		/* search_match_text() needs mi->text */
 		menuq_add(&menuq, cmd, "%s", cmd->name);
+	}
 
 	if ((mi = menu_filter(sc, &menuq, "application", NULL, 0,
 	    search_match_text, search_print_cmd)) != NULL)
@@ -215,13 +220,7 @@ kbfunc_menu_group(struct client_ctx *cc, union arg *arg)
 void
 kbfunc_client_cycle(struct client_ctx *cc, union arg *arg)
 {
-	struct screen_ctx	*sc = cc->sc;
-
-	/* XXX for X apps that ignore events */
-	XGrabKeyboard(X_Dpy, sc->rootwin, True,
-	    GrabModeAsync, GrabModeAsync, CurrentTime);
-
-	client_cycle(sc, arg->i);
+	client_cycle(cc->sc, arg->i);
 }
 
 void
@@ -466,7 +465,7 @@ void
 kbfunc_client_grouptoggle(struct client_ctx *cc, union arg *arg)
 {
 	if (arg->i == 0) {
-		/* XXX for stupid X apps like xpdf and gvim */
+		/* For X apps that steal events. */
 		XGrabKeyboard(X_Dpy, cc->win, True,
 		    GrabModeAsync, GrabModeAsync, CurrentTime);
 	}

@@ -64,12 +64,12 @@ size_t strlcpy(char *, const char *, size_t);
 #define	CONFFILE	".cwmrc"
 #define	WMNAME	 	"CWM"
 
-#define BUTTONMASK	(ButtonPressMask|ButtonReleaseMask)
-#define MOUSEMASK	(BUTTONMASK|PointerMotionMask)
-#define MENUMASK 	(MOUSEMASK|ButtonMotionMask|ExposureMask)
-#define MENUGRABMASK	(MOUSEMASK|ButtonMotionMask|StructureNotifyMask)
-#define KEYMASK		(KeyPressMask|ExposureMask)
-#define IGNOREMODMASK	(LockMask|Mod2Mask)
+#define BUTTONMASK	(ButtonPressMask | ButtonReleaseMask)
+#define MOUSEMASK	(BUTTONMASK | PointerMotionMask)
+#define MENUMASK 	(MOUSEMASK | ButtonMotionMask | ExposureMask)
+#define MENUGRABMASK	(MOUSEMASK | ButtonMotionMask | StructureNotifyMask)
+#define KEYMASK		(KeyPressMask | ExposureMask)
+#define IGNOREMODMASK	(LockMask | Mod2Mask | 0x2000)
 
 /* kb movement */
 #define CWM_MOVE		0x0001
@@ -168,6 +168,7 @@ struct client_ctx {
 	TAILQ_ENTRY(client_ctx)	 entry;
 	TAILQ_ENTRY(client_ctx)	 group_entry;
 	struct screen_ctx	*sc;
+	struct group_ctx	*gc;
 	Window			 win;
 	Colormap		 colormap;
 	unsigned int		 bwidth; /* border width */
@@ -219,7 +220,6 @@ struct client_ctx {
 	char			*name;
 	char			*label;
 	char			*matchname;
-	struct group_ctx	*group;
 	XClassHint		ch;
 	XWMHints		*wmh;
 };
@@ -373,6 +373,7 @@ enum {
 	_NET_SUPPORTING_WM_CHECK,
 	_NET_ACTIVE_WINDOW,
 	_NET_CLIENT_LIST,
+	_NET_CLIENT_LIST_STACKING,
 	_NET_NUMBER_OF_DESKTOPS,
 	_NET_CURRENT_DESKTOP,
 	_NET_DESKTOP_VIEWPORT,
@@ -385,13 +386,14 @@ enum {
 	_NET_WM_DESKTOP,
 	_NET_CLOSE_WINDOW,
 	_NET_WM_STATE,
-#define	_NET_WM_STATES_NITEMS	6
+#define	_NET_WM_STATES_NITEMS	7
 	_NET_WM_STATE_STICKY,
 	_NET_WM_STATE_MAXIMIZED_VERT,
 	_NET_WM_STATE_MAXIMIZED_HORZ,
 	_NET_WM_STATE_HIDDEN,
 	_NET_WM_STATE_FULLSCREEN,
 	_NET_WM_STATE_DEMANDS_ATTENTION,
+	_CWM_WM_STATE_FREEZE,
 	EWMH_NITEMS
 };
 enum {
@@ -445,7 +447,8 @@ void			 client_warp(struct client_ctx *);
 void			 client_wm_hints(struct client_ctx *);
 
 void			 group_alltoggle(struct screen_ctx *);
-void			 group_autogroup(struct client_ctx *);
+void			 group_assign(struct group_ctx *, struct client_ctx *);
+int			 group_autogroup(struct client_ctx *);
 void			 group_cycle(struct screen_ctx *, int);
 void			 group_hide(struct group_ctx *);
 void			 group_hidetoggle(struct screen_ctx *, int);
@@ -454,6 +457,7 @@ int			 group_holds_only_sticky(struct group_ctx *);
 void			 group_init(struct screen_ctx *, int);
 void			 group_movetogroup(struct client_ctx *, int);
 void			 group_only(struct screen_ctx *, int);
+int			 group_restore(struct client_ctx *);
 void			 group_show(struct group_ctx *);
 void			 group_toggle_membership_enter(struct client_ctx *);
 void			 group_toggle_membership_leave(struct client_ctx *);
@@ -582,6 +586,7 @@ void			 xu_ewmh_net_supported_wm_check(struct screen_ctx *);
 void			 xu_ewmh_net_desktop_geometry(struct screen_ctx *);
 void			 xu_ewmh_net_workarea(struct screen_ctx *);
 void			 xu_ewmh_net_client_list(struct screen_ctx *);
+void			 xu_ewmh_net_client_list_stacking(struct screen_ctx *);
 void			 xu_ewmh_net_active_window(struct screen_ctx *, Window);
 void			 xu_ewmh_net_wm_desktop_viewport(struct screen_ctx *);
 void			 xu_ewmh_net_wm_number_of_desktops(struct screen_ctx *);

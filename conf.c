@@ -40,7 +40,7 @@ static void		 conf_unbind_mouse(struct conf *, struct binding *);
 int
 conf_cmd_add(struct conf *c, const char *name, const char *path)
 {
-	struct cmd	*cmd, *prev;
+	struct cmd	*cmd;
 
 	cmd = xmalloc(sizeof(*cmd));
 
@@ -54,13 +54,6 @@ conf_cmd_add(struct conf *c, const char *name, const char *path)
 	conf_cmd_remove(c, name);
 
 	TAILQ_INSERT_TAIL(&c->cmdq, cmd, entry);
-
-	/* keep queue sorted by name */
-	while ((prev = TAILQ_PREV(cmd, cmd_q, entry)) &&
-	    (strcmp(prev->name, cmd->name) > 0)) {
-		TAILQ_REMOVE(&c->cmdq, cmd, entry);
-		TAILQ_INSERT_BEFORE(prev, cmd, entry);
-	}
 
 	return(1);
 }
@@ -224,18 +217,18 @@ static const struct {
 	{ "M-j",	"movedown" },
 	{ "M-k",	"moveup" },
 	{ "M-l",	"moveright" },
-	{ "M-H",	"bigmoveleft" },
-	{ "M-J",	"bigmovedown" },
-	{ "M-K",	"bigmoveup" },
-	{ "M-L",	"bigmoveright" },
+	{ "MS-h",	"bigmoveleft" },
+	{ "MS-j",	"bigmovedown" },
+	{ "MS-k",	"bigmoveup" },
+	{ "MS-l",	"bigmoveright" },
 	{ "CM-h",	"resizeleft" },
 	{ "CM-j",	"resizedown" },
 	{ "CM-k",	"resizeup" },
 	{ "CM-l",	"resizeright" },
-	{ "CM-H",	"bigresizeleft" },
-	{ "CM-J",	"bigresizedown" },
-	{ "CM-K",	"bigresizeup" },
-	{ "CM-L",	"bigresizeright" },
+	{ "CMS-h",	"bigresizeleft" },
+	{ "CMS-j",	"bigresizedown" },
+	{ "CMS-k",	"bigresizeup" },
+	{ "CMS-l",	"bigresizeright" },
 	{ "C-Left",	"ptrmoveleft" },
 	{ "C-Down",	"ptrmovedown" },
 	{ "C-Up",	"ptrmoveup" },
@@ -397,9 +390,9 @@ static const struct {
 	{ "cyclegroup", kbfunc_client_cyclegroup, 0, {.i = CWM_CYCLE} },
 	{ "rcyclegroup", kbfunc_client_cyclegroup, 0, {.i = CWM_RCYCLE} },
 	{ "cycleingroup", kbfunc_client_cycle, CWM_WIN,
-	    {.i = CWM_CYCLE|CWM_INGROUP} },
+	    {.i = (CWM_CYCLE | CWM_INGROUP)} },
 	{ "rcycleingroup", kbfunc_client_cycle, CWM_WIN,
-	    {.i = CWM_RCYCLE|CWM_INGROUP} },
+	    {.i = (CWM_RCYCLE | CWM_INGROUP)} },
 	{ "grouptoggle", kbfunc_client_grouptoggle, CWM_WIN, {.i = 0}},
 	{ "sticky", kbfunc_client_toggle_sticky, CWM_WIN, {0} },
 	{ "fullscreen", kbfunc_client_toggle_fullscreen, CWM_WIN, {0} },
@@ -415,53 +408,53 @@ static const struct {
 	{ "terminal", kbfunc_term, 0, {0} },
 	{ "lock", kbfunc_lock, 0, {0} },
 	{ "moveup", kbfunc_client_moveresize, CWM_WIN,
-	    {.i = (CWM_UP|CWM_MOVE)} },
+	    {.i = (CWM_UP | CWM_MOVE)} },
 	{ "movedown", kbfunc_client_moveresize, CWM_WIN,
-	    {.i = (CWM_DOWN|CWM_MOVE)} },
+	    {.i = (CWM_DOWN | CWM_MOVE)} },
 	{ "moveright", kbfunc_client_moveresize, CWM_WIN,
-	    {.i = (CWM_RIGHT|CWM_MOVE)} },
+	    {.i = (CWM_RIGHT | CWM_MOVE)} },
 	{ "moveleft", kbfunc_client_moveresize, CWM_WIN,
-	    {.i = (CWM_LEFT|CWM_MOVE)} },
+	    {.i = (CWM_LEFT | CWM_MOVE)} },
 	{ "bigmoveup", kbfunc_client_moveresize, CWM_WIN,
-	    {.i = (CWM_UP|CWM_MOVE|CWM_BIGMOVE)} },
+	    {.i = (CWM_UP | CWM_MOVE | CWM_BIGMOVE)} },
 	{ "bigmovedown", kbfunc_client_moveresize, CWM_WIN,
-	    {.i = (CWM_DOWN|CWM_MOVE|CWM_BIGMOVE)} },
+	    {.i = (CWM_DOWN | CWM_MOVE | CWM_BIGMOVE)} },
 	{ "bigmoveright", kbfunc_client_moveresize, CWM_WIN,
-	    {.i = (CWM_RIGHT|CWM_MOVE|CWM_BIGMOVE)} },
+	    {.i = (CWM_RIGHT | CWM_MOVE | CWM_BIGMOVE)} },
 	{ "bigmoveleft", kbfunc_client_moveresize, CWM_WIN,
-	    {.i = (CWM_LEFT|CWM_MOVE|CWM_BIGMOVE)} },
+	    {.i = (CWM_LEFT | CWM_MOVE | CWM_BIGMOVE)} },
 	{ "resizeup", kbfunc_client_moveresize, CWM_WIN,
-	    {.i = (CWM_UP|CWM_RESIZE)} },
+	    {.i = (CWM_UP | CWM_RESIZE)} },
 	{ "resizedown", kbfunc_client_moveresize, CWM_WIN,
-	    {.i = (CWM_DOWN|CWM_RESIZE)} },
+	    {.i = (CWM_DOWN | CWM_RESIZE)} },
 	{ "resizeright", kbfunc_client_moveresize, CWM_WIN,
-	    {.i = (CWM_RIGHT|CWM_RESIZE)} },
+	    {.i = (CWM_RIGHT | CWM_RESIZE)} },
 	{ "resizeleft", kbfunc_client_moveresize, CWM_WIN,
-	    {.i = (CWM_LEFT|CWM_RESIZE)} },
+	    {.i = (CWM_LEFT | CWM_RESIZE)} },
 	{ "bigresizeup", kbfunc_client_moveresize, CWM_WIN,
-	    {.i = (CWM_UP|CWM_RESIZE|CWM_BIGMOVE)} },
+	    {.i = (CWM_UP | CWM_RESIZE | CWM_BIGMOVE)} },
 	{ "bigresizedown", kbfunc_client_moveresize, CWM_WIN,
-	    {.i = (CWM_DOWN|CWM_RESIZE|CWM_BIGMOVE)} },
+	    {.i = (CWM_DOWN | CWM_RESIZE | CWM_BIGMOVE)} },
 	{ "bigresizeright", kbfunc_client_moveresize, CWM_WIN,
-	    {.i = (CWM_RIGHT|CWM_RESIZE|CWM_BIGMOVE)} },
+	    {.i = (CWM_RIGHT | CWM_RESIZE | CWM_BIGMOVE)} },
 	{ "bigresizeleft", kbfunc_client_moveresize, CWM_WIN,
-	    {.i = (CWM_LEFT|CWM_RESIZE|CWM_BIGMOVE)} },
+	    {.i = (CWM_LEFT | CWM_RESIZE | CWM_BIGMOVE)} },
 	{ "ptrmoveup", kbfunc_client_moveresize, 0,
-	    {.i = (CWM_UP|CWM_PTRMOVE)} },
+	    {.i = (CWM_UP | CWM_PTRMOVE)} },
 	{ "ptrmovedown", kbfunc_client_moveresize, 0,
-	    {.i = (CWM_DOWN|CWM_PTRMOVE)} },
+	    {.i = (CWM_DOWN | CWM_PTRMOVE)} },
 	{ "ptrmoveleft", kbfunc_client_moveresize, 0,
-	    {.i = (CWM_LEFT|CWM_PTRMOVE)} },
+	    {.i = (CWM_LEFT | CWM_PTRMOVE)} },
 	{ "ptrmoveright", kbfunc_client_moveresize, 0,
-	    {.i = (CWM_RIGHT|CWM_PTRMOVE)} },
+	    {.i = (CWM_RIGHT | CWM_PTRMOVE)} },
 	{ "bigptrmoveup", kbfunc_client_moveresize, 0,
-	    {.i = (CWM_UP|CWM_PTRMOVE|CWM_BIGMOVE)} },
+	    {.i = (CWM_UP | CWM_PTRMOVE | CWM_BIGMOVE)} },
 	{ "bigptrmovedown", kbfunc_client_moveresize, 0,
-	    {.i = (CWM_DOWN|CWM_PTRMOVE|CWM_BIGMOVE)} },
+	    {.i = (CWM_DOWN | CWM_PTRMOVE | CWM_BIGMOVE)} },
 	{ "bigptrmoveleft", kbfunc_client_moveresize, 0,
-	    {.i = (CWM_LEFT|CWM_PTRMOVE|CWM_BIGMOVE)} },
+	    {.i = (CWM_LEFT | CWM_PTRMOVE | CWM_BIGMOVE)} },
 	{ "bigptrmoveright", kbfunc_client_moveresize, 0,
-	    {.i = (CWM_RIGHT|CWM_PTRMOVE|CWM_BIGMOVE)} },
+	    {.i = (CWM_RIGHT | CWM_PTRMOVE | CWM_BIGMOVE)} },
 	{ "htile", kbfunc_tile, CWM_WIN, {.i = CWM_TILE_HORIZ} },
 	{ "vtile", kbfunc_tile, CWM_WIN, {.i = CWM_TILE_VERT} },
 	{ "window_lower", kbfunc_client_lower, CWM_WIN, {0} },
@@ -675,6 +668,7 @@ static char *ewmhints[] = {
 	"_NET_SUPPORTING_WM_CHECK",
 	"_NET_ACTIVE_WINDOW",
 	"_NET_CLIENT_LIST",
+	"_NET_CLIENT_LIST_STACKING",
 	"_NET_NUMBER_OF_DESKTOPS",
 	"_NET_CURRENT_DESKTOP",
 	"_NET_DESKTOP_VIEWPORT",
@@ -693,6 +687,7 @@ static char *ewmhints[] = {
 	"_NET_WM_STATE_HIDDEN",
 	"_NET_WM_STATE_FULLSCREEN",
 	"_NET_WM_STATE_DEMANDS_ATTENTION",
+	"_CWM_WM_STATE_FREEZE",
 };
 
 void

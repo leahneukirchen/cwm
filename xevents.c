@@ -77,7 +77,7 @@ xev_handle_maprequest(XEvent *ee)
 	XMapRequestEvent	*e = &ee->xmaprequest;
 	struct client_ctx	*cc = NULL, *old_cc;
 
-	if ((old_cc = client_current()))
+	if ((old_cc = client_current()) != NULL)
 		client_ptrsave(old_cc);
 
 	if ((cc = client_find(e->window)) == NULL)
@@ -252,7 +252,7 @@ xev_handle_buttonrelease(XEvent *ee)
 {
 	struct client_ctx *cc;
 
-	if ((cc = client_current()))
+	if ((cc = client_current()) != NULL)
 		group_toggle_membership_leave(cc);
 }
 
@@ -339,7 +339,7 @@ xev_handle_clientmessage(XEvent *ee)
 		}
 	} else if (e->message_type == ewmh[_NET_ACTIVE_WINDOW]) {
 		if ((cc = client_find(e->window)) != NULL) {
-			if ((old_cc = client_current()))
+			if ((old_cc = client_current()) != NULL)
 				client_ptrsave(old_cc);
 			client_ptrwarp(cc);
 		}

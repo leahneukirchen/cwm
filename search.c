@@ -127,14 +127,8 @@ void
 search_print_cmd(struct menu *mi, int i)
 {
 	struct cmd	*cmd = (struct cmd *)mi->ctx;
-	int		 special = 0;
 
-	if ((strcmp(cmd->name, "lock") == 0) ||
-	    (strcmp(cmd->name, "term") == 0))
-		special = 1;
-
-	(void)snprintf(mi->print, sizeof(mi->print),
-	    (special) ? "[%s]" : "%s", cmd->name);
+	(void)snprintf(mi->print, sizeof(mi->print), "%s", cmd->name);
 }
 
 void
@@ -162,7 +156,7 @@ search_print_client(struct menu *mi, int list)
 		cc->matchname = cc->name;
 
 	(void)snprintf(mi->print, sizeof(mi->print), "(%d) %c[%s] %s",
-	    (cc->group) ? cc->group->num : 0, flag,
+	    (cc->gc) ? cc->gc->num : 0, flag,
 	    (cc->label) ? cc->label : "", cc->matchname);
 }
 

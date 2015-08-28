@@ -112,6 +112,7 @@ client_init(Window win, struct screen_ctx *sc)
 	TAILQ_INSERT_TAIL(&sc->clientq, cc, entry);
 
 	xu_ewmh_net_client_list(sc);
+	xu_ewmh_net_client_list_stacking(sc);
 	xu_ewmh_restore_net_wm_state(cc);
 
 	if (client_get_wm_state(cc) == IconicState)
@@ -119,9 +120,17 @@ client_init(Window win, struct screen_ctx *sc)
 	else
 		client_unhide(cc);
 
-	if (mapped)
-		group_autogroup(cc);
-
+	if (mapped) {
+		if (group_restore(cc))
+			goto out;
+		if (group_autogroup(cc))
+			goto out;
+		if (Conf.flags & CONF_STICKY_GROUPS)
+			group_assign(sc->group_active, cc);
+		else
+			group_assign(NULL, cc);
+	}
+out:
 	XSync(X_Dpy, False);
 	XUngrabServer(X_Dpy);
 
@@ -152,9 +161,10 @@ client_delete(struct client_ctx *cc)
 	TAILQ_REMOVE(&sc->clientq, cc, entry);
 
 	xu_ewmh_net_client_list(sc);
+	xu_ewmh_net_client_list_stacking(sc);
 
-	if (cc->group != NULL)
-		TAILQ_REMOVE(&cc->group->clientq, cc, group_entry);
+	if (cc->gc != NULL)
+		TAILQ_REMOVE(&cc->gc->clientq, cc, group_entry);
 
 	if (cc == client_current())
 		client_none(sc);
@@ -194,7 +204,7 @@ client_setactive(struct client_ctx *cc)
 	if (cc->flags & CLIENT_WM_TAKE_FOCUS)
 		client_msg(cc, cwmh[WM_TAKE_FOCUS], Last_Event_Time);
 
-	if ((oldcc = client_current())) {
+	if ((oldcc = client_current()) != NULL) {
 		oldcc->flags &= ~CLIENT_ACTIVE;
 		client_draw_border(oldcc);
 	}
@@ -233,10 +243,15 @@ client_current(void)
 void
 client_toggle_freeze(struct client_ctx *cc)
 {
+	if (cc->flags & CLIENT_FULLSCREEN)
+		return;
+
 	if (cc->flags & CLIENT_FREEZE)
 		cc->flags &= ~CLIENT_FREEZE;
 	else
 		cc->flags |= CLIENT_FREEZE;
+
+	xu_ewmh_set_net_wm_state(cc);
 }
 
 void
@@ -299,7 +314,7 @@ client_toggle_maximize(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	struct geom		 area;
 
-	if (cc->flags & (CLIENT_FREEZE|CLIENT_STICKY))
+	if (cc->flags & CLIENT_FREEZE)
 		return;
 
 	if ((cc->flags & CLIENT_MAXFLAGS) == CLIENT_MAXIMIZED) {
@@ -344,7 +359,7 @@ client_toggle_vmaximize(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	struct geom		 area;
 
-	if (cc->flags & (CLIENT_FREEZE|CLIENT_STICKY))
+	if (cc->flags & CLIENT_FREEZE)
 		return;
 
 	if (cc->flags & CLIENT_VMAXIMIZED) {
@@ -376,7 +391,7 @@ client_toggle_hmaximize(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	struct geom		 area;
 
-	if (cc->flags & (CLIENT_FREEZE|CLIENT_STICKY))
+	if (cc->flags & CLIENT_FREEZE)
 		return;
 
 	if (cc->flags & CLIENT_HMAXIMIZED) {
@@ -491,9 +506,6 @@ client_ptrsave(struct client_ctx *cc)
 void
 client_hide(struct client_ctx *cc)
 {
-	if (cc->flags & CLIENT_STICKY)
-		return;
-
 	XUnmapWindow(X_Dpy, cc->win);
 
 	cc->flags &= ~CLIENT_ACTIVE;
@@ -507,9 +519,6 @@ client_hide(struct client_ctx *cc)
 void
 client_unhide(struct client_ctx *cc)
 {
-	if (cc->flags & CLIENT_STICKY)
-		return;
-
 	XMapRaised(X_Dpy, cc->win);
 
 	cc->flags &= ~CLIENT_HIDDEN;
@@ -647,29 +656,33 @@ match:
 void
 client_cycle(struct screen_ctx *sc, int flags)
 {
-	struct client_ctx	*oldcc, *newcc;
+	struct client_ctx	*newcc, *oldcc;
 	int			 again = 1;
+
+	/* For X apps that ignore events. */
+	XGrabKeyboard(X_Dpy, sc->rootwin, True,
+	    GrabModeAsync, GrabModeAsync, CurrentTime);
 
 	if (TAILQ_EMPTY(&sc->clientq))
 		return;
 
 	oldcc = client_current();
 	if (oldcc == NULL)
-		oldcc = ((flags & CWM_RCYCLE) ?
+		oldcc = (flags & CWM_RCYCLE) ?
 		    TAILQ_LAST(&sc->clientq, client_ctx_q) :
-		    TAILQ_FIRST(&sc->clientq));
+		    TAILQ_FIRST(&sc->clientq);
 
 	newcc = oldcc;
 	while (again) {
 		again = 0;
 
-		newcc = ((flags & CWM_RCYCLE) ? client_prev(newcc) :
-		    client_next(newcc));
+		newcc = (flags & CWM_RCYCLE) ? client_prev(newcc) :
+		    client_next(newcc);
 
 		/* Only cycle visible and non-ignored windows. */
-		if ((newcc->flags & (CLIENT_HIDDEN|CLIENT_IGNORE))
+		if ((newcc->flags & (CLIENT_HIDDEN | CLIENT_IGNORE))
 		    || ((flags & CWM_INGROUP) &&
-			(newcc->group != oldcc->group)))
+			(newcc->gc != oldcc->gc)))
 			again = 1;
 
 		/* Is oldcc the only non-hidden window? */
@@ -694,9 +707,10 @@ client_cycle_leave(struct screen_ctx *sc)
 
 	sc->cycling = 0;
 
-	if ((cc = client_current())) {
+	if ((cc = client_current()) != NULL) {
 		client_mtf(cc);
-		group_toggle_membership_leave(cc);
+		cc->flags &= ~CLIENT_HIGHLIGHT;
+		client_draw_border(cc);
 		XUngrabKeyboard(X_Dpy, CurrentTime);
 	}
 }
@@ -705,20 +719,20 @@ static struct client_ctx *
 client_next(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
-	struct client_ctx	*ccc;
+	struct client_ctx	*newcc;
 
-	return(((ccc = TAILQ_NEXT(cc, entry)) != NULL) ?
-	    ccc : TAILQ_FIRST(&sc->clientq));
+	return(((newcc = TAILQ_NEXT(cc, entry)) != NULL) ?
+	    newcc : TAILQ_FIRST(&sc->clientq));
 }
 
 static struct client_ctx *
 client_prev(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
-	struct client_ctx	*ccc;
+	struct client_ctx	*newcc;
 
-	return(((ccc = TAILQ_PREV(cc, client_ctx_q, entry)) != NULL) ?
-	    ccc : TAILQ_LAST(&sc->clientq, client_ctx_q));
+	return(((newcc = TAILQ_PREV(cc, client_ctx_q, entry)) != NULL) ?
+	    newcc : TAILQ_LAST(&sc->clientq, client_ctx_q));
 }
 
 static void
@@ -727,7 +741,7 @@ client_placecalc(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	int			 xslack, yslack;
 
-	if (cc->hint.flags & (USPosition|PPosition)) {
+	if (cc->hint.flags & (USPosition | PPosition)) {
 		/*
 		 * Ignore XINERAMA screens, just make sure it's somewhere
 		 * in the virtual desktop. else it stops people putting xterms
@@ -901,8 +915,8 @@ client_transient(struct client_ctx *cc)
 	Window			 trans;
 
 	if (XGetTransientForHint(X_Dpy, cc->win, &trans)) {
-		if ((tc = client_find(trans)) && tc->group) {
-			group_movetogroup(cc, tc->group->num);
+		if ((tc = client_find(trans)) != NULL && tc->gc) {
+			group_movetogroup(cc, tc->gc->num);
 			if (tc->flags & CLIENT_IGNORE)
 				cc->flags |= CLIENT_IGNORE;
 		}
@@ -947,7 +961,7 @@ void
 client_htile(struct client_ctx *cc)
 {
 	struct client_ctx	*ci;
-	struct group_ctx 	*gc = cc->group;
+	struct group_ctx 	*gc = cc->gc;
 	struct screen_ctx 	*sc = cc->sc;
 	struct geom 		 area;
 	int 			 i, n, mh, x, h, w;
@@ -1006,7 +1020,7 @@ void
 client_vtile(struct client_ctx *cc)
 {
 	struct client_ctx	*ci;
-	struct group_ctx 	*gc = cc->group;
+	struct group_ctx 	*gc = cc->gc;
 	struct screen_ctx 	*sc = cc->sc;
 	struct geom 		 area;
 	int 			 i, n, mw, y, h, w;
