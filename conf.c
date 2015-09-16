@@ -400,7 +400,7 @@ static const struct {
 	{ "vmaximize", kbfunc_client_toggle_vmaximize, CWM_WIN, {0} },
 	{ "hmaximize", kbfunc_client_toggle_hmaximize, CWM_WIN, {0} },
 	{ "freeze", kbfunc_client_toggle_freeze, CWM_WIN, {0} },
-	{ "restart", kbfunc_cwm_status, 0, {.i = CWM_RESTART} },
+	{ "restart", kbfunc_cwm_status, 0, {.i = CWM_EXECWM} },
 	{ "quit", kbfunc_cwm_status, 0, {.i = CWM_QUIT} },
 	{ "exec", kbfunc_exec, 0, {.i = CWM_EXEC_PROGRAM} },
 	{ "exec_wm", kbfunc_exec, 0, {.i = CWM_EXEC_WM} },
