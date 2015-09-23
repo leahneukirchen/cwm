@@ -46,12 +46,12 @@ struct screen_ctx_q		 Screenq = TAILQ_HEAD_INITIALIZER(Screenq);
 int				 HasRandr, Randr_ev;
 struct conf			 Conf;
 const char			*homedir;
+char				*wm_argv;
 volatile sig_atomic_t		 cwm_status;
 
 static void	sighdlr(int);
 static int	x_errorhandler(Display *, XErrorEvent *);
 static void	x_init(const char *);
-static void	x_restart(char **);
 static void	x_teardown(void);
 static int	x_wmerrorhandler(Display *, XErrorEvent *);
 
@@ -60,7 +60,6 @@ main(int argc, char **argv)
 {
 	const char	*conf_file = NULL;
 	char		*conf_path, *display_name = NULL;
-	char		**cwm_argv;
 	int		 ch;
 	struct passwd	*pw;
 
@@ -68,7 +67,7 @@ main(int argc, char **argv)
 		warnx("no locale support");
 	mbtowc(NULL, NULL, MB_CUR_MAX);
 
-	cwm_argv = argv;
+	wm_argv = u_argv(argv);
 	while ((ch = getopt(argc, argv, "c:d:")) != -1) {
 		switch (ch) {
 		case 'c':
@@ -117,8 +116,8 @@ main(int argc, char **argv)
 	while (cwm_status == CWM_RUNNING)
 		xev_process();
 	x_teardown();
-	if (cwm_status == CWM_RESTART)
-		x_restart(cwm_argv);
+	if (cwm_status == CWM_EXECWM)
+		u_exec(wm_argv);
 
 	return(0);
 }
@@ -143,13 +142,6 @@ x_init(const char *dpyname)
 
 	for (i = 0; i < ScreenCount(X_Dpy); i++)
 		screen_init(i);
-}
-
-static void
-x_restart(char **args)
-{
-	(void)setsid();
-	(void)execvp(args[0], args);
 }
 
 static void

@@ -48,6 +48,9 @@ client_init(Window win, struct screen_ctx *sc)
 	struct client_ctx	*cc;
 	XWindowAttributes	 wattr;
 	int			 mapped;
+	Window			 rwin, cwin;
+	int			 x, y, wx, wy, activate = 0;
+	unsigned int		 mask;
 
 	if (win == None)
 		return(NULL);
@@ -97,6 +100,10 @@ client_init(Window win, struct screen_ctx *sc)
 		client_move(cc);
 		if ((cc->wmh) && (cc->wmh->flags & StateHint))
 			client_set_wm_state(cc, cc->wmh->initial_state);
+	} else {
+		if ((XQueryPointer(X_Dpy, cc->win, &rwin, &cwin,
+		    &x, &y, &wx, &wy, &mask)) && (cwin != None))
+			activate = 1;
 	}
 
 	XSelectInput(X_Dpy, cc->win, ColormapChangeMask | EnterWindowMask |
@@ -133,6 +140,9 @@ client_init(Window win, struct screen_ctx *sc)
 out:
 	XSync(X_Dpy, False);
 	XUngrabServer(X_Dpy);
+
+	if (activate)
+		client_setactive(cc);
 
 	return(cc);
 }
