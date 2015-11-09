@@ -57,7 +57,7 @@ void
 kbfunc_client_moveresize(struct client_ctx *cc, union arg *arg)
 {
 	struct screen_ctx	*sc = cc->sc;
-	struct geom		 area;
+	struct region_ctx	*rc;
 	int			 x, y, flags, amt;
 	unsigned int		 mx, my;
 
@@ -101,15 +101,15 @@ kbfunc_client_moveresize(struct client_ctx *cc, union arg *arg)
 		if (cc->geom.y > sc->view.h - 1)
 			cc->geom.y = sc->view.h - 1;
 
-		area = screen_area(sc,
+		rc = region_find(sc,
 		    cc->geom.x + cc->geom.w / 2,
-		    cc->geom.y + cc->geom.h / 2, CWM_GAP);
+		    cc->geom.y + cc->geom.h / 2);
 		cc->geom.x += client_snapcalc(cc->geom.x,
 		    cc->geom.x + cc->geom.w + (cc->bwidth * 2),
-		    area.x, area.x + area.w, sc->snapdist);
+		    rc->work.x, rc->work.x + rc->work.w, sc->snapdist);
 		cc->geom.y += client_snapcalc(cc->geom.y,
 		    cc->geom.y + cc->geom.h + (cc->bwidth * 2),
-		    area.y, area.y + area.h, sc->snapdist);
+		    rc->work.y, rc->work.y + rc->work.h, sc->snapdist);
 
 		client_move(cc);
 		xu_ptr_getpos(cc->win, &x, &y);

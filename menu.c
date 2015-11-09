@@ -331,6 +331,7 @@ static void
 menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 {
 	struct screen_ctx	*sc = mc->sc;
+	struct region_ctx	*rc;
 	struct menu		*mi;
 	struct geom		 area;
 	int			 n, xsave, ysave;
@@ -371,7 +372,8 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 		mc->num++;
 	}
 
-	area = screen_area(sc, mc->geom.x, mc->geom.y, CWM_GAP);
+	rc = region_find(sc, mc->geom.x, mc->geom.y);
+	area = rc->work;
 	area.w += area.x - Conf.bwidth * 2;
 	area.h += area.y - Conf.bwidth * 2;
 
