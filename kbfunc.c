@@ -101,9 +101,8 @@ kbfunc_client_moveresize(struct client_ctx *cc, union arg *arg)
 		if (cc->geom.y > sc->view.h - 1)
 			cc->geom.y = sc->view.h - 1;
 
-		rc = region_find(sc,
-		    cc->geom.x + cc->geom.w / 2,
-		    cc->geom.y + cc->geom.h / 2);
+		xu_ptr_getpos(cc->win, &x, &y);
+		rc = region_find(sc, x + 1, y + 1);
 		cc->geom.x += client_snapcalc(cc->geom.x,
 		    cc->geom.x + cc->geom.w + (cc->bwidth * 2),
 		    rc->work.x, rc->work.x + rc->work.w, sc->snapdist);

@@ -150,8 +150,7 @@ mousefunc_client_move(struct client_ctx *cc, union arg *arg)
 			cc->geom.y = ev.xmotion.y_root - py - cc->bwidth;
 
 			rc = region_find(sc,
-			    cc->geom.x + cc->geom.w / 2,
-			    cc->geom.y + cc->geom.h / 2);
+			    ev.xmotion.x_root, ev.xmotion.y_root);
 			cc->geom.x += client_snapcalc(cc->geom.x,
 			    cc->geom.x + cc->geom.w + (cc->bwidth * 2),
 			    rc->work.x, rc->work.x + rc->work.w, sc->snapdist);
