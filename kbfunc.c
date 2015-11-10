@@ -142,7 +142,7 @@ kbfunc_client_moveresize(struct client_ctx *cc, union arg *arg)
 }
 
 void
-kbfunc_client_search(struct client_ctx *cc, union arg *arg)
+kbfunc_menu_client(struct client_ctx *cc, union arg *arg)
 {
 	struct screen_ctx	*sc = cc->sc;
 	struct client_ctx	*old_cc;
@@ -230,13 +230,13 @@ kbfunc_client_hide(struct client_ctx *cc, union arg *arg)
 }
 
 void
-kbfunc_cmdexec(struct client_ctx *cc, union arg *arg)
+kbfunc_exec(struct client_ctx *cc, union arg *arg)
 {
 	u_spawn(arg->c);
 }
 
 void
-kbfunc_term(struct client_ctx *cc, union arg *arg)
+kbfunc_exec_term(struct client_ctx *cc, union arg *arg)
 {
 	struct cmd *cmd;
 
@@ -247,7 +247,7 @@ kbfunc_term(struct client_ctx *cc, union arg *arg)
 }
 
 void
-kbfunc_lock(struct client_ctx *cc, union arg *arg)
+kbfunc_exec_lock(struct client_ctx *cc, union arg *arg)
 {
 	struct cmd *cmd;
 
@@ -258,7 +258,7 @@ kbfunc_lock(struct client_ctx *cc, union arg *arg)
 }
 
 void
-kbfunc_exec(struct client_ctx *cc, union arg *arg)
+kbfunc_menu_exec(struct client_ctx *cc, union arg *arg)
 {
 #define NPATHS 256
 	struct screen_ctx	*sc = cc->sc;
@@ -272,14 +272,14 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 	int			 l, i, cmd = arg->i;
 
 	switch (cmd) {
-	case CWM_EXEC_PROGRAM:
+	case CWM_MENU_EXEC:
 		label = "exec";
 		break;
-	case CWM_EXEC_WM:
+	case CWM_MENU_EXEC_WM:
 		label = "wm";
 		break;
 	default:
-		errx(1, "kbfunc_exec: invalid cmd %d", cmd);
+		errx(1, "kbfunc_menu_exec: invalid cmd %d", cmd);
 		/*NOTREACHED*/
 	}
 
@@ -321,11 +321,11 @@ kbfunc_exec(struct client_ctx *cc, union arg *arg)
 		if (mi->text[0] == '\0')
 			goto out;
 		switch (cmd) {
-		case CWM_EXEC_PROGRAM:
+		case CWM_MENU_EXEC:
 			u_spawn(mi->text);
 			break;
-		case CWM_EXEC_WM:
-			cwm_status = CWM_EXECWM;
+		case CWM_MENU_EXEC_WM:
+			cwm_status = CWM_EXEC_WM;
 			free(wm_argv);
 			wm_argv = xstrdup(mi->text);
 			break;
@@ -341,7 +341,7 @@ out:
 }
 
 void
-kbfunc_ssh(struct client_ctx *cc, union arg *arg)
+kbfunc_menu_ssh(struct client_ctx *cc, union arg *arg)
 {
 	struct screen_ctx	*sc = cc->sc;
 	struct cmd		*cmd;
@@ -361,7 +361,7 @@ kbfunc_ssh(struct client_ctx *cc, union arg *arg)
 	TAILQ_INIT(&menuq);
 
 	if ((fp = fopen(Conf.known_hosts, "r")) == NULL) {
-		warn("kbfunc_ssh: %s", Conf.known_hosts);
+		warn("kbfunc_menu_ssh: %s", Conf.known_hosts);
 		goto menu;
 	}
 
@@ -459,7 +459,7 @@ kbfunc_client_nogroup(struct client_ctx *cc, union arg *arg)
 void
 kbfunc_client_grouptoggle(struct client_ctx *cc, union arg *arg)
 {
-	if (arg->i == 0) {
+	if (arg->i == CWM_KBD) {
 		/* For X apps that steal events. */
 		XGrabKeyboard(X_Dpy, cc->win, True,
 		    GrabModeAsync, GrabModeAsync, CurrentTime);
@@ -517,13 +517,13 @@ kbfunc_cwm_status(struct client_ctx *cc, union arg *arg)
 }
 
 void
-kbfunc_tile(struct client_ctx *cc, union arg *arg)
+kbfunc_client_tile(struct client_ctx *cc, union arg *arg)
 {
 	switch (arg->i) {
-	case CWM_TILE_HORIZ:
+	case CWM_CLIENT_TILE_HORIZ:
 		client_htile(cc);
 		break;
-	case CWM_TILE_VERT:
+	case CWM_CLIENT_TILE_VERT:
 		client_vtile(cc);
 		break;
 	}

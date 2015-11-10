@@ -272,7 +272,7 @@ group_cycle(struct screen_ctx *sc, int flags)
 
 	newgc = oldgc;
 	for (;;) {
-		newgc = (flags & CWM_RCYCLE) ? group_prev(newgc) :
+		newgc = (flags & CWM_CLIENT_RCYCLE) ? group_prev(newgc) :
 		    group_next(newgc);
 
 		if (newgc == oldgc)

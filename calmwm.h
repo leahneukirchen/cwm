@@ -60,35 +60,35 @@
 #define CWM_LEFT		0x0040
 #define CWM_RIGHT		0x0080
 
-/* exec */
-#define	CWM_EXEC_PROGRAM	0x0001
-#define	CWM_EXEC_WM		0x0002
+#define CWM_CLIENT_CYCLE	0x0001
+#define CWM_CLIENT_RCYCLE	0x0002
+#define CWM_CLIENT_CYCLE_INGRP	0x0004
 
-/* cycle */
-#define CWM_CYCLE		0x0001
-#define CWM_RCYCLE		0x0002
-#define CWM_INGROUP		0x0004
+#define CWM_CLIENT_TILE_HORIZ	0x0001
+#define CWM_CLIENT_TILE_VERT	0x0002
 
-/* menu */
+#define CWM_MENU_EXEC		0x0001
+#define CWM_MENU_EXEC_WM	0x0002
+
 #define CWM_MENU_DUMMY		0x0001
 #define CWM_MENU_FILE		0x0002
 #define CWM_MENU_LIST		0x0004
 
-#define CWM_TILE_HORIZ 		0x0001
-#define CWM_TILE_VERT 		0x0002
+#define CWM_KBD			0x0001
+#define CWM_MOUSE		0x0002
 
-#define CWM_WIN			0x0001
-#define CWM_CMD			0x0002
+#define CWM_CONTEXT_NONE	0x0000
+#define CWM_CONTEXT_CLIENT	0x0001
+#define CWM_CONTEXT_SCREEN	0x0002
 
 #define CWM_QUIT		0x0000
 #define CWM_RUNNING		0x0001
-#define CWM_EXECWM		0x0002
+#define CWM_EXEC_WM		0x0002
 
 union arg {
 	char	*c;
 	int	 i;
 };
-
 union press {
 	KeySym		 keysym;
 	unsigned int	 button;
@@ -102,7 +102,6 @@ enum cursor_font {
 	CF_RESIZE,
 	CF_NITEMS
 };
-
 enum color {
 	CWM_COLOR_BORDER_ACTIVE,
 	CWM_COLOR_BORDER_INACTIVE,
@@ -251,7 +250,7 @@ struct binding {
 	union arg		 argument;
 	unsigned int		 modmask;
 	union press		 press;
-	int			 flags;
+	int			 context;
 };
 TAILQ_HEAD(keybinding_q, binding);
 TAILQ_HEAD(mousebinding_q, binding);
@@ -479,7 +478,7 @@ void			 kbfunc_client_nogroup(struct client_ctx *,
 			     union arg *);
 void			 kbfunc_client_raise(struct client_ctx *, union arg *);
 void			 kbfunc_client_rcycle(struct client_ctx *, union arg *);
-void			 kbfunc_client_search(struct client_ctx *, union arg *);
+void 			 kbfunc_client_tile(struct client_ctx *, union arg *);
 void			 kbfunc_client_toggle_freeze(struct client_ctx *,
     			     union arg *);
 void			 kbfunc_client_toggle_fullscreen(struct client_ctx *,
@@ -492,24 +491,24 @@ void			 kbfunc_client_toggle_sticky(struct client_ctx *,
     			     union arg *);
 void			 kbfunc_client_toggle_vmaximize(struct client_ctx *,
 			     union arg *);
-void			 kbfunc_cmdexec(struct client_ctx *, union arg *);
 void			 kbfunc_cwm_status(struct client_ctx *, union arg *);
 void			 kbfunc_exec(struct client_ctx *, union arg *);
-void			 kbfunc_lock(struct client_ctx *, union arg *);
+void			 kbfunc_exec_lock(struct client_ctx *, union arg *);
+void			 kbfunc_exec_term(struct client_ctx *, union arg *);
+void			 kbfunc_menu_exec(struct client_ctx *, union arg *);
+void			 kbfunc_menu_client(struct client_ctx *, union arg *);
 void			 kbfunc_menu_cmd(struct client_ctx *, union arg *);
 void			 kbfunc_menu_group(struct client_ctx *, union arg *);
-void			 kbfunc_ssh(struct client_ctx *, union arg *);
-void			 kbfunc_term(struct client_ctx *, union arg *);
-void 			 kbfunc_tile(struct client_ctx *, union arg *);
+void			 kbfunc_menu_ssh(struct client_ctx *, union arg *);
 
 void			 mousefunc_client_move(struct client_ctx *,
     			    union arg *);
 void			 mousefunc_client_resize(struct client_ctx *,
     			    union arg *);
+void			 mousefunc_menu_client(struct client_ctx *,
+			    union arg *);
 void			 mousefunc_menu_cmd(struct client_ctx *, union arg *);
 void			 mousefunc_menu_group(struct client_ctx *, union arg *);
-void			 mousefunc_menu_unhide(struct client_ctx *,
-    			    union arg *);
 
 struct menu  		*menu_filter(struct screen_ctx *, struct menu_q *,
 			     const char *, const char *, int,

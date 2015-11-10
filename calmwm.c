@@ -116,7 +116,7 @@ main(int argc, char **argv)
 	while (cwm_status == CWM_RUNNING)
 		xev_process();
 	x_teardown();
-	if (cwm_status == CWM_EXECWM)
+	if (cwm_status == CWM_EXEC_WM)
 		u_exec(wm_argv);
 
 	return(0);
