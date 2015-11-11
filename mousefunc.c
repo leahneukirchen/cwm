@@ -123,7 +123,7 @@ mousefunc_client_move(struct client_ctx *cc, union arg *arg)
 	XEvent			 ev;
 	Time			 ltime = 0;
 	struct screen_ctx	*sc = cc->sc;
-	struct region_ctx	*rc;
+	struct geom		 area;
 	int			 px, py;
 
 	client_raise(cc);
@@ -149,14 +149,15 @@ mousefunc_client_move(struct client_ctx *cc, union arg *arg)
 			cc->geom.x = ev.xmotion.x_root - px - cc->bwidth;
 			cc->geom.y = ev.xmotion.y_root - py - cc->bwidth;
 
-			rc = region_find(sc,
-			    ev.xmotion.x_root, ev.xmotion.y_root);
+			area = screen_area(sc,
+			    cc->geom.x + cc->geom.w / 2,
+			    cc->geom.y + cc->geom.h / 2, CWM_GAP);
 			cc->geom.x += client_snapcalc(cc->geom.x,
 			    cc->geom.x + cc->geom.w + (cc->bwidth * 2),
-			    rc->work.x, rc->work.x + rc->work.w, sc->snapdist);
+			    area.x, area.x + area.w, sc->snapdist);
 			cc->geom.y += client_snapcalc(cc->geom.y,
 			    cc->geom.y + cc->geom.h + (cc->bwidth * 2),
-			    rc->work.y, rc->work.y + rc->work.h, sc->snapdist);
+			    area.y, area.y + area.h, sc->snapdist);
 
 			client_move(cc);
 			break;

@@ -138,6 +138,24 @@ region_find(struct screen_ctx *sc, int x, int y)
 	return(rc);
 }
 
+struct geom
+screen_area(struct screen_ctx *sc, int x, int y, int flags)
+{
+	struct region_ctx	*rc;
+	struct geom		 area = sc->work;
+
+	TAILQ_FOREACH(rc, &sc->regionq, entry) {
+		if ((x >= rc->area.x) && (x < (rc->area.x + rc->area.w)) &&
+		    (y >= rc->area.y) && (y < (rc->area.y + rc->area.h))) {
+			area = rc->area;
+			break;
+		}
+	}
+	if (flags & CWM_GAP)
+		area = screen_apply_gap(sc, area);
+	return(area);
+}
+
 void
 screen_update_geometry(struct screen_ctx *sc)
 {
@@ -171,6 +189,10 @@ screen_update_geometry(struct screen_ctx *sc)
 
 			rc = xmalloc(sizeof(*rc));
 			rc->num = i;
+			rc->area.x = ci->x;
+			rc->area.y = ci->y;
+			rc->area.w = ci->width;
+			rc->area.h = ci->height;
 			rc->view.x = ci->x;
 			rc->view.y = ci->y;
 			rc->view.w = ci->width;
