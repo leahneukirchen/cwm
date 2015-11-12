@@ -196,7 +196,7 @@ mousefunc_menu_group(struct client_ctx *cc, union arg *arg)
 }
 
 void
-mousefunc_menu_unhide(struct client_ctx *cc, union arg *arg)
+mousefunc_menu_client(struct client_ctx *cc, union arg *arg)
 {
 	struct screen_ctx	*sc = cc->sc;
 	struct client_ctx	*old_cc;
