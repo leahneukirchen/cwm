@@ -839,6 +839,8 @@ client_getsizehints(struct client_ctx *cc)
 	}
 	cc->hint.incw = MAX(1, cc->hint.incw);
 	cc->hint.inch = MAX(1, cc->hint.inch);
+	cc->hint.minw = MAX(1, cc->hint.minw);
+	cc->hint.minh = MAX(1, cc->hint.minh);
 
 	if (size.flags & PAspect) {
 		if (size.min_aspect.x > 0)
