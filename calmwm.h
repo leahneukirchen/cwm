@@ -50,15 +50,13 @@
 #define KEYMASK		(KeyPressMask | ExposureMask)
 #define IGNOREMODMASK	(LockMask | Mod2Mask | 0x2000)
 
-/* kb movement */
-#define CWM_MOVE		0x0001
-#define CWM_RESIZE		0x0002
-#define CWM_PTRMOVE		0x0004
-#define CWM_BIGMOVE		0x0008
-#define CWM_UP			0x0010
-#define CWM_DOWN		0x0020
-#define CWM_LEFT		0x0040
-#define CWM_RIGHT		0x0080
+/* direction/amount */
+#define CWM_UP			0x0001
+#define CWM_DOWN		0x0002
+#define CWM_LEFT		0x0004
+#define CWM_RIGHT		0x0008
+#define CWM_BIGAMOUNT		0x0010
+#define DIRECTIONMASK	(CWM_UP | CWM_DOWN | CWM_LEFT | CWM_RIGHT)
 
 #define CWM_CLIENT_CYCLE	0x0001
 #define CWM_CLIENT_RCYCLE	0x0002
@@ -475,14 +473,14 @@ void			 kbfunc_client_grouptoggle(struct client_ctx *,
 void			 kbfunc_client_hide(struct client_ctx *, union arg *);
 void			 kbfunc_client_label(struct client_ctx *, union arg *);
 void			 kbfunc_client_lower(struct client_ctx *, union arg *);
-void			 kbfunc_client_moveresize(struct client_ctx *,
-			     union arg *);
+void			 kbfunc_client_move(struct client_ctx *, union arg *);
 void			 kbfunc_client_movetogroup(struct client_ctx *,
 			     union arg *);
 void			 kbfunc_client_nogroup(struct client_ctx *,
 			     union arg *);
 void			 kbfunc_client_raise(struct client_ctx *, union arg *);
 void			 kbfunc_client_rcycle(struct client_ctx *, union arg *);
+void			 kbfunc_client_resize(struct client_ctx *, union arg *);
 void 			 kbfunc_client_tile(struct client_ctx *, union arg *);
 void			 kbfunc_client_toggle_freeze(struct client_ctx *,
     			     union arg *);
@@ -505,6 +503,7 @@ void			 kbfunc_menu_client(struct client_ctx *, union arg *);
 void			 kbfunc_menu_cmd(struct client_ctx *, union arg *);
 void			 kbfunc_menu_group(struct client_ctx *, union arg *);
 void			 kbfunc_menu_ssh(struct client_ctx *, union arg *);
+void			 kbfunc_ptrmove(struct client_ctx *, union arg *);
 
 void			 mousefunc_client_move(struct client_ctx *,
     			    union arg *);
