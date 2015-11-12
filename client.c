@@ -678,7 +678,7 @@ client_cycle(struct screen_ctx *sc, int flags)
 
 	oldcc = client_current();
 	if (oldcc == NULL)
-		oldcc = (flags & CWM_RCYCLE) ?
+		oldcc = (flags & CWM_CLIENT_RCYCLE) ?
 		    TAILQ_LAST(&sc->clientq, client_ctx_q) :
 		    TAILQ_FIRST(&sc->clientq);
 
@@ -686,12 +686,12 @@ client_cycle(struct screen_ctx *sc, int flags)
 	while (again) {
 		again = 0;
 
-		newcc = (flags & CWM_RCYCLE) ? client_prev(newcc) :
+		newcc = (flags & CWM_CLIENT_RCYCLE) ? client_prev(newcc) :
 		    client_next(newcc);
 
 		/* Only cycle visible and non-ignored windows. */
 		if ((newcc->flags & (CLIENT_HIDDEN | CLIENT_IGNORE))
-		    || ((flags & CWM_INGROUP) &&
+		    || ((flags & CWM_CLIENT_CYCLE_INGRP) &&
 			(newcc->gc != oldcc->gc)))
 			again = 1;
 
@@ -839,6 +839,8 @@ client_getsizehints(struct client_ctx *cc)
 	}
 	cc->hint.incw = MAX(1, cc->hint.incw);
 	cc->hint.inch = MAX(1, cc->hint.inch);
+	cc->hint.minw = MAX(1, cc->hint.minw);
+	cc->hint.minh = MAX(1, cc->hint.minh);
 
 	if (size.flags & PAspect) {
 		if (size.min_aspect.x > 0)

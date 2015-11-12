@@ -124,6 +124,20 @@ screen_updatestackingorder(struct screen_ctx *sc)
 	}
 }
 
+struct region_ctx *
+region_find(struct screen_ctx *sc, int x, int y)
+{
+	struct region_ctx	*rc;
+
+	TAILQ_FOREACH(rc, &sc->regionq, entry) {
+		if ((x >= rc->view.x) && (x < (rc->view.x + rc->view.w)) &&
+		    (y >= rc->view.y) && (y < (rc->view.y + rc->view.h))) {
+			break;
+		}
+	}
+	return(rc);
+}
+
 struct geom
 screen_area(struct screen_ctx *sc, int x, int y, int flags)
 {
@@ -146,13 +160,11 @@ void
 screen_update_geometry(struct screen_ctx *sc)
 {
 	struct region_ctx	*rc;
-	int			 i;
 
 	sc->view.x = 0;
 	sc->view.y = 0;
 	sc->view.w = DisplayWidth(X_Dpy, sc->which);
 	sc->view.h = DisplayHeight(X_Dpy, sc->which);
-
 	sc->work = screen_apply_gap(sc, sc->view);
 
 	while ((rc = TAILQ_FIRST(&sc->regionq)) != NULL) {
@@ -163,6 +175,7 @@ screen_update_geometry(struct screen_ctx *sc)
 	if (HasRandr) {
 		XRRScreenResources *sr;
 		XRRCrtcInfo *ci;
+		int i;
 
 		sr = XRRGetScreenResources(X_Dpy, sc->rootwin);
 		for (i = 0, ci = NULL; i < sr->ncrtc; i++) {
@@ -180,11 +193,25 @@ screen_update_geometry(struct screen_ctx *sc)
 			rc->area.y = ci->y;
 			rc->area.w = ci->width;
 			rc->area.h = ci->height;
+			rc->view.x = ci->x;
+			rc->view.y = ci->y;
+			rc->view.w = ci->width;
+			rc->view.h = ci->height;
+			rc->work = screen_apply_gap(sc, rc->view);
 			TAILQ_INSERT_TAIL(&sc->regionq, rc, entry);
 
 			XRRFreeCrtcInfo(ci);
 		}
 		XRRFreeScreenResources(sr);
+	} else {
+		rc = xmalloc(sizeof(*rc));
+		rc->num = 0;
+		rc->view.x = 0;
+		rc->view.y = 0;
+		rc->view.w = DisplayWidth(X_Dpy, sc->which);
+		rc->view.h = DisplayHeight(X_Dpy, sc->which);
+		rc->work = screen_apply_gap(sc, rc->view);
+		TAILQ_INSERT_TAIL(&sc->regionq, rc, entry);
 	}
 
 	xu_ewmh_net_desktop_geometry(sc);
