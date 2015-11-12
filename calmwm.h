@@ -462,12 +462,7 @@ void			 screen_update_geometry(struct screen_ctx *);
 void			 screen_updatestackingorder(struct screen_ctx *);
 
 void			 kbfunc_client_cycle(struct client_ctx *, union arg *);
-void			 kbfunc_client_cyclegroup(struct client_ctx *,
-			     union arg *);
 void			 kbfunc_client_delete(struct client_ctx *, union arg *);
-void			 kbfunc_client_group(struct client_ctx *, union arg *);
-void			 kbfunc_client_grouponly(struct client_ctx *,
-			     union arg *);
 void			 kbfunc_client_grouptoggle(struct client_ctx *,
 			     union arg *);
 void			 kbfunc_client_hide(struct client_ctx *, union arg *);
@@ -475,8 +470,6 @@ void			 kbfunc_client_label(struct client_ctx *, union arg *);
 void			 kbfunc_client_lower(struct client_ctx *, union arg *);
 void			 kbfunc_client_move(struct client_ctx *, union arg *);
 void			 kbfunc_client_movetogroup(struct client_ctx *,
-			     union arg *);
-void			 kbfunc_client_nogroup(struct client_ctx *,
 			     union arg *);
 void			 kbfunc_client_raise(struct client_ctx *, union arg *);
 void			 kbfunc_client_rcycle(struct client_ctx *, union arg *);
@@ -498,6 +491,11 @@ void			 kbfunc_cwm_status(struct client_ctx *, union arg *);
 void			 kbfunc_exec(struct client_ctx *, union arg *);
 void			 kbfunc_exec_lock(struct client_ctx *, union arg *);
 void			 kbfunc_exec_term(struct client_ctx *, union arg *);
+void			 kbfunc_group_alltoggle(struct client_ctx *,
+			     union arg *);
+void			 kbfunc_group_cycle(struct client_ctx *, union arg *);
+void			 kbfunc_group_only(struct client_ctx *, union arg *);
+void			 kbfunc_group_toggle(struct client_ctx *, union arg *);
 void			 kbfunc_menu_exec(struct client_ctx *, union arg *);
 void			 kbfunc_menu_client(struct client_ctx *, union arg *);
 void			 kbfunc_menu_cmd(struct client_ctx *, union arg *);
