@@ -113,6 +113,10 @@ main(int argc, char **argv)
 
 	x_init(display_name);
 	cwm_status = CWM_RUNNING;
+
+	if (pledge("stdio rpath proc exec", NULL) == -1)
+		err(1, "pledge");
+
 	while (cwm_status == CWM_RUNNING)
 		xev_process();
 	x_teardown();
