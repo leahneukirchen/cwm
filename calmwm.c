@@ -220,7 +220,7 @@ sighdlr(int sig)
 	errno = save_errno;
 }
 
-void
+__dead void
 usage(void)
 {
 	extern char	*__progname;
