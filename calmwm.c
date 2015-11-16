@@ -114,8 +114,10 @@ main(int argc, char **argv)
 	x_init(display_name);
 	cwm_status = CWM_RUNNING;
 
+#ifdef __OpenBSD__
 	if (pledge("stdio rpath proc exec", NULL) == -1)
 		err(1, "pledge");
+#endif
 
 	while (cwm_status == CWM_RUNNING)
 		xev_process();
