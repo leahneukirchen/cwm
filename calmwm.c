@@ -113,10 +113,16 @@ main(int argc, char **argv)
 
 	x_init(display_name);
 	cwm_status = CWM_RUNNING;
+
+#ifdef __OpenBSD__
+	if (pledge("stdio rpath proc exec", NULL) == -1)
+		err(1, "pledge");
+#endif
+
 	while (cwm_status == CWM_RUNNING)
 		xev_process();
 	x_teardown();
-	if (cwm_status == CWM_EXECWM)
+	if (cwm_status == CWM_EXEC_WM)
 		u_exec(wm_argv);
 
 	return(0);
@@ -214,7 +220,7 @@ sighdlr(int sig)
 	errno = save_errno;
 }
 
-void
+__dead void
 usage(void)
 {
 	extern char	*__progname;

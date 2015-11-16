@@ -232,7 +232,7 @@ xev_handle_buttonpress(XEvent *ee)
 
 	if (mb == NULL)
 		return;
-	if (mb->flags & CWM_WIN) {
+	if (mb->context == CWM_CONTEXT_CLIENT) {
 		if (((cc = client_find(e->window)) == NULL) &&
 		    (cc = client_current()) == NULL)
 			return;
@@ -285,7 +285,7 @@ xev_handle_keypress(XEvent *ee)
 
 	if (kb == NULL)
 		return;
-	if (kb->flags & CWM_WIN) {
+	if (kb->context == CWM_CONTEXT_CLIENT) {
 		if (((cc = client_find(e->window)) == NULL) &&
 		    (cc = client_current()) == NULL)
 			return;
