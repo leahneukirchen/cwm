@@ -32,20 +32,7 @@
 
 #include "calmwm.h"
 
-static void	mousefunc_sweep_calc(struct client_ctx *, int, int, int, int);
 static void	mousefunc_sweep_draw(struct client_ctx *);
-
-static void
-mousefunc_sweep_calc(struct client_ctx *cc, int x, int y, int mx, int my)
-{
-	cc->geom.w = abs(x - mx) - cc->bwidth;
-	cc->geom.h = abs(y - my) - cc->bwidth;
-
-	client_applysizehints(cc);
-
-	cc->geom.x = (x <= mx) ? x : x - cc->geom.w;
-	cc->geom.y = (y <= my) ? y : y - cc->geom.h;
-}
 
 static void
 mousefunc_sweep_draw(struct client_ctx *cc)
@@ -94,8 +81,13 @@ mousefunc_client_resize(struct client_ctx *cc, union arg *arg)
 				continue;
 			ltime = ev.xmotion.time;
 
-			mousefunc_sweep_calc(cc, x, y,
-			    ev.xmotion.x_root, ev.xmotion.y_root);
+			cc->geom.w = abs(x - ev.xmotion.x_root) - cc->bwidth;
+			cc->geom.h = abs(y - ev.xmotion.y_root) - cc->bwidth;
+			cc->geom.x = (x <= ev.xmotion.x_root) ?
+				x : x - cc->geom.w;
+			cc->geom.y = (y <= ev.xmotion.y_root) ?
+				y : y - cc->geom.h;
+			client_applysizehints(cc);
 			client_resize(cc, 1);
 			mousefunc_sweep_draw(cc);
 			break;
@@ -158,7 +150,6 @@ mousefunc_client_move(struct client_ctx *cc, union arg *arg)
 			cc->geom.y += client_snapcalc(cc->geom.y,
 			    cc->geom.y + cc->geom.h + (cc->bwidth * 2),
 			    area.y, area.y + area.h, sc->snapdist);
-
 			client_move(cc);
 			break;
 		case ButtonRelease:
