@@ -38,7 +38,7 @@
 
 extern sig_atomic_t	 cwm_status;
 
-static void kbfunc_amount(int, unsigned int *, unsigned int *);
+static void kbfunc_amount(int, int, unsigned int *, unsigned int *);
 
 void
 kbfunc_client_lower(struct client_ctx *cc, union arg *arg)
@@ -54,12 +54,10 @@ kbfunc_client_raise(struct client_ctx *cc, union arg *arg)
 }
 
 static void
-kbfunc_amount(int flags, unsigned int *mx, unsigned int *my)
+kbfunc_amount(int flags, int amt, unsigned int *mx, unsigned int *my)
 {
 #define CWM_FACTOR 10
-	int	amt;
 
-	amt = Conf.mamount;
 	if (flags & CWM_BIGAMOUNT)
 		amt *= CWM_FACTOR;
 
@@ -86,7 +84,7 @@ kbfunc_ptrmove(struct client_ctx *cc, union arg *arg)
 	int			 x, y;
 	unsigned int		 mx = 0, my = 0;
 
-	kbfunc_amount(arg->i, &mx, &my);
+	kbfunc_amount(arg->i, Conf.mamount, &mx, &my);
 
 	xu_ptr_getpos(sc->rootwin, &x, &y);
 	xu_ptr_setpos(sc->rootwin, x + mx, y + my);
@@ -103,7 +101,7 @@ kbfunc_client_move(struct client_ctx *cc, union arg *arg)
 	if (cc->flags & CLIENT_FREEZE)
 		return;
 
-	kbfunc_amount(arg->i, &mx, &my);
+	kbfunc_amount(arg->i, Conf.mamount, &mx, &my);
 
 	cc->geom.x += mx;
 	if (cc->geom.x + cc->geom.w < 0)
@@ -137,11 +135,15 @@ void
 kbfunc_client_resize(struct client_ctx *cc, union arg *arg)
 {
 	unsigned int		 mx = 0, my = 0;
+	int			 amt = 1;
 
 	if (cc->flags & CLIENT_FREEZE)
 		return;
 
-	kbfunc_amount(arg->i, &mx, &my);
+	if (!(cc->hint.flags & PResizeInc))
+		amt = Conf.mamount;
+
+	kbfunc_amount(arg->i, amt, &mx, &my);
 
 	if ((cc->geom.w += mx * cc->hint.incw) < cc->hint.minw)
 		cc->geom.w = cc->hint.minw;
