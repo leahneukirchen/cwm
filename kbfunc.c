@@ -568,7 +568,7 @@ kbfunc_client_move_edge(struct client_ctx *cc, union arg *arg)
         */
        area = screen_area(sc,
 	    cc->geom.x + cc->geom.w / 2,
-	    cc->geom.y + cc->geom.h / 2, CWM_NOGAP);
+	    cc->geom.y + cc->geom.h / 2, CWM_GAP);
 
        flags = arg->i;
 
