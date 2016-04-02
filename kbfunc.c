@@ -558,7 +558,7 @@ void
 kbfunc_client_move_edge(struct client_ctx *cc, union arg *arg)
 {
        struct screen_ctx       *sc = cc->sc;
-       struct geom              xine;
+       struct geom              area;
        int                      flags;
 
        /*
@@ -566,56 +566,56 @@ kbfunc_client_move_edge(struct client_ctx *cc, union arg *arg)
         * that's probably more fair than if just the origin of
         * a window is poking over a boundary
         */
-       xine = screen_find_xinerama(sc,
-           cc->geom.x + cc->geom.w / 2,
-           cc->geom.y + cc->geom.h / 2, CWM_GAP);
+       area = screen_area(sc,
+	    cc->geom.x + cc->geom.w / 2,
+	    cc->geom.y + cc->geom.h / 2, CWM_NOGAP);
 
        flags = arg->i;
 
        switch (flags) {
        case CWM_TOP_LEFT:
-               cc->geom.x = xine.x;
-               cc->geom.y = xine.y;
+               cc->geom.x = area.x;
+               cc->geom.y = area.y;
                client_move(cc);
                break;
        case CWM_BOTTOM_LEFT:
-               cc->geom.x = xine.x;
-               cc->geom.y = xine.y + xine.h - cc->geom.h - cc->bwidth * 2;
+               cc->geom.x = area.x;
+               cc->geom.y = area.y + area.h - cc->geom.h - cc->bwidth * 2;
                client_move(cc);
                break;
        case CWM_TOP_RIGHT:
-               cc->geom.x = xine.x + xine.w - cc->geom.w - cc->bwidth * 2;
-               cc->geom.y = xine.y;
+               cc->geom.x = area.x + area.w - cc->geom.w - cc->bwidth * 2;
+               cc->geom.y = area.y;
                client_move(cc);
                break;
        case CWM_BOTTOM_RIGHT:
-               cc->geom.x = xine.x + xine.w - cc->geom.w - cc->bwidth * 2;
-               cc->geom.y = xine.y + xine.h - cc->geom.h - cc->bwidth * 2;
+               cc->geom.x = area.x + area.w - cc->geom.w - cc->bwidth * 2;
+               cc->geom.y = area.y + area.h - cc->geom.h - cc->bwidth * 2;
                client_move(cc);
                break;
        case CWM_CENTER:
-               cc->geom.x = (xine.x + xine.w) / 2 - (cc->geom.w / 2) - cc->bwidth;
-               cc->geom.y = (xine.y + xine.h) / 2 - (cc->geom.h / 2) - cc->bwidth;
+               cc->geom.x = (area.x + area.w) / 2 - (cc->geom.w / 2) - cc->bwidth;
+               cc->geom.y = (area.y + area.h) / 2 - (cc->geom.h / 2) - cc->bwidth;
                client_move(cc);
                break;
        case CWM_TOP_CENTER:
-               cc->geom.x = (xine.x + xine.w) / 2 - (cc->geom.w / 2) - cc->bwidth;
-               cc->geom.y = xine.y;
+               cc->geom.x = (area.x + area.w) / 2 - (cc->geom.w / 2) - cc->bwidth;
+               cc->geom.y = area.y;
                client_move(cc);
                break;
        case CWM_BOTTOM_CENTER:
-               cc->geom.x = (xine.x + xine.w) / 2 - (cc->geom.w / 2) - cc->bwidth;
-               cc->geom.y = xine.y + xine.h - cc->geom.h - cc->bwidth * 2;
+               cc->geom.x = (area.x + area.w) / 2 - (cc->geom.w / 2) - cc->bwidth;
+               cc->geom.y = area.y + area.h - cc->geom.h - cc->bwidth * 2;
                client_move(cc);
                break;
        case CWM_RIGHT_CENTER:
-               cc->geom.x = xine.x + xine.w - cc->geom.w - cc->bwidth * 2;
-               cc->geom.y = (xine.y + xine.h) / 2 - (cc->geom.h / 2) - cc->bwidth;
+               cc->geom.x = area.x + area.w - cc->geom.w - cc->bwidth * 2;
+               cc->geom.y = (area.y + area.h) / 2 - (cc->geom.h / 2) - cc->bwidth;
                client_move(cc);
                break;
        case CWM_LEFT_CENTER:
-               cc->geom.x = xine.x;
-               cc->geom.y = (xine.y + xine.h) / 2 - (cc->geom.h / 2) - cc->bwidth;
+               cc->geom.x = area.x;
+               cc->geom.y = (area.y + area.h) / 2 - (cc->geom.h / 2) - cc->bwidth;
                client_move(cc);
                break;
        default:
