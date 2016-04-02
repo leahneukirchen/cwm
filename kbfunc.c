@@ -553,3 +553,72 @@ kbfunc_client_tile(struct client_ctx *cc, union arg *arg)
 		break;
 	}
 }
+
+void
+kbfunc_client_move_edge(struct client_ctx *cc, union arg *arg)
+{
+       struct screen_ctx       *sc = cc->sc;
+       struct geom              xine;
+       int                      flags;
+
+       /*
+        * pick screen that the middle of the window is on.
+        * that's probably more fair than if just the origin of
+        * a window is poking over a boundary
+        */
+       xine = screen_find_xinerama(sc,
+           cc->geom.x + cc->geom.w / 2,
+           cc->geom.y + cc->geom.h / 2, CWM_GAP);
+
+       flags = arg->i;
+
+       switch (flags) {
+       case CWM_TOP_LEFT:
+               cc->geom.x = xine.x;
+               cc->geom.y = xine.y;
+               client_move(cc);
+               break;
+       case CWM_BOTTOM_LEFT:
+               cc->geom.x = xine.x;
+               cc->geom.y = xine.y + xine.h - cc->geom.h - cc->bwidth * 2;
+               client_move(cc);
+               break;
+       case CWM_TOP_RIGHT:
+               cc->geom.x = xine.x + xine.w - cc->geom.w - cc->bwidth * 2;
+               cc->geom.y = xine.y;
+               client_move(cc);
+               break;
+       case CWM_BOTTOM_RIGHT:
+               cc->geom.x = xine.x + xine.w - cc->geom.w - cc->bwidth * 2;
+               cc->geom.y = xine.y + xine.h - cc->geom.h - cc->bwidth * 2;
+               client_move(cc);
+               break;
+       case CWM_CENTER:
+               cc->geom.x = (xine.x + xine.w) / 2 - (cc->geom.w / 2) - cc->bwidth;
+               cc->geom.y = (xine.y + xine.h) / 2 - (cc->geom.h / 2) - cc->bwidth;
+               client_move(cc);
+               break;
+       case CWM_TOP_CENTER:
+               cc->geom.x = (xine.x + xine.w) / 2 - (cc->geom.w / 2) - cc->bwidth;
+               cc->geom.y = xine.y;
+               client_move(cc);
+               break;
+       case CWM_BOTTOM_CENTER:
+               cc->geom.x = (xine.x + xine.w) / 2 - (cc->geom.w / 2) - cc->bwidth;
+               cc->geom.y = xine.y + xine.h - cc->geom.h - cc->bwidth * 2;
+               client_move(cc);
+               break;
+       case CWM_RIGHT_CENTER:
+               cc->geom.x = xine.x + xine.w - cc->geom.w - cc->bwidth * 2;
+               cc->geom.y = (xine.y + xine.h) / 2 - (cc->geom.h / 2) - cc->bwidth;
+               client_move(cc);
+               break;
+       case CWM_LEFT_CENTER:
+               cc->geom.x = xine.x;
+               cc->geom.y = (xine.y + xine.h) / 2 - (cc->geom.h / 2) - cc->bwidth;
+               client_move(cc);
+               break;
+       default:
+               warnx("invalid flags passed to kbfunc_client_move_edge");
+       }
+}
