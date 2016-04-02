@@ -553,3 +553,72 @@ kbfunc_client_tile(struct client_ctx *cc, union arg *arg)
 		break;
 	}
 }
+
+void
+kbfunc_client_move_edge(struct client_ctx *cc, union arg *arg)
+{
+       struct screen_ctx       *sc = cc->sc;
+       struct geom              area;
+       int                      flags;
+
+       /*
+        * pick screen that the middle of the window is on.
+        * that's probably more fair than if just the origin of
+        * a window is poking over a boundary
+        */
+       area = screen_area(sc,
+	    cc->geom.x + cc->geom.w / 2,
+	    cc->geom.y + cc->geom.h / 2, CWM_GAP);
+
+       flags = arg->i;
+
+       switch (flags) {
+       case CWM_TOP_LEFT:
+               cc->geom.x = area.x;
+               cc->geom.y = area.y;
+               client_move(cc);
+               break;
+       case CWM_BOTTOM_LEFT:
+               cc->geom.x = area.x;
+               cc->geom.y = area.y + area.h - cc->geom.h - cc->bwidth * 2;
+               client_move(cc);
+               break;
+       case CWM_TOP_RIGHT:
+               cc->geom.x = area.x + area.w - cc->geom.w - cc->bwidth * 2;
+               cc->geom.y = area.y;
+               client_move(cc);
+               break;
+       case CWM_BOTTOM_RIGHT:
+               cc->geom.x = area.x + area.w - cc->geom.w - cc->bwidth * 2;
+               cc->geom.y = area.y + area.h - cc->geom.h - cc->bwidth * 2;
+               client_move(cc);
+               break;
+       case CWM_CENTER:
+               cc->geom.x = (area.x + area.w) / 2 - (cc->geom.w / 2) - cc->bwidth;
+               cc->geom.y = (area.y + area.h) / 2 - (cc->geom.h / 2) - cc->bwidth;
+               client_move(cc);
+               break;
+       case CWM_TOP_CENTER:
+               cc->geom.x = (area.x + area.w) / 2 - (cc->geom.w / 2) - cc->bwidth;
+               cc->geom.y = area.y;
+               client_move(cc);
+               break;
+       case CWM_BOTTOM_CENTER:
+               cc->geom.x = (area.x + area.w) / 2 - (cc->geom.w / 2) - cc->bwidth;
+               cc->geom.y = area.y + area.h - cc->geom.h - cc->bwidth * 2;
+               client_move(cc);
+               break;
+       case CWM_RIGHT_CENTER:
+               cc->geom.x = area.x + area.w - cc->geom.w - cc->bwidth * 2;
+               cc->geom.y = (area.y + area.h) / 2 - (cc->geom.h / 2) - cc->bwidth;
+               client_move(cc);
+               break;
+       case CWM_LEFT_CENTER:
+               cc->geom.x = area.x;
+               cc->geom.y = (area.y + area.h) / 2 - (cc->geom.h / 2) - cc->bwidth;
+               client_move(cc);
+               break;
+       default:
+               warnx("invalid flags passed to kbfunc_client_move_edge");
+       }
+}
