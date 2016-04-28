@@ -601,7 +601,10 @@ menuq_add(struct menu_q *mq, void *ctx, const char *fmt, ...)
 	mi->ctx = ctx;
 
 	va_start(ap, fmt);
-	(void)vsnprintf(mi->text, sizeof(mi->text), fmt, ap);
+	if (fmt != NULL)
+		(void)vsnprintf(mi->text, sizeof(mi->text), fmt, ap);
+	else
+		mi->text[0] = '\0';
 	va_end(ap);
 
 	TAILQ_INSERT_TAIL(mq, mi, entry);
