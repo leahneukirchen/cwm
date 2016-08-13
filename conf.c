@@ -138,7 +138,7 @@ conf_screen(struct screen_ctx *sc)
 	if (sc->xftfont == NULL) {
 		sc->xftfont = XftFontOpenName(X_Dpy, sc->which, Conf.font);
 		if (sc->xftfont == NULL)
-			errx(1, "XftFontOpenName");
+			errx(1, "XftFontOpenName: %s", Conf.font);
 	}
 
 	for (i = 0; i < nitems(color_binds); i++) {
