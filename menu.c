@@ -523,6 +523,7 @@ menu_keycode(XKeyEvent *ev, enum ctltype *ctl, char *chr)
 	case XK_BackSpace:
 		*ctl = CTL_ERASEONE;
 		break;
+	case XK_KP_Enter:
 	case XK_Return:
 		*ctl = CTL_RETURN;
 		break;
