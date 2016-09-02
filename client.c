@@ -256,33 +256,21 @@ client_toggle_freeze(struct client_ctx *cc)
 	if (cc->flags & CLIENT_FULLSCREEN)
 		return;
 
-	if (cc->flags & CLIENT_FREEZE)
-		cc->flags &= ~CLIENT_FREEZE;
-	else
-		cc->flags |= CLIENT_FREEZE;
-
+	cc->flags ^= CLIENT_FREEZE;
 	xu_ewmh_set_net_wm_state(cc);
 }
 
 void
 client_toggle_hidden(struct client_ctx *cc)
 {
-	if (cc->flags & CLIENT_HIDDEN)
-		cc->flags &= ~CLIENT_HIDDEN;
-	else
-		cc->flags |= CLIENT_HIDDEN;
-
+	cc->flags ^= CLIENT_HIDDEN;
 	xu_ewmh_set_net_wm_state(cc);
 }
 
 void
 client_toggle_sticky(struct client_ctx *cc)
 {
-	if (cc->flags & CLIENT_STICKY)
-		cc->flags &= ~CLIENT_STICKY;
-	else
-		cc->flags |= CLIENT_STICKY;
-
+	cc->flags ^= CLIENT_STICKY;
 	xu_ewmh_set_net_wm_state(cc);
 }
 
