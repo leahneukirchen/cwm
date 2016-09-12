@@ -67,12 +67,18 @@ client_init(Window win, struct screen_ctx *sc)
 		mapped = wattr.map_state != IsUnmapped;
 	}
 
-	cc = xcalloc(1, sizeof(*cc));
+	cc = xmalloc(sizeof(*cc));
 
 	XGrabServer(X_Dpy);
 
 	cc->sc = sc;
 	cc->win = win;
+	cc->gc = NULL;
+	cc->flags = 0;
+	cc->stackingorder = 0;
+	memset(&cc->hint, 0, sizeof(cc->hint));
+	cc->ptr.x = -1;
+	cc->ptr.y = -1;
 
 	TAILQ_INIT(&cc->nameq);
 	client_setname(cc);
@@ -84,10 +90,6 @@ client_init(Window win, struct screen_ctx *sc)
 	client_wm_protocols(cc);
 	client_getsizehints(cc);
 	client_mwm_hints(cc);
-
-	/* Saved pointer position */
-	cc->ptr.x = -1;
-	cc->ptr.y = -1;
 
 	cc->geom.x = wattr.x;
 	cc->geom.y = wattr.y;
