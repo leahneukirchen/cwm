@@ -73,6 +73,7 @@ client_init(Window win, struct screen_ctx *sc)
 
 	cc->sc = sc;
 	cc->win = win;
+	cc->label = NULL;
 	cc->gc = NULL;
 	cc->flags = 0;
 	cc->stackingorder = 0;
