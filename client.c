@@ -78,6 +78,7 @@ client_init(Window win, struct screen_ctx *sc)
 	cc->flags = 0;
 	cc->stackingorder = 0;
 	memset(&cc->hint, 0, sizeof(cc->hint));
+	memset(&cc->ch, 0, sizeof(cc->ch));
 	cc->ptr.x = -1;
 	cc->ptr.y = -1;
 
