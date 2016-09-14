@@ -57,7 +57,6 @@ mousefunc_client_resize(struct client_ctx *cc, union arg *arg)
 	XEvent			 ev;
 	Time			 ltime = 0;
 	struct screen_ctx	*sc = cc->sc;
-	int			 x = cc->geom.x, y = cc->geom.y;
 
 	if (cc->flags & CLIENT_FREEZE)
 		return;
@@ -81,12 +80,8 @@ mousefunc_client_resize(struct client_ctx *cc, union arg *arg)
 				continue;
 			ltime = ev.xmotion.time;
 
-			cc->geom.w = abs(x - ev.xmotion.x_root) - cc->bwidth;
-			cc->geom.h = abs(y - ev.xmotion.y_root) - cc->bwidth;
-			cc->geom.x = (x <= ev.xmotion.x_root) ?
-				x : x - cc->geom.w;
-			cc->geom.y = (y <= ev.xmotion.y_root) ?
-				y : y - cc->geom.h;
+			cc->geom.w = ev.xmotion.x;
+			cc->geom.h = ev.xmotion.y;
 			client_applysizehints(cc);
 			client_resize(cc, 1);
 			mousefunc_sweep_draw(cc);

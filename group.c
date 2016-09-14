@@ -209,19 +209,12 @@ int
 group_holds_only_hidden(struct group_ctx *gc)
 {
 	struct client_ctx	*cc;
-	int			 hidden = 0, same = 0;
 
 	TAILQ_FOREACH(cc, &gc->clientq, group_entry) {
-		if (cc->flags & CLIENT_STICKY)
-			continue;
-		if (hidden == ((cc->flags & CLIENT_HIDDEN) ? 1 : 0))
-			same++;
+		if (!(cc->flags & (CLIENT_HIDDEN | CLIENT_STICKY)))
+			return(0);
 	}
-
-	if (same == 0)
-		hidden = !hidden;
-
-	return(hidden);
+	return(1);
 }
 
 void

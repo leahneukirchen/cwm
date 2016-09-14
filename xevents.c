@@ -250,10 +250,13 @@ xev_handle_buttonpress(XEvent *ee)
 static void
 xev_handle_buttonrelease(XEvent *ee)
 {
-	struct client_ctx *cc;
+	XButtonEvent		*e = &ee->xbutton;
+	struct client_ctx	*cc;
 
-	if ((cc = client_current()) != NULL)
-		group_toggle_membership_leave(cc);
+	if ((cc = client_find(e->window)) != NULL) {
+		if (cc->flags & CLIENT_ACTIVE)
+			group_toggle_membership_leave(cc);
+	}
 }
 
 static void

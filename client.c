@@ -67,12 +67,20 @@ client_init(Window win, struct screen_ctx *sc)
 		mapped = wattr.map_state != IsUnmapped;
 	}
 
-	cc = xcalloc(1, sizeof(*cc));
+	cc = xmalloc(sizeof(*cc));
 
 	XGrabServer(X_Dpy);
 
 	cc->sc = sc;
 	cc->win = win;
+	cc->label = NULL;
+	cc->gc = NULL;
+	cc->flags = 0;
+	cc->stackingorder = 0;
+	memset(&cc->hint, 0, sizeof(cc->hint));
+	memset(&cc->ch, 0, sizeof(cc->ch));
+	cc->ptr.x = -1;
+	cc->ptr.y = -1;
 
 	TAILQ_INIT(&cc->nameq);
 	client_setname(cc);
@@ -84,10 +92,6 @@ client_init(Window win, struct screen_ctx *sc)
 	client_wm_protocols(cc);
 	client_getsizehints(cc);
 	client_mwm_hints(cc);
-
-	/* Saved pointer position */
-	cc->ptr.x = -1;
-	cc->ptr.y = -1;
 
 	cc->geom.x = wattr.x;
 	cc->geom.y = wattr.y;
@@ -173,11 +177,11 @@ client_delete(struct client_ctx *cc)
 	xu_ewmh_net_client_list(sc);
 	xu_ewmh_net_client_list_stacking(sc);
 
+	if (cc->flags & CLIENT_ACTIVE)
+		client_none(sc);
+
 	if (cc->gc != NULL)
 		TAILQ_REMOVE(&cc->gc->clientq, cc, group_entry);
-
-	if (cc == client_current())
-		client_none(sc);
 
 	while ((wn = TAILQ_FIRST(&cc->nameq)) != NULL) {
 		TAILQ_REMOVE(&cc->nameq, wn, entry);
@@ -256,33 +260,21 @@ client_toggle_freeze(struct client_ctx *cc)
 	if (cc->flags & CLIENT_FULLSCREEN)
 		return;
 
-	if (cc->flags & CLIENT_FREEZE)
-		cc->flags &= ~CLIENT_FREEZE;
-	else
-		cc->flags |= CLIENT_FREEZE;
-
+	cc->flags ^= CLIENT_FREEZE;
 	xu_ewmh_set_net_wm_state(cc);
 }
 
 void
 client_toggle_hidden(struct client_ctx *cc)
 {
-	if (cc->flags & CLIENT_HIDDEN)
-		cc->flags &= ~CLIENT_HIDDEN;
-	else
-		cc->flags |= CLIENT_HIDDEN;
-
+	cc->flags ^= CLIENT_HIDDEN;
 	xu_ewmh_set_net_wm_state(cc);
 }
 
 void
 client_toggle_sticky(struct client_ctx *cc)
 {
-	if (cc->flags & CLIENT_STICKY)
-		cc->flags &= ~CLIENT_STICKY;
-	else
-		cc->flags |= CLIENT_STICKY;
-
+	cc->flags ^= CLIENT_STICKY;
 	xu_ewmh_set_net_wm_state(cc);
 }
 
@@ -297,7 +289,8 @@ client_toggle_fullscreen(struct client_ctx *cc)
 		return;
 
 	if (cc->flags & CLIENT_FULLSCREEN) {
-		cc->bwidth = Conf.bwidth;
+		if (!(cc->flags & CLIENT_IGNORE))
+			cc->bwidth = Conf.bwidth;
 		cc->geom = cc->fullgeom;
 		cc->flags &= ~(CLIENT_FULLSCREEN | CLIENT_FREEZE);
 		goto resize;
@@ -518,12 +511,12 @@ client_hide(struct client_ctx *cc)
 {
 	XUnmapWindow(X_Dpy, cc->win);
 
+	if (cc->flags & CLIENT_ACTIVE)
+		client_none(cc->sc);
+
 	cc->flags &= ~CLIENT_ACTIVE;
 	cc->flags |= CLIENT_HIDDEN;
 	client_set_wm_state(cc, IconicState);
-
-	if (cc == client_current())
-		client_none(cc->sc);
 }
 
 void
@@ -897,9 +890,6 @@ client_applysizehints(struct client_ctx *cc)
 		cc->geom.w = MIN(cc->geom.w, cc->hint.maxw);
 	if (cc->hint.maxh)
 		cc->geom.h = MIN(cc->geom.h, cc->hint.maxh);
-
-	cc->geom.w = MAX(cc->geom.w, 1);
-	cc->geom.h = MAX(cc->geom.h, 1);
 
 	cc->dim.w = (cc->geom.w - cc->hint.basew) / cc->hint.incw;
 	cc->dim.h = (cc->geom.h - cc->hint.baseh) / cc->hint.inch;
