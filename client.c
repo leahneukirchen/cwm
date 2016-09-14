@@ -176,11 +176,11 @@ client_delete(struct client_ctx *cc)
 	xu_ewmh_net_client_list(sc);
 	xu_ewmh_net_client_list_stacking(sc);
 
+	if (cc->flags & CLIENT_ACTIVE)
+		client_none(sc);
+
 	if (cc->gc != NULL)
 		TAILQ_REMOVE(&cc->gc->clientq, cc, group_entry);
-
-	if (cc == client_current())
-		client_none(sc);
 
 	while ((wn = TAILQ_FIRST(&cc->nameq)) != NULL) {
 		TAILQ_REMOVE(&cc->nameq, wn, entry);
@@ -510,12 +510,12 @@ client_hide(struct client_ctx *cc)
 {
 	XUnmapWindow(X_Dpy, cc->win);
 
+	if (cc->flags & CLIENT_ACTIVE)
+		client_none(cc->sc);
+
 	cc->flags &= ~CLIENT_ACTIVE;
 	cc->flags |= CLIENT_HIDDEN;
 	client_set_wm_state(cc, IconicState);
-
-	if (cc == client_current())
-		client_none(cc->sc);
 }
 
 void
