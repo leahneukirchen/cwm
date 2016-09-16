@@ -35,7 +35,7 @@ void
 screen_init(int which)
 {
 	struct screen_ctx	*sc;
-	Window			*wins, w0, w1;
+	Window			*wins, w0, w1, active = None;
 	XSetWindowAttributes	 rootattr;
 	unsigned int		 nwins, i;
 
@@ -65,6 +65,7 @@ screen_init(int which)
 	xu_ewmh_net_wm_number_of_desktops(sc);
 	xu_ewmh_net_showing_desktop(sc);
 	xu_ewmh_net_virtual_roots(sc);
+	active = xu_ewmh_get_net_active_window(sc);
 
 	rootattr.cursor = Conf.cursor[CF_NORMAL];
 	rootattr.event_mask = SubstructureRedirectMask |
@@ -77,7 +78,7 @@ screen_init(int which)
 	/* Deal with existing clients. */
 	if (XQueryTree(X_Dpy, sc->rootwin, &w0, &w1, &wins, &nwins)) {
 		for (i = 0; i < nwins; i++)
-			(void)client_init(wins[i], sc);
+			(void)client_init(wins[i], sc, (active == wins[i]));
 
 		XFree(wins);
 	}
