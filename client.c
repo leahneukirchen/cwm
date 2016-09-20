@@ -34,13 +34,10 @@
 static struct client_ctx	*client_next(struct client_ctx *);
 static struct client_ctx	*client_prev(struct client_ctx *);
 static void			 client_mtf(struct client_ctx *);
-static void			 client_none(struct screen_ctx *);
 static void			 client_placecalc(struct client_ctx *);
 static void			 client_wm_protocols(struct client_ctx *);
 static void			 client_mwm_hints(struct client_ctx *);
 static int			 client_inbound(struct client_ctx *, int, int);
-
-struct client_ctx	*curcc = NULL;
 
 struct client_ctx *
 client_init(Window win, struct screen_ctx *sc, int active)
@@ -178,7 +175,7 @@ client_delete(struct client_ctx *cc)
 	xu_ewmh_net_client_list_stacking(sc);
 
 	if (cc->flags & CLIENT_ACTIVE)
-		client_none(sc);
+		xu_ewmh_net_active_window(sc, None);
 
 	if (cc->gc != NULL)
 		TAILQ_REMOVE(&cc->gc->clientq, cc, group_entry);
@@ -227,7 +224,6 @@ client_setactive(struct client_ctx *cc)
 	if (!sc->cycling)
 		client_mtf(cc);
 
-	curcc = cc;
 	cc->flags |= CLIENT_ACTIVE;
 	cc->flags &= ~CLIENT_URGENCY;
 	client_draw_border(cc);
@@ -235,23 +231,19 @@ client_setactive(struct client_ctx *cc)
 	xu_ewmh_net_active_window(sc, cc->win);
 }
 
-/*
- * set when there is no active client
- */
-static void
-client_none(struct screen_ctx *sc)
-{
-	Window none = None;
-
-	xu_ewmh_net_active_window(sc, none);
-
-	curcc = NULL;
-}
-
 struct client_ctx *
 client_current(void)
 {
-	return(curcc);
+	struct screen_ctx	*sc;
+	struct client_ctx	*cc;
+
+	TAILQ_FOREACH(sc, &Screenq, entry) {
+		TAILQ_FOREACH(cc, &sc->clientq, entry) {
+			if (cc->flags & CLIENT_ACTIVE)
+				return(cc);
+		}
+	}
+	return(NULL);
 }
 
 void
@@ -512,7 +504,7 @@ client_hide(struct client_ctx *cc)
 	XUnmapWindow(X_Dpy, cc->win);
 
 	if (cc->flags & CLIENT_ACTIVE)
-		client_none(cc->sc);
+		xu_ewmh_net_active_window(cc->sc, None);
 
 	cc->flags &= ~CLIENT_ACTIVE;
 	cc->flags |= CLIENT_HIDDEN;
