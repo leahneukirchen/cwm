@@ -565,6 +565,9 @@ menu_keycode(XKeyEvent *ev, enum ctltype *ctl, char *chr)
 		case XK_A:
 			*ctl = CTL_ALL;
 			break;
+		case XK_bracketleft:
+			*ctl = CTL_ABORT;
+			break;
 		}
 	}
 
