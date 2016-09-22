@@ -508,10 +508,6 @@ void			 mousefunc_client_move(struct client_ctx *,
     			    union arg *);
 void			 mousefunc_client_resize(struct client_ctx *,
     			    union arg *);
-void			 mousefunc_menu_client(struct client_ctx *,
-			    union arg *);
-void			 mousefunc_menu_cmd(struct client_ctx *, union arg *);
-void			 mousefunc_menu_group(struct client_ctx *, union arg *);
 
 struct menu  		*menu_filter(struct screen_ctx *, struct menu_q *,
 			     const char *, const char *, int,

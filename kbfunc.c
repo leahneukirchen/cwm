@@ -167,14 +167,22 @@ kbfunc_menu_client(struct client_ctx *cc, union arg *arg)
 	struct client_ctx	*old_cc;
 	struct menu		*mi;
 	struct menu_q		 menuq;
+	int			 m = (arg->i == CWM_MOUSE);
 
 	old_cc = client_current();
 
 	TAILQ_INIT(&menuq);
-	TAILQ_FOREACH(cc, &sc->clientq, entry)
-		menuq_add(&menuq, cc, NULL);
+	TAILQ_FOREACH(cc, &sc->clientq, entry) {
+		if (m) {
+			if (cc->flags & CLIENT_HIDDEN)
+				menuq_add(&menuq, cc, NULL);
+		} else
+			menuq_add(&menuq, cc, NULL);
+	}
 
-	if ((mi = menu_filter(sc, &menuq, "window", NULL, 0,
+	if ((mi = menu_filter(sc, &menuq,
+	    (m) ? NULL : "window", NULL,
+	    (m) ? CWM_MENU_LIST : 0,
 	    search_match_client, search_print_client)) != NULL) {
 		cc = (struct client_ctx *)mi->ctx;
 		if (cc->flags & CLIENT_HIDDEN)
@@ -194,6 +202,7 @@ kbfunc_menu_cmd(struct client_ctx *cc, union arg *arg)
 	struct cmd		*cmd;
 	struct menu		*mi;
 	struct menu_q		 menuq;
+	int			 m = (arg->i == CWM_MOUSE);
 
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
@@ -204,9 +213,13 @@ kbfunc_menu_cmd(struct client_ctx *cc, union arg *arg)
 		menuq_add(&menuq, cmd, "%s", cmd->name);
 	}
 
-	if ((mi = menu_filter(sc, &menuq, "application", NULL, 0,
-	    search_match_text, search_print_cmd)) != NULL)
-		u_spawn(((struct cmd *)mi->ctx)->path);
+	if ((mi = menu_filter(sc, &menuq,
+	    (m) ? NULL : "application", NULL,
+	    (m) ? CWM_MENU_LIST : 0,
+	    search_match_text, search_print_cmd)) != NULL) {
+		cmd = (struct cmd *)mi->ctx;
+		u_spawn(cmd->path);
+	}
 
 	menuq_clear(&menuq);
 }
@@ -218,6 +231,7 @@ kbfunc_menu_group(struct client_ctx *cc, union arg *arg)
 	struct group_ctx	*gc;
 	struct menu		*mi;
 	struct menu_q		 menuq;
+	int			 m = (arg->i == CWM_MOUSE);
 
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
@@ -226,7 +240,8 @@ kbfunc_menu_group(struct client_ctx *cc, union arg *arg)
 		menuq_add(&menuq, gc, "%d %s", gc->num, gc->name);
 	}
 
-	if ((mi = menu_filter(sc, &menuq, "group", NULL, CWM_MENU_LIST,
+	if ((mi = menu_filter(sc, &menuq,
+	    (m) ? NULL : "group", NULL, CWM_MENU_LIST,
 	    search_match_text, search_print_group)) != NULL) {
 		gc = (struct group_ctx *)mi->ctx;
 		(group_holds_only_hidden(gc)) ?
