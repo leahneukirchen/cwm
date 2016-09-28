@@ -68,7 +68,6 @@ mousefunc_client_resize(struct client_ctx *cc, union arg *arg)
 		return;
 
 	xu_ptr_setpos(cc->win, cc->geom.w, cc->geom.h);
-	mousefunc_sweep_draw(cc);
 
 	for (;;) {
 		XMaskEvent(X_Dpy, MOUSEMASK, &ev);
