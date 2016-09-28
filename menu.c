@@ -334,6 +334,7 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 	struct menu		*mi;
 	struct geom		 area;
 	int			 n, xsave, ysave;
+	XGlyphInfo		 extents;
 
 	if (mc->list) {
 		if (TAILQ_EMPTY(resultq)) {
@@ -352,8 +353,11 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 	if (mc->hasprompt) {
 		(void)snprintf(mc->dispstr, sizeof(mc->dispstr), "%s%s%s%s",
 		    mc->promptstr, PROMPT_SCHAR, mc->searchstr, PROMPT_ECHAR);
-		mc->geom.w = xu_xft_width(sc->xftfont, mc->dispstr,
-		    strlen(mc->dispstr));
+
+		XftTextExtentsUtf8(X_Dpy, sc->xftfont,
+		    (const FcChar8*)mc->dispstr, strlen(mc->dispstr), &extents);
+
+		mc->geom.w = extents.xOff;
 		mc->geom.h = sc->xftfont->height + 1;
 		mc->num = 1;
 	}
@@ -365,8 +369,11 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 			(void)snprintf(mi->print, sizeof(mi->print),
 			    "%s", mi->text);
 
-		mc->geom.w = MAX(mc->geom.w, xu_xft_width(sc->xftfont,
-		    mi->print, MIN(strlen(mi->print), MENU_MAXENTRY)));
+		XftTextExtentsUtf8(X_Dpy, sc->xftfont,
+		    (const FcChar8*)mi->print,
+		    MIN(strlen(mi->print), MENU_MAXENTRY), &extents);
+
+		mc->geom.w = MAX(mc->geom.w, extents.xOff);
 		mc->geom.h += sc->xftfont->height + 1;
 		mc->num++;
 	}
@@ -400,8 +407,10 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 	    mc->geom.w, mc->geom.h);
 
 	if (mc->hasprompt) {
-		xu_xft_draw(sc, mc->dispstr, CWM_COLOR_MENU_FONT,
-		    0, sc->xftfont->ascent);
+		XftDrawStringUtf8(sc->xftdraw,
+		    &sc->xftcolor[CWM_COLOR_MENU_FONT], sc->xftfont,
+		    0, sc->xftfont->ascent,
+		    (const FcChar8*)mc->dispstr, strlen(mc->dispstr));
 		n = 1;
 	} else
 		n = 0;
@@ -413,7 +422,10 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 		if (mc->geom.y + y > area.h)
 			break;
 
-		xu_xft_draw(sc, mi->print, CWM_COLOR_MENU_FONT, 0, y);
+		XftDrawStringUtf8(sc->xftdraw,
+		    &sc->xftcolor[CWM_COLOR_MENU_FONT], sc->xftfont,
+		    0, y,
+		    (const FcChar8*)mi->print, strlen(mi->print));
 		n++;
 	}
 	if (mc->hasprompt && n > 1)
@@ -442,8 +454,10 @@ menu_draw_entry(struct menu_ctx *mc, struct menu_q *resultq,
 	    (sc->xftfont->height + 1) * entry, mc->geom.w,
 	    (sc->xftfont->height + 1) + sc->xftfont->descent);
 	color = (active) ? CWM_COLOR_MENU_FONT_SEL : CWM_COLOR_MENU_FONT;
-	xu_xft_draw(sc, mi->print, color,
-	    0, (sc->xftfont->height + 1) * entry + sc->xftfont->ascent + 1);
+	XftDrawStringUtf8(sc->xftdraw,
+	    &sc->xftcolor[color], sc->xftfont,
+	    0, (sc->xftfont->height + 1) * entry + sc->xftfont->ascent + 1,
+	    (const FcChar8*)mi->print, strlen(mi->print));
 }
 
 static void

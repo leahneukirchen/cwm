@@ -531,21 +531,3 @@ xu_xorcolor(XftColor a, XftColor b, XftColor *r)
 	r->color.blue = a.color.blue ^ b.color.blue;
 	r->color.alpha = 0xffff;
 }
-
-int
-xu_xft_width(XftFont *xftfont, const char *text, int len)
-{
-	XGlyphInfo	 extents;
-
-	XftTextExtentsUtf8(X_Dpy, xftfont, (const FcChar8*)text,
-	    len, &extents);
-
-	return(extents.xOff);
-}
-
-void
-xu_xft_draw(struct screen_ctx *sc, const char *text, int color, int x, int y)
-{
-	XftDrawStringUtf8(sc->xftdraw, &sc->xftcolor[color], sc->xftfont,
-	    x, y, (const FcChar8*)text, strlen(text));
-}

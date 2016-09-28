@@ -39,16 +39,22 @@ mousefunc_sweep_draw(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
 	char			 s[14]; /* fits " nnnn x nnnn \0" */
+	XGlyphInfo		 extents;
 
 	(void)snprintf(s, sizeof(s), " %4d x %-4d ", cc->dim.w, cc->dim.h);
 
+	XftTextExtentsUtf8(X_Dpy, sc->xftfont, (const FcChar8*)s,
+	    strlen(s), &extents);
+
 	XReparentWindow(X_Dpy, sc->menuwin, cc->win, 0, 0);
 	XMoveResizeWindow(X_Dpy, sc->menuwin, 0, 0,
-	    xu_xft_width(sc->xftfont, s, strlen(s)), sc->xftfont->height);
+	    extents.xOff, sc->xftfont->height);
 	XMapWindow(X_Dpy, sc->menuwin);
 	XClearWindow(X_Dpy, sc->menuwin);
 
-	xu_xft_draw(sc, s, CWM_COLOR_MENU_FONT, 0, sc->xftfont->ascent + 1);
+	XftDrawStringUtf8(sc->xftdraw, &sc->xftcolor[CWM_COLOR_MENU_FONT],
+	    sc->xftfont, 0, sc->xftfont->ascent + 1,
+	    (const FcChar8*)s, strlen(s));
 }
 
 void
