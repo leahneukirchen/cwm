@@ -46,13 +46,13 @@ mousefunc_sweep_draw(struct client_ctx *cc)
 	XftTextExtentsUtf8(X_Dpy, sc->xftfont, (const FcChar8*)s,
 	    strlen(s), &extents);
 
-	XReparentWindow(X_Dpy, sc->menuwin, cc->win, 0, 0);
-	XMoveResizeWindow(X_Dpy, sc->menuwin, 0, 0,
+	XReparentWindow(X_Dpy, sc->menu.win, cc->win, 0, 0);
+	XMoveResizeWindow(X_Dpy, sc->menu.win, 0, 0,
 	    extents.xOff, sc->xftfont->height);
-	XMapWindow(X_Dpy, sc->menuwin);
-	XClearWindow(X_Dpy, sc->menuwin);
+	XMapWindow(X_Dpy, sc->menu.win);
+	XClearWindow(X_Dpy, sc->menu.win);
 
-	XftDrawStringUtf8(sc->xftdraw, &sc->xftcolor[CWM_COLOR_MENU_FONT],
+	XftDrawStringUtf8(sc->menu.xftdraw, &sc->xftcolor[CWM_COLOR_MENU_FONT],
 	    sc->xftfont, 0, sc->xftfont->ascent + 1,
 	    (const FcChar8*)s, strlen(s));
 }
@@ -93,8 +93,8 @@ mousefunc_client_resize(struct client_ctx *cc, union arg *arg)
 			break;
 		case ButtonRelease:
 			client_resize(cc, 1);
-			XUnmapWindow(X_Dpy, sc->menuwin);
-			XReparentWindow(X_Dpy, sc->menuwin, sc->rootwin, 0, 0);
+			XUnmapWindow(X_Dpy, sc->menu.win);
+			XReparentWindow(X_Dpy, sc->menu.win, sc->rootwin, 0, 0);
 			xu_ptr_ungrab();
 
 			/* Make sure the pointer stays within the window. */

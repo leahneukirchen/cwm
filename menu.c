@@ -118,26 +118,26 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, const char *prompt,
 		mc.hasprompt = 1;
 	}
 
-	XSelectInput(X_Dpy, sc->menuwin, evmask);
-	XMapRaised(X_Dpy, sc->menuwin);
+	XSelectInput(X_Dpy, sc->menu.win, evmask);
+	XMapRaised(X_Dpy, sc->menu.win);
 
-	if (xu_ptr_grab(sc->menuwin, MENUGRABMASK,
+	if (xu_ptr_grab(sc->menu.win, MENUGRABMASK,
 	    Conf.cursor[CF_QUESTION]) < 0) {
-		XUnmapWindow(X_Dpy, sc->menuwin);
+		XUnmapWindow(X_Dpy, sc->menu.win);
 		return(NULL);
 	}
 
 	XGetInputFocus(X_Dpy, &focuswin, &focusrevert);
-	XSetInputFocus(X_Dpy, sc->menuwin, RevertToPointerRoot, CurrentTime);
+	XSetInputFocus(X_Dpy, sc->menu.win, RevertToPointerRoot, CurrentTime);
 
 	/* make sure keybindings don't remove keys from the menu stream */
-	XGrabKeyboard(X_Dpy, sc->menuwin, True,
+	XGrabKeyboard(X_Dpy, sc->menu.win, True,
 	    GrabModeAsync, GrabModeAsync, CurrentTime);
 
 	for (;;) {
 		mc.changed = 0;
 
-		XWindowEvent(X_Dpy, sc->menuwin, evmask, &e);
+		XWindowEvent(X_Dpy, sc->menu.win, evmask, &e);
 
 		switch (e.type) {
 		case KeyPress:
@@ -174,8 +174,8 @@ out:
 		xu_ptr_setpos(sc->rootwin, xsave, ysave);
 	xu_ptr_ungrab();
 
-	XMoveResizeWindow(X_Dpy, sc->menuwin, 0, 0, 1, 1);
-	XUnmapWindow(X_Dpy, sc->menuwin);
+	XMoveResizeWindow(X_Dpy, sc->menu.win, 0, 0, 1, 1);
+	XUnmapWindow(X_Dpy, sc->menu.win);
 	XUngrabKeyboard(X_Dpy, CurrentTime);
 
 	return(mi);
@@ -402,12 +402,12 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 	if (mc->geom.x != xsave || mc->geom.y != ysave)
 		xu_ptr_setpos(sc->rootwin, mc->geom.x, mc->geom.y);
 
-	XClearWindow(X_Dpy, sc->menuwin);
-	XMoveResizeWindow(X_Dpy, sc->menuwin, mc->geom.x, mc->geom.y,
+	XClearWindow(X_Dpy, sc->menu.win);
+	XMoveResizeWindow(X_Dpy, sc->menu.win, mc->geom.x, mc->geom.y,
 	    mc->geom.w, mc->geom.h);
 
 	if (mc->hasprompt) {
-		XftDrawStringUtf8(sc->xftdraw,
+		XftDrawStringUtf8(sc->menu.xftdraw,
 		    &sc->xftcolor[CWM_COLOR_MENU_FONT], sc->xftfont,
 		    0, sc->xftfont->ascent,
 		    (const FcChar8*)mc->dispstr, strlen(mc->dispstr));
@@ -422,7 +422,7 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 		if (mc->geom.y + y > area.h)
 			break;
 
-		XftDrawStringUtf8(sc->xftdraw,
+		XftDrawStringUtf8(sc->menu.xftdraw,
 		    &sc->xftcolor[CWM_COLOR_MENU_FONT], sc->xftfont,
 		    0, y,
 		    (const FcChar8*)mi->print, strlen(mi->print));
@@ -450,11 +450,11 @@ menu_draw_entry(struct menu_ctx *mc, struct menu_q *resultq,
 		return;
 
 	color = (active) ? CWM_COLOR_MENU_FG : CWM_COLOR_MENU_BG;
-	XftDrawRect(sc->xftdraw, &sc->xftcolor[color], 0,
+	XftDrawRect(sc->menu.xftdraw, &sc->xftcolor[color], 0,
 	    (sc->xftfont->height + 1) * entry, mc->geom.w,
 	    (sc->xftfont->height + 1) + sc->xftfont->descent);
 	color = (active) ? CWM_COLOR_MENU_FONT_SEL : CWM_COLOR_MENU_FONT;
-	XftDrawStringUtf8(sc->xftdraw,
+	XftDrawStringUtf8(sc->menu.xftdraw,
 	    &sc->xftcolor[color], sc->xftfont,
 	    0, (sc->xftfont->height + 1) * entry + sc->xftfont->ascent + 1,
 	    (const FcChar8*)mi->print, strlen(mi->print));

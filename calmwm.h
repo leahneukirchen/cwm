@@ -228,7 +228,6 @@ struct screen_ctx {
 	TAILQ_ENTRY(screen_ctx)	 entry;
 	int			 which;
 	Window			 rootwin;
-	Window			 menuwin;
 	int			 cycling;
 	int			 hideall;
 	int			 snapdist;
@@ -240,8 +239,11 @@ struct screen_ctx {
 #define CALMWM_NGROUPS		 10
 	struct group_ctx_q	 groupq;
 	struct group_ctx	*group_active;
+	struct {
+		Window		 win;
+		XftDraw		*xftdraw;
+	} menu;
 	XftColor		 xftcolor[CWM_COLOR_NITEMS];
-	XftDraw			*xftdraw;
 	XftFont			*xftfont;
 };
 TAILQ_HEAD(screen_ctx_q, screen_ctx);
