@@ -422,7 +422,6 @@ void			 client_transient(struct client_ctx *);
 void			 client_unhide(struct client_ctx *);
 void			 client_urgency(struct client_ctx *);
 void 			 client_vtile(struct client_ctx *);
-void			 client_warp(struct client_ctx *);
 void			 client_wm_hints(struct client_ctx *);
 
 void			 group_alltoggle(struct screen_ctx *);
