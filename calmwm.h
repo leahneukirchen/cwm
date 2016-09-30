@@ -542,17 +542,10 @@ void			 conf_screen(struct screen_ctx *);
 
 void			 xev_process(void);
 
-void			 xu_btn_grab(Window, int, unsigned int);
-void			 xu_btn_ungrab(Window);
 int			 xu_getprop(Window, Atom, Atom, long, unsigned char **);
 int			 xu_getstrprop(Window, Atom, char **);
-void			 xu_key_grab(Window, unsigned int, KeySym);
-void			 xu_key_ungrab(Window);
 void			 xu_ptr_getpos(Window, int *, int *);
-int			 xu_ptr_grab(Window, unsigned int, Cursor);
-int			 xu_ptr_regrab(unsigned int, Cursor);
 void			 xu_ptr_setpos(Window, int, int);
-void			 xu_ptr_ungrab(void);
 void 			 xu_xorcolor(XftColor, XftColor, XftColor *);
 
 void			 xu_ewmh_net_supported(struct screen_ctx *);

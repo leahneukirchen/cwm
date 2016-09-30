@@ -31,68 +31,6 @@
 
 #include "calmwm.h"
 
-static unsigned int ign_mods[] = { 0, LockMask, Mod2Mask, Mod2Mask | LockMask };
-
-void
-xu_btn_grab(Window win, int mask, unsigned int btn)
-{
-	unsigned int	i;
-
-	for (i = 0; i < nitems(ign_mods); i++)
-		XGrabButton(X_Dpy, btn, (mask | ign_mods[i]), win,
-		    False, BUTTONMASK, GrabModeAsync,
-		    GrabModeSync, None, None);
-}
-
-void
-xu_btn_ungrab(Window win)
-{
-	XUngrabButton(X_Dpy, AnyButton, AnyModifier, win);
-}
-
-void
-xu_key_grab(Window win, unsigned int mask, KeySym keysym)
-{
-	KeyCode		 code;
-	unsigned int	 i;
-
-	code = XKeysymToKeycode(X_Dpy, keysym);
-	if ((XkbKeycodeToKeysym(X_Dpy, code, 0, 0) != keysym) &&
-	    (XkbKeycodeToKeysym(X_Dpy, code, 0, 1) == keysym))
-		mask |= ShiftMask;
-
-	for (i = 0; i < nitems(ign_mods); i++)
-		XGrabKey(X_Dpy, code, (mask | ign_mods[i]), win,
-		    True, GrabModeAsync, GrabModeAsync);
-}
-
-void
-xu_key_ungrab(Window win)
-{
-	XUngrabKey(X_Dpy, AnyKey, AnyModifier, win);
-}
-
-int
-xu_ptr_grab(Window win, unsigned int mask, Cursor curs)
-{
-	return(XGrabPointer(X_Dpy, win, False, mask,
-	    GrabModeAsync, GrabModeAsync,
-	    None, curs, CurrentTime) == GrabSuccess ? 0 : -1);
-}
-
-int
-xu_ptr_regrab(unsigned int mask, Cursor curs)
-{
-	return(XChangeActivePointerGrab(X_Dpy, mask,
-	    curs, CurrentTime) == GrabSuccess ? 0 : -1);
-}
-
-void
-xu_ptr_ungrab(void)
-{
-	XUngrabPointer(X_Dpy, CurrentTime);
-}
-
 void
 xu_ptr_getpos(Window win, int *x, int *y)
 {

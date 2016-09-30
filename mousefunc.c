@@ -45,7 +45,9 @@ mousefunc_client_resize(struct client_ctx *cc, union arg *arg)
 	client_raise(cc);
 	client_ptrsave(cc);
 
-	if (xu_ptr_grab(cc->win, MOUSEMASK, Conf.cursor[CF_RESIZE]) < 0)
+	if (XGrabPointer(X_Dpy, cc->win, False, MOUSEMASK,
+	    GrabModeAsync, GrabModeAsync, None, Conf.cursor[CF_RESIZE],
+	    CurrentTime) != GrabSuccess)
 		return;
 
 	xu_ptr_setpos(cc->win, cc->geom.w, cc->geom.h);
@@ -71,7 +73,7 @@ mousefunc_client_resize(struct client_ctx *cc, union arg *arg)
 			client_resize(cc, 1);
 			XUnmapWindow(X_Dpy, sc->menu.win);
 			XReparentWindow(X_Dpy, sc->menu.win, sc->rootwin, 0, 0);
-			xu_ptr_ungrab();
+			XUngrabPointer(X_Dpy, CurrentTime);
 
 			/* Make sure the pointer stays within the window. */
 			if (cc->ptr.x > cc->geom.w)
@@ -99,7 +101,9 @@ mousefunc_client_move(struct client_ctx *cc, union arg *arg)
 	if (cc->flags & CLIENT_FREEZE)
 		return;
 
-	if (xu_ptr_grab(cc->win, MOUSEMASK, Conf.cursor[CF_MOVE]) < 0)
+	if (XGrabPointer(X_Dpy, cc->win, False, MOUSEMASK,
+	    GrabModeAsync, GrabModeAsync, None, Conf.cursor[CF_MOVE],
+	    CurrentTime) != GrabSuccess)
 		return;
 
 	xu_ptr_getpos(cc->win, &px, &py);
@@ -134,7 +138,7 @@ mousefunc_client_move(struct client_ctx *cc, union arg *arg)
 			client_move(cc);
 			XUnmapWindow(X_Dpy, sc->menu.win);
 			XReparentWindow(X_Dpy, sc->menu.win, sc->rootwin, 0, 0);
-			xu_ptr_ungrab();
+			XUngrabPointer(X_Dpy, CurrentTime);
 			return;
 		}
 	}

@@ -121,10 +121,12 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, const char *prompt,
 	XSelectInput(X_Dpy, sc->menu.win, evmask);
 	XMapRaised(X_Dpy, sc->menu.win);
 
-	if (xu_ptr_grab(sc->menu.win, MENUGRABMASK,
-	    Conf.cursor[CF_QUESTION]) < 0) {
+	if (XGrabPointer(X_Dpy, sc->menu.win, False, MENUGRABMASK,
+	    GrabModeAsync, GrabModeAsync, None, Conf.cursor[CF_QUESTION],
+	    CurrentTime) != GrabSuccess) {
 		XUnmapWindow(X_Dpy, sc->menu.win);
 		return(NULL);
+
 	}
 
 	XGetInputFocus(X_Dpy, &focuswin, &focusrevert);
@@ -172,7 +174,7 @@ out:
 	xu_ptr_getpos(sc->rootwin, &xcur, &ycur);
 	if (xcur == mc.geom.x && ycur == mc.geom.y)
 		xu_ptr_setpos(sc->rootwin, xsave, ysave);
-	xu_ptr_ungrab();
+	XUngrabPointer(X_Dpy, CurrentTime);
 
 	XMoveResizeWindow(X_Dpy, sc->menu.win, 0, 0, 1, 1);
 	XUnmapWindow(X_Dpy, sc->menu.win);
@@ -472,10 +474,13 @@ menu_handle_move(XEvent *e, struct menu_ctx *mc, struct menu_q *resultq)
 	if (mc->prev != -1)
 		menu_draw_entry(mc, resultq, mc->prev, 0);
 	if (mc->entry != -1) {
-		(void)xu_ptr_regrab(MENUGRABMASK, Conf.cursor[CF_NORMAL]);
+		XChangeActivePointerGrab(X_Dpy, MENUGRABMASK,
+		    Conf.cursor[CF_NORMAL], CurrentTime);
 		menu_draw_entry(mc, resultq, mc->entry, 1);
-	} else
-		(void)xu_ptr_regrab(MENUGRABMASK, Conf.cursor[CF_DEFAULT]);
+	} else {
+		XChangeActivePointerGrab(X_Dpy, MENUGRABMASK,
+		    Conf.cursor[CF_DEFAULT], CurrentTime);
+	}
 }
 
 static struct menu *

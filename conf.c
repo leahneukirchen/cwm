@@ -655,28 +655,48 @@ conf_cursor(struct conf *c)
 		c->cursor[i] = XCreateFontCursor(X_Dpy, cursor_binds[i]);
 }
 
+static unsigned int ign_mods[] = { 0, LockMask, Mod2Mask, Mod2Mask | LockMask };
+
 void
 conf_grab_mouse(Window win)
 {
 	struct binding	*mb;
+	unsigned int	i;
 
-	xu_btn_ungrab(win);
+	XUngrabButton(X_Dpy, AnyButton, AnyModifier, win);
 
 	TAILQ_FOREACH(mb, &Conf.mousebindingq, entry) {
-		if (mb->context == CWM_CONTEXT_CLIENT)
-			xu_btn_grab(win, mb->modmask, mb->press.button);
+		if (mb->context != CWM_CONTEXT_CLIENT)
+			continue;
+		for (i = 0; i < nitems(ign_mods); i++) {
+			XGrabButton(X_Dpy, mb->press.button,
+			    (mb->modmask | ign_mods[i]), win, False,
+			    BUTTONMASK, GrabModeAsync, GrabModeSync,
+			    None, None);
+		}
 	}
+
 }
 
 void
 conf_grab_kbd(Window win)
 {
 	struct binding	*kb;
+	KeyCode		 kc;
+	unsigned int	 i;
 
-	xu_key_ungrab(win);
+	XUngrabKey(X_Dpy, AnyKey, AnyModifier, win);
 
-	TAILQ_FOREACH(kb, &Conf.keybindingq, entry)
-		xu_key_grab(win, kb->modmask, kb->press.keysym);
+	TAILQ_FOREACH(kb, &Conf.keybindingq, entry) {
+		kc = XKeysymToKeycode(X_Dpy, kb->press.keysym);
+		if ((XkbKeycodeToKeysym(X_Dpy, kc, 0, 0) != kb->press.keysym) &&
+		    (XkbKeycodeToKeysym(X_Dpy, kc, 0, 1) == kb->press.keysym))
+			kb->modmask |= ShiftMask;
+
+		for (i = 0; i < nitems(ign_mods); i++)
+			XGrabKey(X_Dpy, kc, (kb->modmask | ign_mods[i]), win,
+			    True, GrabModeAsync, GrabModeAsync);
+	}
 }
 
 static char *cwmhints[] = {
