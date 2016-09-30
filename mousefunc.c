@@ -32,31 +32,6 @@
 
 #include "calmwm.h"
 
-static void	mousefunc_sweep_draw(struct client_ctx *);
-
-static void
-mousefunc_sweep_draw(struct client_ctx *cc)
-{
-	struct screen_ctx	*sc = cc->sc;
-	char			 s[14]; /* fits " nnnn x nnnn \0" */
-	XGlyphInfo		 extents;
-
-	(void)snprintf(s, sizeof(s), " %4d x %-4d ", cc->dim.w, cc->dim.h);
-
-	XftTextExtentsUtf8(X_Dpy, sc->xftfont, (const FcChar8*)s,
-	    strlen(s), &extents);
-
-	XReparentWindow(X_Dpy, sc->menu.win, cc->win, 0, 0);
-	XMoveResizeWindow(X_Dpy, sc->menu.win, 0, 0,
-	    extents.xOff, sc->xftfont->height);
-	XMapWindow(X_Dpy, sc->menu.win);
-	XClearWindow(X_Dpy, sc->menu.win);
-
-	XftDrawStringUtf8(sc->menu.xftdraw, &sc->xftcolor[CWM_COLOR_MENU_FONT],
-	    sc->xftfont, 0, sc->xftfont->ascent + 1,
-	    (const FcChar8*)s, strlen(s));
-}
-
 void
 mousefunc_client_resize(struct client_ctx *cc, union arg *arg)
 {
@@ -89,7 +64,8 @@ mousefunc_client_resize(struct client_ctx *cc, union arg *arg)
 			cc->geom.h = ev.xmotion.y;
 			client_applysizehints(cc);
 			client_resize(cc, 1);
-			mousefunc_sweep_draw(cc);
+			menu_windraw(sc, cc->win,
+			    "%4d x %-4d", cc->dim.w, cc->dim.h);
 			break;
 		case ButtonRelease:
 			client_resize(cc, 1);
@@ -151,9 +127,13 @@ mousefunc_client_move(struct client_ctx *cc, union arg *arg)
 			    cc->geom.y + cc->geom.h + (cc->bwidth * 2),
 			    area.y, area.y + area.h, sc->snapdist);
 			client_move(cc);
+			menu_windraw(sc, cc->win,
+			    "%4d, %-4d", cc->geom.x, cc->geom.y);
 			break;
 		case ButtonRelease:
 			client_move(cc);
+			XUnmapWindow(X_Dpy, sc->menu.win);
+			XReparentWindow(X_Dpy, sc->menu.win, sc->rootwin, 0, 0);
 			xu_ptr_ungrab();
 			return;
 		}

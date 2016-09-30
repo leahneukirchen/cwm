@@ -511,6 +511,8 @@ void			 mousefunc_client_move(struct client_ctx *,
 void			 mousefunc_client_resize(struct client_ctx *,
     			    union arg *);
 
+void			 menu_windraw(struct screen_ctx *, Window,
+			     const char *, ...);
 struct menu  		*menu_filter(struct screen_ctx *, struct menu_q *,
 			     const char *, const char *, int,
 			     void (*)(struct menu_q *, struct menu_q *, char *),

@@ -638,3 +638,35 @@ menuq_clear(struct menu_q *mq)
 		free(mi);
 	}
 }
+
+void
+menu_windraw(struct screen_ctx *sc, Window win, const char *fmt, ...)
+{
+	va_list			 ap;
+	int			 i;
+	char			*text;
+	XGlyphInfo		 extents;
+
+	va_start(ap, fmt);
+	i = vasprintf(&text, fmt, ap);
+	va_end(ap);
+
+	if (i < 0 || text == NULL)
+		err(1, "vasprintf");
+
+	XftTextExtentsUtf8(X_Dpy, sc->xftfont, (const FcChar8*)text,
+	    strlen(text), &extents);
+
+	XReparentWindow(X_Dpy, sc->menu.win, win, 0, 0);
+	XMoveResizeWindow(X_Dpy, sc->menu.win, 0, 0,
+	    extents.xOff, sc->xftfont->height);
+	XMapWindow(X_Dpy, sc->menu.win);
+	XClearWindow(X_Dpy, sc->menu.win);
+
+	XftDrawStringUtf8(sc->menu.xftdraw, &sc->xftcolor[CWM_COLOR_MENU_FONT],
+	    sc->xftfont, 0, sc->xftfont->ascent + 1,
+	    (const FcChar8*)text, strlen(text));
+
+	free(text);
+}
+
