@@ -76,7 +76,7 @@ mousefunc_client_resize(struct client_ctx *cc, union arg *arg)
 	xu_ptr_setpos(cc->win, cc->geom.w, cc->geom.h);
 
 	for (;;) {
-		XMaskEvent(X_Dpy, MOUSEMASK, &ev);
+		XWindowEvent(X_Dpy, cc->win, MOUSEMASK, &ev);
 
 		switch (ev.type) {
 		case MotionNotify:
@@ -129,7 +129,7 @@ mousefunc_client_move(struct client_ctx *cc, union arg *arg)
 	xu_ptr_getpos(cc->win, &px, &py);
 
 	for (;;) {
-		XMaskEvent(X_Dpy, MOUSEMASK, &ev);
+		XWindowEvent(X_Dpy, cc->win, MOUSEMASK, &ev);
 
 		switch (ev.type) {
 		case MotionNotify:
