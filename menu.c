@@ -63,10 +63,10 @@ struct menu_ctx {
 };
 static struct menu	*menu_handle_key(XEvent *, struct menu_ctx *,
 			     struct menu_q *, struct menu_q *);
-static void		 menu_handle_move(XEvent *, struct menu_ctx *,
-			     struct menu_q *);
-static struct menu	*menu_handle_release(XEvent *, struct menu_ctx *,
-			     struct menu_q *);
+static void		 menu_handle_move(struct menu_ctx *,
+			     struct menu_q *, int, int);
+static struct menu	*menu_handle_release(struct menu_ctx *,
+			     struct menu_q *, int, int);
 static void		 menu_draw(struct menu_ctx *, struct menu_q *,
 			     struct menu_q *);
 static void 		 menu_draw_entry(struct menu_ctx *, struct menu_q *,
@@ -151,11 +151,12 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, const char *prompt,
 			menu_draw(&mc, menuq, &resultq);
 			break;
 		case MotionNotify:
-			menu_handle_move(&e, &mc, &resultq);
+			menu_handle_move(&mc, &resultq,
+			    e.xbutton.x, e.xbutton.y);
 			break;
 		case ButtonRelease:
-			if ((mi = menu_handle_release(&e, &mc, &resultq))
-			    != NULL)
+			if ((mi = menu_handle_release(&mc, &resultq,
+			    e.xbutton.x, e.xbutton.y)) != NULL)
 				goto out;
 			break;
 		default:
@@ -408,14 +409,14 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 	XMoveResizeWindow(X_Dpy, sc->menu.win, mc->geom.x, mc->geom.y,
 	    mc->geom.w, mc->geom.h);
 
+	n = 0;
 	if (mc->hasprompt) {
 		XftDrawStringUtf8(sc->menu.xftdraw,
 		    &sc->xftcolor[CWM_COLOR_MENU_FONT], sc->xftfont,
 		    0, sc->xftfont->ascent,
 		    (const FcChar8*)mc->dispstr, strlen(mc->dispstr));
-		n = 1;
-	} else
-		n = 0;
+		n++;
+	}
 
 	TAILQ_FOREACH(mi, resultq, resultentry) {
 		int y = n * (sc->xftfont->height + 1) + sc->xftfont->ascent + 1;
@@ -463,10 +464,10 @@ menu_draw_entry(struct menu_ctx *mc, struct menu_q *resultq,
 }
 
 static void
-menu_handle_move(XEvent *e, struct menu_ctx *mc, struct menu_q *resultq)
+menu_handle_move(struct menu_ctx *mc, struct menu_q *resultq, int x, int y)
 {
 	mc->prev = mc->entry;
-	mc->entry = menu_calc_entry(mc, e->xbutton.x, e->xbutton.y);
+	mc->entry = menu_calc_entry(mc, x, y);
 
 	if (mc->prev == mc->entry)
 		return;
@@ -477,19 +478,16 @@ menu_handle_move(XEvent *e, struct menu_ctx *mc, struct menu_q *resultq)
 		XChangeActivePointerGrab(X_Dpy, MENUGRABMASK,
 		    Conf.cursor[CF_NORMAL], CurrentTime);
 		menu_draw_entry(mc, resultq, mc->entry, 1);
-	} else {
-		XChangeActivePointerGrab(X_Dpy, MENUGRABMASK,
-		    Conf.cursor[CF_DEFAULT], CurrentTime);
 	}
 }
 
 static struct menu *
-menu_handle_release(XEvent *e, struct menu_ctx *mc, struct menu_q *resultq)
+menu_handle_release(struct menu_ctx *mc, struct menu_q *resultq, int x, int y)
 {
 	struct menu		*mi;
 	int			 entry, i = 0;
 
-	entry = menu_calc_entry(mc, e->xbutton.x, e->xbutton.y);
+	entry = menu_calc_entry(mc, x, y);
 
 	if (mc->hasprompt)
 		i = 1;
@@ -529,13 +527,12 @@ static int
 menu_keycode(XKeyEvent *ev, enum ctltype *ctl, char *chr)
 {
 	KeySym		 ks;
-	unsigned int 	 state = ev->state;
 
 	*ctl = CTL_NONE;
 	chr[0] = '\0';
 
 	ks = XkbKeycodeToKeysym(X_Dpy, ev->keycode, 0,
-	     (state & ShiftMask) ? 1 : 0);
+	     (ev->state & ShiftMask) ? 1 : 0);
 
 	/* Look for control characters. */
 	switch (ks) {
@@ -560,7 +557,7 @@ menu_keycode(XKeyEvent *ev, enum ctltype *ctl, char *chr)
 		break;
 	}
 
-	if (*ctl == CTL_NONE && (state & ControlMask)) {
+	if (*ctl == CTL_NONE && (ev->state & ControlMask)) {
 		switch (ks) {
 		case XK_s:
 		case XK_S:
@@ -590,7 +587,7 @@ menu_keycode(XKeyEvent *ev, enum ctltype *ctl, char *chr)
 		}
 	}
 
-	if (*ctl == CTL_NONE && (state & Mod1Mask)) {
+	if (*ctl == CTL_NONE && (ev->state & Mod1Mask)) {
 		switch (ks) {
 		case XK_j:
 		case XK_J:

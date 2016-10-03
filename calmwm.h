@@ -96,11 +96,10 @@ union press {
 };
 
 enum cursor_font {
-	CF_DEFAULT,
-	CF_MOVE,
 	CF_NORMAL,
-	CF_QUESTION,
+	CF_MOVE,
 	CF_RESIZE,
+	CF_QUESTION,
 	CF_NITEMS
 };
 enum color {

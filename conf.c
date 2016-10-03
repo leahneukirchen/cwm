@@ -640,11 +640,10 @@ conf_unbind_mouse(struct conf *c, struct binding *unbind)
 }
 
 static int cursor_binds[] = {
-	XC_X_cursor,		/* CF_DEFAULT */
-	XC_fleur,		/* CF_MOVE */
 	XC_left_ptr,		/* CF_NORMAL */
-	XC_question_arrow,	/* CF_QUESTION */
+	XC_fleur,		/* CF_MOVE */
 	XC_bottom_right_corner,	/* CF_RESIZE */
+	XC_question_arrow,	/* CF_QUESTION */
 };
 
 void
