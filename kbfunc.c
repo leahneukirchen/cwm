@@ -187,6 +187,8 @@ kbfunc_menu_client(struct client_ctx *cc, union arg *arg)
 		cc = (struct client_ctx *)mi->ctx;
 		if (cc->flags & CLIENT_HIDDEN)
 			client_unhide(cc);
+		else
+			client_raise(cc);
 		if (old_cc)
 			client_ptrsave(old_cc);
 		client_ptrwarp(cc);
