@@ -133,7 +133,7 @@ client_init(Window win, struct screen_ctx *sc, int active)
 			goto out;
 		if (group_autogroup(cc))
 			goto out;
-		if (Conf.flags & CONF_STICKY_GROUPS)
+		if (Conf.stickygroups)
 			group_assign(sc->group_active, cc);
 		else
 			group_assign(NULL, cc);

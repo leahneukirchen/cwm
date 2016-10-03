@@ -284,34 +284,26 @@ struct conf {
 	struct autogroupwin_q	 autogroupq;
 	struct ignore_q		 ignoreq;
 	struct cmd_q		 cmdq;
-#define	CONF_STICKY_GROUPS		0x0001
-	int			 flags;
-#define CONF_BWIDTH			1
+	int			 stickygroups;
 	int			 bwidth;
-#define	CONF_MAMOUNT			1
 	int			 mamount;
-#define	CONF_SNAPDIST			0
 	int			 snapdist;
 	struct gap		 gap;
 	char			*color[CWM_COLOR_NITEMS];
 	char			 known_hosts[PATH_MAX];
-#define	CONF_FONT			"sans-serif:pixelsize=14:bold"
 	char			*font;
 	Cursor			 cursor[CF_NITEMS];
 };
 
 /* MWM hints */
 struct mwm_hints {
-	unsigned long	flags;
-	unsigned long	functions;
-	unsigned long	decorations;
-};
 #define MWM_HINTS_ELEMENTS	3L
+#define MWM_FLAGS_STATUS	(1<<3)
 
 #define MWM_FLAGS_FUNCTIONS	(1<<0)
 #define MWM_FLAGS_DECORATIONS	(1<<1)
 #define MWM_FLAGS_INPUT_MODE	(1<<2)
-#define MWM_FLAGS_STATUS	(1<<3)
+	unsigned long	flags;
 
 #define MWM_FUNCS_ALL		(1<<0)
 #define MWM_FUNCS_RESIZE	(1<<1)
@@ -319,6 +311,7 @@ struct mwm_hints {
 #define MWM_FUNCS_MINIMIZE	(1<<3)
 #define MWM_FUNCS_MAXIMIZE	(1<<4)
 #define MWM_FUNCS_CLOSE		(1<<5)
+	unsigned long	functions;
 
 #define	MWM_DECOR_ALL		(1<<0)
 #define	MWM_DECOR_BORDER	(1<<1)
@@ -327,6 +320,8 @@ struct mwm_hints {
 #define MWM_DECOR_MENU		(1<<4)
 #define MWM_DECOR_MINIMIZE	(1<<5)
 #define MWM_DECOR_MAXIMIZE	(1<<6)
+	unsigned long	decorations;
+};
 
 extern Display				*X_Dpy;
 extern Time				 Last_Event_Time;

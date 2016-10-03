@@ -254,9 +254,10 @@ conf_init(struct conf *c)
 {
 	unsigned int	i;
 
-	c->bwidth = CONF_BWIDTH;
-	c->mamount = CONF_MAMOUNT;
-	c->snapdist = CONF_SNAPDIST;
+	c->stickygroups = 0;
+	c->bwidth = 1;
+	c->mamount = 1;
+	c->snapdist = 0;
 
 	TAILQ_INIT(&c->ignoreq);
 	TAILQ_INIT(&c->cmdq);
@@ -279,7 +280,7 @@ conf_init(struct conf *c)
 	(void)snprintf(c->known_hosts, sizeof(c->known_hosts), "%s/%s",
 	    homedir, ".ssh/known_hosts");
 
-	c->font = xstrdup(CONF_FONT);
+	c->font = xstrdup("sans-serif:pixelsize=14:bold");
 }
 
 void
