@@ -95,11 +95,23 @@ kbfunc_client_move(struct client_ctx *cc, union arg *arg)
 {
 	struct screen_ctx	*sc = cc->sc;
 	struct geom		 area;
-	int			 x, y;
+	int			 x, y, px, py;
 	unsigned int		 mx = 0, my = 0;
 
 	if (cc->flags & CLIENT_FREEZE)
 		return;
+
+	xu_ptr_getpos(cc->win, &px, &py);
+	if (px < 0)
+		px = 0;
+	else if (px > cc->geom.w)
+		px = cc->geom.w;
+	if (py < 0)
+		py = 0;
+	else if (py > cc->geom.h)
+		py = cc->geom.h;
+
+	xu_ptr_setpos(cc->win, px, py);
 
 	kbfunc_amount(arg->i, Conf.mamount, &mx, &my);
 
