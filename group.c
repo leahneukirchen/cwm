@@ -154,7 +154,7 @@ group_movetogroup(struct client_ctx *cc, int idx)
 	struct screen_ctx	*sc = cc->sc;
 	struct group_ctx	*gc;
 
-	if (idx < 0 || idx >= CALMWM_NGROUPS)
+	if (idx < 0 || idx >= Conf.ngroups)
 		errx(1, "group_movetogroup: index out of range (%d)", idx);
 
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
@@ -222,7 +222,7 @@ group_hidetoggle(struct screen_ctx *sc, int idx)
 {
 	struct group_ctx	*gc;
 
-	if (idx < 0 || idx >= CALMWM_NGROUPS)
+	if (idx < 0 || idx >= Conf.ngroups)
 		errx(1, "group_hidetoggle: index out of range (%d)", idx);
 
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
@@ -245,7 +245,7 @@ group_only(struct screen_ctx *sc, int idx)
 {
 	struct group_ctx	*gc;
 
-	if (idx < 0 || idx >= CALMWM_NGROUPS)
+	if (idx < 0 || idx >= Conf.ngroups)
 		errx(1, "group_only: index out of range (%d)", idx);
 
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
@@ -335,7 +335,7 @@ group_restore(struct client_ctx *cc)
 		return(0);
 
 	num = (*grpnum == -1) ? 0 : *grpnum;
-	num = MIN(num, (CALMWM_NGROUPS - 1));
+	num = MIN(num, (Conf.ngroups - 1));
 	XFree(grpnum);
 
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {

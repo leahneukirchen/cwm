@@ -131,19 +131,20 @@ xu_ewmh_net_desktop_geometry(struct screen_ctx *sc)
 void
 xu_ewmh_net_workarea(struct screen_ctx *sc)
 {
-	long	 workareas[CALMWM_NGROUPS][4];
-	int	 i;
+	unsigned long	*workarea;
+	int		 i, ngroups = Conf.ngroups;
 
-	for (i = 0; i < CALMWM_NGROUPS; i++) {
-		workareas[i][0] = sc->work.x;
-		workareas[i][1] = sc->work.y;
-		workareas[i][2] = sc->work.w;
-		workareas[i][3] = sc->work.h;
+	workarea = xreallocarray(NULL, ngroups * 4, sizeof(unsigned long));
+	for (i = 0; i < ngroups; i++) {
+		workarea[4 * i + 0] = sc->work.x;
+		workarea[4 * i + 1] = sc->work.y;
+		workarea[4 * i + 2] = sc->work.w;
+		workarea[4 * i + 3] = sc->work.h;
 	}
-
 	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_WORKAREA],
-	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)workareas,
-	    CALMWM_NGROUPS * 4);
+	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)workarea,
+	    ngroups * 4);
+	free(workarea);
 }
 
 void
@@ -223,7 +224,7 @@ xu_ewmh_net_wm_desktop_viewport(struct screen_ctx *sc)
 void
 xu_ewmh_net_wm_number_of_desktops(struct screen_ctx *sc)
 {
-	long	 ndesks = CALMWM_NGROUPS;
+	long	 ndesks = Conf.ngroups;
 
 	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_NUMBER_OF_DESKTOPS],
 	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&ndesks, 1);

@@ -258,6 +258,7 @@ conf_init(struct conf *c)
 	c->bwidth = 1;
 	c->mamount = 1;
 	c->snapdist = 0;
+	c->ngroups = 10;
 
 	TAILQ_INIT(&c->ignoreq);
 	TAILQ_INIT(&c->cmdq);

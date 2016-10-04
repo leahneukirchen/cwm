@@ -57,7 +57,7 @@ screen_init(int which)
 
 	screen_update_geometry(sc);
 
-	for (i = 0; i < CALMWM_NGROUPS; i++)
+	for (i = 0; i < Conf.ngroups; i++)
 		group_init(sc, i);
 
 	xu_ewmh_net_desktop_names(sc);
