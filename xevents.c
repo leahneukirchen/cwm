@@ -386,6 +386,7 @@ xev_handle_randr(XEvent *ee)
 		if (sc->which == i) {
 			XRRUpdateConfiguration(ee);
 			screen_update_geometry(sc);
+			screen_assert_clients_within(sc);
 		}
 	}
 }

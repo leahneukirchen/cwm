@@ -455,6 +455,7 @@ struct geom		 screen_area(struct screen_ctx *, int, int, int);
 void			 screen_init(int);
 void			 screen_update_geometry(struct screen_ctx *);
 void			 screen_updatestackingorder(struct screen_ctx *);
+void			 screen_assert_clients_within(struct screen_ctx *);
 
 void			 kbfunc_client_cycle(struct client_ctx *, union arg *);
 void			 kbfunc_client_delete(struct client_ctx *, union arg *);

@@ -229,3 +229,26 @@ screen_apply_gap(struct screen_ctx *sc, struct geom geom)
 
 	return(geom);
 }
+
+/* Bring back clients which are beyond the screen. */
+void
+screen_assert_clients_within(struct screen_ctx *sc)
+{
+	struct client_ctx	*cc;
+	int			 top, left, right, bottom;
+
+	TAILQ_FOREACH(cc, &sc->clientq, entry) {
+		if (cc->sc != sc)
+			continue;
+		top = cc->geom.y;
+		left = cc->geom.x;
+		right = cc->geom.x + cc->geom.w + (cc->bwidth * 2) - 1;
+		bottom = cc->geom.y + cc->geom.h + (cc->bwidth * 2) - 1;
+		if ((top > sc->view.h || left > sc->view.w) ||
+		    (bottom < 0 || right < 0)) {
+			cc->geom.x = sc->gap.left;
+			cc->geom.y = sc->gap.top;
+			client_move(cc);
+		}
+	}
+}
