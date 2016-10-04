@@ -187,8 +187,6 @@ struct client_ctx {
 	int			 flags;
 	int			 stackingorder;
 	struct winname_q	 nameq;
-#define CLIENT_MAXNAMEQLEN		5
-	int			 nameqlen;
 	char			*name;
 	char			*label;
 	char			*matchname;
@@ -284,6 +282,7 @@ struct conf {
 	struct cmd_q		 cmdq;
 	int			 ngroups;
 	int			 stickygroups;
+	int			 nameqlen;
 	int			 bwidth;
 	int			 mamount;
 	int			 snapdist;

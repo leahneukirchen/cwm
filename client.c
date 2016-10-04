@@ -605,6 +605,7 @@ client_setname(struct client_ctx *cc)
 {
 	struct winname	*wn;
 	char		*newname;
+	int		 i = 0;
 
 	if (!xu_getstrprop(cc->win, ewmh[_NET_WM_NAME], &newname))
 		if (!xu_getstrprop(cc->win, XA_WM_NAME, &newname))
@@ -621,19 +622,19 @@ client_setname(struct client_ctx *cc)
 	wn = xmalloc(sizeof(*wn));
 	wn->name = newname;
 	TAILQ_INSERT_TAIL(&cc->nameq, wn, entry);
-	cc->nameqlen++;
 
 match:
 	cc->name = wn->name;
 
-	/* Now, do some garbage collection. */
-	if (cc->nameqlen > CLIENT_MAXNAMEQLEN) {
-		if ((wn = TAILQ_FIRST(&cc->nameq)) == NULL)
-			errx(1, "client_setname: window name queue empty");
+	/* Do some garbage collection. */
+	TAILQ_FOREACH(wn, &cc->nameq, entry)
+		i++;
+	if (i > Conf.nameqlen) {
+		wn = TAILQ_FIRST(&cc->nameq);
 		TAILQ_REMOVE(&cc->nameq, wn, entry);
 		free(wn->name);
 		free(wn);
-		cc->nameqlen--;
+		i--;
 	}
 }
 
