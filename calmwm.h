@@ -41,7 +41,6 @@
 #endif
 
 #define	CONFFILE	".cwmrc"
-#define	WMNAME	 	"CWM"
 
 #define BUTTONMASK	(ButtonPressMask | ButtonReleaseMask)
 #define MOUSEMASK	(BUTTONMASK | PointerMotionMask)
@@ -290,6 +289,7 @@ struct conf {
 	char			*color[CWM_COLOR_NITEMS];
 	char			 known_hosts[PATH_MAX];
 	char			*font;
+	char			*wmname;
 	Cursor			 cursor[CF_NITEMS];
 };
 

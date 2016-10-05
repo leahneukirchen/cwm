@@ -115,8 +115,8 @@ xu_ewmh_net_supported_wm_check(struct screen_ctx *sc)
 	XChangeProperty(X_Dpy, w, ewmh[_NET_SUPPORTING_WM_CHECK],
 	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)&w, 1);
 	XChangeProperty(X_Dpy, w, ewmh[_NET_WM_NAME],
-	    cwmh[UTF8_STRING], 8, PropModeReplace, (unsigned char *)WMNAME,
-	    strlen(WMNAME));
+	    cwmh[UTF8_STRING], 8, PropModeReplace,
+	    (unsigned char *)Conf.wmname, strlen(Conf.wmname));
 }
 
 void
