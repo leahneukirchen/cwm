@@ -192,6 +192,7 @@ static const struct {
 	{ "MS-Tab",	"rcycle" },
 	{ "CM-n",	"label" },
 	{ "CM-x",	"delete" },
+	{ "CM-a",	"nogroup" },
 	{ "CM-0",	"nogroup" },
 	{ "CM-1",	"group1" },
 	{ "CM-2",	"group2" },
