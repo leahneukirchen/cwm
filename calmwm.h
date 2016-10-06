@@ -74,8 +74,8 @@
 #define CWM_GAP			0x0001
 #define CWM_NOGAP		0x0002
 
-#define CWM_KBD			0x0001
-#define CWM_MOUSE		0x0002
+#define CWM_KEY			0x0001
+#define CWM_BTN			0x0002
 
 #define CWM_CONTEXT_NONE	0x0000
 #define CWM_CONTEXT_CLIENT	0x0001
@@ -245,7 +245,7 @@ TAILQ_HEAD(screen_ctx_q, screen_ctx);
 
 struct binding {
 	TAILQ_ENTRY(binding)	 entry;
-	void			(*callback)(struct client_ctx *, union arg *);
+	void			(*callback)(struct client_ctx *, union arg *, int);
 	union arg		 argument;
 	unsigned int		 modmask;
 	union press		 press;
@@ -457,52 +457,52 @@ void			 screen_update_geometry(struct screen_ctx *);
 void			 screen_updatestackingorder(struct screen_ctx *);
 void			 screen_assert_clients_within(struct screen_ctx *);
 
-void			 kbfunc_client_cycle(struct client_ctx *, union arg *);
-void			 kbfunc_client_delete(struct client_ctx *, union arg *);
+void			 kbfunc_client_cycle(struct client_ctx *, union arg *, int);
+void			 kbfunc_client_delete(struct client_ctx *, union arg *, int);
 void			 kbfunc_client_grouptoggle(struct client_ctx *,
-			     union arg *);
-void			 kbfunc_client_hide(struct client_ctx *, union arg *);
-void			 kbfunc_client_label(struct client_ctx *, union arg *);
-void			 kbfunc_client_lower(struct client_ctx *, union arg *);
-void			 kbfunc_client_move(struct client_ctx *, union arg *);
+			     union arg *, int);
+void			 kbfunc_client_hide(struct client_ctx *, union arg *, int);
+void			 kbfunc_client_label(struct client_ctx *, union arg *, int);
+void			 kbfunc_client_lower(struct client_ctx *, union arg *, int);
+void			 kbfunc_client_move(struct client_ctx *, union arg *, int);
 void			 kbfunc_client_movetogroup(struct client_ctx *,
-			     union arg *);
-void			 kbfunc_client_raise(struct client_ctx *, union arg *);
-void			 kbfunc_client_rcycle(struct client_ctx *, union arg *);
-void			 kbfunc_client_resize(struct client_ctx *, union arg *);
-void 			 kbfunc_client_tile(struct client_ctx *, union arg *);
+			     union arg *, int);
+void			 kbfunc_client_raise(struct client_ctx *, union arg *, int);
+void			 kbfunc_client_rcycle(struct client_ctx *, union arg *, int);
+void			 kbfunc_client_resize(struct client_ctx *, union arg *, int);
+void 			 kbfunc_client_tile(struct client_ctx *, union arg *, int);
 void			 kbfunc_client_toggle_freeze(struct client_ctx *,
-    			     union arg *);
+    			     union arg *, int);
 void			 kbfunc_client_toggle_fullscreen(struct client_ctx *,
-			     union arg *);
+			     union arg *, int);
 void			 kbfunc_client_toggle_hmaximize(struct client_ctx *,
-			     union arg *);
+			     union arg *, int);
 void			 kbfunc_client_toggle_maximize(struct client_ctx *,
-			     union arg *);
+			     union arg *, int);
 void			 kbfunc_client_toggle_sticky(struct client_ctx *,
-    			     union arg *);
+    			     union arg *, int);
 void			 kbfunc_client_toggle_vmaximize(struct client_ctx *,
-			     union arg *);
-void			 kbfunc_cwm_status(struct client_ctx *, union arg *);
-void			 kbfunc_exec(struct client_ctx *, union arg *);
-void			 kbfunc_exec_lock(struct client_ctx *, union arg *);
-void			 kbfunc_exec_term(struct client_ctx *, union arg *);
+			     union arg *, int);
+void			 kbfunc_cwm_status(struct client_ctx *, union arg *, int);
+void			 kbfunc_exec(struct client_ctx *, union arg *, int);
+void			 kbfunc_exec_lock(struct client_ctx *, union arg *, int);
+void			 kbfunc_exec_term(struct client_ctx *, union arg *, int);
 void			 kbfunc_group_alltoggle(struct client_ctx *,
-			     union arg *);
-void			 kbfunc_group_cycle(struct client_ctx *, union arg *);
-void			 kbfunc_group_only(struct client_ctx *, union arg *);
-void			 kbfunc_group_toggle(struct client_ctx *, union arg *);
-void			 kbfunc_menu_exec(struct client_ctx *, union arg *);
-void			 kbfunc_menu_client(struct client_ctx *, union arg *);
-void			 kbfunc_menu_cmd(struct client_ctx *, union arg *);
-void			 kbfunc_menu_group(struct client_ctx *, union arg *);
-void			 kbfunc_menu_ssh(struct client_ctx *, union arg *);
-void			 kbfunc_ptrmove(struct client_ctx *, union arg *);
+			     union arg *, int);
+void			 kbfunc_group_cycle(struct client_ctx *, union arg *, int);
+void			 kbfunc_group_only(struct client_ctx *, union arg *, int);
+void			 kbfunc_group_toggle(struct client_ctx *, union arg *, int);
+void			 kbfunc_menu_exec(struct client_ctx *, union arg *, int);
+void			 kbfunc_menu_client(struct client_ctx *, union arg *, int);
+void			 kbfunc_menu_cmd(struct client_ctx *, union arg *, int);
+void			 kbfunc_menu_group(struct client_ctx *, union arg *, int);
+void			 kbfunc_menu_ssh(struct client_ctx *, union arg *, int);
+void			 kbfunc_ptrmove(struct client_ctx *, union arg *, int);
 
 void			 mousefunc_client_move(struct client_ctx *,
-    			    union arg *);
+    			    union arg *, int);
 void			 mousefunc_client_resize(struct client_ctx *,
-    			    union arg *);
+    			    union arg *, int);
 
 void			 menu_windraw(struct screen_ctx *, Window,
 			     const char *, ...);

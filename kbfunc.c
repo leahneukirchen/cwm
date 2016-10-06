@@ -41,14 +41,14 @@ extern sig_atomic_t	 cwm_status;
 static void kbfunc_amount(int, int, unsigned int *, unsigned int *);
 
 void
-kbfunc_client_lower(struct client_ctx *cc, union arg *arg)
+kbfunc_client_lower(struct client_ctx *cc, union arg *arg, int xev)
 {
 	client_ptrsave(cc);
 	client_lower(cc);
 }
 
 void
-kbfunc_client_raise(struct client_ctx *cc, union arg *arg)
+kbfunc_client_raise(struct client_ctx *cc, union arg *arg, int xev)
 {
 	client_raise(cc);
 }
@@ -78,7 +78,7 @@ kbfunc_amount(int flags, int amt, unsigned int *mx, unsigned int *my)
 }
 
 void
-kbfunc_ptrmove(struct client_ctx *cc, union arg *arg)
+kbfunc_ptrmove(struct client_ctx *cc, union arg *arg, int xev)
 {
 	struct screen_ctx	*sc = cc->sc;
 	int			 x, y;
@@ -91,7 +91,7 @@ kbfunc_ptrmove(struct client_ctx *cc, union arg *arg)
 }
 
 void
-kbfunc_client_move(struct client_ctx *cc, union arg *arg)
+kbfunc_client_move(struct client_ctx *cc, union arg *arg, int xev)
 {
 	struct screen_ctx	*sc = cc->sc;
 	struct geom		 area;
@@ -144,7 +144,7 @@ kbfunc_client_move(struct client_ctx *cc, union arg *arg)
 }
 
 void
-kbfunc_client_resize(struct client_ctx *cc, union arg *arg)
+kbfunc_client_resize(struct client_ctx *cc, union arg *arg, int xev)
 {
 	unsigned int		 mx = 0, my = 0;
 	int			 amt = 1;
@@ -173,13 +173,13 @@ kbfunc_client_resize(struct client_ctx *cc, union arg *arg)
 }
 
 void
-kbfunc_menu_client(struct client_ctx *cc, union arg *arg)
+kbfunc_menu_client(struct client_ctx *cc, union arg *arg, int xev)
 {
 	struct screen_ctx	*sc = cc->sc;
 	struct client_ctx	*old_cc;
 	struct menu		*mi;
 	struct menu_q		 menuq;
-	int			 m = (arg->i == CWM_MOUSE);
+	int			 m = (xev == CWM_BTN);
 
 	old_cc = client_current();
 
@@ -210,13 +210,13 @@ kbfunc_menu_client(struct client_ctx *cc, union arg *arg)
 }
 
 void
-kbfunc_menu_cmd(struct client_ctx *cc, union arg *arg)
+kbfunc_menu_cmd(struct client_ctx *cc, union arg *arg, int xev)
 {
 	struct screen_ctx	*sc = cc->sc;
 	struct cmd		*cmd;
 	struct menu		*mi;
 	struct menu_q		 menuq;
-	int			 m = (arg->i == CWM_MOUSE);
+	int			 m = (xev == CWM_BTN);
 
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
@@ -239,13 +239,13 @@ kbfunc_menu_cmd(struct client_ctx *cc, union arg *arg)
 }
 
 void
-kbfunc_menu_group(struct client_ctx *cc, union arg *arg)
+kbfunc_menu_group(struct client_ctx *cc, union arg *arg, int xev)
 {
 	struct screen_ctx	*sc = cc->sc;
 	struct group_ctx	*gc;
 	struct menu		*mi;
 	struct menu_q		 menuq;
-	int			 m = (arg->i == CWM_MOUSE);
+	int			 m = (xev == CWM_BTN);
 
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
@@ -266,25 +266,25 @@ kbfunc_menu_group(struct client_ctx *cc, union arg *arg)
 }
 
 void
-kbfunc_client_cycle(struct client_ctx *cc, union arg *arg)
+kbfunc_client_cycle(struct client_ctx *cc, union arg *arg, int xev)
 {
 	client_cycle(cc->sc, arg->i);
 }
 
 void
-kbfunc_client_hide(struct client_ctx *cc, union arg *arg)
+kbfunc_client_hide(struct client_ctx *cc, union arg *arg, int xev)
 {
 	client_hide(cc);
 }
 
 void
-kbfunc_exec(struct client_ctx *cc, union arg *arg)
+kbfunc_exec(struct client_ctx *cc, union arg *arg, int xev)
 {
 	u_spawn(arg->c);
 }
 
 void
-kbfunc_exec_term(struct client_ctx *cc, union arg *arg)
+kbfunc_exec_term(struct client_ctx *cc, union arg *arg, int xev)
 {
 	struct cmd *cmd;
 
@@ -295,7 +295,7 @@ kbfunc_exec_term(struct client_ctx *cc, union arg *arg)
 }
 
 void
-kbfunc_exec_lock(struct client_ctx *cc, union arg *arg)
+kbfunc_exec_lock(struct client_ctx *cc, union arg *arg, int xev)
 {
 	struct cmd *cmd;
 
@@ -306,7 +306,7 @@ kbfunc_exec_lock(struct client_ctx *cc, union arg *arg)
 }
 
 void
-kbfunc_menu_exec(struct client_ctx *cc, union arg *arg)
+kbfunc_menu_exec(struct client_ctx *cc, union arg *arg, int xev)
 {
 #define NPATHS 256
 	struct screen_ctx	*sc = cc->sc;
@@ -389,7 +389,7 @@ out:
 }
 
 void
-kbfunc_menu_ssh(struct client_ctx *cc, union arg *arg)
+kbfunc_menu_ssh(struct client_ctx *cc, union arg *arg, int xev)
 {
 	struct screen_ctx	*sc = cc->sc;
 	struct cmd		*cmd;
@@ -456,7 +456,7 @@ out:
 }
 
 void
-kbfunc_client_label(struct client_ctx *cc, union arg *arg)
+kbfunc_client_label(struct client_ctx *cc, union arg *arg, int xev)
 {
 	struct menu	*mi;
 	struct menu_q	 menuq;
@@ -475,39 +475,39 @@ kbfunc_client_label(struct client_ctx *cc, union arg *arg)
 }
 
 void
-kbfunc_client_delete(struct client_ctx *cc, union arg *arg)
+kbfunc_client_delete(struct client_ctx *cc, union arg *arg, int xev)
 {
 	client_send_delete(cc);
 }
 
 void
-kbfunc_group_toggle(struct client_ctx *cc, union arg *arg)
+kbfunc_group_toggle(struct client_ctx *cc, union arg *arg, int xev)
 {
 	group_hidetoggle(cc->sc, arg->i);
 }
 
 void
-kbfunc_group_only(struct client_ctx *cc, union arg *arg)
+kbfunc_group_only(struct client_ctx *cc, union arg *arg, int xev)
 {
 	group_only(cc->sc, arg->i);
 }
 
 void
-kbfunc_group_cycle(struct client_ctx *cc, union arg *arg)
+kbfunc_group_cycle(struct client_ctx *cc, union arg *arg, int xev)
 {
 	group_cycle(cc->sc, arg->i);
 }
 
 void
-kbfunc_group_alltoggle(struct client_ctx *cc, union arg *arg)
+kbfunc_group_alltoggle(struct client_ctx *cc, union arg *arg, int xev)
 {
 	group_alltoggle(cc->sc);
 }
 
 void
-kbfunc_client_grouptoggle(struct client_ctx *cc, union arg *arg)
+kbfunc_client_grouptoggle(struct client_ctx *cc, union arg *arg, int xev)
 {
-	if (arg->i == CWM_KBD) {
+	if (xev == CWM_KEY) {
 		/* For X apps that steal events. */
 		XGrabKeyboard(X_Dpy, cc->win, True,
 		    GrabModeAsync, GrabModeAsync, CurrentTime);
@@ -517,55 +517,55 @@ kbfunc_client_grouptoggle(struct client_ctx *cc, union arg *arg)
 }
 
 void
-kbfunc_client_movetogroup(struct client_ctx *cc, union arg *arg)
+kbfunc_client_movetogroup(struct client_ctx *cc, union arg *arg, int xev)
 {
 	group_movetogroup(cc, arg->i);
 }
 
 void
-kbfunc_client_toggle_sticky(struct client_ctx *cc, union arg *arg)
+kbfunc_client_toggle_sticky(struct client_ctx *cc, union arg *arg, int xev)
 {
 	client_toggle_sticky(cc);
 }
 
 void
-kbfunc_client_toggle_fullscreen(struct client_ctx *cc, union arg *arg)
+kbfunc_client_toggle_fullscreen(struct client_ctx *cc, union arg *arg, int xev)
 {
 	client_toggle_fullscreen(cc);
 }
 
 void
-kbfunc_client_toggle_maximize(struct client_ctx *cc, union arg *arg)
+kbfunc_client_toggle_maximize(struct client_ctx *cc, union arg *arg, int xev)
 {
 	client_toggle_maximize(cc);
 }
 
 void
-kbfunc_client_toggle_vmaximize(struct client_ctx *cc, union arg *arg)
+kbfunc_client_toggle_vmaximize(struct client_ctx *cc, union arg *arg, int xev)
 {
 	client_toggle_vmaximize(cc);
 }
 
 void
-kbfunc_client_toggle_hmaximize(struct client_ctx *cc, union arg *arg)
+kbfunc_client_toggle_hmaximize(struct client_ctx *cc, union arg *arg, int xev)
 {
 	client_toggle_hmaximize(cc);
 }
 
 void
-kbfunc_client_toggle_freeze(struct client_ctx *cc, union arg *arg)
+kbfunc_client_toggle_freeze(struct client_ctx *cc, union arg *arg, int xev)
 {
 	client_toggle_freeze(cc);
 }
 
 void
-kbfunc_cwm_status(struct client_ctx *cc, union arg *arg)
+kbfunc_cwm_status(struct client_ctx *cc, union arg *arg, int xev)
 {
 	cwm_status = arg->i;
 }
 
 void
-kbfunc_client_tile(struct client_ctx *cc, union arg *arg)
+kbfunc_client_tile(struct client_ctx *cc, union arg *arg, int xev)
 {
 	switch (arg->i) {
 	case CWM_CLIENT_TILE_HORIZ:

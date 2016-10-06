@@ -244,7 +244,7 @@ xev_handle_buttonpress(XEvent *ee)
 			return;
 	}
 
-	(*mb->callback)(cc, &mb->argument);
+	(*mb->callback)(cc, &mb->argument, CWM_BTN);
 }
 
 static void
@@ -298,7 +298,7 @@ xev_handle_keypress(XEvent *ee)
 			return;
 	}
 
-	(*kb->callback)(cc, &kb->argument);
+	(*kb->callback)(cc, &kb->argument, CWM_KEY);
 }
 
 /*

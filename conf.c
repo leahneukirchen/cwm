@@ -351,7 +351,7 @@ conf_client(struct client_ctx *cc)
 
 static const struct {
 	const char	*tag;
-	void		 (*handler)(struct client_ctx *, union arg *);
+	void		 (*handler)(struct client_ctx *, union arg *, int);
 	int		 context;
 	union arg	 argument;
 } name_to_func[] = {
@@ -412,8 +412,7 @@ static const struct {
 	    {.i = (CWM_CLIENT_CYCLE | CWM_CLIENT_CYCLE_INGRP)} },
 	{ "rcycleingroup", kbfunc_client_cycle, CWM_CONTEXT_CLIENT,
 	    {.i = (CWM_CLIENT_RCYCLE | CWM_CLIENT_CYCLE_INGRP)} },
-	{ "grouptoggle", kbfunc_client_grouptoggle, CWM_CONTEXT_CLIENT,
-	    {.i = CWM_KBD}},
+	{ "grouptoggle", kbfunc_client_grouptoggle, CWM_CONTEXT_CLIENT, {0}},
 	{ "stick", kbfunc_client_toggle_sticky, CWM_CONTEXT_CLIENT, {0} },
 	{ "fullscreen", kbfunc_client_toggle_fullscreen, CWM_CONTEXT_CLIENT,
 	    {0} },
@@ -489,14 +488,10 @@ static const struct {
 	{ "window_hide", kbfunc_client_hide, CWM_CONTEXT_CLIENT, {0} },
 	{ "window_move", mousefunc_client_move, CWM_CONTEXT_CLIENT, {0} },
 	{ "window_resize", mousefunc_client_resize, CWM_CONTEXT_CLIENT, {0} },
-	{ "window_grouptoggle", kbfunc_client_grouptoggle, CWM_CONTEXT_CLIENT,
-	   {.i = CWM_MOUSE} },
-	{ "menu_group", kbfunc_menu_group, CWM_CONTEXT_SCREEN,
-	    {.i = CWM_MOUSE} },
-	{ "menu_unhide", kbfunc_menu_client, CWM_CONTEXT_SCREEN,
-	    {.i = CWM_MOUSE} },
-	{ "menu_cmd", kbfunc_menu_cmd, CWM_CONTEXT_SCREEN,
-	    {.i = CWM_MOUSE} },
+	{ "window_grouptoggle", kbfunc_client_grouptoggle, CWM_CONTEXT_CLIENT, {0} },
+	{ "menu_group", kbfunc_menu_group, CWM_CONTEXT_SCREEN, {0} },
+	{ "menu_unhide", kbfunc_menu_client, CWM_CONTEXT_SCREEN, {0} },
+	{ "menu_cmd", kbfunc_menu_cmd, CWM_CONTEXT_SCREEN, {0} },
 };
 
 static const struct {
