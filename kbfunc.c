@@ -456,7 +456,7 @@ out:
 }
 
 void
-kbfunc_client_label(struct client_ctx *cc, union arg *arg, int xev)
+kbfunc_menu_client_label(struct client_ctx *cc, union arg *arg, int xev)
 {
 	struct menu	*mi;
 	struct menu_q	 menuq;
@@ -505,7 +505,7 @@ kbfunc_group_alltoggle(struct client_ctx *cc, union arg *arg, int xev)
 }
 
 void
-kbfunc_client_grouptoggle(struct client_ctx *cc, union arg *arg, int xev)
+kbfunc_client_toggle_group(struct client_ctx *cc, union arg *arg, int xev)
 {
 	if (xev == CWM_KEY) {
 		/* For X apps that steal events. */

@@ -459,10 +459,8 @@ void			 screen_assert_clients_within(struct screen_ctx *);
 
 void			 kbfunc_client_cycle(struct client_ctx *, union arg *, int);
 void			 kbfunc_client_delete(struct client_ctx *, union arg *, int);
-void			 kbfunc_client_grouptoggle(struct client_ctx *,
-			     union arg *, int);
 void			 kbfunc_client_hide(struct client_ctx *, union arg *, int);
-void			 kbfunc_client_label(struct client_ctx *, union arg *, int);
+void			 kbfunc_menu_client_label(struct client_ctx *, union arg *, int);
 void			 kbfunc_client_lower(struct client_ctx *, union arg *, int);
 void			 kbfunc_client_move(struct client_ctx *, union arg *, int);
 void			 kbfunc_client_movetogroup(struct client_ctx *,
@@ -471,6 +469,8 @@ void			 kbfunc_client_raise(struct client_ctx *, union arg *, int);
 void			 kbfunc_client_rcycle(struct client_ctx *, union arg *, int);
 void			 kbfunc_client_resize(struct client_ctx *, union arg *, int);
 void 			 kbfunc_client_tile(struct client_ctx *, union arg *, int);
+void			 kbfunc_client_toggle_group(struct client_ctx *,
+			     union arg *, int);
 void			 kbfunc_client_toggle_freeze(struct client_ctx *,
     			     union arg *, int);
 void			 kbfunc_client_toggle_fullscreen(struct client_ctx *,
