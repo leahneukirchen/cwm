@@ -466,7 +466,6 @@ void			 kbfunc_client_move(struct client_ctx *, union arg *, int);
 void			 kbfunc_client_movetogroup(struct client_ctx *,
 			     union arg *, int);
 void			 kbfunc_client_raise(struct client_ctx *, union arg *, int);
-void			 kbfunc_client_rcycle(struct client_ctx *, union arg *, int);
 void			 kbfunc_client_resize(struct client_ctx *, union arg *, int);
 void 			 kbfunc_client_tile(struct client_ctx *, union arg *, int);
 void			 kbfunc_client_toggle_group(struct client_ctx *,
