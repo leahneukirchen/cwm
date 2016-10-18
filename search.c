@@ -72,7 +72,7 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 
 		/* Then, on window names. */
 		if (tier < 0) {
-			TAILQ_FOREACH_REVERSE(wn, &cc->nameq, winname_q, entry)
+			TAILQ_FOREACH_REVERSE(wn, &cc->nameq, name_q, entry)
 				if (strsubmatch(search, wn->name, 0)) {
 					cc->matchname = wn->name;
 					tier = 2;
@@ -126,7 +126,7 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 void
 search_print_cmd(struct menu *mi, int i)
 {
-	struct cmd	*cmd = (struct cmd *)mi->ctx;
+	struct cmd_ctx	*cmd = (struct cmd_ctx *)mi->ctx;
 
 	(void)snprintf(mi->print, sizeof(mi->print), "%s", cmd->name);
 }

@@ -653,20 +653,20 @@ client_cycle(struct screen_ctx *sc, int flags)
 
 	oldcc = client_current();
 	if (oldcc == NULL)
-		oldcc = (flags & CWM_CLIENT_RCYCLE) ?
-		    TAILQ_LAST(&sc->clientq, client_ctx_q) :
+		oldcc = (flags & CWM_CYCLE_REVERSE) ?
+		    TAILQ_LAST(&sc->clientq, client_q) :
 		    TAILQ_FIRST(&sc->clientq);
 
 	newcc = oldcc;
 	while (again) {
 		again = 0;
 
-		newcc = (flags & CWM_CLIENT_RCYCLE) ? client_prev(newcc) :
+		newcc = (flags & CWM_CYCLE_REVERSE) ? client_prev(newcc) :
 		    client_next(newcc);
 
 		/* Only cycle visible and non-ignored windows. */
 		if ((newcc->flags & (CLIENT_HIDDEN | CLIENT_IGNORE))
-		    || ((flags & CWM_CLIENT_CYCLE_INGRP) &&
+		    || ((flags & CWM_CYCLE_INGROUP) &&
 			(newcc->gc != oldcc->gc)))
 			again = 1;
 
@@ -721,8 +721,8 @@ client_prev(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	struct client_ctx	*newcc;
 
-	return(((newcc = TAILQ_PREV(cc, client_ctx_q, entry)) != NULL) ?
-	    newcc : TAILQ_LAST(&sc->clientq, client_ctx_q));
+	return(((newcc = TAILQ_PREV(cc, client_q, entry)) != NULL) ?
+	    newcc : TAILQ_LAST(&sc->clientq, client_q));
 }
 
 static void

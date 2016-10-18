@@ -220,31 +220,37 @@ static void
 xev_handle_buttonpress(XEvent *ee)
 {
 	XButtonEvent		*e = &ee->xbutton;
-	struct client_ctx	*cc, fakecc;
-	struct binding		*mb;
+	struct client_ctx	*cc;
+	struct screen_ctx	*sc;
+	struct bind_ctx		*mb;
 
 	e->state &= ~IGNOREMODMASK;
 
-	TAILQ_FOREACH(mb, &Conf.mousebindingq, entry) {
+	TAILQ_FOREACH(mb, &Conf.mousebindq, entry) {
 		if (e->button == mb->press.button && e->state == mb->modmask)
 			break;
 	}
 
 	if (mb == NULL)
 		return;
-	if (mb->context == CWM_CONTEXT_CLIENT) {
+	switch (mb->context) {
+	case CWM_CONTEXT_CC:
 		if (((cc = client_find(e->window)) == NULL) &&
 		    (cc = client_current()) == NULL)
 			return;
-	} else {
+		(*mb->callback)(cc, &mb->argument, CWM_XEV_BTN);
+		break;
+	case CWM_CONTEXT_SC:
 		if (e->window != e->root)
 			return;
-		cc = &fakecc;
-		if ((cc->sc = screen_find(e->window)) == NULL)
+		if ((sc = screen_find(e->window)) == NULL)
 			return;
+		(*mb->callback)(sc, &mb->argument, CWM_XEV_BTN);
+		break;
+	case CWM_CONTEXT_NONE:
+		(*mb->callback)(NULL, &mb->argument, CWM_XEV_BTN);
+		break;
 	}
-
-	(*mb->callback)(cc, &mb->argument, CWM_BTN);
 }
 
 static void
@@ -263,8 +269,9 @@ static void
 xev_handle_keypress(XEvent *ee)
 {
 	XKeyEvent		*e = &ee->xkey;
-	struct client_ctx	*cc = NULL, fakecc;
-	struct binding		*kb;
+	struct client_ctx	*cc;
+	struct screen_ctx	*sc;
+	struct bind_ctx		*kb;
 	KeySym			 keysym, skeysym;
 	unsigned int		 modshift;
 
@@ -273,7 +280,7 @@ xev_handle_keypress(XEvent *ee)
 
 	e->state &= ~IGNOREMODMASK;
 
-	TAILQ_FOREACH(kb, &Conf.keybindingq, entry) {
+	TAILQ_FOREACH(kb, &Conf.keybindq, entry) {
 		if (keysym != kb->press.keysym && skeysym == kb->press.keysym)
 			modshift = ShiftMask;
 		else
@@ -288,17 +295,22 @@ xev_handle_keypress(XEvent *ee)
 
 	if (kb == NULL)
 		return;
-	if (kb->context == CWM_CONTEXT_CLIENT) {
+	switch (kb->context) {
+	case CWM_CONTEXT_CC:
 		if (((cc = client_find(e->window)) == NULL) &&
 		    (cc = client_current()) == NULL)
 			return;
-	} else {
-		cc = &fakecc;
-		if ((cc->sc = screen_find(e->window)) == NULL)
+		(*kb->callback)(cc, &kb->argument, CWM_XEV_KEY);
+		break;
+	case CWM_CONTEXT_SC:
+		if ((sc = screen_find(e->window)) == NULL)
 			return;
+		(*kb->callback)(sc, &kb->argument, CWM_XEV_KEY);
+		break;
+	case CWM_CONTEXT_NONE:
+		(*kb->callback)(NULL, &kb->argument, CWM_XEV_KEY);
+		break;
 	}
-
-	(*kb->callback)(cc, &kb->argument, CWM_KEY);
 }
 
 /*
@@ -424,7 +436,7 @@ xev_process(void)
 	XEvent		 e;
 
 	XNextEvent(X_Dpy, &e);
-	if (e.type - Randr_ev == RRScreenChangeNotify)
+	if (e.type - Conf.xrandr_event_base == RRScreenChangeNotify)
 		xev_handle_randr(&e);
 	else if (e.type < LASTEvent && xev_handlers[e.type] != NULL)
 		(*xev_handlers[e.type])(&e);

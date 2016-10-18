@@ -36,18 +36,14 @@
 
 #include "calmwm.h"
 
-Display				*X_Dpy;
-Time				 Last_Event_Time = CurrentTime;
-Atom				 cwmh[CWMH_NITEMS];
-Atom				 ewmh[EWMH_NITEMS];
-
-struct screen_ctx_q		 Screenq = TAILQ_HEAD_INITIALIZER(Screenq);
-
-int				 HasRandr, Randr_ev;
-struct conf			 Conf;
-const char			*homedir;
-char				*wm_argv;
-volatile sig_atomic_t		 cwm_status;
+Display			*X_Dpy;
+Time			 Last_Event_Time = CurrentTime;
+Atom			 cwmh[CWMH_NITEMS];
+Atom			 ewmh[EWMH_NITEMS];
+struct screen_q		 Screenq = TAILQ_HEAD_INITIALIZER(Screenq);
+struct conf		 Conf;
+const char		*homedir;
+volatile sig_atomic_t	 cwm_status;
 
 static void	sighdlr(int);
 static int	x_errorhandler(Display *, XErrorEvent *);
@@ -67,7 +63,7 @@ main(int argc, char **argv)
 		warnx("no locale support");
 	mbtowc(NULL, NULL, MB_CUR_MAX);
 
-	wm_argv = u_argv(argv);
+	Conf.wm_argv = u_argv(argv);
 	while ((ch = getopt(argc, argv, "c:d:")) != -1) {
 		switch (ch) {
 		case 'c':
@@ -107,6 +103,7 @@ main(int argc, char **argv)
 	}
 
 	conf_init(&Conf);
+
 	if (conf_path && (parse_config(conf_path, &Conf) == -1))
 		warnx("config file %s has errors", conf_path);
 	free(conf_path);
@@ -121,7 +118,7 @@ main(int argc, char **argv)
 		xev_process();
 	x_teardown();
 	if (cwm_status == CWM_EXEC_WM)
-		u_exec(wm_argv);
+		u_exec(Conf.wm_argv);
 
 	return(0);
 }
@@ -139,7 +136,7 @@ x_init(const char *dpyname)
 	XSync(X_Dpy, False);
 	XSetErrorHandler(x_errorhandler);
 
-	HasRandr = XRRQueryExtension(X_Dpy, &Randr_ev, &i);
+	Conf.xrandr = XRRQueryExtension(X_Dpy, &Conf.xrandr_event_base, &i);
 
 	conf_atoms();
 	conf_cursor(&Conf);

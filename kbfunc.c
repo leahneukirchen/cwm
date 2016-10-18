@@ -41,16 +41,9 @@ extern sig_atomic_t	 cwm_status;
 static void kbfunc_amount(int, int, unsigned int *, unsigned int *);
 
 void
-kbfunc_client_lower(struct client_ctx *cc, union arg *arg, int xev)
+kbfunc_cwm_status(void *ctx, union arg *arg, enum xev xev)
 {
-	client_ptrsave(cc);
-	client_lower(cc);
-}
-
-void
-kbfunc_client_raise(struct client_ctx *cc, union arg *arg, int xev)
-{
-	client_raise(cc);
+	cwm_status = arg->i;
 }
 
 static void
@@ -78,9 +71,9 @@ kbfunc_amount(int flags, int amt, unsigned int *mx, unsigned int *my)
 }
 
 void
-kbfunc_ptrmove(struct client_ctx *cc, union arg *arg, int xev)
+kbfunc_ptrmove(void *ctx, union arg *arg, enum xev xev)
 {
-	struct screen_ctx	*sc = cc->sc;
+	struct screen_ctx	*sc = ctx;
 	int			 x, y;
 	unsigned int		 mx = 0, my = 0;
 
@@ -91,8 +84,9 @@ kbfunc_ptrmove(struct client_ctx *cc, union arg *arg, int xev)
 }
 
 void
-kbfunc_client_move(struct client_ctx *cc, union arg *arg, int xev)
+kbfunc_client_move(void *ctx, union arg *arg, enum xev xev)
 {
+	struct client_ctx	*cc = ctx;
 	struct screen_ctx	*sc = cc->sc;
 	struct geom		 area;
 	int			 x, y, px, py;
@@ -144,8 +138,9 @@ kbfunc_client_move(struct client_ctx *cc, union arg *arg, int xev)
 }
 
 void
-kbfunc_client_resize(struct client_ctx *cc, union arg *arg, int xev)
+kbfunc_client_resize(void *ctx, union arg *arg, enum xev xev)
 {
+	struct client_ctx	*cc = ctx;
 	unsigned int		 mx = 0, my = 0;
 	int			 amt = 1;
 
@@ -173,13 +168,136 @@ kbfunc_client_resize(struct client_ctx *cc, union arg *arg, int xev)
 }
 
 void
-kbfunc_menu_client(struct client_ctx *cc, union arg *arg, int xev)
+kbfunc_client_delete(void *ctx, union arg *arg, enum xev xev)
 {
-	struct screen_ctx	*sc = cc->sc;
-	struct client_ctx	*old_cc;
+	client_send_delete(ctx);
+}
+
+void
+kbfunc_client_lower(void *ctx, union arg *arg, enum xev xev)
+{
+	client_ptrsave(ctx);
+	client_lower(ctx);
+}
+
+void
+kbfunc_client_raise(void *ctx, union arg *arg, enum xev xev)
+{
+	client_raise(ctx);
+}
+
+void
+kbfunc_client_hide(void *ctx, union arg *arg, enum xev xev)
+{
+	client_hide(ctx);
+}
+
+void
+kbfunc_client_toggle_freeze(void *ctx, union arg *arg, enum xev xev)
+{
+	client_toggle_freeze(ctx);
+}
+
+void
+kbfunc_client_toggle_sticky(void *ctx, union arg *arg, enum xev xev)
+{
+	client_toggle_sticky(ctx);
+}
+
+void
+kbfunc_client_toggle_fullscreen(void *ctx, union arg *arg, enum xev xev)
+{
+	client_toggle_fullscreen(ctx);
+}
+
+void
+kbfunc_client_toggle_maximize(void *ctx, union arg *arg, enum xev xev)
+{
+	client_toggle_maximize(ctx);
+}
+
+void
+kbfunc_client_toggle_hmaximize(void *ctx, union arg *arg, enum xev xev)
+{
+	client_toggle_hmaximize(ctx);
+}
+
+void
+kbfunc_client_toggle_vmaximize(void *ctx, union arg *arg, enum xev xev)
+{
+	client_toggle_vmaximize(ctx);
+}
+
+void
+kbfunc_client_htile(void *ctx, union arg *arg, enum xev xev)
+{
+	client_htile(ctx);
+}
+
+void
+kbfunc_client_vtile(void *ctx, union arg *arg, enum xev xev)
+{
+	client_vtile(ctx);
+}
+
+void
+kbfunc_client_cycle(void *ctx, union arg *arg, enum xev xev)
+{
+	client_cycle(ctx, arg->i);
+}
+
+void
+kbfunc_client_toggle_group(void *ctx, union arg *arg, enum xev xev)
+{
+	struct client_ctx	*cc = ctx;
+
+	if (xev == CWM_XEV_KEY) {
+		/* For X apps that steal events. */
+		XGrabKeyboard(X_Dpy, cc->win, True,
+		    GrabModeAsync, GrabModeAsync, CurrentTime);
+	}
+
+	group_toggle_membership_enter(cc);
+}
+
+void
+kbfunc_client_movetogroup(void *ctx, union arg *arg, enum xev xev)
+{
+	group_movetogroup(ctx, arg->i);
+}
+
+void
+kbfunc_group_toggle(void *ctx, union arg *arg, enum xev xev)
+{
+	group_hidetoggle(ctx, arg->i);
+}
+
+void
+kbfunc_group_only(void *ctx, union arg *arg, enum xev xev)
+{
+	group_only(ctx, arg->i);
+}
+
+void
+kbfunc_group_cycle(void *ctx, union arg *arg, enum xev xev)
+{
+	group_cycle(ctx, arg->i);
+}
+
+void
+kbfunc_group_alltoggle(void *ctx, union arg *arg, enum xev xev)
+{
+	group_alltoggle(ctx);
+}
+
+void
+kbfunc_menu_client(void *ctx, union arg *arg, enum xev xev)
+{
+	struct screen_ctx	*sc = ctx;
+	struct client_ctx	*cc, *old_cc;
 	struct menu		*mi;
 	struct menu_q		 menuq;
-	int			 m = (xev == CWM_BTN);
+	int			 m = (xev == CWM_XEV_BTN);
 
 	old_cc = client_current();
 
@@ -210,13 +328,13 @@ kbfunc_menu_client(struct client_ctx *cc, union arg *arg, int xev)
 }
 
 void
-kbfunc_menu_cmd(struct client_ctx *cc, union arg *arg, int xev)
+kbfunc_menu_cmd(void *ctx, union arg *arg, enum xev xev)
 {
-	struct screen_ctx	*sc = cc->sc;
-	struct cmd		*cmd;
+	struct screen_ctx	*sc = ctx;
+	struct cmd_ctx		*cmd;
 	struct menu		*mi;
 	struct menu_q		 menuq;
-	int			 m = (xev == CWM_BTN);
+	int			 m = (xev == CWM_XEV_BTN);
 
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
@@ -231,7 +349,7 @@ kbfunc_menu_cmd(struct client_ctx *cc, union arg *arg, int xev)
 	    (m) ? NULL : "application", NULL,
 	    (m) ? CWM_MENU_LIST : 0,
 	    search_match_text, search_print_cmd)) != NULL) {
-		cmd = (struct cmd *)mi->ctx;
+		cmd = (struct cmd_ctx *)mi->ctx;
 		u_spawn(cmd->path);
 	}
 
@@ -239,13 +357,13 @@ kbfunc_menu_cmd(struct client_ctx *cc, union arg *arg, int xev)
 }
 
 void
-kbfunc_menu_group(struct client_ctx *cc, union arg *arg, int xev)
+kbfunc_menu_group(void *ctx, union arg *arg, enum xev xev)
 {
-	struct screen_ctx	*sc = cc->sc;
+	struct screen_ctx	*sc = ctx;
 	struct group_ctx	*gc;
 	struct menu		*mi;
 	struct menu_q		 menuq;
-	int			 m = (xev == CWM_BTN);
+	int			 m = (xev == CWM_XEV_BTN);
 
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
@@ -266,50 +384,10 @@ kbfunc_menu_group(struct client_ctx *cc, union arg *arg, int xev)
 }
 
 void
-kbfunc_client_cycle(struct client_ctx *cc, union arg *arg, int xev)
-{
-	client_cycle(cc->sc, arg->i);
-}
-
-void
-kbfunc_client_hide(struct client_ctx *cc, union arg *arg, int xev)
-{
-	client_hide(cc);
-}
-
-void
-kbfunc_exec(struct client_ctx *cc, union arg *arg, int xev)
-{
-	u_spawn(arg->c);
-}
-
-void
-kbfunc_exec_term(struct client_ctx *cc, union arg *arg, int xev)
-{
-	struct cmd *cmd;
-
-	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
-		if (strcmp(cmd->name, "term") == 0)
-			u_spawn(cmd->path);
-	}
-}
-
-void
-kbfunc_exec_lock(struct client_ctx *cc, union arg *arg, int xev)
-{
-	struct cmd *cmd;
-
-	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
-		if (strcmp(cmd->name, "lock") == 0)
-			u_spawn(cmd->path);
-	}
-}
-
-void
-kbfunc_menu_exec(struct client_ctx *cc, union arg *arg, int xev)
+kbfunc_menu_exec(void *ctx, union arg *arg, enum xev xev)
 {
 #define NPATHS 256
-	struct screen_ctx	*sc = cc->sc;
+	struct screen_ctx	*sc = ctx;
 	char			**ap, *paths[NPATHS], *path, *pathcpy;
 	char			 tpath[PATH_MAX];
 	const char		*label;
@@ -320,7 +398,7 @@ kbfunc_menu_exec(struct client_ctx *cc, union arg *arg, int xev)
 	int			 l, i, cmd = arg->i;
 
 	switch (cmd) {
-	case CWM_MENU_EXEC:
+	case CWM_MENU_EXEC_EXEC:
 		label = "exec";
 		break;
 	case CWM_MENU_EXEC_WM:
@@ -328,7 +406,7 @@ kbfunc_menu_exec(struct client_ctx *cc, union arg *arg, int xev)
 		break;
 	default:
 		errx(1, "kbfunc_menu_exec: invalid cmd %d", cmd);
-		/*NOTREACHED*/
+		/* NOTREACHED */
 	}
 
 	TAILQ_INIT(&menuq);
@@ -369,17 +447,17 @@ kbfunc_menu_exec(struct client_ctx *cc, union arg *arg, int xev)
 		if (mi->text[0] == '\0')
 			goto out;
 		switch (cmd) {
-		case CWM_MENU_EXEC:
+		case CWM_MENU_EXEC_EXEC:
 			u_spawn(mi->text);
 			break;
 		case CWM_MENU_EXEC_WM:
 			cwm_status = CWM_EXEC_WM;
-			free(wm_argv);
-			wm_argv = xstrdup(mi->text);
+			free(Conf.wm_argv);
+			Conf.wm_argv = xstrdup(mi->text);
 			break;
 		default:
 			errx(1, "kb_func: egad, cmd changed value!");
-			break;
+			/* NOTREACHED */
 		}
 	}
 out:
@@ -389,10 +467,10 @@ out:
 }
 
 void
-kbfunc_menu_ssh(struct client_ctx *cc, union arg *arg, int xev)
+kbfunc_menu_ssh(void *ctx, union arg *arg, enum xev xev)
 {
-	struct screen_ctx	*sc = cc->sc;
-	struct cmd		*cmd;
+	struct screen_ctx	*sc = ctx;
+	struct cmd_ctx		*cmd;
 	struct menu		*mi;
 	struct menu_q		 menuq;
 	FILE			*fp;
@@ -456,10 +534,11 @@ out:
 }
 
 void
-kbfunc_menu_client_label(struct client_ctx *cc, union arg *arg, int xev)
+kbfunc_menu_client_label(void *ctx, union arg *arg, enum xev xev)
 {
-	struct menu	*mi;
-	struct menu_q	 menuq;
+	struct client_ctx	*cc = ctx;
+	struct menu		*mi;
+	struct menu_q		 menuq;
 
 	TAILQ_INIT(&menuq);
 
@@ -475,104 +554,29 @@ kbfunc_menu_client_label(struct client_ctx *cc, union arg *arg, int xev)
 }
 
 void
-kbfunc_client_delete(struct client_ctx *cc, union arg *arg, int xev)
+kbfunc_exec_cmd(void *ctx, union arg *arg, enum xev xev)
 {
-	client_send_delete(cc);
+	u_spawn(arg->c);
 }
 
 void
-kbfunc_group_toggle(struct client_ctx *cc, union arg *arg, int xev)
+kbfunc_exec_term(void *ctx, union arg *arg, enum xev xev)
 {
-	group_hidetoggle(cc->sc, arg->i);
-}
+	struct cmd_ctx	*cmd;
 
-void
-kbfunc_group_only(struct client_ctx *cc, union arg *arg, int xev)
-{
-	group_only(cc->sc, arg->i);
-}
-
-void
-kbfunc_group_cycle(struct client_ctx *cc, union arg *arg, int xev)
-{
-	group_cycle(cc->sc, arg->i);
-}
-
-void
-kbfunc_group_alltoggle(struct client_ctx *cc, union arg *arg, int xev)
-{
-	group_alltoggle(cc->sc);
-}
-
-void
-kbfunc_client_toggle_group(struct client_ctx *cc, union arg *arg, int xev)
-{
-	if (xev == CWM_KEY) {
-		/* For X apps that steal events. */
-		XGrabKeyboard(X_Dpy, cc->win, True,
-		    GrabModeAsync, GrabModeAsync, CurrentTime);
+	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
+		if (strcmp(cmd->name, "term") == 0)
+			u_spawn(cmd->path);
 	}
-
-	group_toggle_membership_enter(cc);
 }
 
 void
-kbfunc_client_movetogroup(struct client_ctx *cc, union arg *arg, int xev)
+kbfunc_exec_lock(void *ctx, union arg *arg, enum xev xev)
 {
-	group_movetogroup(cc, arg->i);
-}
+	struct cmd_ctx	*cmd;
 
-void
-kbfunc_client_toggle_sticky(struct client_ctx *cc, union arg *arg, int xev)
-{
-	client_toggle_sticky(cc);
-}
-
-void
-kbfunc_client_toggle_fullscreen(struct client_ctx *cc, union arg *arg, int xev)
-{
-	client_toggle_fullscreen(cc);
-}
-
-void
-kbfunc_client_toggle_maximize(struct client_ctx *cc, union arg *arg, int xev)
-{
-	client_toggle_maximize(cc);
-}
-
-void
-kbfunc_client_toggle_vmaximize(struct client_ctx *cc, union arg *arg, int xev)
-{
-	client_toggle_vmaximize(cc);
-}
-
-void
-kbfunc_client_toggle_hmaximize(struct client_ctx *cc, union arg *arg, int xev)
-{
-	client_toggle_hmaximize(cc);
-}
-
-void
-kbfunc_client_toggle_freeze(struct client_ctx *cc, union arg *arg, int xev)
-{
-	client_toggle_freeze(cc);
-}
-
-void
-kbfunc_cwm_status(struct client_ctx *cc, union arg *arg, int xev)
-{
-	cwm_status = arg->i;
-}
-
-void
-kbfunc_client_tile(struct client_ctx *cc, union arg *arg, int xev)
-{
-	switch (arg->i) {
-	case CWM_CLIENT_TILE_HORIZ:
-		client_htile(cc);
-		break;
-	case CWM_CLIENT_TILE_VERT:
-		client_vtile(cc);
-		break;
+	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
+		if (strcmp(cmd->name, "lock") == 0)
+			u_spawn(cmd->path);
 	}
 }
