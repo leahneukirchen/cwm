@@ -52,25 +52,17 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 
 	(void)memset(tierp, 0, sizeof(tierp));
 
-	/*
-	 * In order of rank:
-	 *
-	 *   1. Look through labels.
-	 *   2. Look at title history, from present to past.
-	 *   3. Look at window class name.
-	 */
-
 	TAILQ_FOREACH(mi, menuq, entry) {
 		int tier = -1, t;
 		struct client_ctx *cc = (struct client_ctx *)mi->ctx;
 
-		/* First, try to match on labels. */
-		if (cc->label != NULL && strsubmatch(search, cc->label, 0)) {
+		/* Match on label. */
+		if ((cc->label) && strsubmatch(search, cc->label, 0)) {
 			cc->matchname = cc->label;
 			tier = 0;
 		}
 
-		/* Then, on window names. */
+		/* Match on window name history, from present to past. */
 		if (tier < 0) {
 			TAILQ_FOREACH_REVERSE(wn, &cc->nameq, name_q, entry)
 				if (strsubmatch(search, wn->name, 0)) {
@@ -80,8 +72,8 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 				}
 		}
 
-		/* Then if there is a match on the window class name. */
-		if (tier < 0 && strsubmatch(search, cc->ch.res_class, 0)) {
+		/* Match on window class name. */
+		if ((tier < 0) && strsubmatch(search, cc->ch.res_class, 0)) {
 			cc->matchname = cc->ch.res_class;
 			tier = 3;
 		}
@@ -89,16 +81,12 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 		if (tier < 0)
 			continue;
 
-		/*
-		 * De-rank a client one tier if it's the current
-		 * window.  Furthermore, this is denoted by a "!" when
-		 * printing the window name in the search menu.
-		 */
-		if ((cc->flags & CLIENT_ACTIVE) && (tier < nitems(tierp) - 1))
+		/* Current window is ranked down. */
+		if ((tier < nitems(tierp) - 1) && (cc->flags & CLIENT_ACTIVE))
 			tier++;
 
-		/* Clients that are hidden get ranked one up. */
-		if ((cc->flags & CLIENT_HIDDEN) && (tier > 0))
+		/* Hidden window is ranked up. */
+		if ((tier > 0) && (cc->flags & CLIENT_HIDDEN))
 			tier--;
 
 		if (tier >= nitems(tierp))
