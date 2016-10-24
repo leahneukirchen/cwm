@@ -34,13 +34,9 @@
 static struct client_ctx	*client_next(struct client_ctx *);
 static struct client_ctx	*client_prev(struct client_ctx *);
 static void			 client_mtf(struct client_ctx *);
-static void			 client_none(struct screen_ctx *);
 static void			 client_placecalc(struct client_ctx *);
 static void			 client_wm_protocols(struct client_ctx *);
 static void			 client_mwm_hints(struct client_ctx *);
-static int			 client_inbound(struct client_ctx *, int, int);
-
-struct client_ctx	*curcc = NULL;
 
 struct client_ctx *
 client_init(Window win, struct screen_ctx *sc, int active)
@@ -79,8 +75,6 @@ client_init(Window win, struct screen_ctx *sc, int active)
 	cc->stackingorder = 0;
 	memset(&cc->hint, 0, sizeof(cc->hint));
 	memset(&cc->ch, 0, sizeof(cc->ch));
-	cc->ptr.x = -1;
-	cc->ptr.y = -1;
 
 	TAILQ_INIT(&cc->nameq);
 	client_setname(cc);
@@ -97,6 +91,9 @@ client_init(Window win, struct screen_ctx *sc, int active)
 	cc->geom.y = wattr.y;
 	cc->geom.w = wattr.width;
 	cc->geom.h = wattr.height;
+	cc->ptr.x = cc->geom.w / 2;
+	cc->ptr.y = cc->geom.h / 2;
+
 	cc->colormap = wattr.colormap;
 
 	if (wattr.map_state != IsViewable) {
@@ -136,7 +133,7 @@ client_init(Window win, struct screen_ctx *sc, int active)
 			goto out;
 		if (group_autogroup(cc))
 			goto out;
-		if (Conf.flags & CONF_STICKY_GROUPS)
+		if (Conf.stickygroups)
 			group_assign(sc->group_active, cc);
 		else
 			group_assign(NULL, cc);
@@ -178,7 +175,7 @@ client_delete(struct client_ctx *cc)
 	xu_ewmh_net_client_list_stacking(sc);
 
 	if (cc->flags & CLIENT_ACTIVE)
-		client_none(sc);
+		xu_ewmh_net_active_window(sc, None);
 
 	if (cc->gc != NULL)
 		TAILQ_REMOVE(&cc->gc->clientq, cc, group_entry);
@@ -227,7 +224,6 @@ client_setactive(struct client_ctx *cc)
 	if (!sc->cycling)
 		client_mtf(cc);
 
-	curcc = cc;
 	cc->flags |= CLIENT_ACTIVE;
 	cc->flags &= ~CLIENT_URGENCY;
 	client_draw_border(cc);
@@ -235,23 +231,19 @@ client_setactive(struct client_ctx *cc)
 	xu_ewmh_net_active_window(sc, cc->win);
 }
 
-/*
- * set when there is no active client
- */
-static void
-client_none(struct screen_ctx *sc)
-{
-	Window none = None;
-
-	xu_ewmh_net_active_window(sc, none);
-
-	curcc = NULL;
-}
-
 struct client_ctx *
 client_current(void)
 {
-	return(curcc);
+	struct screen_ctx	*sc;
+	struct client_ctx	*cc;
+
+	TAILQ_FOREACH(sc, &Screenq, entry) {
+		TAILQ_FOREACH(cc, &sc->clientq, entry) {
+			if (cc->flags & CLIENT_ACTIVE)
+				return(cc);
+		}
+	}
+	return(NULL);
 }
 
 void
@@ -477,18 +469,7 @@ client_config(struct client_ctx *cc)
 void
 client_ptrwarp(struct client_ctx *cc)
 {
-	int	 x = cc->ptr.x, y = cc->ptr.y;
-
-	if (x == -1 || y == -1) {
-		x = cc->geom.w / 2;
-		y = cc->geom.h / 2;
-	}
-
-	if (cc->flags & CLIENT_HIDDEN)
-		client_unhide(cc);
-	else
-		client_raise(cc);
-	xu_ptr_setpos(cc->win, x, y);
+	xu_ptr_setpos(cc->win, cc->ptr.x, cc->ptr.y);
 }
 
 void
@@ -501,8 +482,8 @@ client_ptrsave(struct client_ctx *cc)
 		cc->ptr.x = x;
 		cc->ptr.y = y;
 	} else {
-		cc->ptr.x = -1;
-		cc->ptr.y = -1;
+		cc->ptr.x = cc->geom.w / 2;
+		cc->ptr.y = cc->geom.h / 2;
 	}
 }
 
@@ -512,7 +493,7 @@ client_hide(struct client_ctx *cc)
 	XUnmapWindow(X_Dpy, cc->win);
 
 	if (cc->flags & CLIENT_ACTIVE)
-		client_none(cc->sc);
+		xu_ewmh_net_active_window(cc->sc, None);
 
 	cc->flags &= ~CLIENT_ACTIVE;
 	cc->flags |= CLIENT_HIDDEN;
@@ -624,6 +605,7 @@ client_setname(struct client_ctx *cc)
 {
 	struct winname	*wn;
 	char		*newname;
+	int		 i = 0;
 
 	if (!xu_getstrprop(cc->win, ewmh[_NET_WM_NAME], &newname))
 		if (!xu_getstrprop(cc->win, XA_WM_NAME, &newname))
@@ -640,19 +622,19 @@ client_setname(struct client_ctx *cc)
 	wn = xmalloc(sizeof(*wn));
 	wn->name = newname;
 	TAILQ_INSERT_TAIL(&cc->nameq, wn, entry);
-	cc->nameqlen++;
 
 match:
 	cc->name = wn->name;
 
-	/* Now, do some garbage collection. */
-	if (cc->nameqlen > CLIENT_MAXNAMEQLEN) {
-		if ((wn = TAILQ_FIRST(&cc->nameq)) == NULL)
-			errx(1, "client_setname: window name queue empty");
+	/* Do some garbage collection. */
+	TAILQ_FOREACH(wn, &cc->nameq, entry)
+		i++;
+	if (i > Conf.nameqlen) {
+		wn = TAILQ_FIRST(&cc->nameq);
 		TAILQ_REMOVE(&cc->nameq, wn, entry);
 		free(wn->name);
 		free(wn);
-		cc->nameqlen--;
+		i--;
 	}
 }
 
@@ -671,20 +653,20 @@ client_cycle(struct screen_ctx *sc, int flags)
 
 	oldcc = client_current();
 	if (oldcc == NULL)
-		oldcc = (flags & CWM_CLIENT_RCYCLE) ?
-		    TAILQ_LAST(&sc->clientq, client_ctx_q) :
+		oldcc = (flags & CWM_CYCLE_REVERSE) ?
+		    TAILQ_LAST(&sc->clientq, client_q) :
 		    TAILQ_FIRST(&sc->clientq);
 
 	newcc = oldcc;
 	while (again) {
 		again = 0;
 
-		newcc = (flags & CWM_CLIENT_RCYCLE) ? client_prev(newcc) :
+		newcc = (flags & CWM_CYCLE_REVERSE) ? client_prev(newcc) :
 		    client_next(newcc);
 
 		/* Only cycle visible and non-ignored windows. */
 		if ((newcc->flags & (CLIENT_HIDDEN | CLIENT_IGNORE))
-		    || ((flags & CWM_CLIENT_CYCLE_INGRP) &&
+		    || ((flags & CWM_CYCLE_INGROUP) &&
 			(newcc->gc != oldcc->gc)))
 			again = 1;
 
@@ -700,6 +682,11 @@ client_cycle(struct screen_ctx *sc, int flags)
 	/* reset when cycling mod is released. XXX I hate this hack */
 	sc->cycling = 1;
 	client_ptrsave(oldcc);
+	client_raise(newcc);
+	if (!client_inbound(newcc, newcc->ptr.x, newcc->ptr.y)) {
+		newcc->ptr.x = newcc->geom.w / 2;
+		newcc->ptr.y = newcc->geom.h / 2;
+	}
 	client_ptrwarp(newcc);
 }
 
@@ -734,8 +721,8 @@ client_prev(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	struct client_ctx	*newcc;
 
-	return(((newcc = TAILQ_PREV(cc, client_ctx_q, entry)) != NULL) ?
-	    newcc : TAILQ_LAST(&sc->clientq, client_ctx_q));
+	return(((newcc = TAILQ_PREV(cc, client_q, entry)) != NULL) ?
+	    newcc : TAILQ_LAST(&sc->clientq, client_q));
 }
 
 static void
@@ -925,7 +912,7 @@ client_transient(struct client_ctx *cc)
 	}
 }
 
-static int
+int
 client_inbound(struct client_ctx *cc, int x, int y)
 {
 	return(x < cc->geom.w && x >= 0 &&

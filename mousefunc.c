@@ -32,28 +32,10 @@
 
 #include "calmwm.h"
 
-static void	mousefunc_sweep_draw(struct client_ctx *);
-
-static void
-mousefunc_sweep_draw(struct client_ctx *cc)
-{
-	struct screen_ctx	*sc = cc->sc;
-	char			 s[14]; /* fits " nnnn x nnnn \0" */
-
-	(void)snprintf(s, sizeof(s), " %4d x %-4d ", cc->dim.w, cc->dim.h);
-
-	XReparentWindow(X_Dpy, sc->menuwin, cc->win, 0, 0);
-	XMoveResizeWindow(X_Dpy, sc->menuwin, 0, 0,
-	    xu_xft_width(sc->xftfont, s, strlen(s)), sc->xftfont->height);
-	XMapWindow(X_Dpy, sc->menuwin);
-	XClearWindow(X_Dpy, sc->menuwin);
-
-	xu_xft_draw(sc, s, CWM_COLOR_MENU_FONT, 0, sc->xftfont->ascent + 1);
-}
-
 void
-mousefunc_client_resize(struct client_ctx *cc, union arg *arg)
+mousefunc_client_resize(void *ctx, union arg *arg, enum xev xev)
 {
+	struct client_ctx	*cc = ctx;
 	XEvent			 ev;
 	Time			 ltime = 0;
 	struct screen_ctx	*sc = cc->sc;
@@ -64,14 +46,15 @@ mousefunc_client_resize(struct client_ctx *cc, union arg *arg)
 	client_raise(cc);
 	client_ptrsave(cc);
 
-	if (xu_ptr_grab(cc->win, MOUSEMASK, Conf.cursor[CF_RESIZE]) < 0)
+	xu_ptr_setpos(cc->win, cc->geom.w, cc->geom.h);
+
+	if (XGrabPointer(X_Dpy, cc->win, False, MOUSEMASK,
+	    GrabModeAsync, GrabModeAsync, None, Conf.cursor[CF_RESIZE],
+	    CurrentTime) != GrabSuccess)
 		return;
 
-	xu_ptr_setpos(cc->win, cc->geom.w, cc->geom.h);
-	mousefunc_sweep_draw(cc);
-
 	for (;;) {
-		XMaskEvent(X_Dpy, MOUSEMASK, &ev);
+		XWindowEvent(X_Dpy, cc->win, MOUSEMASK, &ev);
 
 		switch (ev.type) {
 		case MotionNotify:
@@ -84,13 +67,14 @@ mousefunc_client_resize(struct client_ctx *cc, union arg *arg)
 			cc->geom.h = ev.xmotion.y;
 			client_applysizehints(cc);
 			client_resize(cc, 1);
-			mousefunc_sweep_draw(cc);
+			menu_windraw(sc, cc->win,
+			    "%4d x %-4d", cc->dim.w, cc->dim.h);
 			break;
 		case ButtonRelease:
 			client_resize(cc, 1);
-			XUnmapWindow(X_Dpy, sc->menuwin);
-			XReparentWindow(X_Dpy, sc->menuwin, sc->rootwin, 0, 0);
-			xu_ptr_ungrab();
+			XUnmapWindow(X_Dpy, sc->menu.win);
+			XReparentWindow(X_Dpy, sc->menu.win, sc->rootwin, 0, 0);
+			XUngrabPointer(X_Dpy, CurrentTime);
 
 			/* Make sure the pointer stays within the window. */
 			if (cc->ptr.x > cc->geom.w)
@@ -105,8 +89,9 @@ mousefunc_client_resize(struct client_ctx *cc, union arg *arg)
 }
 
 void
-mousefunc_client_move(struct client_ctx *cc, union arg *arg)
+mousefunc_client_move(void *ctx, union arg *arg, enum xev xev)
 {
+	struct client_ctx	*cc = ctx;
 	XEvent			 ev;
 	Time			 ltime = 0;
 	struct screen_ctx	*sc = cc->sc;
@@ -118,13 +103,25 @@ mousefunc_client_move(struct client_ctx *cc, union arg *arg)
 	if (cc->flags & CLIENT_FREEZE)
 		return;
 
-	if (xu_ptr_grab(cc->win, MOUSEMASK, Conf.cursor[CF_MOVE]) < 0)
+	xu_ptr_getpos(cc->win, &px, &py);
+	if (px < 0) 
+		px = 0;
+	else if (px > cc->geom.w)
+		px = cc->geom.w;
+	if (py < 0)
+		py = 0;
+	else if (py > cc->geom.h)
+		py = cc->geom.h;
+
+	xu_ptr_setpos(cc->win, px, py);
+
+	if (XGrabPointer(X_Dpy, cc->win, False, MOUSEMASK,
+	    GrabModeAsync, GrabModeAsync, None, Conf.cursor[CF_MOVE],
+	    CurrentTime) != GrabSuccess)
 		return;
 
-	xu_ptr_getpos(cc->win, &px, &py);
-
 	for (;;) {
-		XMaskEvent(X_Dpy, MOUSEMASK, &ev);
+		XWindowEvent(X_Dpy, cc->win, MOUSEMASK, &ev);
 
 		switch (ev.type) {
 		case MotionNotify:
@@ -146,89 +143,16 @@ mousefunc_client_move(struct client_ctx *cc, union arg *arg)
 			    cc->geom.y + cc->geom.h + (cc->bwidth * 2),
 			    area.y, area.y + area.h, sc->snapdist);
 			client_move(cc);
+			menu_windraw(sc, cc->win,
+			    "%4d, %-4d", cc->geom.x, cc->geom.y);
 			break;
 		case ButtonRelease:
 			client_move(cc);
-			xu_ptr_ungrab();
+			XUnmapWindow(X_Dpy, sc->menu.win);
+			XReparentWindow(X_Dpy, sc->menu.win, sc->rootwin, 0, 0);
+			XUngrabPointer(X_Dpy, CurrentTime);
 			return;
 		}
 	}
 	/* NOTREACHED */
-}
-
-void
-mousefunc_menu_group(struct client_ctx *cc, union arg *arg)
-{
-	struct screen_ctx	*sc = cc->sc;
-	struct group_ctx	*gc;
-	struct menu		*mi;
-	struct menu_q		 menuq;
-
-	TAILQ_INIT(&menuq);
-	TAILQ_FOREACH(gc, &sc->groupq, entry) {
-		if (group_holds_only_sticky(gc))
-			continue;
-		menuq_add(&menuq, gc, "%d %s", gc->num, gc->name);
-	}
-
-	if ((mi = menu_filter(sc, &menuq, NULL, NULL, CWM_MENU_LIST,
-	    NULL, search_print_group)) != NULL) {
-		gc = (struct group_ctx *)mi->ctx;
-		(group_holds_only_hidden(gc)) ?
-		    group_show(gc) : group_hide(gc);
-	}
-
-	menuq_clear(&menuq);
-}
-
-void
-mousefunc_menu_client(struct client_ctx *cc, union arg *arg)
-{
-	struct screen_ctx	*sc = cc->sc;
-	struct client_ctx	*old_cc;
-	struct menu		*mi;
-	struct menu_q		 menuq;
-
-	old_cc = client_current();
-
-	TAILQ_INIT(&menuq);
-	TAILQ_FOREACH(cc, &sc->clientq, entry) {
-		if (cc->flags & CLIENT_HIDDEN) {
-			menuq_add(&menuq, cc, NULL);
-		}
-	}
-
-	if ((mi = menu_filter(sc, &menuq, NULL, NULL, CWM_MENU_LIST,
-	    NULL, search_print_client)) != NULL) {
-		cc = (struct client_ctx *)mi->ctx;
-		client_unhide(cc);
-		if (old_cc != NULL)
-			client_ptrsave(old_cc);
-		client_ptrwarp(cc);
-	}
-
-	menuq_clear(&menuq);
-}
-
-void
-mousefunc_menu_cmd(struct client_ctx *cc, union arg *arg)
-{
-	struct screen_ctx	*sc = cc->sc;
-	struct cmd		*cmd;
-	struct menu		*mi;
-	struct menu_q		 menuq;
-
-	TAILQ_INIT(&menuq);
-	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
-		if ((strcmp(cmd->name, "lock") == 0) ||
-		    (strcmp(cmd->name, "term") == 0))
-			continue;
-		menuq_add(&menuq, cmd, NULL);
-	}
-
-	if ((mi = menu_filter(sc, &menuq, NULL, NULL, CWM_MENU_LIST,
-	    NULL, search_print_cmd)) != NULL)
-		u_spawn(((struct cmd *)mi->ctx)->path);
-
-	menuq_clear(&menuq);
 }

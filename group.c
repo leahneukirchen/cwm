@@ -154,8 +154,8 @@ group_movetogroup(struct client_ctx *cc, int idx)
 	struct screen_ctx	*sc = cc->sc;
 	struct group_ctx	*gc;
 
-	if (idx < 0 || idx >= CALMWM_NGROUPS)
-		errx(1, "group_movetogroup: index out of range (%d)", idx);
+	if (idx < 0 || idx >= Conf.ngroups)
+		errx(1, "%s: index out of range (%d)", __func__, idx);
 
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
 		if (gc->num == idx)
@@ -222,8 +222,8 @@ group_hidetoggle(struct screen_ctx *sc, int idx)
 {
 	struct group_ctx	*gc;
 
-	if (idx < 0 || idx >= CALMWM_NGROUPS)
-		errx(1, "group_hidetoggle: index out of range (%d)", idx);
+	if (idx < 0 || idx >= Conf.ngroups)
+		errx(1, "%s: index out of range (%d)", __func__, idx);
 
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
 		if (gc->num == idx)
@@ -245,8 +245,8 @@ group_only(struct screen_ctx *sc, int idx)
 {
 	struct group_ctx	*gc;
 
-	if (idx < 0 || idx >= CALMWM_NGROUPS)
-		errx(1, "group_only: index out of range (%d)", idx);
+	if (idx < 0 || idx >= Conf.ngroups)
+		errx(1, "%s: index out of range (%d)", __func__, idx);
 
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
 		if (gc->num == idx)
@@ -265,7 +265,7 @@ group_cycle(struct screen_ctx *sc, int flags)
 
 	newgc = oldgc;
 	for (;;) {
-		newgc = (flags & CWM_CLIENT_RCYCLE) ? group_prev(newgc) :
+		newgc = (flags & CWM_CYCLE_REVERSE) ? group_prev(newgc) :
 		    group_next(newgc);
 
 		if (newgc == oldgc)
@@ -304,8 +304,8 @@ group_prev(struct group_ctx *gc)
 	struct screen_ctx	*sc = gc->sc;
 	struct group_ctx	*newgc;
 
-	return(((newgc = TAILQ_PREV(gc, group_ctx_q, entry)) != NULL) ?
-	    newgc : TAILQ_LAST(&sc->groupq, group_ctx_q));
+	return(((newgc = TAILQ_PREV(gc, group_q, entry)) != NULL) ?
+	    newgc : TAILQ_LAST(&sc->groupq, group_q));
 }
 
 void
@@ -335,7 +335,7 @@ group_restore(struct client_ctx *cc)
 		return(0);
 
 	num = (*grpnum == -1) ? 0 : *grpnum;
-	num = MIN(num, (CALMWM_NGROUPS - 1));
+	num = MIN(num, (Conf.ngroups - 1));
 	XFree(grpnum);
 
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
@@ -351,21 +351,21 @@ int
 group_autogroup(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
-	struct autogroupwin	*aw;
+	struct autogroup	*ag;
 	struct group_ctx	*gc;
 	int			 num = -1, both_match = 0;
 
 	if (cc->ch.res_class == NULL || cc->ch.res_name == NULL)
 		return(0);
 
-	TAILQ_FOREACH(aw, &Conf.autogroupq, entry) {
-		if (strcmp(aw->class, cc->ch.res_class) == 0) {
-			if ((aw->name != NULL) &&
-			    (strcmp(aw->name, cc->ch.res_name) == 0)) {
-				num = aw->num;
+	TAILQ_FOREACH(ag, &Conf.autogroupq, entry) {
+		if (strcmp(ag->class, cc->ch.res_class) == 0) {
+			if ((ag->name != NULL) &&
+			    (strcmp(ag->name, cc->ch.res_name) == 0)) {
+				num = ag->num;
 				both_match = 1;
-			} else if (aw->name == NULL && !both_match)
-				num = aw->num;
+			} else if (ag->name == NULL && !both_match)
+				num = ag->num;
 		}
 	}
 

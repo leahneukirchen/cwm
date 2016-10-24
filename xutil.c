@@ -31,68 +31,6 @@
 
 #include "calmwm.h"
 
-static unsigned int ign_mods[] = { 0, LockMask, Mod2Mask, Mod2Mask | LockMask };
-
-void
-xu_btn_grab(Window win, int mask, unsigned int btn)
-{
-	unsigned int	i;
-
-	for (i = 0; i < nitems(ign_mods); i++)
-		XGrabButton(X_Dpy, btn, (mask | ign_mods[i]), win,
-		    False, BUTTONMASK, GrabModeAsync,
-		    GrabModeSync, None, None);
-}
-
-void
-xu_btn_ungrab(Window win)
-{
-	XUngrabButton(X_Dpy, AnyButton, AnyModifier, win);
-}
-
-void
-xu_key_grab(Window win, unsigned int mask, KeySym keysym)
-{
-	KeyCode		 code;
-	unsigned int	 i;
-
-	code = XKeysymToKeycode(X_Dpy, keysym);
-	if ((XkbKeycodeToKeysym(X_Dpy, code, 0, 0) != keysym) &&
-	    (XkbKeycodeToKeysym(X_Dpy, code, 0, 1) == keysym))
-		mask |= ShiftMask;
-
-	for (i = 0; i < nitems(ign_mods); i++)
-		XGrabKey(X_Dpy, code, (mask | ign_mods[i]), win,
-		    True, GrabModeAsync, GrabModeAsync);
-}
-
-void
-xu_key_ungrab(Window win)
-{
-	XUngrabKey(X_Dpy, AnyKey, AnyModifier, win);
-}
-
-int
-xu_ptr_grab(Window win, unsigned int mask, Cursor curs)
-{
-	return(XGrabPointer(X_Dpy, win, False, mask,
-	    GrabModeAsync, GrabModeAsync,
-	    None, curs, CurrentTime) == GrabSuccess ? 0 : -1);
-}
-
-int
-xu_ptr_regrab(unsigned int mask, Cursor curs)
-{
-	return(XChangeActivePointerGrab(X_Dpy, mask,
-	    curs, CurrentTime) == GrabSuccess ? 0 : -1);
-}
-
-void
-xu_ptr_ungrab(void)
-{
-	XUngrabPointer(X_Dpy, CurrentTime);
-}
-
 void
 xu_ptr_getpos(Window win, int *x, int *y)
 {
@@ -177,8 +115,8 @@ xu_ewmh_net_supported_wm_check(struct screen_ctx *sc)
 	XChangeProperty(X_Dpy, w, ewmh[_NET_SUPPORTING_WM_CHECK],
 	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)&w, 1);
 	XChangeProperty(X_Dpy, w, ewmh[_NET_WM_NAME],
-	    cwmh[UTF8_STRING], 8, PropModeReplace, (unsigned char *)WMNAME,
-	    strlen(WMNAME));
+	    cwmh[UTF8_STRING], 8, PropModeReplace,
+	    (unsigned char *)Conf.wmname, strlen(Conf.wmname));
 }
 
 void
@@ -193,19 +131,20 @@ xu_ewmh_net_desktop_geometry(struct screen_ctx *sc)
 void
 xu_ewmh_net_workarea(struct screen_ctx *sc)
 {
-	long	 workareas[CALMWM_NGROUPS][4];
-	int	 i;
+	unsigned long	*workarea;
+	int		 i, ngroups = Conf.ngroups;
 
-	for (i = 0; i < CALMWM_NGROUPS; i++) {
-		workareas[i][0] = sc->work.x;
-		workareas[i][1] = sc->work.y;
-		workareas[i][2] = sc->work.w;
-		workareas[i][3] = sc->work.h;
+	workarea = xreallocarray(NULL, ngroups * 4, sizeof(unsigned long));
+	for (i = 0; i < ngroups; i++) {
+		workarea[4 * i + 0] = sc->work.x;
+		workarea[4 * i + 1] = sc->work.y;
+		workarea[4 * i + 2] = sc->work.w;
+		workarea[4 * i + 3] = sc->work.h;
 	}
-
 	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_WORKAREA],
-	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)workareas,
-	    CALMWM_NGROUPS * 4);
+	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)workarea,
+	    ngroups * 4);
+	free(workarea);
 }
 
 void
@@ -285,7 +224,7 @@ xu_ewmh_net_wm_desktop_viewport(struct screen_ctx *sc)
 void
 xu_ewmh_net_wm_number_of_desktops(struct screen_ctx *sc)
 {
-	long	 ndesks = CALMWM_NGROUPS;
+	long	 ndesks = Conf.ngroups;
 
 	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_NUMBER_OF_DESKTOPS],
 	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&ndesks, 1);
@@ -530,22 +469,4 @@ xu_xorcolor(XftColor a, XftColor b, XftColor *r)
 	r->color.green = a.color.green ^ b.color.green;
 	r->color.blue = a.color.blue ^ b.color.blue;
 	r->color.alpha = 0xffff;
-}
-
-int
-xu_xft_width(XftFont *xftfont, const char *text, int len)
-{
-	XGlyphInfo	 extents;
-
-	XftTextExtentsUtf8(X_Dpy, xftfont, (const FcChar8*)text,
-	    len, &extents);
-
-	return(extents.xOff);
-}
-
-void
-xu_xft_draw(struct screen_ctx *sc, const char *text, int color, int x, int y)
-{
-	XftDrawStringUtf8(sc->xftdraw, &sc->xftcolor[color], sc->xftfont,
-	    x, y, (const FcChar8*)text, strlen(text));
 }

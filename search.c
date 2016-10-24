@@ -52,57 +52,40 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 
 	(void)memset(tierp, 0, sizeof(tierp));
 
-	/*
-	 * In order of rank:
-	 *
-	 *   1. Look through labels.
-	 *   2. Look at title history, from present to past.
-	 *   3. Look at window class name.
-	 */
-
 	TAILQ_FOREACH(mi, menuq, entry) {
 		int tier = -1, t;
 		struct client_ctx *cc = (struct client_ctx *)mi->ctx;
 
-		/* First, try to match on labels. */
-		if (cc->label != NULL && strsubmatch(search, cc->label, 0)) {
-			cc->matchname = cc->label;
+		/* Match on label. */
+		if (strsubmatch(search, cc->label, 0))
 			tier = 0;
-		}
 
-		/* Then, on window names. */
+		/* Match on window name history, from present to past. */
 		if (tier < 0) {
-			TAILQ_FOREACH_REVERSE(wn, &cc->nameq, winname_q, entry)
+			TAILQ_FOREACH_REVERSE(wn, &cc->nameq, name_q, entry)
 				if (strsubmatch(search, wn->name, 0)) {
-					cc->matchname = wn->name;
 					tier = 2;
 					break;
 				}
 		}
 
-		/* Then if there is a match on the window class name. */
-		if (tier < 0 && strsubmatch(search, cc->ch.res_class, 0)) {
-			cc->matchname = cc->ch.res_class;
+		/* Match on window resource class. */
+		if ((tier < 0) && strsubmatch(search, cc->ch.res_class, 0))
 			tier = 3;
-		}
 
 		if (tier < 0)
 			continue;
 
-		/*
-		 * De-rank a client one tier if it's the current
-		 * window.  Furthermore, this is denoted by a "!" when
-		 * printing the window name in the search menu.
-		 */
-		if ((cc->flags & CLIENT_ACTIVE) && (tier < nitems(tierp) - 1))
+		/* Current window is ranked down. */
+		if ((tier < nitems(tierp) - 1) && (cc->flags & CLIENT_ACTIVE))
 			tier++;
 
-		/* Clients that are hidden get ranked one up. */
-		if ((cc->flags & CLIENT_HIDDEN) && (tier > 0))
+		/* Hidden window is ranked up. */
+		if ((tier > 0) && (cc->flags & CLIENT_HIDDEN))
 			tier--;
 
 		if (tier >= nitems(tierp))
-			errx(1, "search_match_client: invalid tier");
+			errx(1, "%s: invalid tier", __func__);
 
 		/*
 		 * If you have a tierp, insert after it, and make it
@@ -126,7 +109,7 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 void
 search_print_cmd(struct menu *mi, int i)
 {
-	struct cmd	*cmd = (struct cmd *)mi->ctx;
+	struct cmd_ctx	*cmd = (struct cmd_ctx *)mi->ctx;
 
 	(void)snprintf(mi->print, sizeof(mi->print), "%s", cmd->name);
 }
@@ -152,12 +135,9 @@ search_print_client(struct menu *mi, int list)
 	else if (cc->flags & CLIENT_HIDDEN)
 		flag = '&';
 
-	if ((list) || (cc->matchname == cc->label))
-		cc->matchname = cc->name;
-
 	(void)snprintf(mi->print, sizeof(mi->print), "(%d) %c[%s] %s",
 	    (cc->gc) ? cc->gc->num : 0, flag,
-	    (cc->label) ? cc->label : "", cc->matchname);
+	    (cc->label) ? cc->label : "", cc->name);
 }
 
 static void

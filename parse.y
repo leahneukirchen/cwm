@@ -114,10 +114,7 @@ main		: FONTNAME STRING		{
 			conf->font = $2;
 		}
 		| STICKY yesno {
-			if ($2 == 0)
-				conf->flags &= ~CONF_STICKY_GROUPS;
-			else
-				conf->flags |= CONF_STICKY_GROUPS;
+			conf->stickygroups = $2;
 		}
 		| BORDERWIDTH NUMBER {
 			if ($2 < 0 || $2 > UINT_MAX) {
