@@ -165,7 +165,6 @@ struct client_ctx {
 	struct name_q		 nameq;
 	char			*name;
 	char			*label;
-	char			*matchname;
 	XClassHint		ch;
 	XWMHints		*wmh;
 };
