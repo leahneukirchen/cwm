@@ -138,7 +138,7 @@ conf_screen(struct screen_ctx *sc)
 	if (sc->xftfont == NULL) {
 		sc->xftfont = XftFontOpenName(X_Dpy, sc->which, Conf.font);
 		if (sc->xftfont == NULL)
-			errx(1, "XftFontOpenName: %s", Conf.font);
+			errx(1, "%s: XftFontOpenName: %s", __func__, Conf.font);
 	}
 
 	for (i = 0; i < nitems(color_binds); i++) {
@@ -169,7 +169,7 @@ conf_screen(struct screen_ctx *sc)
 
 	sc->menu.xftdraw = XftDrawCreate(X_Dpy, sc->menu.win, visual, colormap);
 	if (sc->menu.xftdraw == NULL)
-		errx(1, "XftDrawCreate");
+		errx(1, "%s: XftDrawCreate", __func__);
 
 	conf_grab_kbd(sc->rootwin);
 }

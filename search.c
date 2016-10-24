@@ -85,7 +85,7 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 			tier--;
 
 		if (tier >= nitems(tierp))
-			errx(1, "search_match_client: invalid tier");
+			errx(1, "%s: invalid tier", __func__);
 
 		/*
 		 * If you have a tierp, insert after it, and make it

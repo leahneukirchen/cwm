@@ -101,7 +101,7 @@ screen_find(Window win)
 		if (sc->rootwin == win)
 			return(sc);
 	}
-	warnx("screen_find failure win 0x%lu\n", win);
+	warnx("%s: failure win 0x%lu\n", __func__, win);
 	return(NULL);
 }
 

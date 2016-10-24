@@ -405,7 +405,7 @@ kbfunc_menu_exec(void *ctx, union arg *arg, enum xev xev)
 		label = "wm";
 		break;
 	default:
-		errx(1, "kbfunc_menu_exec: invalid cmd %d", cmd);
+		errx(1, "%s: invalid cmd %d", __func__, cmd);
 		/* NOTREACHED */
 	}
 
@@ -456,7 +456,7 @@ kbfunc_menu_exec(void *ctx, union arg *arg, enum xev xev)
 			Conf.wm_argv = xstrdup(mi->text);
 			break;
 		default:
-			errx(1, "kb_func: egad, cmd changed value!");
+			errx(1, "%s: egad, cmd changed value!", __func__);
 			/* NOTREACHED */
 		}
 	}
@@ -487,7 +487,7 @@ kbfunc_menu_ssh(void *ctx, union arg *arg, enum xev xev)
 	TAILQ_INIT(&menuq);
 
 	if ((fp = fopen(Conf.known_hosts, "r")) == NULL) {
-		warn("kbfunc_menu_ssh: %s", Conf.known_hosts);
+		warn("%s: %s", __func__, Conf.known_hosts);
 		goto menu;
 	}
 
