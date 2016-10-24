@@ -196,7 +196,7 @@ menu_complete_path(struct menu_ctx *mc)
 	TAILQ_INIT(&menuq);
 
 	if ((mi = menu_filter(sc, &menuq, mc->searchstr, NULL,
-	    CWM_MENU_DUMMY, search_match_path_any, NULL)) != NULL) {
+	    (CWM_MENU_DUMMY), search_match_path_any, NULL)) != NULL) {
 		mr->abort = mi->abort;
 		mr->dummy = mi->dummy;
 		if (mi->text[0] != '\0')

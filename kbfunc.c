@@ -312,7 +312,7 @@ kbfunc_menu_client(void *ctx, union arg *arg, enum xev xev)
 
 	if ((mi = menu_filter(sc, &menuq,
 	    (m) ? NULL : "window", NULL,
-	    (m) ? CWM_MENU_LIST : 0,
+	    ((m) ? CWM_MENU_LIST : 0),
 	    search_match_client, search_print_client)) != NULL) {
 		cc = (struct client_ctx *)mi->ctx;
 		if (cc->flags & CLIENT_HIDDEN)
@@ -347,7 +347,7 @@ kbfunc_menu_cmd(void *ctx, union arg *arg, enum xev xev)
 
 	if ((mi = menu_filter(sc, &menuq,
 	    (m) ? NULL : "application", NULL,
-	    (m) ? CWM_MENU_LIST : 0,
+	    ((m) ? CWM_MENU_LIST : 0),
 	    search_match_text, search_print_cmd)) != NULL) {
 		cmd = (struct cmd_ctx *)mi->ctx;
 		u_spawn(cmd->path);
@@ -373,7 +373,7 @@ kbfunc_menu_group(void *ctx, union arg *arg, enum xev xev)
 	}
 
 	if ((mi = menu_filter(sc, &menuq,
-	    (m) ? NULL : "group", NULL, CWM_MENU_LIST,
+	    (m) ? NULL : "group", NULL, (CWM_MENU_LIST),
 	    search_match_text, search_print_group)) != NULL) {
 		gc = (struct group_ctx *)mi->ctx;
 		(group_holds_only_hidden(gc)) ?
@@ -442,7 +442,7 @@ kbfunc_menu_exec(void *ctx, union arg *arg, enum xev xev)
 	free(path);
 
 	if ((mi = menu_filter(sc, &menuq, label, NULL,
-	    CWM_MENU_DUMMY | CWM_MENU_FILE,
+	    (CWM_MENU_DUMMY | CWM_MENU_FILE),
 	    search_match_exec_path, NULL)) != NULL) {
 		if (mi->text[0] == '\0')
 			goto out;
@@ -517,7 +517,7 @@ kbfunc_menu_ssh(void *ctx, union arg *arg, enum xev xev)
 	free(lbuf);
 	(void)fclose(fp);
 menu:
-	if ((mi = menu_filter(sc, &menuq, "ssh", NULL, CWM_MENU_DUMMY,
+	if ((mi = menu_filter(sc, &menuq, "ssh", NULL, (CWM_MENU_DUMMY),
 	    search_match_exec, NULL)) != NULL) {
 		if (mi->text[0] == '\0')
 			goto out;
@@ -543,7 +543,7 @@ kbfunc_menu_client_label(void *ctx, union arg *arg, enum xev xev)
 	TAILQ_INIT(&menuq);
 
 	/* dummy is set, so this will always return */
-	mi = menu_filter(cc->sc, &menuq, "label", cc->label, CWM_MENU_DUMMY,
+	mi = menu_filter(cc->sc, &menuq, "label", cc->label, (CWM_MENU_DUMMY),
 	    search_match_text, NULL);
 
 	if (!mi->abort) {
