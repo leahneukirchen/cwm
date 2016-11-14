@@ -170,7 +170,7 @@ main		: FONTNAME STRING		{
 			free($2);
 		}
 		| BIND STRING string		{
-			if (!conf_bind_kbd(conf, $2, $3)) {
+			if (!conf_bind_key(conf, $2, $3)) {
 				yyerror("invalid bind: %s %s", $2, $3);
 				free($2);
 				free($3);

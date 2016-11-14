@@ -34,7 +34,7 @@
 
 static const char	*conf_bind_getmask(const char *, unsigned int *);
 static void		 conf_cmd_remove(struct conf *, const char *);
-static void		 conf_unbind_kbd(struct conf *, struct bind_ctx *);
+static void		 conf_unbind_key(struct conf *, struct bind_ctx *);
 static void		 conf_unbind_mouse(struct conf *, struct bind_ctx *);
 
 static int cursor_binds[] = {
@@ -53,73 +53,6 @@ static const char *color_binds[] = {
 	"white",		/* CWM_COLOR_MENU_BG */
 	"black",		/* CWM_COLOR_MENU_FONT */
 	"",			/* CWM_COLOR_MENU_FONT_SEL */
-};
-static const struct {
-	const char	*key;
-	const char	*func;
-} kbd_binds[] = {
-	{ "CM-Return",	"terminal" },
-	{ "CM-Delete",	"lock" },
-	{ "M-question",	"exec" },
-	{ "CM-w",	"exec_wm" },
-	{ "M-period",	"ssh" },
-	{ "M-Return",	"hide" },
-	{ "M-Down",	"lower" },
-	{ "M-Up",	"raise" },
-	{ "M-slash",	"search" },
-	{ "C-slash",	"menusearch" },
-	{ "M-Tab",	"cycle" },
-	{ "MS-Tab",	"rcycle" },
-	{ "CM-n",	"label" },
-	{ "CM-x",	"delete" },
-	{ "CM-a",	"nogroup" },
-	{ "CM-0",	"nogroup" },
-	{ "CM-1",	"group1" },
-	{ "CM-2",	"group2" },
-	{ "CM-3",	"group3" },
-	{ "CM-4",	"group4" },
-	{ "CM-5",	"group5" },
-	{ "CM-6",	"group6" },
-	{ "CM-7",	"group7" },
-	{ "CM-8",	"group8" },
-	{ "CM-9",	"group9" },
-	{ "M-Right",	"cyclegroup" },
-	{ "M-Left",	"rcyclegroup" },
-	{ "CM-g",	"grouptoggle" },
-	{ "CM-f",	"fullscreen" },
-	{ "CM-m",	"maximize" },
-	{ "CM-s",	"stick" },
-	{ "CM-equal",	"vmaximize" },
-	{ "CMS-equal",	"hmaximize" },
-	{ "CMS-f",	"freeze" },
-	{ "CMS-r",	"restart" },
-	{ "CMS-q",	"quit" },
-	{ "M-h",	"moveleft" },
-	{ "M-j",	"movedown" },
-	{ "M-k",	"moveup" },
-	{ "M-l",	"moveright" },
-	{ "MS-h",	"bigmoveleft" },
-	{ "MS-j",	"bigmovedown" },
-	{ "MS-k",	"bigmoveup" },
-	{ "MS-l",	"bigmoveright" },
-	{ "CM-h",	"resizeleft" },
-	{ "CM-j",	"resizedown" },
-	{ "CM-k",	"resizeup" },
-	{ "CM-l",	"resizeright" },
-	{ "CMS-h",	"bigresizeleft" },
-	{ "CMS-j",	"bigresizedown" },
-	{ "CMS-k",	"bigresizeup" },
-	{ "CMS-l",	"bigresizeright" },
-},
-mouse_binds[] = {
-	{ "1",		"menu_unhide" },
-	{ "2",		"menu_group" },
-	{ "3",		"menu_cmd" },
-	{ "M-1",	"window_move" },
-	{ "CM-1",	"window_grouptoggle" },
-	{ "M-2",	"window_resize" },
-	{ "M-3",	"window_lower" },
-	{ "CMS-3",	"window_hide" },
 };
 static const struct {
 	const char	*tag;
@@ -251,6 +184,9 @@ static const struct {
 	{ "menu_unhide", kbfunc_menu_client, CWM_CONTEXT_SC, {0} },
 	{ "menu_cmd", kbfunc_menu_cmd, CWM_CONTEXT_SC, {0} },
 };
+static unsigned int ignore_mods[] = {
+	0, LockMask, Mod2Mask, Mod2Mask | LockMask
+};
 static const struct {
 	const char	ch;
 	int		mask;
@@ -260,7 +196,73 @@ static const struct {
 	{ '4',	Mod4Mask },
 	{ 'S',	ShiftMask },
 };
-static unsigned int ign_mods[] = { 0, LockMask, Mod2Mask, Mod2Mask | LockMask };
+static const struct {
+	const char	*key;
+	const char	*func;
+} key_binds[] = {
+	{ "CM-Return",	"terminal" },
+	{ "CM-Delete",	"lock" },
+	{ "M-question",	"exec" },
+	{ "CM-w",	"exec_wm" },
+	{ "M-period",	"ssh" },
+	{ "M-Return",	"hide" },
+	{ "M-Down",	"lower" },
+	{ "M-Up",	"raise" },
+	{ "M-slash",	"search" },
+	{ "C-slash",	"menusearch" },
+	{ "M-Tab",	"cycle" },
+	{ "MS-Tab",	"rcycle" },
+	{ "CM-n",	"label" },
+	{ "CM-x",	"delete" },
+	{ "CM-a",	"nogroup" },
+	{ "CM-0",	"nogroup" },
+	{ "CM-1",	"group1" },
+	{ "CM-2",	"group2" },
+	{ "CM-3",	"group3" },
+	{ "CM-4",	"group4" },
+	{ "CM-5",	"group5" },
+	{ "CM-6",	"group6" },
+	{ "CM-7",	"group7" },
+	{ "CM-8",	"group8" },
+	{ "CM-9",	"group9" },
+	{ "M-Right",	"cyclegroup" },
+	{ "M-Left",	"rcyclegroup" },
+	{ "CM-g",	"grouptoggle" },
+	{ "CM-f",	"fullscreen" },
+	{ "CM-m",	"maximize" },
+	{ "CM-s",	"stick" },
+	{ "CM-equal",	"vmaximize" },
+	{ "CMS-equal",	"hmaximize" },
+	{ "CMS-f",	"freeze" },
+	{ "CMS-r",	"restart" },
+	{ "CMS-q",	"quit" },
+	{ "M-h",	"moveleft" },
+	{ "M-j",	"movedown" },
+	{ "M-k",	"moveup" },
+	{ "M-l",	"moveright" },
+	{ "MS-h",	"bigmoveleft" },
+	{ "MS-j",	"bigmovedown" },
+	{ "MS-k",	"bigmoveup" },
+	{ "MS-l",	"bigmoveright" },
+	{ "CM-h",	"resizeleft" },
+	{ "CM-j",	"resizedown" },
+	{ "CM-k",	"resizeup" },
+	{ "CM-l",	"resizeright" },
+	{ "CMS-h",	"bigresizeleft" },
+	{ "CMS-j",	"bigresizedown" },
+	{ "CMS-k",	"bigresizeup" },
+	{ "CMS-l",	"bigresizeright" },
+},
+mouse_binds[] = {
+	{ "1",		"menu_unhide" },
+	{ "2",		"menu_group" },
+	{ "3",		"menu_cmd" },
+	{ "M-1",	"window_move" },
+	{ "CM-1",	"window_grouptoggle" },
+	{ "M-2",	"window_resize" },
+	{ "M-3",	"window_lower" },
+	{ "CMS-3",	"window_hide" },
+};
 
 void
 conf_init(struct conf *c)
@@ -280,8 +282,8 @@ conf_init(struct conf *c)
 	TAILQ_INIT(&c->autogroupq);
 	TAILQ_INIT(&c->mousebindq);
 
-	for (i = 0; i < nitems(kbd_binds); i++)
-		conf_bind_kbd(c, kbd_binds[i].key, kbd_binds[i].func);
+	for (i = 0; i < nitems(key_binds); i++)
+		conf_bind_key(c, key_binds[i].key, key_binds[i].func);
 
 	for (i = 0; i < nitems(mouse_binds); i++)
 		conf_bind_mouse(c, mouse_binds[i].key, mouse_binds[i].func);
@@ -502,7 +504,7 @@ conf_bind_getmask(const char *name, unsigned int *mask)
 }
 
 int
-conf_bind_kbd(struct conf *c, const char *bind, const char *cmd)
+conf_bind_key(struct conf *c, const char *bind, const char *cmd)
 {
 	struct bind_ctx	*kb;
 	const char	*key;
@@ -517,7 +519,7 @@ conf_bind_kbd(struct conf *c, const char *bind, const char *cmd)
 		return(0);
 	}
 	/* Remove duplicates. */
-	conf_unbind_kbd(c, kb);
+	conf_unbind_key(c, kb);
 
 	if (strcmp("unmap", cmd) == 0) {
 		free(kb);
@@ -540,7 +542,7 @@ conf_bind_kbd(struct conf *c, const char *bind, const char *cmd)
 }
 
 static void
-conf_unbind_kbd(struct conf *c, struct bind_ctx *unbind)
+conf_unbind_key(struct conf *c, struct bind_ctx *unbind)
 {
 	struct bind_ctx	*key = NULL, *keynxt;
 
@@ -620,8 +622,8 @@ conf_grab_kbd(Window win)
 		    (XkbKeycodeToKeysym(X_Dpy, kc, 0, 1) == kb->press.keysym))
 			kb->modmask |= ShiftMask;
 
-		for (i = 0; i < nitems(ign_mods); i++)
-			XGrabKey(X_Dpy, kc, (kb->modmask | ign_mods[i]), win,
+		for (i = 0; i < nitems(ignore_mods); i++)
+			XGrabKey(X_Dpy, kc, (kb->modmask | ignore_mods[i]), win,
 			    True, GrabModeAsync, GrabModeAsync);
 	}
 }
@@ -637,9 +639,9 @@ conf_grab_mouse(Window win)
 	TAILQ_FOREACH(mb, &Conf.mousebindq, entry) {
 		if (mb->context != CWM_CONTEXT_CC)
 			continue;
-		for (i = 0; i < nitems(ign_mods); i++) {
+		for (i = 0; i < nitems(ignore_mods); i++) {
 			XGrabButton(X_Dpy, mb->press.button,
-			    (mb->modmask | ign_mods[i]), win, False,
+			    (mb->modmask | ignore_mods[i]), win, False,
 			    BUTTONMASK, GrabModeAsync, GrabModeSync,
 			    None, None);
 		}
