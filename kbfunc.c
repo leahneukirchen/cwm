@@ -86,17 +86,6 @@ kbfunc_ptrmove(void *ctx, union arg *arg, enum xev xev)
 void
 kbfunc_client_move(void *ctx, union arg *arg, enum xev xev)
 {
-	int			 m = (xev == CWM_XEV_BTN);
-
-	if (m)
-		mousefunc_client_move(ctx, arg, xev);
-	else
-		kbfunc_client_move_key(ctx, arg, xev);
-}
-
-void
-kbfunc_client_move_key(void *ctx, union arg *arg, enum xev xev)
-{
 	struct client_ctx	*cc = ctx;
 	struct screen_ctx	*sc = cc->sc;
 	struct geom		 area;
@@ -150,17 +139,6 @@ kbfunc_client_move_key(void *ctx, union arg *arg, enum xev xev)
 
 void
 kbfunc_client_resize(void *ctx, union arg *arg, enum xev xev)
-{
-	int			 m = (xev == CWM_XEV_BTN);
-
-	if (m)
-		mousefunc_client_resize(ctx, arg, xev);
-	else
-		kbfunc_client_resize_key(ctx, arg, xev);
-}
-
-void
-kbfunc_client_resize_key(void *ctx, union arg *arg, enum xev xev)
 {
 	struct client_ctx	*cc = ctx;
 	unsigned int		 mx = 0, my = 0;
