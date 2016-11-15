@@ -390,6 +390,7 @@ kbfunc_menu_exec(void *ctx, union arg *arg, enum xev xev)
 	struct screen_ctx	*sc = ctx;
 	char			**ap, *paths[NPATHS], *path, *pathcpy;
 	char			 tpath[PATH_MAX];
+	struct stat		 sb;
 	const char		*label;
 	DIR			*dirp;
 	struct dirent		*dp;
@@ -426,14 +427,20 @@ kbfunc_menu_exec(void *ctx, union arg *arg, enum xev xev)
 			continue;
 
 		while ((dp = readdir(dirp)) != NULL) {
-			/* skip everything but regular files and symlinks */
-			if (dp->d_type != DT_REG && dp->d_type != DT_LNK)
-				continue;
 			(void)memset(tpath, '\0', sizeof(tpath));
 			l = snprintf(tpath, sizeof(tpath), "%s/%s", paths[i],
 			    dp->d_name);
 			if (l == -1 || l >= sizeof(tpath))
 				continue;
+			/* Skip everything but regular files and symlinks. */
+			if (dp->d_type != DT_REG && dp->d_type != DT_LNK) {
+				/* lstat(2) in case d_type isn't supported. */
+				if (lstat(tpath, &sb) == -1)
+					continue;
+				if (!S_ISREG(sb.st_mode) && 
+				    !S_ISLNK(sb.st_mode))
+					continue;
+			}
 			if (access(tpath, X_OK) == 0)
 				menuq_add(&menuq, NULL, "%s", dp->d_name);
 		}
