@@ -526,7 +526,7 @@ kbfunc_menu_ssh(void *ctx, union arg *arg, enum xev xev)
 	(void)fclose(fp);
 menu:
 	if ((mi = menu_filter(sc, &menuq, "ssh", NULL, (CWM_MENU_DUMMY),
-	    search_match_exec, NULL)) != NULL) {
+	    search_match_text, NULL)) != NULL) {
 		if (mi->text[0] == '\0')
 			goto out;
 		l = snprintf(path, sizeof(path), "%s -T '[ssh] %s' -e ssh %s",
