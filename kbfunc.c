@@ -298,12 +298,13 @@ kbfunc_menu_client(void *ctx, union arg *arg, enum xev xev)
 	struct menu		*mi;
 	struct menu_q		 menuq;
 	int			 m = (xev == CWM_XEV_BTN);
+	int			 all = (arg->i & CWM_MENU_WINDOW_ALL);
 
 	old_cc = client_current();
 
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(cc, &sc->clientq, entry) {
-		if (m) {
+		if (!all) {
 			if (cc->flags & CLIENT_HIDDEN)
 				menuq_add(&menuq, cc, NULL);
 		} else

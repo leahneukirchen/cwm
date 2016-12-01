@@ -261,6 +261,8 @@ enum menu_exec {
 #define CWM_MENU_DUMMY		0x0001
 #define CWM_MENU_FILE		0x0002
 #define CWM_MENU_LIST		0x0004
+#define CWM_MENU_WINDOW_ALL	0x0008
+#define CWM_MENU_WINDOW_HIDDEN	0x0010
 
 struct menu {
 	TAILQ_ENTRY(menu)	 entry;
