@@ -442,9 +442,7 @@ void			 search_match_client(struct menu_q *, struct menu_q *,
 			     char *);
 void			 search_match_exec(struct menu_q *, struct menu_q *,
 			     char *);
-void			 search_match_exec_path(struct menu_q *,
-			     struct menu_q *, char *);
-void			 search_match_path_any(struct menu_q *, struct menu_q *,
+void			 search_match_path(struct menu_q *, struct menu_q *,
 			     char *);
 void			 search_match_text(struct menu_q *, struct menu_q *,
 			     char *);

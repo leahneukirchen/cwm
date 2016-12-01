@@ -451,7 +451,7 @@ kbfunc_menu_exec(void *ctx, union arg *arg, enum xev xev)
 
 	if ((mi = menu_filter(sc, &menuq, label, NULL,
 	    (CWM_MENU_DUMMY | CWM_MENU_FILE),
-	    search_match_exec_path, NULL)) != NULL) {
+	    search_match_exec, NULL)) != NULL) {
 		if (mi->text[0] == '\0')
 			goto out;
 		switch (cmd) {
