@@ -59,7 +59,7 @@ static const char *color_binds[] = {
 static const struct {
 	const char	*tag;
 	void		 (*handler)(void *, union arg *, enum xev);
-	int		 context;
+	enum context	 context;
 	union arg	 argument;
 } name_to_func[] = {
 	{ "window-menu-label", kbfunc_menu_client_label, CWM_CONTEXT_CC, {0} },
