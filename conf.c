@@ -35,9 +35,7 @@
 static const char	*conf_bind_getmask(const char *, unsigned int *);
 static void		 conf_cmd_remove(struct conf *, const char *);
 static void		 conf_unbind_key(struct conf *, struct bind_ctx *);
-static void		 conf_unbind_key_all(struct conf *);
 static void		 conf_unbind_mouse(struct conf *, struct bind_ctx *);
-static void		 conf_unbind_mouse_all(struct conf *);
 
 static int cursor_binds[] = {
 	XC_left_ptr,		/* CF_NORMAL */
@@ -516,7 +514,7 @@ conf_bind_key(struct conf *c, const char *bind, const char *cmd)
 	unsigned int	 i;
 
 	if ((strcmp(bind, "all") == 0) && (cmd == NULL)) {
-		conf_unbind_key_all(c);
+		conf_unbind_key(c, NULL);
 		goto out;
 	}
 	kb = xmalloc(sizeof(*kb));
@@ -555,27 +553,14 @@ conf_unbind_key(struct conf *c, struct bind_ctx *unbind)
 	struct bind_ctx	*key = NULL, *keynxt;
 
 	TAILQ_FOREACH_SAFE(key, &c->keybindq, entry, keynxt) {
-		if (key->modmask != unbind->modmask)
-			continue;
-		if (key->press.keysym == unbind->press.keysym) {
+		if ((unbind == NULL) ||
+		    ((key->modmask == unbind->modmask) &&
+		     (key->press.keysym == unbind->press.keysym))) {
 			TAILQ_REMOVE(&c->keybindq, key, entry);
 			if (key->context == CWM_CONTEXT_NONE)
 				free(key->argument.c);
 			free(key);
 		}
-	}
-}
-
-static void
-conf_unbind_key_all(struct conf *c)
-{
-	struct bind_ctx	*key = NULL, *keynxt;
-
-	TAILQ_FOREACH_SAFE(key, &c->keybindq, entry, keynxt) {
-		TAILQ_REMOVE(&c->keybindq, key, entry);
-		if (key->context == CWM_CONTEXT_NONE)
-			free(key->argument.c);
-		free(key);
 	}
 }
 
@@ -587,7 +572,7 @@ conf_bind_mouse(struct conf *c, const char *bind, const char *cmd)
 	unsigned int	 i;
 
 	if ((strcmp(bind, "all") == 0) && (cmd == NULL)) {
-		conf_unbind_mouse_all(c);
+		conf_unbind_mouse(c, NULL);
 		goto out;
 	}
 	mb = xmalloc(sizeof(*mb));
@@ -626,25 +611,14 @@ conf_unbind_mouse(struct conf *c, struct bind_ctx *unbind)
 	struct bind_ctx		*mb = NULL, *mbnxt;
 
 	TAILQ_FOREACH_SAFE(mb, &c->mousebindq, entry, mbnxt) {
-		if (mb->modmask != unbind->modmask)
-			continue;
-		if (mb->press.button == unbind->press.button) {
+		if ((unbind == NULL) || 
+		    ((mb->modmask == unbind->modmask) &&
+		     (mb->press.button == unbind->press.button))) {
 			TAILQ_REMOVE(&c->mousebindq, mb, entry);
+			if (mb->context == CWM_CONTEXT_NONE)
+				free(mb->argument.c);
 			free(mb);
 		}
-	}
-}
-
-static void
-conf_unbind_mouse_all(struct conf *c)
-{
-	struct bind_ctx		*mb = NULL, *mbnxt;
-
-	TAILQ_FOREACH_SAFE(mb, &c->mousebindq, entry, mbnxt) {
-		TAILQ_REMOVE(&c->mousebindq, mb, entry);
-		if (mb->context == CWM_CONTEXT_NONE)
-			free(mb->argument.c);
-		free(mb);
 	}
 }
 
