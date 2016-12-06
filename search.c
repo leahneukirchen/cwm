@@ -105,7 +105,13 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 }
 
 void
-search_print_cmd(struct menu *mi, int i)
+search_print_text(struct menu *mi, int listing)
+{
+	(void)snprintf(mi->print, sizeof(mi->print), "%s", mi->text);
+}
+
+void
+search_print_cmd(struct menu *mi, int listing)
 {
 	struct cmd_ctx	*cmd = (struct cmd_ctx *)mi->ctx;
 
@@ -113,7 +119,7 @@ search_print_cmd(struct menu *mi, int i)
 }
 
 void
-search_print_group(struct menu *mi, int i)
+search_print_group(struct menu *mi, int listing)
 {
 	struct group_ctx	*gc = (struct group_ctx *)mi->ctx;
 
@@ -123,7 +129,7 @@ search_print_group(struct menu *mi, int i)
 }
 
 void
-search_print_client(struct menu *mi, int list)
+search_print_client(struct menu *mi, int listing)
 {
 	struct client_ctx	*cc = (struct client_ctx *)mi->ctx;
 	char			 flag = ' ';

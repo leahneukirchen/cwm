@@ -449,6 +449,7 @@ void			 search_match_text(struct menu_q *, struct menu_q *,
 void			 search_print_client(struct menu *, int);
 void			 search_print_cmd(struct menu *, int);
 void			 search_print_group(struct menu *, int);
+void			 search_print_text(struct menu *, int);
 
 struct region_ctx	*region_find(struct screen_ctx *, int, int);
 struct geom		 screen_apply_gap(struct screen_ctx *, struct geom);
