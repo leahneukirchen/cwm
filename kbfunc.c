@@ -520,7 +520,7 @@ kbfunc_menu_ssh(void *ctx, union arg *arg, enum xev xev)
 		if (p - buf + 1 > sizeof(hostbuf))
 			continue;
 		(void)strlcpy(hostbuf, buf, p - buf + 1);
-		menuq_add(&menuq, NULL, hostbuf);
+		menuq_add(&menuq, NULL, "%s", hostbuf);
 	}
 	free(lbuf);
 	(void)fclose(fp);
