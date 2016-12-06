@@ -1086,4 +1086,3 @@ client_set_wm_state(struct client_ctx *cc, long state)
 	XChangeProperty(X_Dpy, cc->win, cwmh[WM_STATE], cwmh[WM_STATE], 32,
 	    PropModeReplace, (unsigned char *)data, 2);
 }
-

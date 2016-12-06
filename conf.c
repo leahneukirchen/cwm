@@ -374,6 +374,7 @@ conf_cmd_remove(struct conf *c, const char *name)
 		}
 	}
 }
+
 void
 conf_autogroup(struct conf *c, int num, const char *name, const char *class)
 {

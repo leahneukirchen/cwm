@@ -126,7 +126,6 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, const char *prompt,
 	    CurrentTime) != GrabSuccess) {
 		XUnmapWindow(X_Dpy, sc->menu.win);
 		return(NULL);
-
 	}
 
 	XGetInputFocus(X_Dpy, &focuswin, &focusrevert);
@@ -667,4 +666,3 @@ menu_windraw(struct screen_ctx *sc, Window win, const char *fmt, ...)
 
 	free(text);
 }
-
