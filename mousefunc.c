@@ -53,6 +53,8 @@ mousefunc_client_resize(void *ctx, union arg *arg, enum xev xev)
 	    CurrentTime) != GrabSuccess)
 		return;
 
+	menu_windraw(sc, cc->win, "%4d x %-4d", cc->dim.w, cc->dim.h);
+
 	for (;;) {
 		XWindowEvent(X_Dpy, cc->win, MOUSEMASK, &ev);
 
@@ -119,6 +121,8 @@ mousefunc_client_move(void *ctx, union arg *arg, enum xev xev)
 	    GrabModeAsync, GrabModeAsync, None, Conf.cursor[CF_MOVE],
 	    CurrentTime) != GrabSuccess)
 		return;
+
+	menu_windraw(sc, cc->win, "%4d, %-4d", cc->geom.x, cc->geom.y);
 
 	for (;;) {
 		XWindowEvent(X_Dpy, cc->win, MOUSEMASK, &ev);
