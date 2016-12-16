@@ -117,11 +117,6 @@ Toggle maximization of current window.
 Toggle vertical maximization of current window.
 .It Ic CMS-=
 Toggle horizontal maximization of current window.
-.It Ic C-[Up | Down | Left | Right]
-Move pointer by a small amount.
-.It Ic CS-[Up | Down | Left | Right]
-Move pointer by a large amount; see
-.Xr cwmrc 5 .
 .It Ic M-[hjkl]
 Move window by a small amount.
 .It Ic MS-[hjkl]
@@ -224,8 +219,8 @@ Menus are recalled by clicking the mouse on the root window:
 .Pp
 .Bl -tag -width Ds -offset indent -compact
 .It Ic M1
-Show list of currently hidden windows.
-Selecting an item will unhide that window.
+Show list of currently defined windows.
+Selecting an item will warp to that window, unhiding it if necessary.
 .It Ic M2
 Show list of currently defined groups.
 Selecting an item will hide/unhide that group.

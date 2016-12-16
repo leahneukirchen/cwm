@@ -91,6 +91,8 @@ client_init(Window win, struct screen_ctx *sc, int active)
 	cc->geom.y = wattr.y;
 	cc->geom.w = wattr.width;
 	cc->geom.h = wattr.height;
+	cc->dim.w = (cc->geom.w - cc->hint.basew) / cc->hint.incw;
+	cc->dim.h = (cc->geom.h - cc->hint.baseh) / cc->hint.inch;
 	cc->ptr.x = cc->geom.w / 2;
 	cc->ptr.y = cc->geom.h / 2;
 
@@ -424,6 +426,8 @@ client_resize(struct client_ctx *cc, int reset)
 
 	XMoveResizeWindow(X_Dpy, cc->win, cc->geom.x,
 	    cc->geom.y, cc->geom.w, cc->geom.h);
+	cc->dim.w = (cc->geom.w - cc->hint.basew) / cc->hint.incw;
+	cc->dim.h = (cc->geom.h - cc->hint.baseh) / cc->hint.inch;
 	client_config(cc);
 }
 
@@ -877,9 +881,6 @@ client_applysizehints(struct client_ctx *cc)
 		cc->geom.w = MIN(cc->geom.w, cc->hint.maxw);
 	if (cc->hint.maxh)
 		cc->geom.h = MIN(cc->geom.h, cc->hint.maxh);
-
-	cc->dim.w = (cc->geom.w - cc->hint.basew) / cc->hint.incw;
-	cc->dim.h = (cc->geom.h - cc->hint.baseh) / cc->hint.inch;
 }
 
 static void
@@ -1085,4 +1086,3 @@ client_set_wm_state(struct client_ctx *cc, long state)
 	XChangeProperty(X_Dpy, cc->win, cwmh[WM_STATE], cwmh[WM_STATE], 32,
 	    PropModeReplace, (unsigned char *)data, 2);
 }
-

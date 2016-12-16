@@ -282,6 +282,8 @@ enum menu_exec {
 #define CWM_MENU_DUMMY		0x0001
 #define CWM_MENU_FILE		0x0002
 #define CWM_MENU_LIST		0x0004
+#define CWM_MENU_WINDOW_ALL	0x0008
+#define CWM_MENU_WINDOW_HIDDEN	0x0010
 
 struct menu {
 	TAILQ_ENTRY(menu)	 entry;
@@ -461,15 +463,14 @@ void			 search_match_client(struct menu_q *, struct menu_q *,
 			     char *);
 void			 search_match_exec(struct menu_q *, struct menu_q *,
 			     char *);
-void			 search_match_exec_path(struct menu_q *,
-			     struct menu_q *, char *);
-void			 search_match_path_any(struct menu_q *, struct menu_q *,
+void			 search_match_path(struct menu_q *, struct menu_q *,
 			     char *);
 void			 search_match_text(struct menu_q *, struct menu_q *,
 			     char *);
 void			 search_print_client(struct menu *, int);
 void			 search_print_cmd(struct menu *, int);
 void			 search_print_group(struct menu *, int);
+void			 search_print_text(struct menu *, int);
 
 struct region_ctx	*region_find(struct screen_ctx *, int, int);
 struct geom		 screen_apply_gap(struct screen_ctx *, struct geom);
@@ -539,7 +540,7 @@ int			 parse_config(const char *, struct conf *);
 void			 conf_atoms(void);
 void			 conf_autogroup(struct conf *, int, const char *,
 			     const char *);
-int			 conf_bind_kbd(struct conf *, const char *,
+int			 conf_bind_key(struct conf *, const char *,
     			     const char *);
 int			 conf_bind_mouse(struct conf *, const char *,
     			     const char *);

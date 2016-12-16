@@ -298,12 +298,13 @@ kbfunc_menu_client(void *ctx, union arg *arg, enum xev xev)
 	struct menu		*mi;
 	struct menu_q		 menuq;
 	int			 m = (xev == CWM_XEV_BTN);
+	int			 all = (arg->i & CWM_MENU_WINDOW_ALL);
 
 	old_cc = client_current();
 
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(cc, &sc->clientq, entry) {
-		if (m) {
+		if (!all) {
 			if (cc->flags & CLIENT_HIDDEN)
 				menuq_add(&menuq, cc, NULL);
 		} else
@@ -390,6 +391,7 @@ kbfunc_menu_exec(void *ctx, union arg *arg, enum xev xev)
 	struct screen_ctx	*sc = ctx;
 	char			**ap, *paths[NPATHS], *path, *pathcpy;
 	char			 tpath[PATH_MAX];
+	struct stat		 sb;
 	const char		*label;
 	DIR			*dirp;
 	struct dirent		*dp;
@@ -432,12 +434,13 @@ kbfunc_menu_exec(void *ctx, union arg *arg, enum xev xev)
 			    dp->d_name);
 			if (l == -1 || l >= sizeof(tpath))
 				continue;
-			/* skip everything but regular files and symlinks */
+			/* Skip everything but regular files and symlinks. */
 			if (dp->d_type != DT_REG && dp->d_type != DT_LNK) {
-				/* use an additional stat-based check in case d_type isn't supported */
-				if (lstat(tpath, &sb) < 0)
+				/* lstat(2) in case d_type isn't supported. */
+				if (lstat(tpath, &sb) == -1)
 					continue;
-				if (!S_ISREG(sb.st_mode) && !S_ISLNK(sb.st_mode))
+				if (!S_ISREG(sb.st_mode) && 
+				    !S_ISLNK(sb.st_mode))
 					continue;
 			}
 			if (access(tpath, X_OK) == 0)
@@ -449,7 +452,7 @@ kbfunc_menu_exec(void *ctx, union arg *arg, enum xev xev)
 
 	if ((mi = menu_filter(sc, &menuq, label, NULL,
 	    (CWM_MENU_DUMMY | CWM_MENU_FILE),
-	    search_match_exec_path, NULL)) != NULL) {
+	    search_match_exec, search_print_text)) != NULL) {
 		if (mi->text[0] == '\0')
 			goto out;
 		switch (cmd) {
@@ -518,13 +521,13 @@ kbfunc_menu_ssh(void *ctx, union arg *arg, enum xev xev)
 		if (p - buf + 1 > sizeof(hostbuf))
 			continue;
 		(void)strlcpy(hostbuf, buf, p - buf + 1);
-		menuq_add(&menuq, NULL, hostbuf);
+		menuq_add(&menuq, NULL, "%s", hostbuf);
 	}
 	free(lbuf);
 	(void)fclose(fp);
 menu:
 	if ((mi = menu_filter(sc, &menuq, "ssh", NULL, (CWM_MENU_DUMMY),
-	    search_match_exec, NULL)) != NULL) {
+	    search_match_text, search_print_text)) != NULL) {
 		if (mi->text[0] == '\0')
 			goto out;
 		l = snprintf(path, sizeof(path), "%s -T '[ssh] %s' -e ssh %s",
@@ -550,7 +553,7 @@ kbfunc_menu_client_label(void *ctx, union arg *arg, enum xev xev)
 
 	/* dummy is set, so this will always return */
 	mi = menu_filter(cc->sc, &menuq, "label", cc->label, (CWM_MENU_DUMMY),
-	    search_match_text, NULL);
+	    search_match_text, search_print_text);
 
 	if (!mi->abort) {
 		free(cc->label);

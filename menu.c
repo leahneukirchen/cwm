@@ -126,7 +126,6 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, const char *prompt,
 	    CurrentTime) != GrabSuccess) {
 		XUnmapWindow(X_Dpy, sc->menu.win);
 		return(NULL);
-
 	}
 
 	XGetInputFocus(X_Dpy, &focuswin, &focusrevert);
@@ -196,7 +195,7 @@ menu_complete_path(struct menu_ctx *mc)
 	TAILQ_INIT(&menuq);
 
 	if ((mi = menu_filter(sc, &menuq, mc->searchstr, NULL,
-	    (CWM_MENU_DUMMY), search_match_path_any, NULL)) != NULL) {
+	    (CWM_MENU_DUMMY), search_match_path, search_print_text)) != NULL) {
 		mr->abort = mi->abort;
 		mr->dummy = mi->dummy;
 		if (mi->text[0] != '\0')
@@ -366,11 +365,7 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 	}
 
 	TAILQ_FOREACH(mi, resultq, resultentry) {
-		if (mc->print != NULL)
-			(*mc->print)(mi, mc->listing);
-		else
-			(void)snprintf(mi->print, sizeof(mi->print),
-			    "%s", mi->text);
+		(*mc->print)(mi, mc->listing);
 
 		XftTextExtentsUtf8(X_Dpy, sc->xftfont,
 		    (const FcChar8*)mi->print,
@@ -671,4 +666,3 @@ menu_windraw(struct screen_ctx *sc, Window win, const char *fmt, ...)
 
 	free(text);
 }
-

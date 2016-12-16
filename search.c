@@ -36,10 +36,8 @@
 #define PATH_ANY 	0x0001
 #define PATH_EXEC 	0x0002
 
-static void	search_match_path(struct menu_q *, struct menu_q *,
+static void	search_match_path_type(struct menu_q *, struct menu_q *,
 		    char *, int);
-static void	search_match_path_exec(struct menu_q *, struct menu_q *,
-		    char *);
 static int	strsubmatch(char *, char *, int);
 
 void
@@ -107,7 +105,13 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 }
 
 void
-search_print_cmd(struct menu *mi, int i)
+search_print_text(struct menu *mi, int listing)
+{
+	(void)snprintf(mi->print, sizeof(mi->print), "%s", mi->text);
+}
+
+void
+search_print_cmd(struct menu *mi, int listing)
 {
 	struct cmd_ctx	*cmd = (struct cmd_ctx *)mi->ctx;
 
@@ -115,7 +119,7 @@ search_print_cmd(struct menu *mi, int i)
 }
 
 void
-search_print_group(struct menu *mi, int i)
+search_print_group(struct menu *mi, int listing)
 {
 	struct group_ctx	*gc = (struct group_ctx *)mi->ctx;
 
@@ -125,7 +129,7 @@ search_print_group(struct menu *mi, int i)
 }
 
 void
-search_print_client(struct menu *mi, int list)
+search_print_client(struct menu *mi, int listing)
 {
 	struct client_ctx	*cc = (struct client_ctx *)mi->ctx;
 	char			 flag = ' ';
@@ -141,7 +145,8 @@ search_print_client(struct menu *mi, int list)
 }
 
 static void
-search_match_path(struct menu_q *menuq, struct menu_q *resultq, char *search, int flag)
+search_match_path_type(struct menu_q *menuq, struct menu_q *resultq,
+    char *search, int flag)
 {
 	char 	 pattern[PATH_MAX];
 	glob_t	 g;
@@ -162,16 +167,10 @@ search_match_path(struct menu_q *menuq, struct menu_q *resultq, char *search, in
 	globfree(&g);
 }
 
-static void
-search_match_path_exec(struct menu_q *menuq, struct menu_q *resultq, char *search)
-{
-	return(search_match_path(menuq, resultq, search, PATH_EXEC));
-}
-
 void
-search_match_path_any(struct menu_q *menuq, struct menu_q *resultq, char *search)
+search_match_path(struct menu_q *menuq, struct menu_q *resultq, char *search)
 {
-	return(search_match_path(menuq, resultq, search, PATH_ANY));
+	return(search_match_path_type(menuq, resultq, search, PATH_ANY));
 }
 
 void
@@ -208,14 +207,9 @@ search_match_exec(struct menu_q *menuq, struct menu_q *resultq, char *search)
 		if (mj == NULL)
 			TAILQ_INSERT_TAIL(resultq, mi, resultentry);
 	}
-}
 
-void
-search_match_exec_path(struct menu_q *menuq, struct menu_q *resultq, char *search)
-{
-	search_match_exec(menuq, resultq, search);
 	if (TAILQ_EMPTY(resultq))
-		search_match_path_exec(menuq, resultq, search);
+		search_match_path_type(menuq, resultq, search, PATH_EXEC);
 }
 
 static int

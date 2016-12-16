@@ -63,11 +63,15 @@ The name and class values, respectively, for existing windows
 are both set in the WM_CLASS property and may be obtained using
 .Xr xprop 1 .
 .Pp
-.It Ic bind Ar keys command
-Cause the creation of a key binding, or replacement of a default
-key binding.
+.It Ic bind-key Ar key function
+Bind or rebind key
+.Ar key
+to
+.Ar function .
 The modifier keys come first, followed by a
-.Sq - .
+.Sq - ,
+then a keysym name, taken from
+.Pa /usr/X11R6/include/X11/keysymdef.h .
 .Pp
 The following modifiers are recognised:
 .Pp
@@ -83,22 +87,53 @@ Mod4 (windows) key.
 .El
 .Pp
 The
-.Sq -
-should be followed by a keysym name, taken from
-.Pa /usr/X11R6/include/X11/keysymdef.h .
-The
-.Ar command
+.Ar function
 may either be one from the
-.Sx BIND COMMAND LIST
+.Sx BIND FUNCTION LIST
 (see below) or the command line that is to be executed.
 .Pp
-A special
-.Ar command
-keyword
-.Dq unmap
-can be used to remove the named key binding.
-This can be used to remove a binding which conflicts with an
-application.
+.It Ic bind-mouse Ar button function
+Bind or rebind button
+.Ar button
+to
+.Ar function .
+The modifier keys come first, followed by a
+.Sq - ,
+then the button number.
+.Pp
+The following modifiers are recognised:
+.Pp
+.Bl -tag -width Ds -offset indent -compact
+.It Ic C
+Control key.
+.It Ic M
+Meta key.
+.It Ic S
+Shift key.
+.It Ic 4
+Mod4 (windows) key.
+.El
+.Pp
+The following buttons are recognised:
+.Pp
+.Bl -tag -width Ds -offset indent -compact
+.It Ic 1
+Left mouse button.
+.It Ic 2
+Middle mouse button.
+.It Ic 3
+Right mouse button.
+.It Ic 4
+Scroll up mouse button.
+.It Ic 5
+Scroll down mouse button.
+.El
+.Pp
+The
+.Ar function
+may be taken from the
+.Sx BIND FUNCTION LIST
+(see below) or the command line that is to be executed.
 .Pp
 .It Ic borderwidth Ar pixels
 Set the window border width to
@@ -177,48 +212,6 @@ Ignore, and do not warp to, windows with the name
 .Ar windowname
 when drawing borders and cycling through windows.
 .Pp
-.It Ic mousebind Ar buttons command
-Cause the creation of a mouse binding, or replacement of a default
-mouse binding.
-The modifier keys come first, followed by a
-.Sq - .
-.Pp
-The following modifiers are recognised:
-.Pp
-.Bl -tag -width Ds -offset indent -compact
-.It Ic C
-Control key.
-.It Ic M
-Meta key.
-.It Ic S
-Shift key.
-.It Ic 4
-Mod4 (windows) key.
-.El
-.Pp
-The
-.Sq -
-should be followed by number:
-.Pp
-.Bl -tag -width Ds -offset indent -compact
-.It Ic 1
-Left mouse button.
-.It Ic 2
-Middle mouse button.
-.It Ic 3
-Right mouse button.
-.It Ic 4
-Scroll up mouse button.
-.It Ic 5
-Scroll down mouse button.
-.El
-.Pp
-The
-.Ar command
-may be taken from the
-.Sx MOUSEBIND COMMAND LIST
-(see below).
-.Pp
 .It Ic moveamount Ar pixels
 Set a default size for the keyboard movement bindings,
 in pixels.
@@ -234,9 +227,28 @@ The default behavior for new windows is to not assign any group.
 By enabling sticky group mode,
 .Xr cwm 1
 will assign new windows to the currently selected group.
+.Pp
+.It Ic unbind-key Ar key
+Unbind function bound to
+.Ar key .
+A special
+.Ar key
+keyword
+.Dq all
+can be used to unbind all keys.
+.Pp
+.It Ic unbind-mouse Ar button
+Unbind function bound to
+.Ar button .
+A special
+.Ar button
+keyword
+.Dq all
+can be used to unbind all buttons.
+.Pp
 .El
-.Sh BIND COMMAND LIST
-.Bl -tag -width 18n -compact
+.Sh BIND FUNCTION LIST
+.Bl -tag -width 23n -compact
 .It restart
 Restart the running
 .Xr cwm 1 .
@@ -247,197 +259,176 @@ Quit
 Spawn a new terminal.
 .It lock
 Lock the screen.
-.It search
+.It menu-window
 Launch window search menu.
-.It menusearch
+.It menu-window-hidden
+Launch hidden window search menu.
+.It menu-cmd
 Launch application search menu.
-.It groupsearch
+.It menu-group
 Launch group search menu.
-.It exec
+.It menu-exec
 Launch
 .Dq exec program
 menu.
-.It exec_wm
+.It menu-exec-wm
 Launch
 .Dq exec WindowManager
 menu.
-.It ssh
+.It menu-ssh
 Launch
 .Dq ssh
 menu.
-.It group[n]
+.It group-toggle-[n]
 Toggle visibility of group n, where n is 1-9.
-.It grouponly[n]
-Like
-.Ar group[n]
-but also hides the other groups.
-.It nogroup
+.It group-only-[n]
+Show only group n, where n is 1-9, hiding other groups.
+.It window-toggle-all
 Toggle visibility of all groups.
-.It grouptoggle
+.It window-group
 Toggle group membership of current window.
-.It movetogroup[n]
+.It window-movetogroup-[n]
 Hide current window from display and move to group n, where n is 1-9.
-.It cyclegroup
+.It group-cycle
 Forward cycle through groups.
-.It rcyclegroup
+.It group-rcycle
 Reverse cycle through groups.
-.It cycle
+.It window-cycle
 Forward cycle through windows.
-.It rcycle
+.It window-rcycle
 Reverse cycle through windows.
-.It cycleingroup
+.It window-cycle-ingroup
 Forward cycle through windows in current group.
-.It rcycleingroup
+.It window-rcycle-ingroup
 Reverse cycle through windows in current group.
-.It delete
+.It window-delete
 Delete current window.
-.It hide
+.It window-hide
 Hide current window.
-.It lower
+.It window-lower
 Lower current window.
-.It raise
+.It window-raise
 Raise current window.
-.It label
+.It window-menu-label
 Label current window.
-.It freeze
+.It window-freeze
 Freeze current window geometry.
-.It stick
+.It window-stick
 Stick current window to all groups (same as assigning to nogroup).
-.It fullscreen
+.It window-fullscreen
 Full-screen current window (gap + border removed).
-.It maximize
+.It window-maximize
 Maximize current window (gap + border honored).
-.It vmaximize
+.It window-vmaximize
 Vertically maximize current window (gap + border honored).
-.It hmaximize
+.It window-hmaximize
 Horizontally maximize current window (gap + border honored).
-.It moveup
-Move window
-.Ar moveamount
-pixels up.
-.It movedown
-Move window
-.Ar moveamount
-pixels down.
-.It moveright
-Move window
-.Ar moveamount
-pixels right.
-.It moveleft
-Move window
-.Ar moveamount
-pixels left.
-.It bigmoveup
-Move window 10 times
-.Ar moveamount
-pixels up.
-.It bigmovedown
-Move window 10 times
-.Ar moveamount
-pixels down.
-.It bigmoveright
-Move window 10 times
-.Ar moveamount
-pixels right.
-.It bigmoveleft
-Move window 10 times
-.Ar moveamount
-pixels left.
-.It resizeup
-Resize window
-.Ar moveamount
-pixels up.
-.It resizedown
-Resize window
-.Ar moveamount
-pixels down.
-.It resizeright
-Resize window
-.Ar moveamount
-pixels right.
-.It resizeleft
-Resize window
-.Ar moveamount
-pixels left.
-.It bigresizeup
-Resize window 10 times
-.Ar moveamount
-pixels up.
-.It bigresizedown
-Resize window 10 times
-.Ar moveamount
-pixels down.
-.It bigresizeright
-Resize window 10 times
-.Ar moveamount
-pixels right.
-.It bigresizeleft
-Resize window 10 times
-.Ar moveamount
-pixels left.
-.It ptrmoveup
-Move pointer
-.Ar moveamount
-pixels up.
-.It ptrmovedown
-Move pointer
-.Ar moveamount
-pixels down.
-.It ptrmoveright
-Move pointer
-.Ar moveamount
-pixels right.
-.It ptrmoveleft
-Move pointer
-.Ar moveamount
-pixels left.
-.It bigptrmoveup
-Move pointer 10 times
-.Ar moveamount
-pixels up.
-.It bigptrmovedown
-Move pointer 10 times
-.Ar moveamount
-pixels down.
-.It bigptrmoveright
-Move pointer 10 times
-.Ar moveamount
-pixels right.
-.It bigptrmoveleft
-Move pointer 10 times
-.Ar moveamount
-pixels left.
-.It htile
+.It window-htile
 Current window is placed at the top of the screen and maximized
 horizontally, other windows in its group share remaining screen space.
-.It vtile
+.It window-vtile
 Current window is placed on the left of the screen and maximized
 vertically, other windows in its group share remaining screen space.
-.El
-.Sh MOUSEBIND COMMAND LIST
-.Bl -tag -width 18n -compact
-.It window_move
+.It window-move
 Move current window.
-.It window_resize
+.It window-resize
 Resize current window.
-.It window_lower
-Lower current window.
-.It window_raise
-Raise current window.
-.It window_hide
-Hide current window.
-.It window_grouptoggle
-Toggle group membership of current window.
-.It cyclegroup
-Forward cycle through groups.
-.It rcyclegroup
-Reverse cycle through groups.
-.It menu_group
-Launch group list.
-.It menu_unhide
-Launch hidden window list.
-.It menu_cmd
-Launch command list.
+.It window-move-up
+Move window
+.Ar moveamount
+pixels up.
+.It window-move-down
+Move window
+.Ar moveamount
+pixels down.
+.It window-move-right
+Move window
+.Ar moveamount
+pixels right.
+.It window-move-left
+Move window
+.Ar moveamount
+pixels left.
+.It window-move-up-big
+Move window 10 times
+.Ar moveamount
+pixels up.
+.It window-move-down-big
+Move window 10 times
+.Ar moveamount
+pixels down.
+.It window-move-right-big
+Move window 10 times
+.Ar moveamount
+pixels right.
+.It window-move-left-big
+Move window 10 times
+.Ar moveamount
+pixels left.
+.It window-resize-up
+Resize window
+.Ar moveamount
+pixels up.
+.It window-resize-down
+Resize window
+.Ar moveamount
+pixels down.
+.It window-resize-right
+Resize window
+.Ar moveamount
+pixels right.
+.It window-resize-left
+Resize window
+.Ar moveamount
+pixels left.
+.It window-resize-up-big
+Resize window 10 times
+.Ar moveamount
+pixels up.
+.It window-resize-down-big
+Resize window 10 times
+.Ar moveamount
+pixels down.
+.It window-resize-right-big
+Resize window 10 times
+.Ar moveamount
+pixels right.
+.It window-resize-left-big
+Resize window 10 times
+.Ar moveamount
+pixels left.
+.It pointer-move-up
+Move pointer
+.Ar moveamount
+pixels up.
+.It pointer-move-down
+Move pointer
+.Ar moveamount
+pixels down.
+.It pointer-move-right
+Move pointer
+.Ar moveamount
+pixels right.
+.It pointer-move-left
+Move pointer
+.Ar moveamount
+pixels left.
+.It pointer-move-up-big
+Move pointer 10 times
+.Ar moveamount
+pixels up.
+.It pointer-move-down-big
+Move pointer 10 times
+.Ar moveamount
+pixels down.
+.It pointer-move-right-big
+Move pointer 10 times
+.Ar moveamount
+pixels right.
+.It pointer-move-left-big
+Move pointer 10 times
+.Ar moveamount
+pixels left.
 .El
 .Sh FILES
 .Bl -tag -width "~/.cwmrcXXX" -compact
@@ -470,23 +461,23 @@ ignore xapm
 ignore xclock
 
 # Key bindings
-bind CM-r	label
-bind CS-Return	"xterm -e top"
-bind 4-o	unmap
-bind CM-equal	unmap
-bind CMS-equal	unmap
-bind C4-equal	vmaximize
-bind C4S-equal	hmaximize
-bind M-1	grouponly1
-bind M-2	grouponly2
-bind M-3	grouponly3
-bind MS-1	movetogroup1
-bind MS-2	movetogroup2
-bind MS-3	movetogroup3
+bind-key CM-r		window-menu-label
+bind-key CS-Return	"xterm -e top"
+bind-key C4-equal	window-vmaximize
+bind-key C4S-equal	window-hmaximize
+bind-key M-1		group-only-1
+bind-key M-2		group-only-2
+bind-key M-3		group-only-3
+bind-key MS-1		window-movetogroup-1
+bind-key MS-2		window-movetogroup-2
+bind-key MS-3		window-movetogroup-3
+unbind-key 4-o
+unbind-key CM-equal
+unbind-key CMS-equal
 
 # Mouse bindings
-mousebind M-2	window_lower
-mousebind M-3	window_resize
+bind-mouse M-2		window-lower
+bind-mouse M-3		window-resize
 .Ed
 .Sh SEE ALSO
 .Xr cwm 1
