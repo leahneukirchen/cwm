@@ -398,7 +398,6 @@ kbfunc_menu_exec(void *ctx, union arg *arg, enum xev xev)
 	struct menu		*mi;
 	struct menu_q		 menuq;
 	int			 l, i, cmd = arg->i;
-	struct stat		 sb;
 
 	switch (cmd) {
 	case CWM_MENU_EXEC_EXEC:
