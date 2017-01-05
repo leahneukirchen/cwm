@@ -156,6 +156,10 @@ kbfunc_client_resize(void *ctx, union arg *arg, enum xev xev)
 		cc->geom.w = cc->hint.minw;
 	if ((cc->geom.h += my * cc->hint.inch) < cc->hint.minh)
 		cc->geom.h = cc->hint.minh;
+	if (cc->geom.x + cc->geom.w < 0)
+		cc->geom.x = -cc->geom.w;
+	if (cc->geom.y + cc->geom.h < 0)
+		cc->geom.y = -cc->geom.h;
 	client_resize(cc, 1);
 
 	/* Make sure the pointer stays within the window. */

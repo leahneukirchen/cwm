@@ -736,17 +736,19 @@ client_placecalc(struct client_ctx *cc)
 	int			 xslack, yslack;
 
 	if (cc->hint.flags & (USPosition | PPosition)) {
-		/*
-		 * Ignore XINERAMA screens, just make sure it's somewhere
-		 * in the virtual desktop. else it stops people putting xterms
-		 * at startup in the screen the mouse doesn't start in *sigh*.
-		 * XRandR bits mean that {x,y}max shouldn't be outside what's
-		 * currently there.
-		 */
-		xslack = sc->view.w - cc->geom.w - cc->bwidth * 2;
-		yslack = sc->view.h - cc->geom.h - cc->bwidth * 2;
-		cc->geom.x = MIN(cc->geom.x, xslack);
-		cc->geom.y = MIN(cc->geom.y, yslack);
+		int			 wmax, hmax;
+
+		wmax = DisplayWidth(X_Dpy, sc->which);
+		hmax = DisplayHeight(X_Dpy, sc->which);
+
+		if (cc->geom.x + ((int)cc->bwidth * 2) >= wmax)
+			cc->geom.x = wmax - (cc->bwidth * 2);
+		if (cc->geom.x + cc->geom.w - ((int)cc->bwidth * 2) < 0)
+			cc->geom.x = -cc->geom.w;
+		if (cc->geom.y + ((int)cc->bwidth * 2) >= hmax)
+			cc->geom.y = hmax - (cc->bwidth * 2);
+		if (cc->geom.y + cc->geom.h - ((int)cc->bwidth * 2) < 0)
+			cc->geom.y = -cc->geom.h;
 	} else {
 		struct geom		 area;
 		int			 xmouse, ymouse;
