@@ -89,6 +89,6 @@ Changes made between OpenBSD 5.5 and 5.4
 * Support for sticky windows (_NET_WM_STATE_STICKY).
 * Internal cleanups and bug fixes.
 
---Christian Neukirchen <chneukirchen@gmail.com>
+--Leah Neukirchen <leah@vuxu.org>
 
 [0]: http://cvsweb.openbsd.org/cgi-bin/cvsweb/xenocara/app/cwm/

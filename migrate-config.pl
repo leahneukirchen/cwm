@@ -1,7 +1,7 @@
 #!/usr/bin/perl -p
 # Originally by Stuart Henderson in
 # <20161206120601.vmimohqh4nafaeah@symphytum.spacehopper.org>
-# Ported to Perl and slightly tweaked by Christian Neukirchen.
+# Ported to Perl and slightly tweaked by Leah Neukirchen.
 
 s/\bbind\b(.*)\bunmap/unbind-key \1/;
 s/\bmousebind\b(.*)unmap/unbind-mouse \1/;
