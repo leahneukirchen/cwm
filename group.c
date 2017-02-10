@@ -164,7 +164,7 @@ group_movetogroup(struct client_ctx *cc, int idx)
 
 	if (cc->gc == gc)
 		return;
-	if (group_holds_only_hidden(gc))
+	if (gc->num != 0 && group_holds_only_hidden(gc))
 		client_hide(cc);
 	group_assign(gc, cc);
 }
