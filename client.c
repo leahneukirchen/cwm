@@ -982,6 +982,7 @@ client_htile(struct client_ctx *cc)
 	cc->flags &= ~CLIENT_HMAXIMIZED;
 	cc->geom.x = area.x;
 	cc->geom.y = area.y;
+	cc->geom.h = (area.h - (cc->bwidth * 2)) / 2;
 	cc->geom.w = area.w - (cc->bwidth * 2);
 	client_resize(cc, 1);
 	client_ptrwarp(cc);
@@ -1042,6 +1043,7 @@ client_vtile(struct client_ctx *cc)
 	cc->geom.x = area.x;
 	cc->geom.y = area.y;
 	cc->geom.h = area.h - (cc->bwidth * 2);
+	cc->geom.w = (area.w - (cc->bwidth * 2)) / 2;
 	client_resize(cc, 1);
 	client_ptrwarp(cc);
 
