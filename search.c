@@ -170,7 +170,7 @@ search_match_path(struct menu_q *menuq, struct menu_q *resultq, char *search)
 {
 	TAILQ_INIT(resultq);
 
-	return(search_match_path_type(menuq, resultq, search, PATH_ANY));
+	search_match_path_type(menuq, resultq, search, PATH_ANY);
 }
 
 void
