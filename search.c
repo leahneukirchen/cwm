@@ -152,8 +152,6 @@ search_match_path_type(struct menu_q *menuq, struct menu_q *resultq,
 	glob_t	 g;
 	int	 i;
 
-	TAILQ_INIT(resultq);
-
 	(void)strlcpy(pattern, search, sizeof(pattern));
 	(void)strlcat(pattern, "*", sizeof(pattern));
 
@@ -170,6 +168,8 @@ search_match_path_type(struct menu_q *menuq, struct menu_q *resultq,
 void
 search_match_path(struct menu_q *menuq, struct menu_q *resultq, char *search)
 {
+	TAILQ_INIT(resultq);
+
 	return(search_match_path_type(menuq, resultq, search, PATH_ANY));
 }
 
