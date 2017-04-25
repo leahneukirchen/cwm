@@ -148,9 +148,10 @@ static void
 search_match_path_type(struct menu_q *menuq, struct menu_q *resultq,
     char *search, int flag)
 {
-	char 	 pattern[PATH_MAX];
-	glob_t	 g;
-	int	 i;
+	struct menu     *mi;
+	char 		 pattern[PATH_MAX];
+	glob_t		 g;
+	int		 i;
 
 	(void)strlcpy(pattern, search, sizeof(pattern));
 	(void)strlcat(pattern, "*", sizeof(pattern));
@@ -160,7 +161,9 @@ search_match_path_type(struct menu_q *menuq, struct menu_q *resultq,
 	for (i = 0; i < g.gl_pathc; i++) {
 		if ((flag & PATH_EXEC) && access(g.gl_pathv[i], X_OK))
 			continue;
-		menuq_add(resultq, NULL, "%s", g.gl_pathv[i]);
+		mi = xcalloc(1, sizeof(*mi));
+		(void)strlcpy(mi->text, g.gl_pathv[i], sizeof(mi->text));
+		TAILQ_INSERT_TAIL(resultq, mi, resultentry);
 	}
 	globfree(&g);
 }
