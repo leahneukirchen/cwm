@@ -207,7 +207,7 @@ sighdlr(int sig)
 	switch (sig) {
 	case SIGCHLD:
 		/* Collect dead children. */
-		while ((pid = waitpid(WAIT_ANY, &status, WNOHANG)) > 0 ||
+		while ((pid = waitpid(-1, &status, WNOHANG)) > 0 ||
 		    (pid < 0 && errno == EINTR))
 			;
 		break;
