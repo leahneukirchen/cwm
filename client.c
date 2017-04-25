@@ -645,7 +645,7 @@ match:
 void
 client_cycle(struct screen_ctx *sc, int flags)
 {
-	struct client_ctx	*newcc, *oldcc;
+	struct client_ctx	*newcc, *oldcc, *prevcc;
 	int			 again = 1;
 
 	/* For X apps that ignore events. */
@@ -655,6 +655,7 @@ client_cycle(struct screen_ctx *sc, int flags)
 	if (TAILQ_EMPTY(&sc->clientq))
 		return;
 
+	prevcc = TAILQ_FIRST(&sc->clientq);
 	oldcc = client_current();
 	if (oldcc == NULL)
 		oldcc = (flags & CWM_CYCLE_REVERSE) ?
@@ -686,6 +687,7 @@ client_cycle(struct screen_ctx *sc, int flags)
 	/* reset when cycling mod is released. XXX I hate this hack */
 	sc->cycling = 1;
 	client_ptrsave(oldcc);
+	client_raise(prevcc);
 	client_raise(newcc);
 	if (!client_inbound(newcc, newcc->ptr.x, newcc->ptr.y)) {
 		newcc->ptr.x = newcc->geom.w / 2;
@@ -956,7 +958,7 @@ client_htile(struct client_ctx *cc)
 	struct group_ctx 	*gc = cc->gc;
 	struct screen_ctx 	*sc = cc->sc;
 	struct geom 		 area;
-	int 			 i, n, mh, x, h, w;
+	int 			 i, n, mh, x, w, h;
 
 	if (!gc)
 		return;
@@ -983,6 +985,7 @@ client_htile(struct client_ctx *cc)
 	cc->geom.x = area.x;
 	cc->geom.y = area.y;
 	cc->geom.w = area.w - (cc->bwidth * 2);
+	cc->geom.h = (area.h - (cc->bwidth * 2)) / 2;
 	client_resize(cc, 1);
 	client_ptrwarp(cc);
 
@@ -995,16 +998,16 @@ client_htile(struct client_ctx *cc)
 		    ci->flags & CLIENT_IGNORE || (ci == cc))
 			continue;
 		ci->bwidth = Conf.bwidth;
-		ci->geom.y = area.y + mh;
 		ci->geom.x = x;
-		ci->geom.h = h - (ci->bwidth * 2);
+		ci->geom.y = area.y + mh;
 		ci->geom.w = w - (ci->bwidth * 2);
+		ci->geom.h = h - (ci->bwidth * 2);
 		if (i + 1 == n)
 			ci->geom.w = area.x + area.w -
 			    ci->geom.x - (ci->bwidth * 2);
 		x += w;
-		client_resize(ci, 1);
 		i++;
+		client_resize(ci, 1);
 	}
 }
 
@@ -1015,7 +1018,7 @@ client_vtile(struct client_ctx *cc)
 	struct group_ctx 	*gc = cc->gc;
 	struct screen_ctx 	*sc = cc->sc;
 	struct geom 		 area;
-	int 			 i, n, mw, y, h, w;
+	int 			 i, n, mw, y, w, h;
 
 	if (!gc)
 		return;
@@ -1041,6 +1044,7 @@ client_vtile(struct client_ctx *cc)
 	cc->flags &= ~CLIENT_VMAXIMIZED;
 	cc->geom.x = area.x;
 	cc->geom.y = area.y;
+	cc->geom.w = (area.w - (cc->bwidth * 2)) / 2;
 	cc->geom.h = area.h - (cc->bwidth * 2);
 	client_resize(cc, 1);
 	client_ptrwarp(cc);
@@ -1054,16 +1058,16 @@ client_vtile(struct client_ctx *cc)
 		    ci->flags & CLIENT_IGNORE || (ci == cc))
 			continue;
 		ci->bwidth = Conf.bwidth;
-		ci->geom.y = y;
 		ci->geom.x = area.x + mw;
-		ci->geom.h = h - (ci->bwidth * 2);
+		ci->geom.y = y;
 		ci->geom.w = w - (ci->bwidth * 2);
+		ci->geom.h = h - (ci->bwidth * 2);
 		if (i + 1 == n)
 			ci->geom.h = area.y + area.h -
 			    ci->geom.y - (ci->bwidth * 2);
 		y += h;
-		client_resize(ci, 1);
 		i++;
+		client_resize(ci, 1);
 	}
 }
 
