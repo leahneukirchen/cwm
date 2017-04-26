@@ -545,7 +545,7 @@ client_draw_border(struct client_ctx *cc)
 	if (cc->flags & CLIENT_URGENCY)
 		pixel = sc->xftcolor[CWM_COLOR_BORDER_URGENCY].pixel;
 
-	XSetWindowBorderWidth(X_Dpy, cc->win, cc->bwidth);
+	XSetWindowBorderWidth(X_Dpy, cc->win, (unsigned int)cc->bwidth);
 	XSetWindowBorder(X_Dpy, cc->win, pixel);
 }
 
@@ -743,13 +743,13 @@ client_placecalc(struct client_ctx *cc)
 		wmax = DisplayWidth(X_Dpy, sc->which);
 		hmax = DisplayHeight(X_Dpy, sc->which);
 
-		if (cc->geom.x + ((int)cc->bwidth * 2) >= wmax)
+		if (cc->geom.x + (cc->bwidth * 2) >= wmax)
 			cc->geom.x = wmax - (cc->bwidth * 2);
-		if (cc->geom.x + cc->geom.w - ((int)cc->bwidth * 2) < 0)
+		if (cc->geom.x + cc->geom.w - (cc->bwidth * 2) < 0)
 			cc->geom.x = -cc->geom.w;
-		if (cc->geom.y + ((int)cc->bwidth * 2) >= hmax)
+		if (cc->geom.y + (cc->bwidth * 2) >= hmax)
 			cc->geom.y = hmax - (cc->bwidth * 2);
-		if (cc->geom.y + cc->geom.h - ((int)cc->bwidth * 2) < 0)
+		if (cc->geom.y + cc->geom.h - (cc->bwidth * 2) < 0)
 			cc->geom.y = -cc->geom.h;
 	} else {
 		struct geom		 area;

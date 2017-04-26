@@ -119,7 +119,7 @@ struct client_ctx {
 	struct group_ctx	*gc;
 	Window			 win;
 	Colormap		 colormap;
-	unsigned int		 bwidth; /* border width */
+	int			 bwidth; /* border width */
 	struct geom		 geom, savegeom, fullgeom;
 	struct {
 		long		 flags;	/* defined hints */
