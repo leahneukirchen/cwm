@@ -79,11 +79,7 @@ mousefunc_client_resize(void *ctx, union arg *arg, enum xev xev)
 			XUngrabPointer(X_Dpy, CurrentTime);
 
 			/* Make sure the pointer stays within the window. */
-			if (cc->ptr.x > cc->geom.w)
-				cc->ptr.x = cc->geom.w - cc->bwidth;
-			if (cc->ptr.y > cc->geom.h)
-				cc->ptr.y = cc->geom.h - cc->bwidth;
-			client_ptrwarp(cc);
+			client_ptr_inbound(cc, 0);
 			return;
 		}
 	}
@@ -98,24 +94,13 @@ mousefunc_client_move(void *ctx, union arg *arg, enum xev xev)
 	Time			 ltime = 0;
 	struct screen_ctx	*sc = cc->sc;
 	struct geom		 area;
-	int			 px, py;
 
 	client_raise(cc);
 
 	if (cc->flags & CLIENT_FREEZE)
 		return;
 
-	xu_ptr_getpos(cc->win, &px, &py);
-	if (px < 0) 
-		px = 0;
-	else if (px > cc->geom.w)
-		px = cc->geom.w;
-	if (py < 0)
-		py = 0;
-	else if (py > cc->geom.h)
-		py = cc->geom.h;
-
-	xu_ptr_setpos(cc->win, px, py);
+	client_ptr_inbound(cc, 1);
 
 	if (XGrabPointer(X_Dpy, cc->win, False, MOUSEMASK,
 	    GrabModeAsync, GrabModeAsync, None, Conf.cursor[CF_MOVE],
@@ -134,8 +119,8 @@ mousefunc_client_move(void *ctx, union arg *arg, enum xev xev)
 				continue;
 			ltime = ev.xmotion.time;
 
-			cc->geom.x = ev.xmotion.x_root - px - cc->bwidth;
-			cc->geom.y = ev.xmotion.y_root - py - cc->bwidth;
+			cc->geom.x = ev.xmotion.x_root - cc->ptr.x - cc->bwidth;
+			cc->geom.y = ev.xmotion.y_root - cc->ptr.y - cc->bwidth;
 
 			area = screen_area(sc,
 			    cc->geom.x + cc->geom.w / 2,

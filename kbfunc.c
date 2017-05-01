@@ -38,7 +38,7 @@
 
 extern sig_atomic_t	 cwm_status;
 
-static void kbfunc_amount(int, int, unsigned int *, unsigned int *);
+static void kbfunc_amount(int, int, int *, int *);
 
 void
 kbfunc_cwm_status(void *ctx, union arg *arg, enum xev xev)
@@ -47,7 +47,7 @@ kbfunc_cwm_status(void *ctx, union arg *arg, enum xev xev)
 }
 
 static void
-kbfunc_amount(int flags, int amt, unsigned int *mx, unsigned int *my)
+kbfunc_amount(int flags, int amt, int *mx, int *my)
 {
 #define CWM_FACTOR 10
 
@@ -75,7 +75,7 @@ kbfunc_ptrmove(void *ctx, union arg *arg, enum xev xev)
 {
 	struct screen_ctx	*sc = ctx;
 	int			 x, y;
-	unsigned int		 mx = 0, my = 0;
+	int			 mx = 0, my = 0;
 
 	kbfunc_amount(arg->i, Conf.mamount, &mx, &my);
 
@@ -89,36 +89,23 @@ kbfunc_client_move(void *ctx, union arg *arg, enum xev xev)
 	struct client_ctx	*cc = ctx;
 	struct screen_ctx	*sc = cc->sc;
 	struct geom		 area;
-	int			 x, y, px, py;
-	unsigned int		 mx = 0, my = 0;
+	int			 mx = 0, my = 0;
 
 	if (cc->flags & CLIENT_FREEZE)
 		return;
 
-	xu_ptr_getpos(cc->win, &px, &py);
-	if (px < 0)
-		px = 0;
-	else if (px > cc->geom.w)
-		px = cc->geom.w;
-	if (py < 0)
-		py = 0;
-	else if (py > cc->geom.h)
-		py = cc->geom.h;
-
-	xu_ptr_setpos(cc->win, px, py);
-
 	kbfunc_amount(arg->i, Conf.mamount, &mx, &my);
 
 	cc->geom.x += mx;
-	if (cc->geom.x + cc->geom.w < 0)
-		cc->geom.x = -cc->geom.w;
-	if (cc->geom.x > sc->view.w - 1)
-		cc->geom.x = sc->view.w - 1;
+	if (cc->geom.x < -(cc->geom.w + cc->bwidth - 1))
+		cc->geom.x = -(cc->geom.w + cc->bwidth - 1);
+	if (cc->geom.x > (sc->view.w - cc->bwidth - 1))
+		cc->geom.x = sc->view.w - cc->bwidth - 1;
 	cc->geom.y += my;
-	if (cc->geom.y + cc->geom.h < 0)
-		cc->geom.y = -cc->geom.h;
-	if (cc->geom.y > sc->view.h - 1)
-		cc->geom.y = sc->view.h - 1;
+	if (cc->geom.y < -(cc->geom.h + cc->bwidth - 1))
+		cc->geom.y = -(cc->geom.h + cc->bwidth - 1);
+	if (cc->geom.y > (sc->view.h - cc->bwidth - 1))
+		cc->geom.y = sc->view.h - cc->bwidth - 1;
 
 	area = screen_area(sc,
 	    cc->geom.x + cc->geom.w / 2,
@@ -129,19 +116,16 @@ kbfunc_client_move(void *ctx, union arg *arg, enum xev xev)
 	cc->geom.y += client_snapcalc(cc->geom.y,
 	    cc->geom.y + cc->geom.h + (cc->bwidth * 2),
 	    area.y, area.y + area.h, sc->snapdist);
-	client_move(cc);
 
-	xu_ptr_getpos(cc->win, &x, &y);
-	cc->ptr.x = x + mx;
-	cc->ptr.y = y + my;
-	client_ptrwarp(cc);
+	client_move(cc);
+	client_ptr_inbound(cc, 1);
 }
 
 void
 kbfunc_client_resize(void *ctx, union arg *arg, enum xev xev)
 {
 	struct client_ctx	*cc = ctx;
-	unsigned int		 mx = 0, my = 0;
+	int			 mx = 0, my = 0;
 	int			 amt = 1;
 
 	if (cc->flags & CLIENT_FREEZE)
@@ -156,19 +140,13 @@ kbfunc_client_resize(void *ctx, union arg *arg, enum xev xev)
 		cc->geom.w = cc->hint.minw;
 	if ((cc->geom.h += my * cc->hint.inch) < cc->hint.minh)
 		cc->geom.h = cc->hint.minh;
-	if (cc->geom.x + cc->geom.w < 0)
-		cc->geom.x = -cc->geom.w;
-	if (cc->geom.y + cc->geom.h < 0)
-		cc->geom.y = -cc->geom.h;
-	client_resize(cc, 1);
+	if (cc->geom.x + cc->geom.w + cc->bwidth - 1 < 0)
+		cc->geom.x = -(cc->geom.w + cc->bwidth - 1);
+	if (cc->geom.y + cc->geom.h + cc->bwidth - 1 < 0)
+		cc->geom.y = -(cc->geom.h + cc->bwidth - 1);
 
-	/* Make sure the pointer stays within the window. */
-	xu_ptr_getpos(cc->win, &cc->ptr.x, &cc->ptr.y);
-	if (cc->ptr.x > cc->geom.w)
-		cc->ptr.x = cc->geom.w - cc->bwidth;
-	if (cc->ptr.y > cc->geom.h)
-		cc->ptr.y = cc->geom.h - cc->bwidth;
-	client_ptrwarp(cc);
+	client_resize(cc, 1);
+	client_ptr_inbound(cc, 1);
 }
 
 void

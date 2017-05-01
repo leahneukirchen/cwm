@@ -471,6 +471,24 @@ client_config(struct client_ctx *cc)
 }
 
 void
+client_ptr_inbound(struct client_ctx *cc, int getpos)
+{
+	if (getpos)
+		xu_ptr_getpos(cc->win, &cc->ptr.x, &cc->ptr.y);
+
+	if (cc->ptr.x < 0)
+		cc->ptr.x = 0;
+	else if (cc->ptr.x > cc->geom.w - 1)
+		cc->ptr.x = cc->geom.w - 1;
+	if (cc->ptr.y < 0)
+		cc->ptr.y = 0;
+	else if (cc->ptr.y > cc->geom.h - 1)
+		cc->ptr.y = cc->geom.h - 1;
+
+	client_ptrwarp(cc);
+}
+
+void
 client_ptrwarp(struct client_ctx *cc)
 {
 	xu_ptr_setpos(cc->win, cc->ptr.x, cc->ptr.y);
