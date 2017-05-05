@@ -761,14 +761,14 @@ client_placecalc(struct client_ctx *cc)
 		wmax = DisplayWidth(X_Dpy, sc->which);
 		hmax = DisplayHeight(X_Dpy, sc->which);
 
-		if (cc->geom.x + (cc->bwidth * 2) >= wmax)
-			cc->geom.x = wmax - (cc->bwidth * 2);
-		if (cc->geom.x + cc->geom.w - (cc->bwidth * 2) < 0)
-			cc->geom.x = -cc->geom.w;
-		if (cc->geom.y + (cc->bwidth * 2) >= hmax)
-			cc->geom.y = hmax - (cc->bwidth * 2);
-		if (cc->geom.y + cc->geom.h - (cc->bwidth * 2) < 0)
-			cc->geom.y = -cc->geom.h;
+		if (cc->geom.x >= wmax)
+			cc->geom.x = wmax - cc->bwidth - 1;
+		if (cc->geom.x + cc->geom.w + cc->bwidth <= 0)
+			cc->geom.x = -(cc->geom.w + cc->bwidth - 1);
+		if (cc->geom.y >= hmax)
+			cc->geom.x = hmax - cc->bwidth - 1;
+		if (cc->geom.y + cc->geom.h + cc->bwidth <= 0)
+			cc->geom.y = -(cc->geom.h + cc->bwidth - 1);
 	} else {
 		struct geom		 area;
 		int			 xmouse, ymouse;
