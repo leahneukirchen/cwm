@@ -215,7 +215,6 @@ xev_handle_enternotify(XEvent *ee)
 		client_setactive(cc);
 }
 
-/* We can split this into two event handlers. */
 static void
 xev_handle_buttonpress(XEvent *ee)
 {
