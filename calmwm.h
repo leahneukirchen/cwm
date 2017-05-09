@@ -87,7 +87,6 @@ enum cwm_status {
 	CWM_RUNNING,
 	CWM_EXEC_WM
 };
-
 enum cursor_font {
 	CF_NORMAL,
 	CF_MOVE,
@@ -140,7 +139,7 @@ struct client_ctx {
 	struct group_ctx	*gc;
 	Window			 win;
 	Colormap		 colormap;
-	unsigned int		 bwidth; /* border width */
+	int			 bwidth; /* border width */
 	struct geom		 geom, savegeom, fullgeom;
 	struct {
 		long		 flags;	/* defined hints */
@@ -177,7 +176,6 @@ struct client_ctx {
 #define CLIENT_FULLSCREEN		0x0800
 #define CLIENT_STICKY			0x1000
 #define CLIENT_ACTIVE			0x2000
-
 #define CLIENT_HIGHLIGHT		(CLIENT_GROUP | CLIENT_UNGROUP)
 #define CLIENT_MAXFLAGS			(CLIENT_VMAXIMIZED | CLIENT_HMAXIMIZED)
 #define CLIENT_MAXIMIZED		(CLIENT_VMAXIMIZED | CLIENT_HMAXIMIZED)
@@ -240,30 +238,29 @@ struct screen_ctx {
 };
 TAILQ_HEAD(screen_q, screen_ctx);
 
-enum xev {
-	CWM_XEV_KEY,
-	CWM_XEV_BTN
-};
-union arg {
-	char	*c;
-	int	 i;
-};
-union press {
-	KeySym		 keysym;
-	unsigned int	 button;
+struct cargs {
+	char		*cmd;
+	int		 flag;
+	enum {
+		CWM_XEV_KEY,
+		CWM_XEV_BTN
+	} xev;
 };
 enum context {
-	CWM_CONTEXT_NONE,
+	CWM_CONTEXT_NONE = 0,
 	CWM_CONTEXT_CC,
 	CWM_CONTEXT_SC
 };
 struct bind_ctx {
 	TAILQ_ENTRY(bind_ctx)	 entry;
-	void			(*callback)(void *, union arg *, enum xev);
-	union arg		 argument;
-	unsigned int		 modmask;
-	union press		 press;
+	void			(*callback)(void *, struct cargs *);
+	struct cargs		*cargs;
 	enum context		 context;
+	unsigned int		 modmask;
+	union {
+		KeySym		 keysym;
+		unsigned int	 button;
+	} press;
 };
 TAILQ_HEAD(keybind_q, bind_ctx);
 TAILQ_HEAD(mousebind_q, bind_ctx);
@@ -420,6 +417,7 @@ void			 client_msg(struct client_ctx *, Atom, Time);
 void			 client_move(struct client_ctx *);
 int			 client_inbound(struct client_ctx *, int, int);
 struct client_ctx	*client_init(Window, struct screen_ctx *, int);
+void			 client_ptr_inbound(struct client_ctx *, int);
 void			 client_ptrsave(struct client_ctx *);
 void			 client_ptrwarp(struct client_ctx *);
 void			 client_raise(struct client_ctx *);
@@ -482,49 +480,42 @@ void			 screen_update_geometry(struct screen_ctx *);
 void			 screen_updatestackingorder(struct screen_ctx *);
 void			 screen_assert_clients_within(struct screen_ctx *);
 
-void			 kbfunc_cwm_status(void *, union arg *, enum xev);
-void			 kbfunc_ptrmove(void *, union arg *, enum xev);
-void			 kbfunc_client_move(void *, union arg *, enum xev);
-void			 kbfunc_client_resize(void *, union arg *, enum xev);
-void			 kbfunc_client_delete(void *, union arg *, enum xev);
-void			 kbfunc_client_lower(void *, union arg *, enum xev);
-void			 kbfunc_client_raise(void *, union arg *, enum xev);
-void			 kbfunc_client_hide(void *, union arg *, enum xev);
-void			 kbfunc_client_toggle_freeze(void *,
-			     union arg *, enum xev);
-void			 kbfunc_client_toggle_sticky(void *,
-			     union arg *, enum xev);
+void			 kbfunc_cwm_status(void *, struct cargs *);
+void			 kbfunc_ptrmove(void *, struct cargs *);
+void			 kbfunc_client_move(void *, struct cargs *);
+void			 kbfunc_client_resize(void *, struct cargs *);
+void			 kbfunc_client_delete(void *, struct cargs *);
+void			 kbfunc_client_lower(void *, struct cargs *);
+void			 kbfunc_client_raise(void *, struct cargs *);
+void			 kbfunc_client_hide(void *, struct cargs *);
+void			 kbfunc_client_toggle_freeze(void *, struct cargs *);
+void			 kbfunc_client_toggle_sticky(void *, struct cargs *);
 void			 kbfunc_client_toggle_fullscreen(void *,
-			     union arg *, enum xev);
-void			 kbfunc_client_toggle_maximize(void *,
-			     union arg *, enum xev);
-void			 kbfunc_client_toggle_hmaximize(void *,
-			     union arg *, enum xev);
-void			 kbfunc_client_toggle_vmaximize(void *,
-			     union arg *, enum xev);
-void 			 kbfunc_client_htile(void *, union arg *, enum xev);
-void 			 kbfunc_client_vtile(void *, union arg *, enum xev);
-void			 kbfunc_client_cycle(void *, union arg *, enum xev);
-void			 kbfunc_client_toggle_group(void *,
-			     union arg *, enum xev);
-void			 kbfunc_client_movetogroup(void *,
-			     union arg *, enum xev);
-void			 kbfunc_group_toggle(void *, union arg *, enum xev);
-void			 kbfunc_group_only(void *, union arg *, enum xev);
-void			 kbfunc_group_cycle(void *, union arg *, enum xev);
-void			 kbfunc_group_alltoggle(void *, union arg *, enum xev);
-void			 kbfunc_menu_client(void *, union arg *, enum xev);
-void			 kbfunc_menu_cmd(void *, union arg *, enum xev);
-void			 kbfunc_menu_group(void *, union arg *, enum xev);
-void			 kbfunc_menu_exec(void *, union arg *, enum xev);
-void			 kbfunc_menu_ssh(void *, union arg *, enum xev);
-void			 kbfunc_menu_client_label(void *, union arg *, enum xev);
-void			 kbfunc_exec_cmd(void *, union arg *, enum xev);
-void			 kbfunc_exec_lock(void *, union arg *, enum xev);
-void			 kbfunc_exec_term(void *, union arg *, enum xev);
+			      struct cargs *);
+void			 kbfunc_client_toggle_maximize(void *, struct cargs *);
+void			 kbfunc_client_toggle_hmaximize(void *, struct cargs *);
+void			 kbfunc_client_toggle_vmaximize(void *, struct cargs *);
+void 			 kbfunc_client_htile(void *, struct cargs *);
+void 			 kbfunc_client_vtile(void *, struct cargs *);
+void			 kbfunc_client_cycle(void *, struct cargs *);
+void			 kbfunc_client_toggle_group(void *, struct cargs *);
+void			 kbfunc_client_movetogroup(void *, struct cargs *);
+void			 kbfunc_group_toggle(void *, struct cargs *);
+void			 kbfunc_group_only(void *, struct cargs *);
+void			 kbfunc_group_cycle(void *, struct cargs *);
+void			 kbfunc_group_alltoggle(void *, struct cargs *);
+void			 kbfunc_menu_client(void *, struct cargs *);
+void			 kbfunc_menu_cmd(void *, struct cargs *);
+void			 kbfunc_menu_group(void *, struct cargs *);
+void			 kbfunc_menu_exec(void *, struct cargs *);
+void			 kbfunc_menu_ssh(void *, struct cargs *);
+void			 kbfunc_menu_client_label(void *, struct cargs *);
+void			 kbfunc_exec_cmd(void *, struct cargs *);
+void			 kbfunc_exec_lock(void *, struct cargs *);
+void			 kbfunc_exec_term(void *, struct cargs *);
 
-void			 mousefunc_client_move(void *, union arg *, enum xev);
-void			 mousefunc_client_resize(void *, union arg *, enum xev);
+void			 mousefunc_client_move(void *, struct cargs *);
+void			 mousefunc_client_resize(void *, struct cargs *);
 
 void			 menu_windraw(struct screen_ctx *, Window,
 			     const char *, ...);

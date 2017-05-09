@@ -215,7 +215,6 @@ xev_handle_enternotify(XEvent *ee)
 		client_setactive(cc);
 }
 
-/* We can split this into two event handlers. */
 static void
 xev_handle_buttonpress(XEvent *ee)
 {
@@ -233,22 +232,23 @@ xev_handle_buttonpress(XEvent *ee)
 
 	if (mb == NULL)
 		return;
+	mb->cargs->xev = CWM_XEV_BTN;
 	switch (mb->context) {
 	case CWM_CONTEXT_CC:
 		if (((cc = client_find(e->window)) == NULL) &&
 		    (cc = client_current()) == NULL)
 			return;
-		(*mb->callback)(cc, &mb->argument, CWM_XEV_BTN);
+		(*mb->callback)(cc, mb->cargs);
 		break;
 	case CWM_CONTEXT_SC:
 		if (e->window != e->root)
 			return;
 		if ((sc = screen_find(e->window)) == NULL)
 			return;
-		(*mb->callback)(sc, &mb->argument, CWM_XEV_BTN);
+		(*mb->callback)(sc, mb->cargs);
 		break;
 	case CWM_CONTEXT_NONE:
-		(*mb->callback)(NULL, &mb->argument, CWM_XEV_BTN);
+		(*mb->callback)(NULL, mb->cargs);
 		break;
 	}
 }
@@ -295,20 +295,21 @@ xev_handle_keypress(XEvent *ee)
 
 	if (kb == NULL)
 		return;
+	kb->cargs->xev = CWM_XEV_KEY;
 	switch (kb->context) {
 	case CWM_CONTEXT_CC:
 		if (((cc = client_find(e->window)) == NULL) &&
 		    (cc = client_current()) == NULL)
 			return;
-		(*kb->callback)(cc, &kb->argument, CWM_XEV_KEY);
+		(*kb->callback)(cc, kb->cargs);
 		break;
 	case CWM_CONTEXT_SC:
 		if ((sc = screen_find(e->window)) == NULL)
 			return;
-		(*kb->callback)(sc, &kb->argument, CWM_XEV_KEY);
+		(*kb->callback)(sc, kb->cargs);
 		break;
 	case CWM_CONTEXT_NONE:
-		(*kb->callback)(NULL, &kb->argument, CWM_XEV_KEY);
+		(*kb->callback)(NULL, kb->cargs);
 		break;
 	}
 }

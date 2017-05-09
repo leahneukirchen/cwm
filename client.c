@@ -471,6 +471,24 @@ client_config(struct client_ctx *cc)
 }
 
 void
+client_ptr_inbound(struct client_ctx *cc, int getpos)
+{
+	if (getpos)
+		xu_ptr_getpos(cc->win, &cc->ptr.x, &cc->ptr.y);
+
+	if (cc->ptr.x < 0)
+		cc->ptr.x = 0;
+	else if (cc->ptr.x > cc->geom.w - 1)
+		cc->ptr.x = cc->geom.w - 1;
+	if (cc->ptr.y < 0)
+		cc->ptr.y = 0;
+	else if (cc->ptr.y > cc->geom.h - 1)
+		cc->ptr.y = cc->geom.h - 1;
+
+	client_ptrwarp(cc);
+}
+
+void
 client_ptrwarp(struct client_ctx *cc)
 {
 	xu_ptr_setpos(cc->win, cc->ptr.x, cc->ptr.y);
@@ -545,7 +563,7 @@ client_draw_border(struct client_ctx *cc)
 	if (cc->flags & CLIENT_URGENCY)
 		pixel = sc->xftcolor[CWM_COLOR_BORDER_URGENCY].pixel;
 
-	XSetWindowBorderWidth(X_Dpy, cc->win, cc->bwidth);
+	XSetWindowBorderWidth(X_Dpy, cc->win, (unsigned int)cc->bwidth);
 	XSetWindowBorder(X_Dpy, cc->win, pixel);
 }
 
@@ -743,14 +761,14 @@ client_placecalc(struct client_ctx *cc)
 		wmax = DisplayWidth(X_Dpy, sc->which);
 		hmax = DisplayHeight(X_Dpy, sc->which);
 
-		if (cc->geom.x + ((int)cc->bwidth * 2) >= wmax)
-			cc->geom.x = wmax - (cc->bwidth * 2);
-		if (cc->geom.x + cc->geom.w - ((int)cc->bwidth * 2) < 0)
-			cc->geom.x = -cc->geom.w;
-		if (cc->geom.y + ((int)cc->bwidth * 2) >= hmax)
-			cc->geom.y = hmax - (cc->bwidth * 2);
-		if (cc->geom.y + cc->geom.h - ((int)cc->bwidth * 2) < 0)
-			cc->geom.y = -cc->geom.h;
+		if (cc->geom.x >= wmax)
+			cc->geom.x = wmax - cc->bwidth - 1;
+		if (cc->geom.x + cc->geom.w + cc->bwidth <= 0)
+			cc->geom.x = -(cc->geom.w + cc->bwidth - 1);
+		if (cc->geom.y >= hmax)
+			cc->geom.x = hmax - cc->bwidth - 1;
+		if (cc->geom.y + cc->geom.h + cc->bwidth <= 0)
+			cc->geom.y = -(cc->geom.h + cc->bwidth - 1);
 	} else {
 		struct geom		 area;
 		int			 xmouse, ymouse;
