@@ -33,7 +33,7 @@
 #include "calmwm.h"
 
 void
-mousefunc_client_resize(void *ctx, union arg *arg, enum xev xev)
+mousefunc_client_resize(void *ctx, struct cargs *cargs)
 {
 	struct client_ctx	*cc = ctx;
 	XEvent			 ev;
@@ -87,7 +87,7 @@ mousefunc_client_resize(void *ctx, union arg *arg, enum xev xev)
 }
 
 void
-mousefunc_client_move(void *ctx, union arg *arg, enum xev xev)
+mousefunc_client_move(void *ctx, struct cargs *cargs)
 {
 	struct client_ctx	*cc = ctx;
 	XEvent			 ev;
