@@ -18,6 +18,9 @@
  * $OpenBSD$
  */
 
+/* For FreeBSD. */
+#define _WITH_GETLINE
+
 #include <sys/types.h>
 #include "queue.h"
 
