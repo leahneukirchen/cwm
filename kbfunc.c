@@ -468,6 +468,7 @@ kbfunc_menu_ssh(void *ctx, struct cargs *cargs)
 	char			 path[PATH_MAX];
 	int			 l;
 	size_t			 len;
+	ssize_t			 slen;
 
 	TAILQ_FOREACH(cmd, &Conf.cmdq, entry) {
 		if (strcmp(cmd->name, "term") == 0)
@@ -481,20 +482,16 @@ kbfunc_menu_ssh(void *ctx, struct cargs *cargs)
 	}
 
 	lbuf = NULL;
-	while ((buf = fgetln(fp, &len))) {
-		if (buf[len - 1] == '\n')
-			buf[len - 1] = '\0';
-		else {
-			/* EOF without EOL, copy and add the NUL */
-			lbuf = xmalloc(len + 1);
-			(void)memcpy(lbuf, buf, len);
-			lbuf[len] = '\0';
-			buf = lbuf;
-		}
+	len = 0;
+	while ((slen = getline(&lbuf, &len, fp)) != -1) {
+		buf = lbuf;
+		if (buf[slen - 1] == '\n')
+			buf[slen - 1] = '\0';
+		
 		/* skip hashed hosts */
 		if (strncmp(buf, HASH_MARKER, strlen(HASH_MARKER)) == 0)
 			continue;
-		for (p = buf; *p != ',' && *p != ' ' && p != buf + len; p++) {
+		for (p = buf; *p != ',' && *p != ' ' && p != buf + slen; p++) {
 			/* do nothing */
 		}
 		/* ignore badness */
@@ -504,6 +501,8 @@ kbfunc_menu_ssh(void *ctx, struct cargs *cargs)
 		menuq_add(&menuq, NULL, "%s", hostbuf);
 	}
 	free(lbuf);
+	if (ferror(fp))
+		err(1, "%s", path);
 	(void)fclose(fp);
 menu:
 	if ((mi = menu_filter(sc, &menuq, "ssh", NULL, (CWM_MENU_DUMMY),
