@@ -60,7 +60,7 @@ static const struct {
 	enum context	 context;
 	int		 flag;
 } name_to_func[] = {
-	{ "window-menu-label", kbfunc_menu_client_label, CWM_CONTEXT_CC, 0 },
+	{ "window-menu-label", kbfunc_client_menu_label, CWM_CONTEXT_CC, 0 },
 	{ "window-lower", kbfunc_client_lower, CWM_CONTEXT_CC, 0 },
 	{ "window-raise", kbfunc_client_raise, CWM_CONTEXT_CC, 0 },
 	{ "window-hide", kbfunc_client_hide, CWM_CONTEXT_CC, 0 },

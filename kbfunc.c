@@ -522,7 +522,7 @@ out:
 }
 
 void
-kbfunc_menu_client_label(void *ctx, struct cargs *cargs)
+kbfunc_client_menu_label(void *ctx, struct cargs *cargs)
 {
 	struct client_ctx	*cc = ctx;
 	struct menu		*mi;
