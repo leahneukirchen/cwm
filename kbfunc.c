@@ -39,6 +39,10 @@
 extern sig_atomic_t	 cwm_status;
 
 static void kbfunc_amount(int, int, int *, int *);
+static void kbfunc_client_move_kb(void *, struct cargs *);
+static void kbfunc_client_move_mb(void *, struct cargs *);
+static void kbfunc_client_resize_kb(void *, struct cargs *);
+static void kbfunc_client_resize_mb(void *, struct cargs *);
 
 void
 kbfunc_cwm_status(void *ctx, struct cargs *cargs)
@@ -86,6 +90,24 @@ kbfunc_ptrmove(void *ctx, struct cargs *cargs)
 void
 kbfunc_client_move(void *ctx, struct cargs *cargs)
 {
+	if ((cargs->xev == CWM_XEV_BTN))
+		kbfunc_client_move_mb(ctx, cargs);
+	else
+		kbfunc_client_move_kb(ctx, cargs);
+}
+
+void
+kbfunc_client_resize(void *ctx, struct cargs *cargs)
+{
+	if ((cargs->xev == CWM_XEV_BTN))
+		kbfunc_client_resize_mb(ctx, cargs);
+	else
+		kbfunc_client_resize_kb(ctx, cargs);
+}
+
+static void
+kbfunc_client_move_kb(void *ctx, struct cargs *cargs)
+{
 	struct client_ctx	*cc = ctx;
 	struct screen_ctx	*sc = cc->sc;
 	struct geom		 area;
@@ -121,8 +143,69 @@ kbfunc_client_move(void *ctx, struct cargs *cargs)
 	client_ptr_inbound(cc, 1);
 }
 
-void
-kbfunc_client_resize(void *ctx, struct cargs *cargs)
+static void
+kbfunc_client_move_mb(void *ctx, struct cargs *cargs)
+{
+	struct client_ctx	*cc = ctx;
+	XEvent			 ev;
+	Time			 ltime = 0;
+	struct screen_ctx	*sc = cc->sc;
+	struct geom		 area;
+	int			 move = 1;
+
+	client_raise(cc);
+
+	if (cc->flags & CLIENT_FREEZE)
+		return;
+
+	client_ptr_inbound(cc, 1);
+
+	if (XGrabPointer(X_Dpy, cc->win, False, MOUSEMASK,
+	    GrabModeAsync, GrabModeAsync, None, Conf.cursor[CF_MOVE],
+	    CurrentTime) != GrabSuccess)
+		return;
+
+	menu_windraw(sc, cc->win, "%4d, %-4d", cc->geom.x, cc->geom.y);
+
+	while (move) {
+		XWindowEvent(X_Dpy, cc->win, MOUSEMASK, &ev);
+		switch (ev.type) {
+		case MotionNotify:
+			/* not more than 60 times / second */
+			if ((ev.xmotion.time - ltime) <= (1000 / 60))
+				continue;
+			ltime = ev.xmotion.time;
+
+			cc->geom.x = ev.xmotion.x_root - cc->ptr.x - cc->bwidth;
+			cc->geom.y = ev.xmotion.y_root - cc->ptr.y - cc->bwidth;
+
+			area = screen_area(sc,
+			    cc->geom.x + cc->geom.w / 2,
+			    cc->geom.y + cc->geom.h / 2, CWM_GAP);
+			cc->geom.x += client_snapcalc(cc->geom.x,
+			    cc->geom.x + cc->geom.w + (cc->bwidth * 2),
+			    area.x, area.x + area.w, sc->snapdist);
+			cc->geom.y += client_snapcalc(cc->geom.y,
+			    cc->geom.y + cc->geom.h + (cc->bwidth * 2),
+			    area.y, area.y + area.h, sc->snapdist);
+			client_move(cc);
+			menu_windraw(sc, cc->win,
+			    "%4d, %-4d", cc->geom.x, cc->geom.y);
+			break;
+		case ButtonRelease:
+			move = 0;
+			break;
+		}
+	}
+	if (ltime)
+		client_move(cc);
+	XUnmapWindow(X_Dpy, sc->menu.win);
+	XReparentWindow(X_Dpy, sc->menu.win, sc->rootwin, 0, 0);
+	XUngrabPointer(X_Dpy, CurrentTime);
+}
+
+static void
+kbfunc_client_resize_kb(void *ctx, struct cargs *cargs)
 {
 	struct client_ctx	*cc = ctx;
 	int			 mx = 0, my = 0;
@@ -147,6 +230,60 @@ kbfunc_client_resize(void *ctx, struct cargs *cargs)
 
 	client_resize(cc, 1);
 	client_ptr_inbound(cc, 1);
+}
+
+static void
+kbfunc_client_resize_mb(void *ctx, struct cargs *cargs)
+{
+	struct client_ctx	*cc = ctx;
+	XEvent			 ev;
+	Time			 ltime = 0;
+	struct screen_ctx	*sc = cc->sc;
+	int			 resize = 1;
+
+	if (cc->flags & CLIENT_FREEZE)
+		return;
+
+	client_raise(cc);
+	client_ptrsave(cc);
+
+	xu_ptr_setpos(cc->win, cc->geom.w, cc->geom.h);
+
+	if (XGrabPointer(X_Dpy, cc->win, False, MOUSEMASK,
+	    GrabModeAsync, GrabModeAsync, None, Conf.cursor[CF_RESIZE],
+	    CurrentTime) != GrabSuccess)
+		return;
+
+	menu_windraw(sc, cc->win, "%4d x %-4d", cc->dim.w, cc->dim.h);
+	while (resize) {
+		XWindowEvent(X_Dpy, cc->win, MOUSEMASK, &ev);
+		switch (ev.type) {
+		case MotionNotify:
+			/* not more than 60 times / second */
+			if ((ev.xmotion.time - ltime) <= (1000 / 60))
+				continue;
+			ltime = ev.xmotion.time;
+
+			cc->geom.w = ev.xmotion.x;
+			cc->geom.h = ev.xmotion.y;
+			client_applysizehints(cc);
+			client_resize(cc, 1);
+			menu_windraw(sc, cc->win,
+			    "%4d x %-4d", cc->dim.w, cc->dim.h);
+			break;
+		case ButtonRelease:
+			resize = 0;
+			break;
+		}
+	}
+	if (ltime)
+		client_resize(cc, 1);
+	XUnmapWindow(X_Dpy, sc->menu.win);
+	XReparentWindow(X_Dpy, sc->menu.win, sc->rootwin, 0, 0);
+	XUngrabPointer(X_Dpy, CurrentTime);
+
+	/* Make sure the pointer stays within the window. */
+	client_ptr_inbound(cc, 0);
 }
 
 void

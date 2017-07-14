@@ -493,9 +493,6 @@ void			 kbfunc_exec_cmd(void *, struct cargs *);
 void			 kbfunc_exec_lock(void *, struct cargs *);
 void			 kbfunc_exec_term(void *, struct cargs *);
 
-void			 mousefunc_client_move(void *, struct cargs *);
-void			 mousefunc_client_resize(void *, struct cargs *);
-
 void			 menu_windraw(struct screen_ctx *, Window,
 			     const char *, ...);
 struct menu  		*menu_filter(struct screen_ctx *, struct menu_q *,
