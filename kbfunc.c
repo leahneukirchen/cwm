@@ -90,7 +90,7 @@ kbfunc_ptrmove(void *ctx, struct cargs *cargs)
 void
 kbfunc_client_move(void *ctx, struct cargs *cargs)
 {
-	if ((cargs->xev == CWM_XEV_BTN))
+	if (cargs->xev == CWM_XEV_BTN)
 		kbfunc_client_move_mb(ctx, cargs);
 	else
 		kbfunc_client_move_kb(ctx, cargs);
@@ -99,7 +99,7 @@ kbfunc_client_move(void *ctx, struct cargs *cargs)
 void
 kbfunc_client_resize(void *ctx, struct cargs *cargs)
 {
-	if ((cargs->xev == CWM_XEV_BTN))
+	if (cargs->xev == CWM_XEV_BTN)
 		kbfunc_client_resize_mb(ctx, cargs);
 	else
 		kbfunc_client_resize_kb(ctx, cargs);
