@@ -60,7 +60,7 @@ static const struct {
 	enum context	 context;
 	int		 flag;
 } name_to_func[] = {
-	{ "window-menu-label", kbfunc_menu_client_label, CWM_CONTEXT_CC, 0 },
+	{ "window-menu-label", kbfunc_client_menu_label, CWM_CONTEXT_CC, 0 },
 	{ "window-lower", kbfunc_client_lower, CWM_CONTEXT_CC, 0 },
 	{ "window-raise", kbfunc_client_raise, CWM_CONTEXT_CC, 0 },
 	{ "window-hide", kbfunc_client_hide, CWM_CONTEXT_CC, 0 },
@@ -92,7 +92,7 @@ static const struct {
 	{ "window-movetogroup-8", kbfunc_client_movetogroup, CWM_CONTEXT_CC, 8 },
 	{ "window-movetogroup-9", kbfunc_client_movetogroup, CWM_CONTEXT_CC, 9 },
 
-	{ "window-move", mousefunc_client_move, CWM_CONTEXT_CC, 0 },
+	{ "window-move", kbfunc_client_move, CWM_CONTEXT_CC, 0 },
 	{ "window-move-up", kbfunc_client_move, CWM_CONTEXT_CC,
 	    (CWM_UP) },
 	{ "window-move-down", kbfunc_client_move, CWM_CONTEXT_CC,
@@ -109,7 +109,7 @@ static const struct {
 	    (CWM_RIGHT | CWM_BIGAMOUNT) },
 	{ "window-move-left-big", kbfunc_client_move, CWM_CONTEXT_CC,
 	    (CWM_LEFT | CWM_BIGAMOUNT) },
-	{ "window-resize", mousefunc_client_resize, CWM_CONTEXT_CC, 0 },
+	{ "window-resize", kbfunc_client_resize, CWM_CONTEXT_CC, 0 },
 	{ "window-resize-up", kbfunc_client_resize, CWM_CONTEXT_CC,
 	    (CWM_UP) },
 	{ "window-resize-down", kbfunc_client_resize, CWM_CONTEXT_CC,

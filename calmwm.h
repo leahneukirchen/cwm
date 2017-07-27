@@ -509,13 +509,10 @@ void			 kbfunc_menu_cmd(void *, struct cargs *);
 void			 kbfunc_menu_group(void *, struct cargs *);
 void			 kbfunc_menu_exec(void *, struct cargs *);
 void			 kbfunc_menu_ssh(void *, struct cargs *);
-void			 kbfunc_menu_client_label(void *, struct cargs *);
+void			 kbfunc_client_menu_label(void *, struct cargs *);
 void			 kbfunc_exec_cmd(void *, struct cargs *);
 void			 kbfunc_exec_lock(void *, struct cargs *);
 void			 kbfunc_exec_term(void *, struct cargs *);
-
-void			 mousefunc_client_move(void *, struct cargs *);
-void			 mousefunc_client_resize(void *, struct cargs *);
 
 void			 menu_windraw(struct screen_ctx *, Window,
 			     const char *, ...);
