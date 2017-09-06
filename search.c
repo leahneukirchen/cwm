@@ -201,7 +201,7 @@ search_match_exec(struct menu_q *menuq, struct menu_q *resultq, char *search)
 		    fnmatch(search, mi->text, 0) == FNM_NOMATCH)
 			continue;
 		TAILQ_FOREACH(mj, resultq, resultentry) {
-			r = strcasecmp(mi->text, mj->text);
+			r = strcmp(mi->text, mj->text);
 			if (r < 0)
 				TAILQ_INSERT_BEFORE(mj, mi, resultentry);
 			if (r <= 0)
