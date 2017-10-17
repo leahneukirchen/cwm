@@ -89,6 +89,24 @@ Changes made between OpenBSD 5.5 and 5.4
 * Support for sticky windows (_NET_WM_STATE_STICKY).
 * Internal cleanups and bug fixes.
 
+Changes made between OpenBSD 5.6 and 5.7
+* Implemented _NET_WM_STATE_STICKY in cwm(1). Allows client to "stick"
+  to all desktops or groups.
+* Ensure cwm(1) client that wants to be in nogroup stays in nogroup
+  (thus stays in view), even when (re)reading NET_WM_DESKTOP. 
+
+Changes made between OpenBSD 5.7 and 5.8
+* In cwm(1), introduce "groupsearch" for group menu search. 
+* In cwm(1), show an empty "ssh to" menu if the known_hosts file is missing. 
+* In cwm(1), replace screen region info gathering with XRandR
+  equivalent of Xinerama queries. 
+
+Changes made between OpenBSD 5.8 and 5.9
+* Don't allow freeze operations on fullscreen.
+* Implement _NET_CLIENT_LIST_STACKING. 
+
+2017-10-17: Fourth public release 6.2 of portable cwm.
+
 --Leah Neukirchen <leah@vuxu.org>
 
 [0]: http://cvsweb.openbsd.org/cgi-bin/cvsweb/xenocara/app/cwm/
