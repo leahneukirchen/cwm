@@ -168,7 +168,7 @@ kbfunc_client_move_mb(void *ctx, struct cargs *cargs)
 	menu_windraw(sc, cc->win, "%4d, %-4d", cc->geom.x, cc->geom.y);
 
 	while (move) {
-		XWindowEvent(X_Dpy, cc->win, MOUSEMASK, &ev);
+		XMaskEvent(X_Dpy, MOUSEMASK, &ev);
 		switch (ev.type) {
 		case MotionNotify:
 			/* not more than 60 times / second */
@@ -256,7 +256,7 @@ kbfunc_client_resize_mb(void *ctx, struct cargs *cargs)
 
 	menu_windraw(sc, cc->win, "%4d x %-4d", cc->dim.w, cc->dim.h);
 	while (resize) {
-		XWindowEvent(X_Dpy, cc->win, MOUSEMASK, &ev);
+		XMaskEvent(X_Dpy, MOUSEMASK, &ev);
 		switch (ev.type) {
 		case MotionNotify:
 			/* not more than 60 times / second */
