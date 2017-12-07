@@ -628,9 +628,8 @@ kbfunc_menu_ssh(void *ctx, struct cargs *cargs)
 		/* skip hashed hosts */
 		if (strncmp(buf, HASH_MARKER, strlen(HASH_MARKER)) == 0)
 			continue;
-		for (p = buf; *p != ',' && *p != ' ' && p != buf + slen; p++) {
-			/* do nothing */
-		}
+		for (p = buf; *p != ',' && *p != ' ' && p != buf + slen; p++)
+			;
 		/* ignore badness */
 		if (p - buf + 1 > sizeof(hostbuf))
 			continue;
