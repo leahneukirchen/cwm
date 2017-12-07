@@ -444,6 +444,10 @@ void			 search_match_path(struct menu_q *, struct menu_q *,
 			     char *);
 void			 search_match_text(struct menu_q *, struct menu_q *,
 			     char *);
+void			 search_match_cmd(struct menu_q *, struct menu_q *,
+			     char *);
+void			 search_match_group(struct menu_q *, struct menu_q *,
+			     char *);
 void			 search_print_client(struct menu *, int);
 void			 search_print_cmd(struct menu *, int);
 void			 search_print_group(struct menu *, int);

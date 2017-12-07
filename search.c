@@ -129,6 +129,35 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 	}
 }
 
+void
+search_match_cmd(struct menu_q *menuq, struct menu_q *resultq, char *search)
+{
+	struct menu	*mi;
+
+	TAILQ_INIT(resultq);
+	TAILQ_FOREACH(mi, menuq, entry) {
+		struct cmd_ctx *cmd = (struct cmd_ctx *)mi->ctx;
+		if (match_substr(search, cmd->name, 0))
+			TAILQ_INSERT_TAIL(resultq, mi, resultentry);
+	}
+}
+
+void
+search_match_group(struct menu_q *menuq, struct menu_q *resultq, char *search)
+{
+	struct menu	*mi;
+	char		*s;
+
+	TAILQ_INIT(resultq);
+	TAILQ_FOREACH(mi, menuq, entry) {
+		struct group_ctx *gc = (struct group_ctx *)mi->ctx;
+		xasprintf(&s, "%d %s", gc->num, gc->name);
+		if (match_substr(search, s, 0))
+			TAILQ_INSERT_TAIL(resultq, mi, resultentry);
+		free(s);
+	}
+}
+
 static void
 match_path_type(struct menu_q *resultq, char *search, int flag)
 {
