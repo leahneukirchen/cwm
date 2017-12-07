@@ -36,9 +36,35 @@
 #define PATH_ANY 	0x0001
 #define PATH_EXEC 	0x0002
 
-static void	search_match_path_type(struct menu_q *, struct menu_q *,
-		    char *, int);
-static int	strsubmatch(char *, char *, int);
+static void	match_path_type(struct menu_q *, char *, int);
+static int	match_substr(char *, char *, int);
+
+static int
+match_substr(char *sub, char *str, int zeroidx)
+{
+	size_t		 len, sublen;
+	unsigned int	 n, flen;
+
+	if (sub == NULL || str == NULL)
+		return(0);
+
+	len = strlen(str);
+	sublen = strlen(sub);
+
+	if (sublen > len)
+		return(0);
+
+	if (zeroidx)
+		flen = 0;
+	else
+		flen = len - sublen;
+
+	for (n = 0; n <= flen; n++)
+		if (strncasecmp(sub, str + n, sublen) == 0)
+			return(1);
+
+	return(0);
+}
 
 void
 search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
@@ -46,29 +72,28 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 	struct winname	*wn;
 	struct menu	*mi, *tierp[4], *before = NULL;
 
-	TAILQ_INIT(resultq);
-
 	(void)memset(tierp, 0, sizeof(tierp));
 
+	TAILQ_INIT(resultq);
 	TAILQ_FOREACH(mi, menuq, entry) {
 		int tier = -1, t;
 		struct client_ctx *cc = (struct client_ctx *)mi->ctx;
 
 		/* Match on label. */
-		if (strsubmatch(search, cc->label, 0))
+		if (match_substr(search, cc->label, 0))
 			tier = 0;
 
 		/* Match on window name history, from present to past. */
 		if (tier < 0) {
 			TAILQ_FOREACH_REVERSE(wn, &cc->nameq, name_q, entry)
-				if (strsubmatch(search, wn->name, 0)) {
+				if (match_substr(search, wn->name, 0)) {
 					tier = 2;
 					break;
 				}
 		}
 
 		/* Match on window resource class. */
-		if ((tier < 0) && strsubmatch(search, cc->ch.res_class, 0))
+		if ((tier < 0) && match_substr(search, cc->ch.res_class, 0))
 			tier = 3;
 
 		if (tier < 0)
@@ -104,10 +129,86 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 	}
 }
 
-void
-search_print_text(struct menu *mi, int listing)
+static void
+match_path_type(struct menu_q *resultq, char *search, int flag)
 {
-	(void)snprintf(mi->print, sizeof(mi->print), "%s", mi->text);
+	struct menu     *mi;
+	char 		 pattern[PATH_MAX];
+	glob_t		 g;
+	int		 i;
+
+	(void)strlcpy(pattern, search, sizeof(pattern));
+	(void)strlcat(pattern, "*", sizeof(pattern));
+	if (glob(pattern, GLOB_MARK, NULL, &g) != 0)
+		return;
+	for (i = 0; i < g.gl_pathc; i++) {
+		if ((flag & PATH_EXEC) && access(g.gl_pathv[i], X_OK))
+			continue;
+		mi = xcalloc(1, sizeof(*mi));
+		(void)strlcpy(mi->text, g.gl_pathv[i], sizeof(mi->text));
+		TAILQ_INSERT_TAIL(resultq, mi, resultentry);
+	}
+	globfree(&g);
+}
+
+void
+search_match_exec(struct menu_q *menuq, struct menu_q *resultq, char *search)
+{
+	struct menu	*mi, *mj;
+	int		 r;
+
+	TAILQ_INIT(resultq);
+	TAILQ_FOREACH(mi, menuq, entry) {
+		if (match_substr(search, mi->text, 1) == 0 &&
+		    fnmatch(search, mi->text, 0) == FNM_NOMATCH)
+			continue;
+		TAILQ_FOREACH(mj, resultq, resultentry) {
+			r = strcmp(mi->text, mj->text);
+			if (r < 0)
+				TAILQ_INSERT_BEFORE(mj, mi, resultentry);
+			if (r <= 0)
+				break;
+		}
+		if (mj == NULL)
+			TAILQ_INSERT_TAIL(resultq, mi, resultentry);
+	}
+	if (TAILQ_EMPTY(resultq))
+		match_path_type(resultq, search, PATH_EXEC);
+}
+
+void
+search_match_path(struct menu_q *menuq, struct menu_q *resultq, char *search)
+{
+	TAILQ_INIT(resultq);
+	match_path_type(resultq, search, PATH_ANY);
+}
+
+void
+search_match_text(struct menu_q *menuq, struct menu_q *resultq, char *search)
+{
+	struct menu	*mi;
+
+	TAILQ_INIT(resultq);
+	TAILQ_FOREACH(mi, menuq, entry) {
+		if (match_substr(search, mi->text, 0))
+			TAILQ_INSERT_TAIL(resultq, mi, resultentry);
+	}
+}
+
+void
+search_print_client(struct menu *mi, int listing)
+{
+	struct client_ctx	*cc = (struct client_ctx *)mi->ctx;
+	char			 flag = ' ';
+
+	if (cc->flags & CLIENT_ACTIVE)
+		flag = '!';
+	else if (cc->flags & CLIENT_HIDDEN)
+		flag = '&';
+
+	(void)snprintf(mi->print, sizeof(mi->print), "(%d) %c[%s] %s",
+	    (cc->gc) ? cc->gc->num : 0, flag,
+	    (cc->label) ? cc->label : "", cc->name);
 }
 
 void
@@ -129,115 +230,7 @@ search_print_group(struct menu *mi, int listing)
 }
 
 void
-search_print_client(struct menu *mi, int listing)
+search_print_text(struct menu *mi, int listing)
 {
-	struct client_ctx	*cc = (struct client_ctx *)mi->ctx;
-	char			 flag = ' ';
-
-	if (cc->flags & CLIENT_ACTIVE)
-		flag = '!';
-	else if (cc->flags & CLIENT_HIDDEN)
-		flag = '&';
-
-	(void)snprintf(mi->print, sizeof(mi->print), "(%d) %c[%s] %s",
-	    (cc->gc) ? cc->gc->num : 0, flag,
-	    (cc->label) ? cc->label : "", cc->name);
-}
-
-static void
-search_match_path_type(struct menu_q *menuq, struct menu_q *resultq,
-    char *search, int flag)
-{
-	struct menu     *mi;
-	char 		 pattern[PATH_MAX];
-	glob_t		 g;
-	int		 i;
-
-	(void)strlcpy(pattern, search, sizeof(pattern));
-	(void)strlcat(pattern, "*", sizeof(pattern));
-
-	if (glob(pattern, GLOB_MARK, NULL, &g) != 0)
-		return;
-	for (i = 0; i < g.gl_pathc; i++) {
-		if ((flag & PATH_EXEC) && access(g.gl_pathv[i], X_OK))
-			continue;
-		mi = xcalloc(1, sizeof(*mi));
-		(void)strlcpy(mi->text, g.gl_pathv[i], sizeof(mi->text));
-		TAILQ_INSERT_TAIL(resultq, mi, resultentry);
-	}
-	globfree(&g);
-}
-
-void
-search_match_path(struct menu_q *menuq, struct menu_q *resultq, char *search)
-{
-	TAILQ_INIT(resultq);
-
-	search_match_path_type(menuq, resultq, search, PATH_ANY);
-}
-
-void
-search_match_text(struct menu_q *menuq, struct menu_q *resultq, char *search)
-{
-	struct menu	*mi;
-
-	TAILQ_INIT(resultq);
-
-	TAILQ_FOREACH(mi, menuq, entry)
-		if (strsubmatch(search, mi->text, 0))
-			TAILQ_INSERT_TAIL(resultq, mi, resultentry);
-}
-
-void
-search_match_exec(struct menu_q *menuq, struct menu_q *resultq, char *search)
-{
-	struct menu	*mi, *mj;
-	int		 r;
-
-	TAILQ_INIT(resultq);
-
-	TAILQ_FOREACH(mi, menuq, entry) {
-		if (strsubmatch(search, mi->text, 1) == 0 &&
-		    fnmatch(search, mi->text, 0) == FNM_NOMATCH)
-			continue;
-		TAILQ_FOREACH(mj, resultq, resultentry) {
-			r = strcmp(mi->text, mj->text);
-			if (r < 0)
-				TAILQ_INSERT_BEFORE(mj, mi, resultentry);
-			if (r <= 0)
-				break;
-		}
-		if (mj == NULL)
-			TAILQ_INSERT_TAIL(resultq, mi, resultentry);
-	}
-
-	if (TAILQ_EMPTY(resultq))
-		search_match_path_type(menuq, resultq, search, PATH_EXEC);
-}
-
-static int
-strsubmatch(char *sub, char *str, int zeroidx)
-{
-	size_t		 len, sublen;
-	unsigned int	 n, flen;
-
-	if (sub == NULL || str == NULL)
-		return(0);
-
-	len = strlen(str);
-	sublen = strlen(sub);
-
-	if (sublen > len)
-		return(0);
-
-	if (!zeroidx)
-		flen = len - sublen;
-	else
-		flen = 0;
-
-	for (n = 0; n <= flen; n++)
-		if (strncasecmp(sub, str + n, sublen) == 0)
-			return(1);
-
-	return(0);
+	(void)snprintf(mi->print, sizeof(mi->print), "%s", mi->text);
 }
