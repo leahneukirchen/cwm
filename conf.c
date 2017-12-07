@@ -92,6 +92,24 @@ static const struct {
 	{ "window-movetogroup-8", kbfunc_client_movetogroup, CWM_CONTEXT_CC, 8 },
 	{ "window-movetogroup-9", kbfunc_client_movetogroup, CWM_CONTEXT_CC, 9 },
 
+	{ "window-snap-up", kbfunc_client_snap, CWM_CONTEXT_CC,
+	    (CWM_UP) },
+	{ "window-snap-down", kbfunc_client_snap, CWM_CONTEXT_CC,
+	    (CWM_DOWN) },
+	{ "window-snap-left", kbfunc_client_snap, CWM_CONTEXT_CC,
+	    (CWM_LEFT) },
+	{ "window-snap-right", kbfunc_client_snap, CWM_CONTEXT_CC,
+	    (CWM_RIGHT) },
+
+	{ "window-snap-up-right", kbfunc_client_snap, CWM_CONTEXT_CC,
+	    (CWM_UP|CWM_RIGHT) },
+	{ "window-snap-up-left", kbfunc_client_snap, CWM_CONTEXT_CC,
+	    (CWM_UP|CWM_LEFT) },
+	{ "window-snap-down-right", kbfunc_client_snap, CWM_CONTEXT_CC,
+	    (CWM_DOWN|CWM_RIGHT) },
+	{ "window-snap-down-left", kbfunc_client_snap, CWM_CONTEXT_CC,
+	    (CWM_DOWN|CWM_LEFT) },
+
 	{ "window-move", kbfunc_client_move, CWM_CONTEXT_CC, 0 },
 	{ "window-move-up", kbfunc_client_move, CWM_CONTEXT_CC,
 	    (CWM_UP) },
@@ -297,7 +315,7 @@ conf_init(struct conf *c)
 	conf_cmd_add(c, "term", "xterm");
 
 	(void)snprintf(c->known_hosts, sizeof(c->known_hosts), "%s/%s",
-	    homedir, ".ssh/known_hosts");
+	    c->homedir, ".ssh/known_hosts");
 
 	c->font = xstrdup("sans-serif:pixelsize=14:bold");
 	c->wmname = xstrdup("CWM");

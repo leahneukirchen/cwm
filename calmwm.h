@@ -314,6 +314,7 @@ struct conf {
 	Cursor			 cursor[CF_NITEMS];
 	int			 xrandr;
 	int			 xrandr_event_base;
+	char			*homedir;
 	char			*wm_argv;
 };
 
@@ -395,7 +396,6 @@ extern Atom				 cwmh[CWMH_NITEMS];
 extern Atom				 ewmh[EWMH_NITEMS];
 extern struct screen_q			 Screenq;
 extern struct conf			 Conf;
-extern const char			*homedir;
 
 void			 usage(void);
 
@@ -465,6 +465,10 @@ void			 search_match_path(struct menu_q *, struct menu_q *,
 			     char *);
 void			 search_match_text(struct menu_q *, struct menu_q *,
 			     char *);
+void			 search_match_cmd(struct menu_q *, struct menu_q *,
+			     char *);
+void			 search_match_group(struct menu_q *, struct menu_q *,
+			     char *);
 void			 search_print_client(struct menu *, int);
 void			 search_print_cmd(struct menu *, int);
 void			 search_print_group(struct menu *, int);
@@ -482,6 +486,7 @@ void			 screen_assert_clients_within(struct screen_ctx *);
 
 void			 kbfunc_cwm_status(void *, struct cargs *);
 void			 kbfunc_ptrmove(void *, struct cargs *);
+void			 kbfunc_client_snap(void *, struct cargs *);
 void			 kbfunc_client_move(void *, struct cargs *);
 void			 kbfunc_client_resize(void *, struct cargs *);
 void			 kbfunc_client_delete(void *, struct cargs *);

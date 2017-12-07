@@ -42,7 +42,6 @@ Atom			 cwmh[CWMH_NITEMS];
 Atom			 ewmh[EWMH_NITEMS];
 struct screen_q		 Screenq = TAILQ_HEAD_INITIALIZER(Screenq);
 struct conf		 Conf;
-const char		*homedir;
 volatile sig_atomic_t	 cwm_status;
 
 static void	sighdlr(int);
@@ -82,16 +81,16 @@ main(int argc, char **argv)
 	if (signal(SIGCHLD, sighdlr) == SIG_ERR)
 		err(1, "signal");
 
-	if ((homedir = getenv("HOME")) == NULL || *homedir == '\0') {
+	if ((Conf.homedir = getenv("HOME")) == NULL || Conf.homedir[0] == '\0') {
 		pw = getpwuid(getuid());
 		if (pw != NULL && pw->pw_dir != NULL && *pw->pw_dir != '\0')
-			homedir = pw->pw_dir;
+			Conf.homedir = pw->pw_dir;
 		else
-			homedir = "/";
+			Conf.homedir = "/";
 	}
 
 	if (conf_file == NULL)
-		xasprintf(&conf_path, "%s/%s", homedir, CONFFILE);
+		xasprintf(&conf_path, "%s/%s", Conf.homedir, CONFFILE);
 	else
 		conf_path = xstrdup(conf_file);
 
