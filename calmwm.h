@@ -293,6 +293,7 @@ struct conf {
 	Cursor			 cursor[CF_NITEMS];
 	int			 xrandr;
 	int			 xrandr_event_base;
+	char			*homedir;
 	char			*wm_argv;
 };
 
@@ -374,7 +375,6 @@ extern Atom				 cwmh[CWMH_NITEMS];
 extern Atom				 ewmh[EWMH_NITEMS];
 extern struct screen_q			 Screenq;
 extern struct conf			 Conf;
-extern const char			*homedir;
 
 __dead void		 usage(void);
 

@@ -297,7 +297,7 @@ conf_init(struct conf *c)
 	conf_cmd_add(c, "term", "xterm");
 
 	(void)snprintf(c->known_hosts, sizeof(c->known_hosts), "%s/%s",
-	    homedir, ".ssh/known_hosts");
+	    c->homedir, ".ssh/known_hosts");
 
 	c->font = xstrdup("sans-serif:pixelsize=14:bold");
 	c->wmname = xstrdup("CWM");
