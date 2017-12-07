@@ -465,6 +465,7 @@ void			 screen_assert_clients_within(struct screen_ctx *);
 
 void			 kbfunc_cwm_status(void *, struct cargs *);
 void			 kbfunc_ptrmove(void *, struct cargs *);
+void			 kbfunc_client_snap(void *, struct cargs *);
 void			 kbfunc_client_move(void *, struct cargs *);
 void			 kbfunc_client_resize(void *, struct cargs *);
 void			 kbfunc_client_delete(void *, struct cargs *);

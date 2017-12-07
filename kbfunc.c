@@ -287,6 +287,42 @@ kbfunc_client_resize_mb(void *ctx, struct cargs *cargs)
 }
 
 void
+kbfunc_client_snap(void *ctx, struct cargs *cargs)
+{
+	struct client_ctx	*cc = ctx;
+	struct screen_ctx	*sc = cc->sc;
+	struct geom		 area;
+	int			 flags;
+
+	area = screen_area(sc,
+	    cc->geom.x + cc->geom.w / 2,
+	    cc->geom.y + cc->geom.h / 2, CWM_GAP);
+
+	flags = cargs->flag;
+	while (flags) {
+		if (flags & CWM_UP) {
+			cc->geom.y = area.y;
+			flags &= ~CWM_UP;
+		}
+		if (flags & CWM_LEFT) {
+			cc->geom.x = area.x;
+			flags &= ~CWM_LEFT;
+		}
+		if (flags & CWM_RIGHT) {
+			cc->geom.x = area.x + area.w - cc->geom.w -
+			    (cc->bwidth * 2);
+			flags &= ~CWM_RIGHT;
+		}
+		if (flags & CWM_DOWN) {
+			cc->geom.y = area.y + area.h - cc->geom.h -
+			    (cc->bwidth * 2);
+			flags &= ~CWM_DOWN;
+		}
+	}
+	client_move(cc);
+}
+
+void
 kbfunc_client_delete(void *ctx, struct cargs *cargs)
 {
 	client_send_delete(ctx);
