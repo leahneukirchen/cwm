@@ -466,8 +466,7 @@ kbfunc_menu_client(void *ctx, struct cargs *cargs)
 	}
 
 	if ((mi = menu_filter(sc, &menuq,
-	    (m) ? NULL : "window", NULL,
-	    ((m) ? CWM_MENU_LIST : 0),
+	    "window", NULL, ((m) ? CWM_MENU_LIST : 0),
 	    search_match_client, search_print_client)) != NULL) {
 		cc = (struct client_ctx *)mi->ctx;
 		if (cc->flags & CLIENT_HIDDEN)
@@ -500,8 +499,7 @@ kbfunc_menu_cmd(void *ctx, struct cargs *cargs)
 	}
 
 	if ((mi = menu_filter(sc, &menuq,
-	    (m) ? NULL : "application", NULL,
-	    ((m) ? CWM_MENU_LIST : 0),
+	    "application", NULL, ((m) ? CWM_MENU_LIST : 0),
 	    search_match_cmd, search_print_cmd)) != NULL) {
 		cmd = (struct cmd_ctx *)mi->ctx;
 		u_spawn(cmd->path);
@@ -527,7 +525,7 @@ kbfunc_menu_group(void *ctx, struct cargs *cargs)
 	}
 
 	if ((mi = menu_filter(sc, &menuq,
-	    (m) ? NULL : "group", NULL, (CWM_MENU_LIST),
+	    "group", NULL, ((m) ? CWM_MENU_LIST : 0),
 	    search_match_group, search_print_group)) != NULL) {
 		gc = (struct group_ctx *)mi->ctx;
 		(group_holds_only_hidden(gc)) ?
