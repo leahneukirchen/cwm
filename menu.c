@@ -88,10 +88,9 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, const char *prompt,
 
 	TAILQ_INIT(&resultq);
 
-	(void)memset(&mc, 0, sizeof(mc));
-
 	xu_ptr_getpos(sc->rootwin, &xsave, &ysave);
 
+	(void)memset(&mc, 0, sizeof(mc));
 	mc.sc = sc;
 	mc.flags = flags;
 	mc.match = match;
@@ -337,21 +336,17 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 
 	(void)snprintf(mc->dispstr, sizeof(mc->dispstr), "%s%s%s%s",
 	    mc->promptstr, PROMPT_SCHAR, mc->searchstr, PROMPT_ECHAR);
-
 	XftTextExtentsUtf8(X_Dpy, sc->xftfont,
 	    (const FcChar8*)mc->dispstr, strlen(mc->dispstr), &extents);
-
 	mc->geom.w = extents.xOff;
 	mc->geom.h = sc->xftfont->height + 1;
 	mc->num = 1;
 
 	TAILQ_FOREACH(mi, resultq, resultentry) {
 		(*mc->print)(mi, mc->listing);
-
 		XftTextExtentsUtf8(X_Dpy, sc->xftfont,
 		    (const FcChar8*)mi->print,
 		    MIN(strlen(mi->print), MENU_MAXENTRY), &extents);
-
 		mc->geom.w = MAX(mc->geom.w, extents.xOff);
 		mc->geom.h += sc->xftfont->height + 1;
 		mc->num++;
