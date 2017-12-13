@@ -69,15 +69,16 @@ match_substr(char *sub, char *str, int zeroidx)
 void
 search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 {
-	struct winname	*wn;
-	struct menu	*mi, *tierp[4], *before = NULL;
+	struct menu		*mi, *tierp[4], *before = NULL;
+	struct client_ctx	*cc;
+	struct winname		*wn;
 
 	(void)memset(tierp, 0, sizeof(tierp));
 
 	TAILQ_INIT(resultq);
 	TAILQ_FOREACH(mi, menuq, entry) {
 		int tier = -1, t;
-		struct client_ctx *cc = (struct client_ctx *)mi->ctx;
+		cc = (struct client_ctx *)mi->ctx;
 
 		/* Match on label. */
 		if (match_substr(search, cc->label, 0))
@@ -132,11 +133,12 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 void
 search_match_cmd(struct menu_q *menuq, struct menu_q *resultq, char *search)
 {
-	struct menu	*mi;
+	struct menu		*mi;
+	struct cmd_ctx		*cmd;
 
 	TAILQ_INIT(resultq);
 	TAILQ_FOREACH(mi, menuq, entry) {
-		struct cmd_ctx *cmd = (struct cmd_ctx *)mi->ctx;
+		cmd = (struct cmd_ctx *)mi->ctx;
 		if (match_substr(search, cmd->name, 0))
 			TAILQ_INSERT_TAIL(resultq, mi, resultentry);
 	}
@@ -145,12 +147,13 @@ search_match_cmd(struct menu_q *menuq, struct menu_q *resultq, char *search)
 void
 search_match_group(struct menu_q *menuq, struct menu_q *resultq, char *search)
 {
-	struct menu	*mi;
-	char		*s;
+	struct menu		*mi;
+	struct group_ctx	*gc;
+	char			*s;
 
 	TAILQ_INIT(resultq);
 	TAILQ_FOREACH(mi, menuq, entry) {
-		struct group_ctx *gc = (struct group_ctx *)mi->ctx;
+		gc = (struct group_ctx *)mi->ctx;
 		xasprintf(&s, "%d %s", gc->num, gc->name);
 		if (match_substr(search, s, 0))
 			TAILQ_INSERT_TAIL(resultq, mi, resultentry);
@@ -243,7 +246,7 @@ search_print_client(struct menu *mi, int listing)
 void
 search_print_cmd(struct menu *mi, int listing)
 {
-	struct cmd_ctx	*cmd = (struct cmd_ctx *)mi->ctx;
+	struct cmd_ctx		*cmd = (struct cmd_ctx *)mi->ctx;
 
 	(void)snprintf(mi->print, sizeof(mi->print), "%s", cmd->name);
 }
