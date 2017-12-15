@@ -44,8 +44,8 @@
 
 #define BUTTONMASK	(ButtonPressMask | ButtonReleaseMask)
 #define MOUSEMASK	(BUTTONMASK | PointerMotionMask)
-#define MENUMASK 	(MOUSEMASK | ButtonMotionMask | ExposureMask | \
-			 KeyPressMask | ExposureMask)
+#define MENUMASK 	(MOUSEMASK | ButtonMotionMask | KeyPressMask | \
+			 ExposureMask)
 #define MENUGRABMASK	(MOUSEMASK | ButtonMotionMask | StructureNotifyMask)
 #define IGNOREMODMASK	(LockMask | Mod2Mask | 0x2000)
 
