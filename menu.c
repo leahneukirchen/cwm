@@ -179,13 +179,14 @@ menu_complete_path(struct menu_ctx *mc)
 	struct screen_ctx	*sc = mc->sc;
 	struct menu		*mi, *mr;
 	struct menu_q		 menuq;
+	int			 mflags = (CWM_MENU_DUMMY);
 
 	mr = xcalloc(1, sizeof(*mr));
 
 	TAILQ_INIT(&menuq);
 
-	if ((mi = menu_filter(sc, &menuq, mc->searchstr, NULL,
-	    (CWM_MENU_DUMMY), search_match_path, search_print_text)) != NULL) {
+	if ((mi = menu_filter(sc, &menuq, mc->searchstr, NULL, mflags,
+	    search_match_path, search_print_text)) != NULL) {
 		mr->abort = mi->abort;
 		mr->dummy = mi->dummy;
 		if (mi->text[0] != '\0')
