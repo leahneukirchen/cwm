@@ -155,6 +155,11 @@ struct client_ctx {
 #define CLIENT_FULLSCREEN		0x0800
 #define CLIENT_STICKY			0x1000
 #define CLIENT_ACTIVE			0x2000
+#define CLIENT_SKIP_PAGER		0x4000
+#define CLIENT_SKIP_TASKBAR		0x8000
+
+#define CLIENT_SKIP_CYCLE		(CLIENT_HIDDEN | CLIENT_IGNORE | \
+					 CLIENT_SKIP_TASKBAR | CLIENT_SKIP_PAGER)
 #define CLIENT_HIGHLIGHT		(CLIENT_GROUP | CLIENT_UNGROUP)
 #define CLIENT_MAXFLAGS			(CLIENT_VMAXIMIZED | CLIENT_HMAXIMIZED)
 #define CLIENT_MAXIMIZED		(CLIENT_VMAXIMIZED | CLIENT_HMAXIMIZED)
@@ -353,13 +358,15 @@ enum ewmh {
 	_NET_WM_DESKTOP,
 	_NET_CLOSE_WINDOW,
 	_NET_WM_STATE,
-#define	_NET_WM_STATES_NITEMS	7
+#define	_NET_WM_STATES_NITEMS	9
 	_NET_WM_STATE_STICKY,
 	_NET_WM_STATE_MAXIMIZED_VERT,
 	_NET_WM_STATE_MAXIMIZED_HORZ,
 	_NET_WM_STATE_HIDDEN,
 	_NET_WM_STATE_FULLSCREEN,
 	_NET_WM_STATE_DEMANDS_ATTENTION,
+	_NET_WM_STATE_SKIP_PAGER,
+	_NET_WM_STATE_SKIP_TASKBAR,
 	_CWM_WM_STATE_FREEZE,
 	EWMH_NITEMS
 };
@@ -411,6 +418,8 @@ void			 client_toggle_fullscreen(struct client_ctx *);
 void			 client_toggle_hidden(struct client_ctx *);
 void			 client_toggle_hmaximize(struct client_ctx *);
 void			 client_toggle_maximize(struct client_ctx *);
+void			 client_toggle_skip_pager(struct client_ctx *);
+void			 client_toggle_skip_taskbar(struct client_ctx *);
 void			 client_toggle_sticky(struct client_ctx *);
 void			 client_toggle_vmaximize(struct client_ctx *);
 void			 client_transient(struct client_ctx *);

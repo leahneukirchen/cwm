@@ -266,6 +266,20 @@ client_toggle_hidden(struct client_ctx *cc)
 }
 
 void
+client_toggle_skip_pager(struct client_ctx *cc)
+{
+	cc->flags ^= CLIENT_SKIP_PAGER;
+	xu_ewmh_set_net_wm_state(cc);
+}
+
+void
+client_toggle_skip_taskbar(struct client_ctx *cc)
+{
+	cc->flags ^= CLIENT_SKIP_TASKBAR;
+	xu_ewmh_set_net_wm_state(cc);
+}
+
+void
 client_toggle_sticky(struct client_ctx *cc)
 {
 	cc->flags ^= CLIENT_STICKY;
@@ -688,7 +702,7 @@ client_cycle(struct screen_ctx *sc, int flags)
 		    client_next(newcc);
 
 		/* Only cycle visible and non-ignored windows. */
-		if ((newcc->flags & (CLIENT_HIDDEN | CLIENT_IGNORE))
+		if ((newcc->flags & (CLIENT_SKIP_CYCLE))
 		    || ((flags & CWM_CYCLE_INGROUP) &&
 			(newcc->gc != oldcc->gc)))
 			again = 1;
