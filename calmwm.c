@@ -143,7 +143,7 @@ x_init(const char *dpyname)
 
 	for (i = 0; i < ScreenCount(X_Dpy); i++)
 		screen_init(i);
-	
+
 	return ConnectionNumber(X_Dpy);
 }
 
