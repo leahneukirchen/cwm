@@ -104,8 +104,8 @@ client_init(Window win, struct screen_ctx *sc, int active)
 		if ((cc->wmh) && (cc->wmh->flags & StateHint))
 			client_set_wm_state(cc, cc->wmh->initial_state);
 	} else {
-		if ((active == 0) && (XQueryPointer(X_Dpy, cc->win, &rwin, &cwin,
-		    &x, &y, &wx, &wy, &mask)) && (cwin != None))
+		if ((active == 0) && (XQueryPointer(X_Dpy, cc->win, &rwin,
+		    &cwin, &x, &y, &wx, &wy, &mask)) && (cwin != None))
 			active = 1;
 	}
 
@@ -222,7 +222,7 @@ client_setactive(struct client_ctx *cc)
 		client_draw_border(oldcc);
 	}
 
-	/* If we're in the middle of cycing, don't change the order. */
+	/* If we're in the middle of cycling, don't change the order. */
 	if (!sc->cycling)
 		client_mtf(cc);
 
@@ -344,11 +344,6 @@ client_toggle_maximize(struct client_ctx *cc)
 		cc->savegeom.x = cc->geom.x;
 	}
 
-	/*
-	 * pick screen that the middle of the window is on.
-	 * that's probably more fair than if just the origin of
-	 * a window is poking over a boundary
-	 */
 	area = screen_area(sc,
 	    cc->geom.x + cc->geom.w / 2,
 	    cc->geom.y + cc->geom.h / 2, CWM_GAP);
@@ -658,7 +653,6 @@ client_setname(struct client_ctx *cc)
 	wn = xmalloc(sizeof(*wn));
 	wn->name = newname;
 	TAILQ_INSERT_TAIL(&cc->nameq, wn, entry);
-
 match:
 	cc->name = wn->name;
 
@@ -702,21 +696,20 @@ client_cycle(struct screen_ctx *sc, int flags)
 		    client_next(newcc);
 
 		/* Only cycle visible and non-ignored windows. */
-		if ((newcc->flags & (CLIENT_SKIP_CYCLE))
-		    || ((flags & CWM_CYCLE_INGROUP) &&
-			(newcc->gc != oldcc->gc)))
+		if ((newcc->flags & (CLIENT_SKIP_CYCLE)) ||
+		    ((flags & CWM_CYCLE_INGROUP) &&
+		    (newcc->gc != oldcc->gc)))
 			again = 1;
 
 		/* Is oldcc the only non-hidden window? */
 		if (newcc == oldcc) {
 			if (again)
 				return;	/* No windows visible. */
-
 			break;
 		}
 	}
 
-	/* reset when cycling mod is released. XXX I hate this hack */
+	/* Reset when cycling mod is released. XXX I hate this hack */
 	sc->cycling = 1;
 	client_ptrsave(oldcc);
 	client_raise(prevcc);
@@ -924,8 +917,9 @@ client_mwm_hints(struct client_ctx *cc)
 {
 	struct mwm_hints	*mwmh;
 
-	if (xu_getprop(cc->win, cwmh[_MOTIF_WM_HINTS], cwmh[_MOTIF_WM_HINTS],
-	    MWM_HINTS_ELEMENTS, (unsigned char **)&mwmh) == MWM_HINTS_ELEMENTS) {
+	if (xu_getprop(cc->win, cwmh[_MOTIF_WM_HINTS],
+	    cwmh[_MOTIF_WM_HINTS], MWM_HINTS_ELEMENTS,
+	    (unsigned char **)&mwmh) == MWM_HINTS_ELEMENTS) {
 		if (mwmh->flags & MWM_FLAGS_DECORATIONS &&
 		    !(mwmh->decorations & MWM_DECOR_ALL) &&
 		    !(mwmh->decorations & MWM_DECOR_BORDER))
