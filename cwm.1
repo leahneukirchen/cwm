@@ -184,6 +184,14 @@ List all available items.
 .It Ic [Esc]
 Cancel.
 .El
+.Pp
+.Nm
+rereads its configuration file when it receives a hangup signal,
+.Dv SIGHUP ,
+by executing itself with the name and arguments with which it was started.
+This is equivilant to the
+.Ar restart
+function.
 .Sh SEARCH
 .Nm
 features the ability to search for windows by their current title,

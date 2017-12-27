@@ -82,6 +82,8 @@ main(int argc, char **argv)
 
 	if (signal(SIGCHLD, sighdlr) == SIG_ERR)
 		err(1, "signal");
+	if (signal(SIGHUP, sighdlr) == SIG_ERR)
+		err(1, "signal");
 
 	Conf.homedir = getenv("HOME");
 	if ((Conf.homedir == NULL) || (Conf.homedir[0] == '\0')) {
@@ -220,6 +222,9 @@ sighdlr(int sig)
 		while ((pid = waitpid(WAIT_ANY, &status, WNOHANG)) > 0 ||
 		    (pid < 0 && errno == EINTR))
 			;
+		break;
+	case SIGHUP:
+		cwm_status = CWM_EXEC_WM;
 		break;
 	}
 
