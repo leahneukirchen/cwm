@@ -436,9 +436,11 @@ xev_process(void)
 {
 	XEvent		 e;
 
-	XNextEvent(X_Dpy, &e);
-	if (e.type - Conf.xrandr_event_base == RRScreenChangeNotify)
-		xev_handle_randr(&e);
-	else if (e.type < LASTEvent && xev_handlers[e.type] != NULL)
-		(*xev_handlers[e.type])(&e);
+	while (XPending(X_Dpy)) {
+		XNextEvent(X_Dpy, &e);
+		if (e.type - Conf.xrandr_event_base == RRScreenChangeNotify)
+			xev_handle_randr(&e);
+		else if (e.type < LASTEvent && xev_handlers[e.type] != NULL)
+			(*xev_handlers[e.type])(&e);
+	}
 }

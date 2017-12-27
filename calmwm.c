@@ -27,6 +27,7 @@
 #include <getopt.h>
 #include <limits.h>
 #include <locale.h>
+#include <poll.h>
 #include <pwd.h>
 #include <signal.h>
 #include <stdio.h>
@@ -56,6 +57,7 @@ main(int argc, char **argv)
 	const char	*conf_file = NULL;
 	char		*conf_path, *display_name = NULL;
 	int		 ch, xfd;
+	struct pollfd	 pfd[1];
 	struct passwd	*pw;
 
 	if (!setlocale(LC_CTYPE, "") || !XSupportsLocale())
@@ -114,8 +116,16 @@ main(int argc, char **argv)
 	if (pledge("stdio rpath proc exec", NULL) == -1)
 		err(1, "pledge");
 
-	while (cwm_status == CWM_RUNNING)
+	memset(&pfd, 0, sizeof(pfd));
+	pfd[0].fd = xfd;
+	pfd[0].events = POLLIN;
+	while (cwm_status == CWM_RUNNING) {
 		xev_process();
+		if (poll(pfd, 1, INFTIM) == -1) {
+			if (errno != EINTR)
+				warn("poll");
+		}
+	}
 	x_teardown();
 	if (cwm_status == CWM_EXEC_WM)
 		u_exec(Conf.wm_argv);
