@@ -412,6 +412,7 @@ void			 client_send_delete(struct client_ctx *);
 void			 client_set_wm_state(struct client_ctx *, long);
 void			 client_setactive(struct client_ctx *);
 void			 client_setname(struct client_ctx *);
+void			 client_show(struct client_ctx *);
 int			 client_snapcalc(int, int, int, int, int);
 void			 client_toggle_freeze(struct client_ctx *);
 void			 client_toggle_fullscreen(struct client_ctx *);

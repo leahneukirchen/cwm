@@ -471,10 +471,7 @@ kbfunc_menu_client(void *ctx, struct cargs *cargs)
 	if ((mi = menu_filter(sc, &menuq, "window", NULL, mflags,
 	    search_match_client, search_print_client)) != NULL) {
 		cc = (struct client_ctx *)mi->ctx;
-		if (cc->flags & CLIENT_HIDDEN)
-			client_unhide(cc);
-		else
-			client_raise(cc);
+		client_show(cc);
 		if (old_cc)
 			client_ptrsave(old_cc);
 		client_ptrwarp(cc);

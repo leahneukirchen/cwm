@@ -357,10 +357,7 @@ xev_handle_clientmessage(XEvent *ee)
 		if ((cc = client_find(e->window)) != NULL) {
 			if ((old_cc = client_current()) != NULL)
 				client_ptrsave(old_cc);
-			if (cc->flags & CLIENT_HIDDEN)
-				client_unhide(cc);
-			else
-				client_raise(cc);
+			client_show(cc);
 			client_ptrwarp(cc);
 		}
 	} else if (e->message_type == ewmh[_NET_WM_DESKTOP]) {

@@ -532,6 +532,15 @@ client_hide(struct client_ctx *cc)
 }
 
 void
+client_show(struct client_ctx *cc)
+{
+	if (cc->flags & CLIENT_HIDDEN)
+		client_unhide(cc);
+	else
+		client_raise(cc);
+}
+
+void
 client_unhide(struct client_ctx *cc)
 {
 	XMapRaised(X_Dpy, cc->win);
