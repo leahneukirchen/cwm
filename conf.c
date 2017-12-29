@@ -193,10 +193,8 @@ static const struct {
 	    CWM_MENU_WINDOW_ALL },
 	{ "menu-window-hidden", kbfunc_menu_client, CWM_CONTEXT_SC,
 	    CWM_MENU_WINDOW_HIDDEN },
-	{ "menu-exec", kbfunc_menu_exec, CWM_CONTEXT_SC,
-	    CWM_MENU_EXEC_EXEC },
-	{ "menu-exec-wm", kbfunc_menu_exec, CWM_CONTEXT_SC,
-	    CWM_MENU_EXEC_WM },
+	{ "menu-exec", kbfunc_menu_exec, CWM_CONTEXT_SC, 0 },
+	{ "menu-exec-wm", kbfunc_menu_wm, CWM_CONTEXT_SC, 0 },
 
 	{ "terminal", kbfunc_exec_term, CWM_CONTEXT_SC, 0 },
 	{ "lock", kbfunc_exec_lock, CWM_CONTEXT_SC, 0 },
@@ -298,6 +296,7 @@ conf_init(struct conf *c)
 
 	TAILQ_INIT(&c->ignoreq);
 	TAILQ_INIT(&c->cmdq);
+	TAILQ_INIT(&c->wmq);
 	TAILQ_INIT(&c->keybindq);
 	TAILQ_INIT(&c->autogroupq);
 	TAILQ_INIT(&c->mousebindq);
@@ -314,6 +313,8 @@ conf_init(struct conf *c)
 	conf_cmd_add(c, "lock", "xlock");
 	conf_cmd_add(c, "term", "xterm");
 
+	conf_wm_add(c, "cwm", "cwm");
+
 	(void)snprintf(c->known_hosts, sizeof(c->known_hosts), "%s/%s",
 	    c->homedir, ".ssh/known_hosts");
 
@@ -327,13 +328,18 @@ conf_clear(struct conf *c)
 	struct autogroup	*ag;
 	struct bind_ctx		*kb, *mb;
 	struct winname		*wn;
-	struct cmd_ctx		*cmd;
+	struct cmd_ctx		*cmd, *wm;
 	int			 i;
 
 	while ((cmd = TAILQ_FIRST(&c->cmdq)) != NULL) {
 		TAILQ_REMOVE(&c->cmdq, cmd, entry);
 		free(cmd->name);
 		free(cmd);
+	}
+	while ((wm = TAILQ_FIRST(&c->wmq)) != NULL) {
+		TAILQ_REMOVE(&c->wmq, wm, entry);
+		free(wm->name);
+		free(wm);
 	}
 	while ((kb = TAILQ_FIRST(&c->keybindq)) != NULL) {
 		TAILQ_REMOVE(&c->keybindq, kb, entry);
@@ -391,6 +397,23 @@ conf_cmd_remove(struct conf *c, const char *name)
 			free(cmd);
 		}
 	}
+}
+
+int
+conf_wm_add(struct conf *c, const char *name, const char *path)
+{
+	struct cmd_ctx	*wm;
+
+	wm = xmalloc(sizeof(*wm));
+	wm->name = xstrdup(name);
+	if (strlcpy(wm->path, path, sizeof(wm->path)) >= sizeof(wm->path)) {
+		free(wm->name);
+		free(wm);
+		return(0);
+	}
+
+	TAILQ_INSERT_TAIL(&c->wmq, wm, entry);
+	return(1);
 }
 
 void

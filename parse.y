@@ -70,7 +70,7 @@ typedef struct {
 
 %token	BINDKEY UNBINDKEY BINDMOUSE UNBINDMOUSE
 %token	FONTNAME STICKY GAP
-%token	AUTOGROUP COMMAND IGNORE
+%token	AUTOGROUP COMMAND IGNORE WM
 %token	YES NO BORDERWIDTH MOVEAMOUNT
 %token	COLOR SNAPDIST
 %token	ACTIVEBORDER INACTIVEBORDER URGENCYBORDER
@@ -139,6 +139,16 @@ main		: FONTNAME STRING		{
 		| COMMAND STRING string		{
 			if (!conf_cmd_add(conf, $2, $3)) {
 				yyerror("command name/path too long");
+				free($2);
+				free($3);
+				YYERROR;
+			}
+			free($2);
+			free($3);
+		}
+		| WM STRING string	{
+			if (!conf_wm_add(conf, $2, $3)) {
+				yyerror("wm name/path too long");
 				free($2);
 				free($3);
 				YYERROR;
@@ -317,6 +327,7 @@ lookup(char *s)
 		{ "unbind-mouse",	UNBINDMOUSE},
 		{ "ungroupborder",	UNGROUPBORDER},
 		{ "urgencyborder",	URGENCYBORDER},
+		{ "wm",			WM},
 		{ "yes",		YES}
 	};
 	const struct keywords	*p;

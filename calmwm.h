@@ -255,11 +255,8 @@ struct cmd_ctx {
 	char			 path[PATH_MAX];
 };
 TAILQ_HEAD(cmd_q, cmd_ctx);
+TAILQ_HEAD(wm_q, cmd_ctx);
 
-enum menu_exec {
-	CWM_MENU_EXEC_EXEC,
-	CWM_MENU_EXEC_WM
-};
 #define CWM_MENU_DUMMY		0x0001
 #define CWM_MENU_FILE		0x0002
 #define CWM_MENU_LIST		0x0004
@@ -284,6 +281,7 @@ struct conf {
 	struct autogroup_q	 autogroupq;
 	struct ignore_q		 ignoreq;
 	struct cmd_q		 cmdq;
+	struct wm_q		 wmq;
 	int			 ngroups;
 	int			 stickygroups;
 	int			 nameqlen;
@@ -457,10 +455,13 @@ void			 search_match_cmd(struct menu_q *, struct menu_q *,
 			     char *);
 void			 search_match_group(struct menu_q *, struct menu_q *,
 			     char *);
+void			 search_match_wm(struct menu_q *, struct menu_q *,
+			     char *);
 void			 search_print_client(struct menu *, int);
 void			 search_print_cmd(struct menu *, int);
 void			 search_print_group(struct menu *, int);
 void			 search_print_text(struct menu *, int);
+void			 search_print_wm(struct menu *, int);
 
 struct region_ctx	*region_find(struct screen_ctx *, int, int);
 struct geom		 screen_apply_gap(struct screen_ctx *, struct geom);
@@ -500,6 +501,7 @@ void			 kbfunc_group_alltoggle(void *, struct cargs *);
 void			 kbfunc_menu_client(void *, struct cargs *);
 void			 kbfunc_menu_cmd(void *, struct cargs *);
 void			 kbfunc_menu_group(void *, struct cargs *);
+void			 kbfunc_menu_wm(void *, struct cargs *);
 void			 kbfunc_menu_exec(void *, struct cargs *);
 void			 kbfunc_menu_ssh(void *, struct cargs *);
 void			 kbfunc_client_menu_label(void *, struct cargs *);
@@ -528,6 +530,8 @@ int			 conf_bind_mouse(struct conf *, const char *,
 void			 conf_clear(struct conf *);
 void			 conf_client(struct client_ctx *);
 int			 conf_cmd_add(struct conf *, const char *,
+			     const char *);
+int			 conf_wm_add(struct conf *, const char *,
 			     const char *);
 void			 conf_cursor(struct conf *);
 void			 conf_grab_kbd(Window);
