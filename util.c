@@ -78,7 +78,7 @@ u_exec(char *argstr)
 
 	(void)setsid();
 	(void)execvp(args[0], args);
-	err(1, "%s", s);
+	warn("%s", s);
 }
 
 char *
