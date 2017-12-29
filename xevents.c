@@ -260,8 +260,10 @@ xev_handle_buttonrelease(XEvent *ee)
 	struct client_ctx	*cc;
 
 	if ((cc = client_find(e->window)) != NULL) {
-		if (cc->flags & CLIENT_ACTIVE)
-			group_toggle_membership_leave(cc);
+		if (cc->flags & (CLIENT_ACTIVE | CLIENT_HIGHLIGHT)) {
+			cc->flags &= ~CLIENT_HIGHLIGHT;
+			client_draw_border(cc);
+		}
 	}
 }
 

@@ -411,7 +411,7 @@ kbfunc_client_toggle_group(void *ctx, struct cargs *cargs)
 		XGrabKeyboard(X_Dpy, cc->win, True,
 		    GrabModeAsync, GrabModeAsync, CurrentTime);
 
-	group_toggle_membership_enter(cc);
+	group_toggle_membership(cc);
 }
 
 void
