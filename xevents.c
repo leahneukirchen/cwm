@@ -324,6 +324,7 @@ xev_handle_keyrelease(XEvent *ee)
 {
 	XKeyEvent		*e = &ee->xkey;
 	struct screen_ctx	*sc;
+	struct client_ctx	*cc;
 	KeySym			 keysym;
 	unsigned int		 i;
 
@@ -333,7 +334,17 @@ xev_handle_keyrelease(XEvent *ee)
 	keysym = XkbKeycodeToKeysym(X_Dpy, e->keycode, 0, 0);
 	for (i = 0; i < nitems(modkeys); i++) {
 		if (keysym == modkeys[i]) {
-			client_cycle_leave(sc);
+			if ((cc = client_current()) != NULL) {
+				if (sc->cycling) {
+					sc->cycling = 0;
+					client_mtf(cc);
+				}
+				if (cc->flags & CLIENT_HIGHLIGHT) {
+					cc->flags &= ~CLIENT_HIGHLIGHT;
+					client_draw_border(cc);
+				}
+			}
+			XUngrabKeyboard(X_Dpy, CurrentTime);
 			break;
 		}
 	}

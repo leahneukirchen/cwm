@@ -33,7 +33,6 @@
 
 static struct client_ctx	*client_next(struct client_ctx *);
 static struct client_ctx	*client_prev(struct client_ctx *);
-static void			 client_mtf(struct client_ctx *);
 static void			 client_placecalc(struct client_ctx *);
 static void			 client_wm_protocols(struct client_ctx *);
 static void			 client_mwm_hints(struct client_ctx *);
@@ -683,10 +682,6 @@ client_cycle(struct screen_ctx *sc, int flags)
 	struct client_ctx	*newcc, *oldcc, *prevcc;
 	int			 again = 1;
 
-	/* For X apps that ignore events. */
-	XGrabKeyboard(X_Dpy, sc->rootwin, True,
-	    GrabModeAsync, GrabModeAsync, CurrentTime);
-
 	if (TAILQ_EMPTY(&sc->clientq))
 		return;
 
@@ -728,21 +723,6 @@ client_cycle(struct screen_ctx *sc, int flags)
 		newcc->ptr.y = newcc->geom.h / 2;
 	}
 	client_ptrwarp(newcc);
-}
-
-void
-client_cycle_leave(struct screen_ctx *sc)
-{
-	struct client_ctx	*cc;
-
-	sc->cycling = 0;
-
-	if ((cc = client_current()) != NULL) {
-		client_mtf(cc);
-		cc->flags &= ~CLIENT_HIGHLIGHT;
-		client_draw_border(cc);
-		XUngrabKeyboard(X_Dpy, CurrentTime);
-	}
 }
 
 static struct client_ctx *
@@ -817,7 +797,7 @@ client_placecalc(struct client_ctx *cc)
 	}
 }
 
-static void
+void
 client_mtf(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;

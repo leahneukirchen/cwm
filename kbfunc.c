@@ -398,7 +398,14 @@ kbfunc_client_vtile(void *ctx, struct cargs *cargs)
 void
 kbfunc_client_cycle(void *ctx, struct cargs *cargs)
 {
-	client_cycle(ctx, cargs->flag);
+	struct screen_ctx	*sc = ctx;
+
+	/* For X apps that ignore/steal events. */
+	if (cargs->xev == CWM_XEV_KEY)
+		XGrabKeyboard(X_Dpy, sc->rootwin, True,
+		    GrabModeAsync, GrabModeAsync, CurrentTime);
+
+	client_cycle(sc, cargs->flag);
 }
 
 void
@@ -406,7 +413,7 @@ kbfunc_client_toggle_group(void *ctx, struct cargs *cargs)
 {
 	struct client_ctx	*cc = ctx;
 
-	/* For X apps that steal events. */
+	/* For X apps that ignore/steal events. */
 	if (cargs->xev == CWM_XEV_KEY)
 		XGrabKeyboard(X_Dpy, cc->win, True,
 		    GrabModeAsync, GrabModeAsync, CurrentTime);
