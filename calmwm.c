@@ -131,11 +131,11 @@ main(int argc, char **argv)
 		}
 	}
 	x_teardown();
-	if (cwm_status == CWM_EXEC_WM)
+	if (cwm_status == CWM_EXEC_WM) {
 		u_exec(Conf.wm_argv);
-
-	warnx("'%s' failed to start, restarting fallback", Conf.wm_argv);
-	u_exec(fallback);
+		warnx("'%s' failed to start, restarting fallback", Conf.wm_argv);
+		u_exec(fallback);
+	}
 
 	return(0);
 }
