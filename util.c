@@ -37,7 +37,7 @@ u_spawn(char *argstr)
 	switch (fork()) {
 	case 0:
 		u_exec(argstr);
-		break;
+		exit(1);
 	case -1:
 		warn("fork");
 	default:
