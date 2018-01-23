@@ -69,7 +69,7 @@ match_substr(char *sub, char *str, int zeroidx)
 void
 search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 {
-	struct menu		*mi, *tierp[4], *before = NULL;
+	struct menu		*mi, *tierp[3], *before = NULL;
 	struct client_ctx	*cc;
 	struct winname		*wn;
 
@@ -88,14 +88,14 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 		if (tier < 0) {
 			TAILQ_FOREACH_REVERSE(wn, &cc->nameq, name_q, entry)
 				if (match_substr(search, wn->name, 0)) {
-					tier = 2;
+					tier = 1;
 					break;
 				}
 		}
 
 		/* Match on window resource class. */
 		if ((tier < 0) && match_substr(search, cc->ch.res_class, 0))
-			tier = 3;
+			tier = 2;
 
 		if (tier < 0)
 			continue;
@@ -107,9 +107,6 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 		/* Hidden window is ranked up. */
 		if ((tier > 0) && (cc->flags & CLIENT_HIDDEN))
 			tier--;
-
-		if (tier >= nitems(tierp))
-			errx(1, "%s: invalid tier", __func__);
 
 		/*
 		 * If you have a tierp, insert after it, and make it
