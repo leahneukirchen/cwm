@@ -155,7 +155,7 @@ group_movetogroup(struct client_ctx *cc, int idx)
 	struct group_ctx	*gc;
 
 	if (idx < 0 || idx >= Conf.ngroups)
-		errx(1, "%s: index out of range (%d)", __func__, idx);
+		return;
 
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
 		if (gc->num == idx)
@@ -216,7 +216,7 @@ group_hidetoggle(struct screen_ctx *sc, int idx)
 	struct group_ctx	*gc;
 
 	if (idx < 0 || idx >= Conf.ngroups)
-		errx(1, "%s: index out of range (%d)", __func__, idx);
+		return;
 
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
 		if (gc->num == idx)
@@ -239,7 +239,7 @@ group_only(struct screen_ctx *sc, int idx)
 	struct group_ctx	*gc;
 
 	if (idx < 0 || idx >= Conf.ngroups)
-		errx(1, "%s: index out of range (%d)", __func__, idx);
+		return;
 
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
 		if (gc->num == idx)
