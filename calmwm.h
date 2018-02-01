@@ -518,12 +518,15 @@ void			 kbfunc_exec_lock(void *, struct cargs *);
 void			 kbfunc_exec_term(void *, struct cargs *);
 
 void			 menu_windraw(struct screen_ctx *, Window,
-			     const char *, ...);
+			     const char *, ...)
+			    __attribute__((__format__ (printf, 3, 4)))
+			    __attribute__((__nonnull__ (3)));
 struct menu  		*menu_filter(struct screen_ctx *, struct menu_q *,
 			     const char *, const char *, int,
 			     void (*)(struct menu_q *, struct menu_q *, char *),
 			     void (*)(struct menu *, int));
-void			 menuq_add(struct menu_q *, void *, const char *, ...);
+void			 menuq_add(struct menu_q *, void *, const char *, ...)
+			    __attribute__((__format__ (printf, 3, 4)));
 void			 menuq_clear(struct menu_q *);
 
 int			 parse_config(const char *, struct conf *);
