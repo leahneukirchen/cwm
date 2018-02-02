@@ -33,7 +33,6 @@
 #include "calmwm.h"
 
 static const char	*conf_bind_getmask(const char *, unsigned int *);
-static void		 conf_cmd_remove(struct conf *, const char *);
 static void		 conf_unbind_key(struct conf *, struct bind_ctx *);
 static void		 conf_unbind_mouse(struct conf *, struct bind_ctx *);
 
@@ -279,8 +278,7 @@ conf_init(struct conf *c)
 
 	conf_wm_add(c, "cwm", "cwm");
 
-	(void)snprintf(c->known_hosts, sizeof(c->known_hosts), "%s/%s",
-	    c->homedir, ".ssh/known_hosts");
+	xasprintf(&c->known_hosts, "%s/%s", c->homedir, ".ssh/known_hosts");
 
 	c->font = xstrdup("sans-serif:pixelsize=14:bold");
 	c->wmname = xstrdup("CWM");
@@ -298,11 +296,13 @@ conf_clear(struct conf *c)
 	while ((cmd = TAILQ_FIRST(&c->cmdq)) != NULL) {
 		TAILQ_REMOVE(&c->cmdq, cmd, entry);
 		free(cmd->name);
+		free(cmd->path);
 		free(cmd);
 	}
 	while ((wm = TAILQ_FIRST(&c->wmq)) != NULL) {
 		TAILQ_REMOVE(&c->wmq, wm, entry);
 		free(wm->name);
+		free(wm->path);
 		free(wm);
 	}
 	while ((kb = TAILQ_FIRST(&c->keybindq)) != NULL) {
@@ -327,57 +327,49 @@ conf_clear(struct conf *c)
 	for (i = 0; i < CWM_COLOR_NITEMS; i++)
 		free(c->color[i]);
 
+	free(c->known_hosts);
 	free(c->font);
 	free(c->wmname);
 }
 
-int
+void
 conf_cmd_add(struct conf *c, const char *name, const char *path)
 {
-	struct cmd_ctx	*cmd;
+	struct cmd_ctx	*cmd, *cmdtmp = NULL, *cmdnxt;
 
 	cmd = xmalloc(sizeof(*cmd));
 	cmd->name = xstrdup(name);
-	if (strlcpy(cmd->path, path, sizeof(cmd->path)) >= sizeof(cmd->path)) {
-		free(cmd->name);
-		free(cmd);
-		return(0);
-	}
-	conf_cmd_remove(c, name);
+	cmd->path = xstrdup(path);
 
-	TAILQ_INSERT_TAIL(&c->cmdq, cmd, entry);
-	return(1);
-}
-
-static void
-conf_cmd_remove(struct conf *c, const char *name)
-{
-	struct cmd_ctx	*cmd = NULL, *cmdnxt;
-
-	TAILQ_FOREACH_SAFE(cmd, &c->cmdq, entry, cmdnxt) {
-		if (strcmp(cmd->name, name) == 0) {
-			TAILQ_REMOVE(&c->cmdq, cmd, entry);
-			free(cmd->name);
-			free(cmd);
+	TAILQ_FOREACH_SAFE(cmdtmp, &c->cmdq, entry, cmdnxt) {
+		if (strcmp(cmdtmp->name, name) == 0) {
+			TAILQ_REMOVE(&c->cmdq, cmdtmp, entry);
+			free(cmdtmp->name);
+			free(cmdtmp->path);
+			free(cmdtmp);
 		}
 	}
+	TAILQ_INSERT_TAIL(&c->cmdq, cmd, entry);
 }
 
-int
+void
 conf_wm_add(struct conf *c, const char *name, const char *path)
 {
-	struct cmd_ctx	*wm;
+	struct cmd_ctx	*wm, *wmtmp = NULL, *wmnxt;
 
 	wm = xmalloc(sizeof(*wm));
 	wm->name = xstrdup(name);
-	if (strlcpy(wm->path, path, sizeof(wm->path)) >= sizeof(wm->path)) {
-		free(wm->name);
-		free(wm);
-		return(0);
-	}
+	wm->path = xstrdup(path);
 
+	TAILQ_FOREACH_SAFE(wmtmp, &c->cmdq, entry, wmnxt) {
+		if (strcmp(wmtmp->name, name) == 0) {
+			TAILQ_REMOVE(&c->wmq, wmtmp, entry);
+			free(wmtmp->name);
+			free(wmtmp->path);
+			free(wmtmp);
+		}
+	}
 	TAILQ_INSERT_TAIL(&c->wmq, wm, entry);
-	return(1);
 }
 
 void

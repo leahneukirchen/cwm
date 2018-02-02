@@ -137,22 +137,24 @@ main		: FONTNAME STRING		{
 			conf->snapdist = $2;
 		}
 		| COMMAND STRING string		{
-			if (!conf_cmd_add(conf, $2, $3)) {
-				yyerror("command name/path too long");
+			if (strlen($3) >= PATH_MAX) {
+				yyerror("%s command path too long", $2);
 				free($2);
 				free($3);
 				YYERROR;
 			}
+			conf_cmd_add(conf, $2, $3);
 			free($2);
 			free($3);
 		}
 		| WM STRING string	{
-			if (!conf_wm_add(conf, $2, $3)) {
-				yyerror("wm name/path too long");
+			if (strlen($3) >= PATH_MAX) {
+				yyerror("%s wm path too long", $2);
 				free($2);
 				free($3);
 				YYERROR;
 			}
+			conf_wm_add(conf, $2, $3);
 			free($2);
 			free($3);
 		}

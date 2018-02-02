@@ -260,7 +260,7 @@ TAILQ_HEAD(mousebind_q, bind_ctx);
 struct cmd_ctx {
 	TAILQ_ENTRY(cmd_ctx)	 entry;
 	char			*name;
-	char			 path[PATH_MAX];
+	char			*path;
 };
 TAILQ_HEAD(cmd_q, cmd_ctx);
 TAILQ_HEAD(wm_q, cmd_ctx);
@@ -298,13 +298,13 @@ struct conf {
 	int			 snapdist;
 	struct gap		 gap;
 	char			*color[CWM_COLOR_NITEMS];
-	char			 known_hosts[PATH_MAX];
 	char			*font;
 	char			*wmname;
 	Cursor			 cursor[CF_NITEMS];
 	int			 xrandr;
 	int			 xrandr_event_base;
 	char			*homedir;
+	char			*known_hosts;
 	char			*wm_argv;
 };
 
@@ -540,9 +540,9 @@ int			 conf_bind_mouse(struct conf *, const char *,
     			     const char *);
 void			 conf_clear(struct conf *);
 void			 conf_client(struct client_ctx *);
-int			 conf_cmd_add(struct conf *, const char *,
+void			 conf_cmd_add(struct conf *, const char *,
 			     const char *);
-int			 conf_wm_add(struct conf *, const char *,
+void			 conf_wm_add(struct conf *, const char *,
 			     const char *);
 void			 conf_cursor(struct conf *);
 void			 conf_grab_kbd(Window);
