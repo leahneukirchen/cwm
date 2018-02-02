@@ -31,6 +31,13 @@
 #include <X11/extensions/Xrandr.h>
 #include <X11/keysym.h>
 
+/* #define DEBUG */
+#ifdef DEBUG
+#define DPRINTF(...)	log_debug(__func__, __VA_ARGS__)
+#else
+#define DPRINTF(...)	do {} while (0)
+#endif /* DEBUG */
+
 #undef MIN
 #undef MAX
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
@@ -584,6 +591,9 @@ void 			 xu_ewmh_restore_net_wm_state(struct client_ctx *);
 char			*u_argv(char * const *);
 void			 u_exec(char *);
 void			 u_spawn(char *);
+void			 log_debug(const char *, const char *, ...)
+			    __attribute__((__format__ (printf, 2, 3)))
+			    __attribute__((__nonnull__ (2)));
 
 void			*xcalloc(size_t, size_t);
 void			*xmalloc(size_t);
