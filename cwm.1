@@ -23,6 +23,7 @@
 .Sh SYNOPSIS
 .\" For a program:  program [-abc] file ...
 .Nm cwm
+.Op Fl v
 .Op Fl c Ar file
 .Op Fl d Ar display
 .Sh DESCRIPTION
@@ -47,6 +48,11 @@ however,
 will continue to process the rest of the configuration file.
 .It Fl d Ar display
 Specify the display to use.
+.It Fl v
+Verbose mode.
+Multiple
+.Fl v
+options increase the verbosity.
 .El
 .Pp
 .Nm

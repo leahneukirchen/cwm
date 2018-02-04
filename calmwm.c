@@ -67,13 +67,16 @@ main(int argc, char **argv)
 
 	fallback = u_argv(argv);
 	Conf.wm_argv = u_argv(argv);
-	while ((ch = getopt(argc, argv, "c:d:")) != -1) {
+	while ((ch = getopt(argc, argv, "c:d:v")) != -1) {
 		switch (ch) {
 		case 'c':
 			conf_file = optarg;
 			break;
 		case 'd':
 			display_name = optarg;
+			break;
+		case 'v':
+			Conf.debug++;
 			break;
 		default:
 			usage();
@@ -241,7 +244,7 @@ usage(void)
 {
 	extern char	*__progname;
 
-	(void)fprintf(stderr, "usage: %s [-c file] [-d display]\n",
+	(void)fprintf(stderr, "usage: %s [-v] [-c file] [-d display]\n",
 	    __progname);
 	exit(1);
 }

@@ -31,12 +31,10 @@
 #include <X11/extensions/Xrandr.h>
 #include <X11/keysym.h>
 
-/* #define DEBUG */
-#ifdef DEBUG
-#define DPRINTF(...)	log_debug(__func__, __VA_ARGS__)
-#else
-#define DPRINTF(...)	do {} while (0)
-#endif /* DEBUG */
+#define LOG_DEBUG0(...)	log_debug(0, __func__, __VA_ARGS__)
+#define LOG_DEBUG1(...)	log_debug(1, __func__, __VA_ARGS__)
+#define LOG_DEBUG2(...)	log_debug(2, __func__, __VA_ARGS__)
+#define LOG_DEBUG3(...)	log_debug(3, __func__, __VA_ARGS__)
 
 #undef MIN
 #undef MAX
@@ -313,6 +311,7 @@ struct conf {
 	char			*homedir;
 	char			*known_hosts;
 	char			*wm_argv;
+	u_int32_t		 debug;
 };
 
 /* MWM hints */
@@ -591,9 +590,9 @@ void 			 xu_ewmh_restore_net_wm_state(struct client_ctx *);
 char			*u_argv(char * const *);
 void			 u_exec(char *);
 void			 u_spawn(char *);
-void			 log_debug(const char *, const char *, ...)
-			    __attribute__((__format__ (printf, 2, 3)))
-			    __attribute__((__nonnull__ (2)));
+void			 log_debug(int, const char *, const char *, ...)
+			    __attribute__((__format__ (printf, 3, 4)))
+			    __attribute__((__nonnull__ (3)));
 
 void			*xcalloc(size_t, size_t);
 void			*xmalloc(size_t);
