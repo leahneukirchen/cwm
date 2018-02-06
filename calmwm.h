@@ -52,6 +52,11 @@ size_t strlcpy(char *, const char *, size_t);
 #include <X11/extensions/Xrandr.h>
 #include <X11/keysym.h>
 
+#define LOG_DEBUG0(...)	log_debug(0, __func__, __VA_ARGS__)
+#define LOG_DEBUG1(...)	log_debug(1, __func__, __VA_ARGS__)
+#define LOG_DEBUG2(...)	log_debug(2, __func__, __VA_ARGS__)
+#define LOG_DEBUG3(...)	log_debug(3, __func__, __VA_ARGS__)
+
 #undef MIN
 #undef MAX
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
@@ -65,9 +70,9 @@ size_t strlcpy(char *, const char *, size_t);
 
 #define BUTTONMASK	(ButtonPressMask | ButtonReleaseMask)
 #define MOUSEMASK	(BUTTONMASK | PointerMotionMask)
-#define MENUMASK 	(MOUSEMASK | ButtonMotionMask | ExposureMask)
+#define MENUMASK 	(MOUSEMASK | ButtonMotionMask | KeyPressMask | \
+			 ExposureMask)
 #define MENUGRABMASK	(MOUSEMASK | ButtonMotionMask | StructureNotifyMask)
-#define KEYMASK		(KeyPressMask | ExposureMask)
 #define IGNOREMODMASK	(LockMask | Mod2Mask | 0x2000)
 
 /* direction/amount */
@@ -76,7 +81,15 @@ size_t strlcpy(char *, const char *, size_t);
 #define CWM_LEFT		0x0004
 #define CWM_RIGHT		0x0008
 #define CWM_BIGAMOUNT		0x0010
-#define DIRECTIONMASK	(CWM_UP | CWM_DOWN | CWM_LEFT | CWM_RIGHT)
+#define CWM_UP_BIG		(CWM_UP | CWM_BIGAMOUNT)
+#define CWM_DOWN_BIG		(CWM_DOWN | CWM_BIGAMOUNT)
+#define CWM_LEFT_BIG		(CWM_LEFT | CWM_BIGAMOUNT)
+#define CWM_RIGHT_BIG		(CWM_RIGHT | CWM_BIGAMOUNT)
+#define CWM_UP_RIGHT		(CWM_UP | CWM_RIGHT)
+#define CWM_UP_LEFT		(CWM_UP | CWM_LEFT)
+#define CWM_DOWN_RIGHT		(CWM_DOWN | CWM_RIGHT)
+#define CWM_DOWN_LEFT		(CWM_DOWN | CWM_LEFT)
+#define DIRECTIONMASK		(CWM_UP | CWM_DOWN | CWM_LEFT | CWM_RIGHT)
 
 #define CWM_CYCLE_FORWARD	0x0001
 #define CWM_CYCLE_REVERSE	0x0002
@@ -176,6 +189,11 @@ struct client_ctx {
 #define CLIENT_FULLSCREEN		0x0800
 #define CLIENT_STICKY			0x1000
 #define CLIENT_ACTIVE			0x2000
+#define CLIENT_SKIP_PAGER		0x4000
+#define CLIENT_SKIP_TASKBAR		0x8000
+
+#define CLIENT_SKIP_CYCLE		(CLIENT_HIDDEN | CLIENT_IGNORE | \
+					 CLIENT_SKIP_TASKBAR | CLIENT_SKIP_PAGER)
 #define CLIENT_HIGHLIGHT		(CLIENT_GROUP | CLIENT_UNGROUP)
 #define CLIENT_MAXFLAGS			(CLIENT_VMAXIMIZED | CLIENT_HMAXIMIZED)
 #define CLIENT_MAXIMIZED		(CLIENT_VMAXIMIZED | CLIENT_HMAXIMIZED)
@@ -268,14 +286,11 @@ TAILQ_HEAD(mousebind_q, bind_ctx);
 struct cmd_ctx {
 	TAILQ_ENTRY(cmd_ctx)	 entry;
 	char			*name;
-	char			 path[PATH_MAX];
+	char			*path;
 };
 TAILQ_HEAD(cmd_q, cmd_ctx);
+TAILQ_HEAD(wm_q, cmd_ctx);
 
-enum menu_exec {
-	CWM_MENU_EXEC_EXEC,
-	CWM_MENU_EXEC_WM
-};
 #define CWM_MENU_DUMMY		0x0001
 #define CWM_MENU_FILE		0x0002
 #define CWM_MENU_LIST		0x0004
@@ -300,6 +315,7 @@ struct conf {
 	struct autogroup_q	 autogroupq;
 	struct ignore_q		 ignoreq;
 	struct cmd_q		 cmdq;
+	struct wm_q		 wmq;
 	int			 ngroups;
 	int			 stickygroups;
 	int			 nameqlen;
@@ -308,14 +324,15 @@ struct conf {
 	int			 snapdist;
 	struct gap		 gap;
 	char			*color[CWM_COLOR_NITEMS];
-	char			 known_hosts[PATH_MAX];
 	char			*font;
 	char			*wmname;
 	Cursor			 cursor[CF_NITEMS];
 	int			 xrandr;
 	int			 xrandr_event_base;
 	char			*homedir;
+	char			*known_hosts;
 	char			*wm_argv;
+	u_int32_t		 debug;
 };
 
 /* MWM hints */
@@ -374,13 +391,15 @@ enum ewmh {
 	_NET_WM_DESKTOP,
 	_NET_CLOSE_WINDOW,
 	_NET_WM_STATE,
-#define	_NET_WM_STATES_NITEMS	7
+#define	_NET_WM_STATES_NITEMS	9
 	_NET_WM_STATE_STICKY,
 	_NET_WM_STATE_MAXIMIZED_VERT,
 	_NET_WM_STATE_MAXIMIZED_HORZ,
 	_NET_WM_STATE_HIDDEN,
 	_NET_WM_STATE_FULLSCREEN,
 	_NET_WM_STATE_DEMANDS_ATTENTION,
+	_NET_WM_STATE_SKIP_PAGER,
+	_NET_WM_STATE_SKIP_TASKBAR,
 	_CWM_WM_STATE_FREEZE,
 	EWMH_NITEMS
 };
@@ -403,7 +422,6 @@ void			 client_applysizehints(struct client_ctx *);
 void			 client_config(struct client_ctx *);
 struct client_ctx	*client_current(void);
 void			 client_cycle(struct screen_ctx *, int);
-void			 client_cycle_leave(struct screen_ctx *);
 void			 client_delete(struct client_ctx *);
 void			 client_draw_border(struct client_ctx *);
 struct client_ctx	*client_find(Window);
@@ -415,6 +433,7 @@ void			 client_lower(struct client_ctx *);
 void			 client_map(struct client_ctx *);
 void			 client_msg(struct client_ctx *, Atom, Time);
 void			 client_move(struct client_ctx *);
+void			 client_mtf(struct client_ctx *);
 int			 client_inbound(struct client_ctx *, int, int);
 struct client_ctx	*client_init(Window, struct screen_ctx *, int);
 void			 client_ptr_inbound(struct client_ctx *, int);
@@ -426,12 +445,15 @@ void			 client_send_delete(struct client_ctx *);
 void			 client_set_wm_state(struct client_ctx *, long);
 void			 client_setactive(struct client_ctx *);
 void			 client_setname(struct client_ctx *);
+void			 client_show(struct client_ctx *);
 int			 client_snapcalc(int, int, int, int, int);
 void			 client_toggle_freeze(struct client_ctx *);
 void			 client_toggle_fullscreen(struct client_ctx *);
 void			 client_toggle_hidden(struct client_ctx *);
 void			 client_toggle_hmaximize(struct client_ctx *);
 void			 client_toggle_maximize(struct client_ctx *);
+void			 client_toggle_skip_pager(struct client_ctx *);
+void			 client_toggle_skip_taskbar(struct client_ctx *);
 void			 client_toggle_sticky(struct client_ctx *);
 void			 client_toggle_vmaximize(struct client_ctx *);
 void			 client_transient(struct client_ctx *);
@@ -453,8 +475,7 @@ void			 group_movetogroup(struct client_ctx *, int);
 void			 group_only(struct screen_ctx *, int);
 int			 group_restore(struct client_ctx *);
 void			 group_show(struct group_ctx *);
-void			 group_toggle_membership_enter(struct client_ctx *);
-void			 group_toggle_membership_leave(struct client_ctx *);
+void			 group_toggle_membership(struct client_ctx *);
 void			 group_update_names(struct screen_ctx *);
 
 void			 search_match_client(struct menu_q *, struct menu_q *,
@@ -469,10 +490,13 @@ void			 search_match_cmd(struct menu_q *, struct menu_q *,
 			     char *);
 void			 search_match_group(struct menu_q *, struct menu_q *,
 			     char *);
+void			 search_match_wm(struct menu_q *, struct menu_q *,
+			     char *);
 void			 search_print_client(struct menu *, int);
 void			 search_print_cmd(struct menu *, int);
 void			 search_print_group(struct menu *, int);
 void			 search_print_text(struct menu *, int);
+void			 search_print_wm(struct menu *, int);
 
 struct region_ctx	*region_find(struct screen_ctx *, int, int);
 struct geom		 screen_apply_gap(struct screen_ctx *, struct geom);
@@ -512,6 +536,7 @@ void			 kbfunc_group_alltoggle(void *, struct cargs *);
 void			 kbfunc_menu_client(void *, struct cargs *);
 void			 kbfunc_menu_cmd(void *, struct cargs *);
 void			 kbfunc_menu_group(void *, struct cargs *);
+void			 kbfunc_menu_wm(void *, struct cargs *);
 void			 kbfunc_menu_exec(void *, struct cargs *);
 void			 kbfunc_menu_ssh(void *, struct cargs *);
 void			 kbfunc_client_menu_label(void *, struct cargs *);
@@ -520,12 +545,15 @@ void			 kbfunc_exec_lock(void *, struct cargs *);
 void			 kbfunc_exec_term(void *, struct cargs *);
 
 void			 menu_windraw(struct screen_ctx *, Window,
-			     const char *, ...);
+			     const char *, ...)
+			    __attribute__((__format__ (printf, 3, 4)))
+			    __attribute__((__nonnull__ (3)));
 struct menu  		*menu_filter(struct screen_ctx *, struct menu_q *,
 			     const char *, const char *, int,
 			     void (*)(struct menu_q *, struct menu_q *, char *),
 			     void (*)(struct menu *, int));
-void			 menuq_add(struct menu_q *, void *, const char *, ...);
+void			 menuq_add(struct menu_q *, void *, const char *, ...)
+			    __attribute__((__format__ (printf, 3, 4)));
 void			 menuq_clear(struct menu_q *);
 
 int			 parse_config(const char *, struct conf *);
@@ -539,7 +567,9 @@ int			 conf_bind_mouse(struct conf *, const char *,
     			     const char *);
 void			 conf_clear(struct conf *);
 void			 conf_client(struct client_ctx *);
-int			 conf_cmd_add(struct conf *, const char *,
+void			 conf_cmd_add(struct conf *, const char *,
+			     const char *);
+void			 conf_wm_add(struct conf *, const char *,
 			     const char *);
 void			 conf_cursor(struct conf *);
 void			 conf_grab_kbd(Window);
@@ -581,6 +611,9 @@ void 			 xu_ewmh_restore_net_wm_state(struct client_ctx *);
 char			*u_argv(char * const *);
 void			 u_exec(char *);
 void			 u_spawn(char *);
+void			 log_debug(int, const char *, const char *, ...)
+			    __attribute__((__format__ (printf, 3, 4)))
+			    __attribute__((__nonnull__ (3)));
 
 void			*xcalloc(size_t, size_t);
 void			*xmalloc(size_t);

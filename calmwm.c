@@ -27,6 +27,7 @@
 #include <getopt.h>
 #include <limits.h>
 #include <locale.h>
+#include <poll.h>
 #include <pwd.h>
 #include <signal.h>
 #include <stdio.h>
@@ -46,7 +47,7 @@ volatile sig_atomic_t	 cwm_status;
 
 static void	sighdlr(int);
 static int	x_errorhandler(Display *, XErrorEvent *);
-static void	x_init(const char *);
+static int	x_init(const char *);
 static void	x_teardown(void);
 static int	x_wmerrorhandler(Display *, XErrorEvent *);
 
@@ -55,21 +56,27 @@ main(int argc, char **argv)
 {
 	const char	*conf_file = NULL;
 	char		*conf_path, *display_name = NULL;
-	int		 ch;
+	char		*fallback;
+	int		 ch, xfd;
+	struct pollfd	 pfd[1];
 	struct passwd	*pw;
 
 	if (!setlocale(LC_CTYPE, "") || !XSupportsLocale())
 		warnx("no locale support");
 	mbtowc(NULL, NULL, MB_CUR_MAX);
 
+	fallback = u_argv(argv);
 	Conf.wm_argv = u_argv(argv);
-	while ((ch = getopt(argc, argv, "c:d:")) != -1) {
+	while ((ch = getopt(argc, argv, "c:d:v")) != -1) {
 		switch (ch) {
 		case 'c':
 			conf_file = optarg;
 			break;
 		case 'd':
 			display_name = optarg;
+			break;
+		case 'v':
+			Conf.debug++;
 			break;
 		default:
 			usage();
@@ -80,8 +87,11 @@ main(int argc, char **argv)
 
 	if (signal(SIGCHLD, sighdlr) == SIG_ERR)
 		err(1, "signal");
+	if (signal(SIGHUP, sighdlr) == SIG_ERR)
+		err(1, "signal");
 
-	if ((Conf.homedir = getenv("HOME")) == NULL || Conf.homedir[0] == '\0') {
+	Conf.homedir = getenv("HOME");
+	if ((Conf.homedir == NULL) || (Conf.homedir[0] == '\0')) {
 		pw = getpwuid(getuid());
 		if (pw != NULL && pw->pw_dir != NULL && *pw->pw_dir != '\0')
 			Conf.homedir = pw->pw_dir;
@@ -107,7 +117,7 @@ main(int argc, char **argv)
 		warnx("config file %s has errors", conf_path);
 	free(conf_path);
 
-	x_init(display_name);
+	xfd = x_init(display_name);
 	cwm_status = CWM_RUNNING;
 
 #ifdef __OpenBSD__
@@ -115,16 +125,27 @@ main(int argc, char **argv)
 		err(1, "pledge");
 #endif
 
-	while (cwm_status == CWM_RUNNING)
+	memset(&pfd, 0, sizeof(pfd));
+	pfd[0].fd = xfd;
+	pfd[0].events = POLLIN;
+	while (cwm_status == CWM_RUNNING) {
 		xev_process();
+		if (poll(pfd, 1, INFTIM) == -1) {
+			if (errno != EINTR)
+				warn("poll");
+		}
+	}
 	x_teardown();
-	if (cwm_status == CWM_EXEC_WM)
+	if (cwm_status == CWM_EXEC_WM) {
 		u_exec(Conf.wm_argv);
+		warnx("'%s' failed to start, restarting fallback", Conf.wm_argv);
+		u_exec(fallback);
+	}
 
 	return(0);
 }
 
-static void
+static int
 x_init(const char *dpyname)
 {
 	int	i;
@@ -144,6 +165,8 @@ x_init(const char *dpyname)
 
 	for (i = 0; i < ScreenCount(X_Dpy); i++)
 		screen_init(i);
+
+	return ConnectionNumber(X_Dpy);
 }
 
 static void
@@ -210,6 +233,9 @@ sighdlr(int sig)
 		    (pid < 0 && errno == EINTR))
 			;
 		break;
+	case SIGHUP:
+		cwm_status = CWM_EXEC_WM;
+		break;
 	}
 
 	errno = save_errno;
@@ -220,7 +246,7 @@ usage(void)
 {
 	extern char	*__progname;
 
-	(void)fprintf(stderr, "usage: %s [-c file] [-d display]\n",
+	(void)fprintf(stderr, "usage: %s [-v] [-c file] [-d display]\n",
 	    __progname);
 	exit(1);
 }

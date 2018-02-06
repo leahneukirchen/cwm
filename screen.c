@@ -37,7 +37,8 @@ screen_init(int which)
 	struct screen_ctx	*sc;
 	Window			*wins, w0, w1, active = None;
 	XSetWindowAttributes	 rootattr;
-	unsigned int		 nwins, i;
+	unsigned int		 nwins, w;
+	int			 i;
 
 	sc = xmalloc(sizeof(*sc));
 
@@ -77,8 +78,8 @@ screen_init(int which)
 
 	/* Deal with existing clients. */
 	if (XQueryTree(X_Dpy, sc->rootwin, &w0, &w1, &wins, &nwins)) {
-		for (i = 0; i < nwins; i++)
-			(void)client_init(wins[i], sc, (active == wins[i]));
+		for (w = 0; w < nwins; w++)
+			(void)client_init(wins[w], sc, (active == wins[w]));
 
 		XFree(wins);
 	}

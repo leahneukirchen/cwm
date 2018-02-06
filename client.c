@@ -33,7 +33,6 @@
 
 static struct client_ctx	*client_next(struct client_ctx *);
 static struct client_ctx	*client_prev(struct client_ctx *);
-static void			 client_mtf(struct client_ctx *);
 static void			 client_placecalc(struct client_ctx *);
 static void			 client_wm_protocols(struct client_ctx *);
 static void			 client_mwm_hints(struct client_ctx *);
@@ -104,8 +103,8 @@ client_init(Window win, struct screen_ctx *sc, int active)
 		if ((cc->wmh) && (cc->wmh->flags & StateHint))
 			client_set_wm_state(cc, cc->wmh->initial_state);
 	} else {
-		if ((active == 0) && (XQueryPointer(X_Dpy, cc->win, &rwin, &cwin,
-		    &x, &y, &wx, &wy, &mask)) && (cwin != None))
+		if ((active == 0) && (XQueryPointer(X_Dpy, cc->win, &rwin,
+		    &cwin, &x, &y, &wx, &wy, &mask)) && (cwin != None))
 			active = 1;
 	}
 
@@ -222,7 +221,7 @@ client_setactive(struct client_ctx *cc)
 		client_draw_border(oldcc);
 	}
 
-	/* If we're in the middle of cycing, don't change the order. */
+	/* If we're in the middle of cycling, don't change the order. */
 	if (!sc->cycling)
 		client_mtf(cc);
 
@@ -262,6 +261,20 @@ void
 client_toggle_hidden(struct client_ctx *cc)
 {
 	cc->flags ^= CLIENT_HIDDEN;
+	xu_ewmh_set_net_wm_state(cc);
+}
+
+void
+client_toggle_skip_pager(struct client_ctx *cc)
+{
+	cc->flags ^= CLIENT_SKIP_PAGER;
+	xu_ewmh_set_net_wm_state(cc);
+}
+
+void
+client_toggle_skip_taskbar(struct client_ctx *cc)
+{
+	cc->flags ^= CLIENT_SKIP_TASKBAR;
 	xu_ewmh_set_net_wm_state(cc);
 }
 
@@ -330,11 +343,6 @@ client_toggle_maximize(struct client_ctx *cc)
 		cc->savegeom.x = cc->geom.x;
 	}
 
-	/*
-	 * pick screen that the middle of the window is on.
-	 * that's probably more fair than if just the origin of
-	 * a window is poking over a boundary
-	 */
 	area = screen_area(sc,
 	    cc->geom.x + cc->geom.w / 2,
 	    cc->geom.y + cc->geom.h / 2, CWM_GAP);
@@ -523,6 +531,15 @@ client_hide(struct client_ctx *cc)
 }
 
 void
+client_show(struct client_ctx *cc)
+{
+	if (cc->flags & CLIENT_HIDDEN)
+		client_unhide(cc);
+	else
+		client_raise(cc);
+}
+
+void
 client_unhide(struct client_ctx *cc)
 {
 	XMapRaised(X_Dpy, cc->win);
@@ -644,7 +661,6 @@ client_setname(struct client_ctx *cc)
 	wn = xmalloc(sizeof(*wn));
 	wn->name = newname;
 	TAILQ_INSERT_TAIL(&cc->nameq, wn, entry);
-
 match:
 	cc->name = wn->name;
 
@@ -666,10 +682,6 @@ client_cycle(struct screen_ctx *sc, int flags)
 	struct client_ctx	*newcc, *oldcc, *prevcc;
 	int			 again = 1;
 
-	/* For X apps that ignore events. */
-	XGrabKeyboard(X_Dpy, sc->rootwin, True,
-	    GrabModeAsync, GrabModeAsync, CurrentTime);
-
 	if (TAILQ_EMPTY(&sc->clientq))
 		return;
 
@@ -688,21 +700,20 @@ client_cycle(struct screen_ctx *sc, int flags)
 		    client_next(newcc);
 
 		/* Only cycle visible and non-ignored windows. */
-		if ((newcc->flags & (CLIENT_HIDDEN | CLIENT_IGNORE))
-		    || ((flags & CWM_CYCLE_INGROUP) &&
-			(newcc->gc != oldcc->gc)))
+		if ((newcc->flags & (CLIENT_SKIP_CYCLE)) ||
+		    ((flags & CWM_CYCLE_INGROUP) &&
+		    (newcc->gc != oldcc->gc)))
 			again = 1;
 
 		/* Is oldcc the only non-hidden window? */
 		if (newcc == oldcc) {
 			if (again)
 				return;	/* No windows visible. */
-
 			break;
 		}
 	}
 
-	/* reset when cycling mod is released. XXX I hate this hack */
+	/* Reset when cycling mod is released. XXX I hate this hack */
 	sc->cycling = 1;
 	client_ptrsave(oldcc);
 	client_raise(prevcc);
@@ -712,21 +723,6 @@ client_cycle(struct screen_ctx *sc, int flags)
 		newcc->ptr.y = newcc->geom.h / 2;
 	}
 	client_ptrwarp(newcc);
-}
-
-void
-client_cycle_leave(struct screen_ctx *sc)
-{
-	struct client_ctx	*cc;
-
-	sc->cycling = 0;
-
-	if ((cc = client_current()) != NULL) {
-		client_mtf(cc);
-		cc->flags &= ~CLIENT_HIGHLIGHT;
-		client_draw_border(cc);
-		XUngrabKeyboard(X_Dpy, CurrentTime);
-	}
 }
 
 static struct client_ctx *
@@ -756,17 +752,12 @@ client_placecalc(struct client_ctx *cc)
 	int			 xslack, yslack;
 
 	if (cc->hint.flags & (USPosition | PPosition)) {
-		int			 wmax, hmax;
-
-		wmax = DisplayWidth(X_Dpy, sc->which);
-		hmax = DisplayHeight(X_Dpy, sc->which);
-
-		if (cc->geom.x >= wmax)
-			cc->geom.x = wmax - cc->bwidth - 1;
+		if (cc->geom.x >= sc->view.w)
+			cc->geom.x = sc->view.w - cc->bwidth - 1;
 		if (cc->geom.x + cc->geom.w + cc->bwidth <= 0)
 			cc->geom.x = -(cc->geom.w + cc->bwidth - 1);
-		if (cc->geom.y >= hmax)
-			cc->geom.x = hmax - cc->bwidth - 1;
+		if (cc->geom.y >= sc->view.h)
+			cc->geom.x = sc->view.h - cc->bwidth - 1;
 		if (cc->geom.y + cc->geom.h + cc->bwidth <= 0)
 			cc->geom.y = -(cc->geom.h + cc->bwidth - 1);
 	} else {
@@ -801,7 +792,7 @@ client_placecalc(struct client_ctx *cc)
 	}
 }
 
-static void
+void
 client_mtf(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
@@ -910,8 +901,9 @@ client_mwm_hints(struct client_ctx *cc)
 {
 	struct mwm_hints	*mwmh;
 
-	if (xu_getprop(cc->win, cwmh[_MOTIF_WM_HINTS], cwmh[_MOTIF_WM_HINTS],
-	    MWM_HINTS_ELEMENTS, (unsigned char **)&mwmh) == MWM_HINTS_ELEMENTS) {
+	if (xu_getprop(cc->win, cwmh[_MOTIF_WM_HINTS],
+	    cwmh[_MOTIF_WM_HINTS], MWM_HINTS_ELEMENTS,
+	    (unsigned char **)&mwmh) == MWM_HINTS_ELEMENTS) {
 		if (mwmh->flags & MWM_FLAGS_DECORATIONS &&
 		    !(mwmh->decorations & MWM_DECOR_ALL) &&
 		    !(mwmh->decorations & MWM_DECOR_BORDER))

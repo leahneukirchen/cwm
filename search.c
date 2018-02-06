@@ -69,15 +69,16 @@ match_substr(char *sub, char *str, int zeroidx)
 void
 search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 {
-	struct winname	*wn;
-	struct menu	*mi, *tierp[4], *before = NULL;
+	struct menu		*mi, *tierp[3], *before = NULL;
+	struct client_ctx	*cc;
+	struct winname		*wn;
 
 	(void)memset(tierp, 0, sizeof(tierp));
 
 	TAILQ_INIT(resultq);
 	TAILQ_FOREACH(mi, menuq, entry) {
 		int tier = -1, t;
-		struct client_ctx *cc = (struct client_ctx *)mi->ctx;
+		cc = (struct client_ctx *)mi->ctx;
 
 		/* Match on label. */
 		if (match_substr(search, cc->label, 0))
@@ -87,14 +88,14 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 		if (tier < 0) {
 			TAILQ_FOREACH_REVERSE(wn, &cc->nameq, name_q, entry)
 				if (match_substr(search, wn->name, 0)) {
-					tier = 2;
+					tier = 1;
 					break;
 				}
 		}
 
 		/* Match on window resource class. */
 		if ((tier < 0) && match_substr(search, cc->ch.res_class, 0))
-			tier = 3;
+			tier = 2;
 
 		if (tier < 0)
 			continue;
@@ -106,9 +107,6 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 		/* Hidden window is ranked up. */
 		if ((tier > 0) && (cc->flags & CLIENT_HIDDEN))
 			tier--;
-
-		if (tier >= nitems(tierp))
-			errx(1, "%s: invalid tier", __func__);
 
 		/*
 		 * If you have a tierp, insert after it, and make it
@@ -132,11 +130,12 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 void
 search_match_cmd(struct menu_q *menuq, struct menu_q *resultq, char *search)
 {
-	struct menu	*mi;
+	struct menu		*mi;
+	struct cmd_ctx		*cmd;
 
 	TAILQ_INIT(resultq);
 	TAILQ_FOREACH(mi, menuq, entry) {
-		struct cmd_ctx *cmd = (struct cmd_ctx *)mi->ctx;
+		cmd = (struct cmd_ctx *)mi->ctx;
 		if (match_substr(search, cmd->name, 0))
 			TAILQ_INSERT_TAIL(resultq, mi, resultentry);
 	}
@@ -145,12 +144,13 @@ search_match_cmd(struct menu_q *menuq, struct menu_q *resultq, char *search)
 void
 search_match_group(struct menu_q *menuq, struct menu_q *resultq, char *search)
 {
-	struct menu	*mi;
-	char		*s;
+	struct menu		*mi;
+	struct group_ctx	*gc;
+	char			*s;
 
 	TAILQ_INIT(resultq);
 	TAILQ_FOREACH(mi, menuq, entry) {
-		struct group_ctx *gc = (struct group_ctx *)mi->ctx;
+		gc = (struct group_ctx *)mi->ctx;
 		xasprintf(&s, "%d %s", gc->num, gc->name);
 		if (match_substr(search, s, 0))
 			TAILQ_INSERT_TAIL(resultq, mi, resultentry);
@@ -162,12 +162,11 @@ static void
 match_path_type(struct menu_q *resultq, char *search, int flag)
 {
 	struct menu     *mi;
-	char 		 pattern[PATH_MAX];
+	char 		*pattern;
 	glob_t		 g;
 	int		 i;
 
-	(void)strlcpy(pattern, search, sizeof(pattern));
-	(void)strlcat(pattern, "*", sizeof(pattern));
+	xasprintf(&pattern, "%s*", search);
 	if (glob(pattern, GLOB_MARK, NULL, &g) != 0)
 		return;
 	for (i = 0; i < g.gl_pathc; i++) {
@@ -178,6 +177,7 @@ match_path_type(struct menu_q *resultq, char *search, int flag)
 		TAILQ_INSERT_TAIL(resultq, mi, resultentry);
 	}
 	globfree(&g);
+	free(pattern);
 }
 
 void
@@ -225,6 +225,21 @@ search_match_text(struct menu_q *menuq, struct menu_q *resultq, char *search)
 }
 
 void
+search_match_wm(struct menu_q *menuq, struct menu_q *resultq, char *search)
+{
+	struct menu		*mi;
+	struct cmd_ctx		*wm;
+
+	TAILQ_INIT(resultq);
+	TAILQ_FOREACH(mi, menuq, entry) {
+		wm = (struct cmd_ctx *)mi->ctx;
+		if ((match_substr(search, wm->name, 0)) ||
+		    (match_substr(search, wm->path, 0)))
+			TAILQ_INSERT_TAIL(resultq, mi, resultentry);
+	}
+}
+
+void
 search_print_client(struct menu *mi, int listing)
 {
 	struct client_ctx	*cc = (struct client_ctx *)mi->ctx;
@@ -243,7 +258,7 @@ search_print_client(struct menu *mi, int listing)
 void
 search_print_cmd(struct menu *mi, int listing)
 {
-	struct cmd_ctx	*cmd = (struct cmd_ctx *)mi->ctx;
+	struct cmd_ctx		*cmd = (struct cmd_ctx *)mi->ctx;
 
 	(void)snprintf(mi->print, sizeof(mi->print), "%s", cmd->name);
 }
@@ -262,4 +277,13 @@ void
 search_print_text(struct menu *mi, int listing)
 {
 	(void)snprintf(mi->print, sizeof(mi->print), "%s", mi->text);
+}
+
+void
+search_print_wm(struct menu *mi, int listing)
+{
+	struct cmd_ctx		*wm = (struct cmd_ctx *)mi->ctx;
+
+	(void)snprintf(mi->print, sizeof(mi->print), "%s [%s]",
+	    wm->name, wm->path);
 }

@@ -23,6 +23,7 @@
 .Sh SYNOPSIS
 .\" For a program:  program [-abc] file ...
 .Nm cwm
+.Op Fl v
 .Op Fl c Ar file
 .Op Fl d Ar display
 .Sh DESCRIPTION
@@ -47,6 +48,11 @@ however,
 will continue to process the rest of the configuration file.
 .It Fl d Ar display
 Specify the display to use.
+.It Fl v
+Verbose mode.
+Multiple
+.Fl v
+options increase the verbosity.
 .El
 .Pp
 .Nm
@@ -143,7 +149,7 @@ will be executed via the configured terminal emulator.
 .It Ic CM-w
 Spawn
 .Dq exec WindowManager
-dialog, allowing a switch to another window manager.
+menu, allowing a switch to another window manager.
 .It Ic CMS-r
 Restart.
 .It Ic CMS-q
@@ -184,6 +190,14 @@ List all available items.
 .It Ic [Esc]
 Cancel.
 .El
+.Pp
+.Nm
+rereads its configuration file when it receives a hangup signal,
+.Dv SIGHUP ,
+by executing itself with the name and arguments with which it was started.
+This is equivalent to the
+.Ar restart
+function.
 .Sh SEARCH
 .Nm
 features the ability to search for windows by their current title,
