@@ -752,17 +752,12 @@ client_placecalc(struct client_ctx *cc)
 	int			 xslack, yslack;
 
 	if (cc->hint.flags & (USPosition | PPosition)) {
-		int			 wmax, hmax;
-
-		wmax = DisplayWidth(X_Dpy, sc->which);
-		hmax = DisplayHeight(X_Dpy, sc->which);
-
-		if (cc->geom.x >= wmax)
-			cc->geom.x = wmax - cc->bwidth - 1;
+		if (cc->geom.x >= sc->view.w)
+			cc->geom.x = sc->view.w - cc->bwidth - 1;
 		if (cc->geom.x + cc->geom.w + cc->bwidth <= 0)
 			cc->geom.x = -(cc->geom.w + cc->bwidth - 1);
-		if (cc->geom.y >= hmax)
-			cc->geom.x = hmax - cc->bwidth - 1;
+		if (cc->geom.y >= sc->view.h)
+			cc->geom.x = sc->view.h - cc->bwidth - 1;
 		if (cc->geom.y + cc->geom.h + cc->bwidth <= 0)
 			cc->geom.y = -(cc->geom.h + cc->bwidth - 1);
 	} else {
