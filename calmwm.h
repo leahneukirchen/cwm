@@ -45,8 +45,6 @@
 #define nitems(_a) (sizeof((_a)) / sizeof((_a)[0]))
 #endif
 
-#define	CONFFILE	".cwmrc"
-
 #define BUTTONMASK	(ButtonPressMask | ButtonReleaseMask)
 #define MOUSEMASK	(BUTTONMASK | PointerMotionMask)
 #define MENUMASK 	(MOUSEMASK | ButtonMotionMask | KeyPressMask | \
@@ -308,10 +306,10 @@ struct conf {
 	Cursor			 cursor[CF_NITEMS];
 	int			 xrandr;
 	int			 xrandr_event_base;
-	char			*homedir;
+	char			*conf_file;
 	char			*known_hosts;
 	char			*wm_argv;
-	u_int32_t		 debug;
+	int			 debug;
 };
 
 /* MWM hints */

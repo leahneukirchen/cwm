@@ -25,6 +25,7 @@
 #include <err.h>
 #include <errno.h>
 #include <limits.h>
+#include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -248,6 +249,8 @@ mouse_binds[] = {
 void
 conf_init(struct conf *c)
 {
+	const char	*home;
+	struct passwd	*pw;
 	unsigned int	i;
 
 	c->stickygroups = 0;
@@ -258,11 +261,11 @@ conf_init(struct conf *c)
 	c->nameqlen = 5;
 
 	TAILQ_INIT(&c->ignoreq);
+	TAILQ_INIT(&c->autogroupq);
+	TAILQ_INIT(&c->keybindq);
+	TAILQ_INIT(&c->mousebindq);
 	TAILQ_INIT(&c->cmdq);
 	TAILQ_INIT(&c->wmq);
-	TAILQ_INIT(&c->keybindq);
-	TAILQ_INIT(&c->autogroupq);
-	TAILQ_INIT(&c->mousebindq);
 
 	for (i = 0; i < nitems(key_binds); i++)
 		conf_bind_key(c, key_binds[i].key, key_binds[i].func);
@@ -275,13 +278,21 @@ conf_init(struct conf *c)
 
 	conf_cmd_add(c, "lock", "xlock");
 	conf_cmd_add(c, "term", "xterm");
-
 	conf_wm_add(c, "cwm", "cwm");
-
-	xasprintf(&c->known_hosts, "%s/%s", c->homedir, ".ssh/known_hosts");
 
 	c->font = xstrdup("sans-serif:pixelsize=14:bold");
 	c->wmname = xstrdup("CWM");
+
+	home = getenv("HOME");
+	if ((home == NULL) || (*home == '\0')) {
+		pw = getpwuid(getuid());
+		if (pw != NULL && pw->pw_dir != NULL && *pw->pw_dir != '\0')
+			home = pw->pw_dir;
+		else
+			home = "/";
+	}
+	xasprintf(&c->conf_file, "%s/%s", home, ".cwmrc");
+	xasprintf(&c->known_hosts, "%s/%s", home, ".ssh/known_hosts");
 }
 
 void
@@ -327,6 +338,7 @@ conf_clear(struct conf *c)
 	for (i = 0; i < CWM_COLOR_NITEMS; i++)
 		free(c->color[i]);
 
+	free(c->conf_file);
 	free(c->known_hosts);
 	free(c->font);
 	free(c->wmname);
@@ -703,7 +715,6 @@ static char *ewmhints[] = {
 	"_NET_WM_STATE_SKIP_TASKBAR",
 	"_CWM_WM_STATE_FREEZE",
 };
-
 void
 conf_atoms(void)
 {
