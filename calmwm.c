@@ -130,7 +130,7 @@ main(int argc, char **argv)
 	pfd[0].events = POLLIN;
 	while (cwm_status == CWM_RUNNING) {
 		xev_process();
-		if (poll(pfd, 1, INFTIM) == -1) {
+		if (poll(pfd, 1, -1) == -1) {
 			if (errno != EINTR)
 				warn("poll");
 		}
