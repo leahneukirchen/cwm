@@ -31,6 +31,8 @@
 
 #include "calmwm.h"
 
+static struct geom screen_apply_gap(struct screen_ctx *, struct geom);
+
 void
 screen_init(int which)
 {
@@ -220,7 +222,7 @@ screen_update_geometry(struct screen_ctx *sc)
 	xu_ewmh_net_workarea(sc);
 }
 
-struct geom
+static struct geom
 screen_apply_gap(struct screen_ctx *sc, struct geom geom)
 {
 	geom.x += sc->gap.left;

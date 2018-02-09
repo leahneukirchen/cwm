@@ -476,7 +476,6 @@ void			 search_print_text(struct menu *, int);
 void			 search_print_wm(struct menu *, int);
 
 struct region_ctx	*region_find(struct screen_ctx *, int, int);
-struct geom		 screen_apply_gap(struct screen_ctx *, struct geom);
 struct screen_ctx	*screen_find(Window);
 struct geom		 screen_area(struct screen_ctx *, int, int,
 			     enum apply_gap);
