@@ -223,6 +223,8 @@ struct screen_ctx {
 	struct region_q		 regionq;
 	struct group_q		 groupq;
 	struct group_ctx	*group_active;
+	Colormap		 colormap;
+	Visual			*visual;
 	struct {
 		Window		 win;
 		XftDraw		*xftdraw;

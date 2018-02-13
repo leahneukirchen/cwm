@@ -50,6 +50,8 @@ screen_init(int which)
 
 	sc->which = which;
 	sc->rootwin = RootWindow(X_Dpy, sc->which);
+	sc->colormap = DefaultColormap(X_Dpy, sc->which);
+	sc->visual = DefaultVisual(X_Dpy, sc->which);
 	sc->cycling = 0;
 	sc->hideall = 0;
 

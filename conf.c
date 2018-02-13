@@ -451,8 +451,6 @@ conf_screen(struct screen_ctx *sc)
 {
 	unsigned int	 i;
 	XftColor	 xc;
-	Colormap	 colormap = DefaultColormap(X_Dpy, sc->which);
-	Visual		*visual = DefaultVisual(X_Dpy, sc->which);
 
 	sc->gap = Conf.gap;
 	sc->snapdist = Conf.snapdist;
@@ -469,18 +467,18 @@ conf_screen(struct screen_ctx *sc)
 			xu_xorcolor(sc->xftcolor[CWM_COLOR_MENU_BG],
 			    sc->xftcolor[CWM_COLOR_MENU_FG], &xc);
 			xu_xorcolor(sc->xftcolor[CWM_COLOR_MENU_FONT], xc, &xc);
-			if (!XftColorAllocValue(X_Dpy, visual, colormap,
+			if (!XftColorAllocValue(X_Dpy, sc->visual, sc->colormap,
 			    &xc.color, &sc->xftcolor[CWM_COLOR_MENU_FONT_SEL]))
 				warnx("XftColorAllocValue: %s", Conf.color[i]);
 			break;
 		}
-		if (XftColorAllocName(X_Dpy, visual, colormap,
+		if (XftColorAllocName(X_Dpy, sc->visual, sc->colormap,
 		    Conf.color[i], &xc)) {
 			sc->xftcolor[i] = xc;
-			XftColorFree(X_Dpy, visual, colormap, &xc);
+			XftColorFree(X_Dpy, sc->visual, sc->colormap, &xc);
 		} else {
 			warnx("XftColorAllocName: %s", Conf.color[i]);
-			XftColorAllocName(X_Dpy, visual, colormap,
+			XftColorAllocName(X_Dpy, sc->visual, sc->colormap,
 			    color_binds[i], &sc->xftcolor[i]);
 		}
 	}
@@ -490,7 +488,8 @@ conf_screen(struct screen_ctx *sc)
 	    sc->xftcolor[CWM_COLOR_MENU_FG].pixel,
 	    sc->xftcolor[CWM_COLOR_MENU_BG].pixel);
 
-	sc->menu.xftdraw = XftDrawCreate(X_Dpy, sc->menu.win, visual, colormap);
+	sc->menu.xftdraw = XftDrawCreate(X_Dpy, sc->menu.win,
+	    sc->visual, sc->colormap);
 	if (sc->menu.xftdraw == NULL)
 		errx(1, "%s: XftDrawCreate", __func__);
 
