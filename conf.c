@@ -25,6 +25,7 @@
 #include <err.h>
 #include <errno.h>
 #include <limits.h>
+#include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -248,6 +249,8 @@ mouse_binds[] = {
 void
 conf_init(struct conf *c)
 {
+	const char	*home;
+	struct passwd	*pw;
 	unsigned int	i;
 
 	c->stickygroups = 0;
@@ -258,11 +261,11 @@ conf_init(struct conf *c)
 	c->nameqlen = 5;
 
 	TAILQ_INIT(&c->ignoreq);
+	TAILQ_INIT(&c->autogroupq);
+	TAILQ_INIT(&c->keybindq);
+	TAILQ_INIT(&c->mousebindq);
 	TAILQ_INIT(&c->cmdq);
 	TAILQ_INIT(&c->wmq);
-	TAILQ_INIT(&c->keybindq);
-	TAILQ_INIT(&c->autogroupq);
-	TAILQ_INIT(&c->mousebindq);
 
 	for (i = 0; i < nitems(key_binds); i++)
 		conf_bind_key(c, key_binds[i].key, key_binds[i].func);
@@ -275,13 +278,21 @@ conf_init(struct conf *c)
 
 	conf_cmd_add(c, "lock", "xlock");
 	conf_cmd_add(c, "term", "xterm");
-
 	conf_wm_add(c, "cwm", "cwm");
-
-	xasprintf(&c->known_hosts, "%s/%s", c->homedir, ".ssh/known_hosts");
 
 	c->font = xstrdup("sans-serif:pixelsize=14:bold");
 	c->wmname = xstrdup("CWM");
+
+	home = getenv("HOME");
+	if ((home == NULL) || (*home == '\0')) {
+		pw = getpwuid(getuid());
+		if (pw != NULL && pw->pw_dir != NULL && *pw->pw_dir != '\0')
+			home = pw->pw_dir;
+		else
+			home = "/";
+	}
+	xasprintf(&c->conf_file, "%s/%s", home, ".cwmrc");
+	xasprintf(&c->known_hosts, "%s/%s", home, ".ssh/known_hosts");
 }
 
 void
@@ -327,6 +338,7 @@ conf_clear(struct conf *c)
 	for (i = 0; i < CWM_COLOR_NITEMS; i++)
 		free(c->color[i]);
 
+	free(c->conf_file);
 	free(c->known_hosts);
 	free(c->font);
 	free(c->wmname);
@@ -439,8 +451,6 @@ conf_screen(struct screen_ctx *sc)
 {
 	unsigned int	 i;
 	XftColor	 xc;
-	Colormap	 colormap = DefaultColormap(X_Dpy, sc->which);
-	Visual		*visual = DefaultVisual(X_Dpy, sc->which);
 
 	sc->gap = Conf.gap;
 	sc->snapdist = Conf.snapdist;
@@ -457,18 +467,18 @@ conf_screen(struct screen_ctx *sc)
 			xu_xorcolor(sc->xftcolor[CWM_COLOR_MENU_BG],
 			    sc->xftcolor[CWM_COLOR_MENU_FG], &xc);
 			xu_xorcolor(sc->xftcolor[CWM_COLOR_MENU_FONT], xc, &xc);
-			if (!XftColorAllocValue(X_Dpy, visual, colormap,
+			if (!XftColorAllocValue(X_Dpy, sc->visual, sc->colormap,
 			    &xc.color, &sc->xftcolor[CWM_COLOR_MENU_FONT_SEL]))
 				warnx("XftColorAllocValue: %s", Conf.color[i]);
 			break;
 		}
-		if (XftColorAllocName(X_Dpy, visual, colormap,
+		if (XftColorAllocName(X_Dpy, sc->visual, sc->colormap,
 		    Conf.color[i], &xc)) {
 			sc->xftcolor[i] = xc;
-			XftColorFree(X_Dpy, visual, colormap, &xc);
+			XftColorFree(X_Dpy, sc->visual, sc->colormap, &xc);
 		} else {
 			warnx("XftColorAllocName: %s", Conf.color[i]);
-			XftColorAllocName(X_Dpy, visual, colormap,
+			XftColorAllocName(X_Dpy, sc->visual, sc->colormap,
 			    color_binds[i], &sc->xftcolor[i]);
 		}
 	}
@@ -478,7 +488,8 @@ conf_screen(struct screen_ctx *sc)
 	    sc->xftcolor[CWM_COLOR_MENU_FG].pixel,
 	    sc->xftcolor[CWM_COLOR_MENU_BG].pixel);
 
-	sc->menu.xftdraw = XftDrawCreate(X_Dpy, sc->menu.win, visual, colormap);
+	sc->menu.xftdraw = XftDrawCreate(X_Dpy, sc->menu.win,
+	    sc->visual, sc->colormap);
 	if (sc->menu.xftdraw == NULL)
 		errx(1, "%s: XftDrawCreate", __func__);
 
@@ -703,7 +714,6 @@ static char *ewmhints[] = {
 	"_NET_WM_STATE_SKIP_TASKBAR",
 	"_CWM_WM_STATE_FREEZE",
 };
-
 void
 conf_atoms(void)
 {

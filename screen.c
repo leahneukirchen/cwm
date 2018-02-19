@@ -31,6 +31,8 @@
 
 #include "calmwm.h"
 
+static struct geom screen_apply_gap(struct screen_ctx *, struct geom);
+
 void
 screen_init(int which)
 {
@@ -48,6 +50,8 @@ screen_init(int which)
 
 	sc->which = which;
 	sc->rootwin = RootWindow(X_Dpy, sc->which);
+	sc->colormap = DefaultColormap(X_Dpy, sc->which);
+	sc->visual = DefaultVisual(X_Dpy, sc->which);
 	sc->cycling = 0;
 	sc->hideall = 0;
 
@@ -144,12 +148,12 @@ struct geom
 screen_area(struct screen_ctx *sc, int x, int y, enum apply_gap apply_gap)
 {
 	struct region_ctx	*rc;
-	struct geom		 area = sc->work;
+	struct geom		 area = sc->view;
 
 	TAILQ_FOREACH(rc, &sc->regionq, entry) {
-		if ((x >= rc->area.x) && (x < (rc->area.x + rc->area.w)) &&
-		    (y >= rc->area.y) && (y < (rc->area.y + rc->area.h))) {
-			area = rc->area;
+		if ((x >= rc->view.x) && (x < (rc->view.x + rc->view.w)) &&
+		    (y >= rc->view.y) && (y < (rc->view.y + rc->view.h))) {
+			area = rc->view;
 			break;
 		}
 	}
@@ -191,10 +195,6 @@ screen_update_geometry(struct screen_ctx *sc)
 
 			rc = xmalloc(sizeof(*rc));
 			rc->num = i;
-			rc->area.x = ci->x;
-			rc->area.y = ci->y;
-			rc->area.w = ci->width;
-			rc->area.h = ci->height;
 			rc->view.x = ci->x;
 			rc->view.y = ci->y;
 			rc->view.w = ci->width;
@@ -220,7 +220,7 @@ screen_update_geometry(struct screen_ctx *sc)
 	xu_ewmh_net_workarea(sc);
 }
 
-struct geom
+static struct geom
 screen_apply_gap(struct screen_ctx *sc, struct geom geom)
 {
 	geom.x += sc->gap.left;

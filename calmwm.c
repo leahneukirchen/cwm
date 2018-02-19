@@ -28,7 +28,6 @@
 #include <limits.h>
 #include <locale.h>
 #include <poll.h>
-#include <pwd.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -54,23 +53,24 @@ static int	x_wmerrorhandler(Display *, XErrorEvent *);
 int
 main(int argc, char **argv)
 {
-	const char	*conf_file = NULL;
-	char		*conf_path, *display_name = NULL;
+	char		*display_name = NULL;
 	char		*fallback;
 	int		 ch, xfd;
 	struct pollfd	 pfd[1];
-	struct passwd	*pw;
 
 	if (!setlocale(LC_CTYPE, "") || !XSupportsLocale())
 		warnx("no locale support");
 	mbtowc(NULL, NULL, MB_CUR_MAX);
+
+	conf_init(&Conf);
 
 	fallback = u_argv(argv);
 	Conf.wm_argv = u_argv(argv);
 	while ((ch = getopt(argc, argv, "c:d:v")) != -1) {
 		switch (ch) {
 		case 'c':
-			conf_file = optarg;
+			free(Conf.conf_file);
+			Conf.conf_file = xstrdup(optarg);
 			break;
 		case 'd':
 			display_name = optarg;
@@ -90,32 +90,8 @@ main(int argc, char **argv)
 	if (signal(SIGHUP, sighdlr) == SIG_ERR)
 		err(1, "signal");
 
-	Conf.homedir = getenv("HOME");
-	if ((Conf.homedir == NULL) || (Conf.homedir[0] == '\0')) {
-		pw = getpwuid(getuid());
-		if (pw != NULL && pw->pw_dir != NULL && *pw->pw_dir != '\0')
-			Conf.homedir = pw->pw_dir;
-		else
-			Conf.homedir = "/";
-	}
-
-	if (conf_file == NULL)
-		xasprintf(&conf_path, "%s/%s", Conf.homedir, CONFFILE);
-	else
-		conf_path = xstrdup(conf_file);
-
-	if (access(conf_path, R_OK) != 0) {
-		if (conf_file != NULL)
-			warn("%s", conf_file);
-		free(conf_path);
-		conf_path = NULL;
-	}
-
-	conf_init(&Conf);
-
-	if (conf_path && (parse_config(conf_path, &Conf) == -1))
-		warnx("config file %s has errors", conf_path);
-	free(conf_path);
+	if (parse_config(Conf.conf_file, &Conf) == -1)
+		warnx("error parsing config file");
 
 	xfd = x_init(display_name);
 	cwm_status = CWM_RUNNING;
@@ -138,7 +114,7 @@ main(int argc, char **argv)
 	x_teardown();
 	if (cwm_status == CWM_EXEC_WM) {
 		u_exec(Conf.wm_argv);
-		warnx("'%s' failed to start, restarting fallback", Conf.wm_argv);
+		warnx("'%s' failed to start, starting fallback", Conf.wm_argv);
 		u_exec(fallback);
 	}
 
@@ -200,7 +176,6 @@ static int
 x_wmerrorhandler(Display *dpy, XErrorEvent *e)
 {
 	errx(1, "root window unavailable - perhaps another wm is running?");
-
 	return(0);
 }
 

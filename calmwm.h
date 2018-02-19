@@ -66,8 +66,6 @@ size_t strlcpy(char *, const char *, size_t);
 #define nitems(_a) (sizeof((_a)) / sizeof((_a)[0]))
 #endif
 
-#define	CONFFILE	".cwmrc"
-
 #define BUTTONMASK	(ButtonPressMask | ButtonReleaseMask)
 #define MOUSEMASK	(BUTTONMASK | PointerMotionMask)
 #define MENUMASK 	(MOUSEMASK | ButtonMotionMask | KeyPressMask | \
@@ -227,7 +225,6 @@ TAILQ_HEAD(autogroup_q, autogroup);
 struct region_ctx {
 	TAILQ_ENTRY(region_ctx)	 entry;
 	int			 num;
-	struct geom		 area;
 	struct geom		 view; /* viewable area */
 	struct geom		 work; /* workable area, gap-applied */
 };
@@ -247,6 +244,8 @@ struct screen_ctx {
 	struct region_q		 regionq;
 	struct group_q		 groupq;
 	struct group_ctx	*group_active;
+	Colormap		 colormap;
+	Visual			*visual;
 	struct {
 		Window		 win;
 		XftDraw		*xftdraw;
@@ -329,10 +328,10 @@ struct conf {
 	Cursor			 cursor[CF_NITEMS];
 	int			 xrandr;
 	int			 xrandr_event_base;
-	char			*homedir;
+	char			*conf_file;
 	char			*known_hosts;
 	char			*wm_argv;
-	u_int32_t		 debug;
+	int			 debug;
 };
 
 /* MWM hints */
@@ -499,7 +498,6 @@ void			 search_print_text(struct menu *, int);
 void			 search_print_wm(struct menu *, int);
 
 struct region_ctx	*region_find(struct screen_ctx *, int, int);
-struct geom		 screen_apply_gap(struct screen_ctx *, struct geom);
 struct screen_ctx	*screen_find(Window);
 struct geom		 screen_area(struct screen_ctx *, int, int,
 			     enum apply_gap);
