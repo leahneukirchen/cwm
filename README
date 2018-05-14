@@ -107,6 +107,14 @@ Changes made between OpenBSD 5.8 and 5.9
 
 2017-10-17: Fourth public release 6.2 of portable cwm.
 
+Changes made between OpenBSD 6.2 and 6.3
+* Fix blocking bug during moving or resizing.
+* window-snap-* commands to move windows to edges and corners.
+* Add support for _NET_WM_STATE_SKIP_PAGER and _NET_WM_STATE_SKIP_TASKBAR.
+* Add support for re-exec'ing with SIGHUP.
+
+2018-05-14: Fifth public release 6.3 of portable cwm.
+
 --Leah Neukirchen <leah@vuxu.org>
 
 [0]: http://cvsweb.openbsd.org/cgi-bin/cvsweb/xenocara/app/cwm/
