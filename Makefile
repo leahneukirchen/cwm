@@ -14,11 +14,11 @@ OBJS=		calmwm.o screen.o xmalloc.o client.o menu.o \
 		kbfunc.o strlcpy.o strlcat.o y.tab.o \
 		strtonum.o reallocarray.o
 
-CPPFLAGS+=	`pkg-config --cflags fontconfig x11 xft xrandr`
+CPPFLAGS+=	`pkg-config --cflags x11 xft xrandr`
 
 CFLAGS?=	-Wall -O2 -g -D_GNU_SOURCE
 
-LDFLAGS+=	`pkg-config --libs fontconfig x11 xft xrandr`
+LDFLAGS+=	`pkg-config --libs x11 xft xrandr`
 
 MANPREFIX?=	${PREFIX}/share/man
 
