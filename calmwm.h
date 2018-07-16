@@ -408,7 +408,6 @@ void			 client_getsizehints(struct client_ctx *);
 void			 client_hide(struct client_ctx *);
 void 			 client_htile(struct client_ctx *);
 void			 client_lower(struct client_ctx *);
-void			 client_map(struct client_ctx *);
 void			 client_msg(struct client_ctx *, Atom, Time);
 void			 client_move(struct client_ctx *);
 void			 client_mtf(struct client_ctx *);
