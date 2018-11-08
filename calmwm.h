@@ -130,6 +130,7 @@ struct client_ctx {
 	Window			 win;
 	Colormap		 colormap;
 	int			 bwidth; /* border width */
+	int			 obwidth; /* original border width */
 	struct geom		 geom, savegeom, fullgeom;
 	struct {
 		long		 flags;	/* defined hints */

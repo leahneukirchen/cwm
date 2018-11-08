@@ -96,6 +96,7 @@ client_init(Window win, struct screen_ctx *sc, int active)
 	cc->ptr.y = cc->geom.h / 2;
 
 	cc->colormap = wattr.colormap;
+	cc->obwidth = wattr.border_width;
 
 	if (wattr.map_state != IsViewable) {
 		client_placecalc(cc);
@@ -760,6 +761,12 @@ client_placecalc(struct client_ctx *cc)
 			cc->geom.x = sc->view.h - cc->bwidth - 1;
 		if (cc->geom.y + cc->geom.h + cc->bwidth <= 0)
 			cc->geom.y = -(cc->geom.h + cc->bwidth - 1);
+		if (cc->flags & CLIENT_IGNORE) {
+			if (((cc->obwidth * 2) + cc->geom.x + cc->geom.w) == sc->view.w)
+				cc->geom.x += cc->obwidth * 2;
+			if (((cc->obwidth * 2) + cc->geom.y + cc->geom.h) == sc->view.h)
+				cc->geom.y += cc->obwidth * 2;
+		}
 	} else {
 		struct geom		 area;
 		int			 xmouse, ymouse;
