@@ -434,16 +434,13 @@ void
 conf_client(struct client_ctx *cc)
 {
 	struct winname	*wn;
-	int		 ignore = 0;
 
 	TAILQ_FOREACH(wn, &Conf.ignoreq, entry) {
 		if (strncasecmp(wn->name, cc->name, strlen(wn->name)) == 0) {
-			ignore = 1;
+			cc->flags |= CLIENT_IGNORE;
 			break;
 		}
 	}
-	cc->bwidth = (ignore) ? 0 : Conf.bwidth;
-	cc->flags |= (ignore) ? CLIENT_IGNORE : 0;
 }
 
 void

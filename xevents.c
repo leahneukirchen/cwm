@@ -198,6 +198,9 @@ xev_handle_propertynotify(XEvent *ee)
 			break;
 		case XA_WM_TRANSIENT_FOR:
 			client_transient(cc);
+			client_draw_border(cc);
+			if (cc->gc)
+				group_movetogroup(cc, cc->gc->num);
 			break;
 		default:
 			/* do nothing */
