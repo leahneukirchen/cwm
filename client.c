@@ -62,10 +62,9 @@ client_init(Window win, struct screen_ctx *sc, int active)
 		mapped = wattr.map_state != IsUnmapped;
 	}
 
-	cc = xmalloc(sizeof(*cc));
-
 	XGrabServer(X_Dpy);
 
+	cc = xmalloc(sizeof(*cc));
 	cc->sc = sc;
 	cc->win = win;
 	cc->label = NULL;
@@ -74,28 +73,32 @@ client_init(Window win, struct screen_ctx *sc, int active)
 	cc->stackingorder = 0;
 	memset(&cc->hint, 0, sizeof(cc->hint));
 	memset(&cc->ch, 0, sizeof(cc->ch));
-
 	TAILQ_INIT(&cc->nameq);
-	client_setname(cc);
 
+	cc->geom.x = wattr.x;
+	cc->geom.y = wattr.y;
+	cc->geom.w = wattr.width;
+	cc->geom.h = wattr.height;
+	cc->colormap = wattr.colormap;
+	cc->obwidth = wattr.border_width;
+	cc->bwidth = Conf.bwidth;
+
+	client_setname(cc);
 	conf_client(cc);
 
 	XGetClassHint(X_Dpy, cc->win, &cc->ch);
 	client_wm_hints(cc);
 	client_wm_protocols(cc);
 	client_getsizehints(cc);
+	client_transient(cc);
 	client_mwm_hints(cc);
 
-	cc->geom.x = wattr.x;
-	cc->geom.y = wattr.y;
-	cc->geom.w = wattr.width;
-	cc->geom.h = wattr.height;
+	if ((cc->flags & CLIENT_IGNORE))
+		cc->bwidth = 0;
 	cc->dim.w = (cc->geom.w - cc->hint.basew) / cc->hint.incw;
 	cc->dim.h = (cc->geom.h - cc->hint.baseh) / cc->hint.inch;
 	cc->ptr.x = cc->geom.w / 2;
 	cc->ptr.y = cc->geom.h / 2;
-
-	cc->colormap = wattr.colormap;
 
 	if (wattr.map_state != IsViewable) {
 		client_placecalc(cc);
@@ -113,8 +116,6 @@ client_init(Window win, struct screen_ctx *sc, int active)
 
 	XAddToSaveSet(X_Dpy, cc->win);
 
-	client_transient(cc);
-
 	/* Notify client of its configuration. */
 	client_config(cc);
 
@@ -130,6 +131,10 @@ client_init(Window win, struct screen_ctx *sc, int active)
 		client_unhide(cc);
 
 	if (mapped) {
+		if (cc->gc) {
+			group_movetogroup(cc, cc->gc->num);
+			goto out;
+		}
 		if (group_restore(cc))
 			goto out;
 		if (group_autogroup(cc))
@@ -760,6 +765,12 @@ client_placecalc(struct client_ctx *cc)
 			cc->geom.x = sc->view.h - cc->bwidth - 1;
 		if (cc->geom.y + cc->geom.h + cc->bwidth <= 0)
 			cc->geom.y = -(cc->geom.h + cc->bwidth - 1);
+		if (cc->flags & CLIENT_IGNORE) {
+			if (((cc->obwidth * 2) + cc->geom.x + cc->geom.w) == sc->view.w)
+				cc->geom.x += cc->obwidth * 2;
+			if (((cc->obwidth * 2) + cc->geom.y + cc->geom.h) == sc->view.h)
+				cc->geom.y += cc->obwidth * 2;
+		}
 	} else {
 		struct geom		 area;
 		int			 xmouse, ymouse;
@@ -919,10 +930,11 @@ client_transient(struct client_ctx *cc)
 	Window			 trans;
 
 	if (XGetTransientForHint(X_Dpy, cc->win, &trans)) {
-		if ((tc = client_find(trans)) != NULL && tc->gc) {
-			group_movetogroup(cc, tc->gc->num);
-			if (tc->flags & CLIENT_IGNORE)
+		if ((tc = client_find(trans)) != NULL) {
+			if (tc->flags & CLIENT_IGNORE) {
 				cc->flags |= CLIENT_IGNORE;
+				cc->bwidth = tc->bwidth;
+			}
 		}
 	}
 }

@@ -159,6 +159,7 @@ out:
 		mi = NULL;
 	}
 
+	XSelectInput(X_Dpy, sc->menu.win, NoEventMask);
 	XSetInputFocus(X_Dpy, focuswin, focusrevert, CurrentTime);
 	/* restore if user didn't move */
 	xu_ptr_getpos(sc->rootwin, &xcur, &ycur);
