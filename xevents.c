@@ -102,7 +102,7 @@ xev_handle_unmapnotify(XEvent *ee)
 			client_set_wm_state(cc, WithdrawnState);
 		} else {
 			if (!(cc->flags & CLIENT_HIDDEN))
-				client_delete(cc);
+				client_remove(cc);
 		}
 	}
 }
@@ -116,7 +116,7 @@ xev_handle_destroynotify(XEvent *ee)
 	LOG_DEBUG3("window: 0x%lx", e->window);
 
 	if ((cc = client_find(e->window)) != NULL)
-		client_delete(cc);
+		client_remove(cc);
 }
 
 static void
@@ -389,7 +389,7 @@ xev_handle_clientmessage(XEvent *ee)
 		}
 	} else if (e->message_type == ewmh[_NET_CLOSE_WINDOW]) {
 		if ((cc = client_find(e->window)) != NULL) {
-			client_send_delete(cc);
+			client_close(cc);
 		}
 	} else if (e->message_type == ewmh[_NET_ACTIVE_WINDOW]) {
 		if ((cc = client_find(e->window)) != NULL) {

@@ -324,9 +324,9 @@ kbfunc_client_snap(void *ctx, struct cargs *cargs)
 }
 
 void
-kbfunc_client_delete(void *ctx, struct cargs *cargs)
+kbfunc_client_close(void *ctx, struct cargs *cargs)
 {
-	client_send_delete(ctx);
+	client_close(ctx);
 }
 
 void

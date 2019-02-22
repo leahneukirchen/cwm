@@ -170,7 +170,7 @@ client_find(Window win)
 }
 
 void
-client_delete(struct client_ctx *cc)
+client_remove(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
 	struct winname		*wn;
@@ -636,7 +636,7 @@ client_msg(struct client_ctx *cc, Atom proto, Time ts)
 }
 
 void
-client_send_delete(struct client_ctx *cc)
+client_close(struct client_ctx *cc)
 {
 	if (cc->flags & CLIENT_WM_DELETE_WINDOW)
 		client_msg(cc, cwmh[WM_DELETE_WINDOW], CurrentTime);
