@@ -1052,12 +1052,11 @@ client_vtile(struct client_ctx *cc)
 
 	if (!gc)
 		return;
+	i = n = 0;
 
 	area = screen_area(sc,
 	    cc->geom.x + cc->geom.w / 2,
 	    cc->geom.y + cc->geom.h / 2, CWM_GAP);
-
-	i = n = 0;
 
 	TAILQ_FOREACH(ci, &gc->clientq, group_entry) {
 		if (ci->flags & CLIENT_HIDDEN ||
