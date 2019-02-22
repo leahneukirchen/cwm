@@ -986,18 +986,22 @@ client_htile(struct client_ctx *cc)
 		return;
 	i = n = 0;
 
+	area = screen_area(sc,
+	    cc->geom.x + cc->geom.w / 2,
+	    cc->geom.y + cc->geom.h / 2, CWM_GAP);
+
 	TAILQ_FOREACH(ci, &gc->clientq, group_entry) {
 		if (ci->flags & CLIENT_HIDDEN ||
-		    ci->flags & CLIENT_IGNORE || (ci == cc))
+		    ci->flags & CLIENT_IGNORE || (ci == cc) ||
+		    ci->geom.x < area.x ||
+		    ci->geom.x > (area.x + area.w) ||
+		    ci->geom.y < area.y ||
+		    ci->geom.y > (area.y + area.h))
 			continue;
 		n++;
 	}
 	if (n == 0)
 		return;
-
-	area = screen_area(sc,
-	    cc->geom.x + cc->geom.w / 2,
-	    cc->geom.y + cc->geom.h / 2, CWM_GAP);
 
 	if (cc->flags & CLIENT_VMAXIMIZED ||
 	    cc->geom.h + (cc->bwidth * 2) >= area.h)
@@ -1017,7 +1021,11 @@ client_htile(struct client_ctx *cc)
 	h = area.h - mh;
 	TAILQ_FOREACH(ci, &gc->clientq, group_entry) {
 		if (ci->flags & CLIENT_HIDDEN ||
-		    ci->flags & CLIENT_IGNORE || (ci == cc))
+		    ci->flags & CLIENT_IGNORE || (ci == cc) ||
+		    ci->geom.x < area.x ||
+		    ci->geom.x > (area.x + area.w) ||
+		    ci->geom.y < area.y ||
+		    ci->geom.y > (area.y + area.h))
 			continue;
 		ci->bwidth = Conf.bwidth;
 		ci->geom.x = x;
@@ -1044,20 +1052,25 @@ client_vtile(struct client_ctx *cc)
 
 	if (!gc)
 		return;
+
+	area = screen_area(sc,
+	    cc->geom.x + cc->geom.w / 2,
+	    cc->geom.y + cc->geom.h / 2, CWM_GAP);
+
 	i = n = 0;
 
 	TAILQ_FOREACH(ci, &gc->clientq, group_entry) {
 		if (ci->flags & CLIENT_HIDDEN ||
-		    ci->flags & CLIENT_IGNORE || (ci == cc))
+		    ci->flags & CLIENT_IGNORE || (ci == cc) ||
+		    ci->geom.x < area.x ||
+		    ci->geom.x > (area.x + area.w) ||
+		    ci->geom.y < area.y ||
+		    ci->geom.y > (area.y + area.h))
 			continue;
 		n++;
 	}
 	if (n == 0)
 		return;
-
-	area = screen_area(sc,
-	    cc->geom.x + cc->geom.w / 2,
-	    cc->geom.y + cc->geom.h / 2, CWM_GAP);
 
 	if (cc->flags & CLIENT_HMAXIMIZED ||
 	    cc->geom.w + (cc->bwidth * 2) >= area.w)
@@ -1077,7 +1090,11 @@ client_vtile(struct client_ctx *cc)
 	w = area.w - mw;
 	TAILQ_FOREACH(ci, &gc->clientq, group_entry) {
 		if (ci->flags & CLIENT_HIDDEN ||
-		    ci->flags & CLIENT_IGNORE || (ci == cc))
+		    ci->flags & CLIENT_IGNORE || (ci == cc) ||
+		    ci->geom.x < area.x ||
+		    ci->geom.x > (area.x + area.w) ||
+		    ci->geom.y < area.y ||
+		    ci->geom.y > (area.y + area.h))
 			continue;
 		ci->bwidth = Conf.bwidth;
 		ci->geom.x = area.x + mw;
