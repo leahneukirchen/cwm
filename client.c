@@ -754,7 +754,6 @@ static void
 client_placecalc(struct client_ctx *cc)
 {
 	struct screen_ctx	*sc = cc->sc;
-	int			 xslack, yslack;
 
 	if (cc->hint.flags & (USPosition | PPosition)) {
 		if (cc->geom.x >= sc->view.w)
@@ -772,33 +771,29 @@ client_placecalc(struct client_ctx *cc)
 				cc->geom.y += cc->obwidth * 2;
 		}
 	} else {
-		struct geom		 area;
-		int			 xmouse, ymouse;
+		struct geom	 area;
+		int		 xmouse, ymouse, xslack, yslack;
 
 		xu_ptr_getpos(sc->rootwin, &xmouse, &ymouse);
 		area = screen_area(sc, xmouse, ymouse, CWM_GAP);
-		area.w += area.x;
-		area.h += area.y;
-		xmouse = MAX(xmouse, area.x) - cc->geom.w / 2;
-		ymouse = MAX(ymouse, area.y) - cc->geom.h / 2;
 
-		xmouse = MAX(xmouse, area.x);
-		ymouse = MAX(ymouse, area.y);
+		xmouse = MAX(MAX(xmouse, area.x) - cc->geom.w / 2, area.x);
+		ymouse = MAX(MAX(ymouse, area.y) - cc->geom.h / 2, area.y);
 
-		xslack = area.w - cc->geom.w - cc->bwidth * 2;
-		yslack = area.h - cc->geom.h - cc->bwidth * 2;
+		xslack = area.x + area.w - cc->geom.w - cc->bwidth * 2;
+		yslack = area.y + area.h - cc->geom.h - cc->bwidth * 2;
 
 		if (xslack >= area.x) {
 			cc->geom.x = MAX(MIN(xmouse, xslack), area.x);
 		} else {
 			cc->geom.x = area.x;
-			cc->geom.w = area.w;
+			cc->geom.w = area.x + area.w;
 		}
 		if (yslack >= area.y) {
 			cc->geom.y = MAX(MIN(ymouse, yslack), area.y);
 		} else {
 			cc->geom.y = area.y;
-			cc->geom.h = area.h;
+			cc->geom.h = area.y + area.h;
 		}
 	}
 }
