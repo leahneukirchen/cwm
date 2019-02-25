@@ -441,6 +441,12 @@ kbfunc_group_only(void *ctx, struct cargs *cargs)
 }
 
 void
+kbfunc_group_close(void *ctx, struct cargs *cargs)
+{
+	group_close(ctx, cargs->flag);
+}
+
+void
 kbfunc_group_cycle(void *ctx, struct cargs *cargs)
 {
 	group_cycle(ctx, cargs->flag);

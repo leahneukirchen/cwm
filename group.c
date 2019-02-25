@@ -250,6 +250,23 @@ group_only(struct screen_ctx *sc, int idx)
 }
 
 void
+group_close(struct screen_ctx *sc, int idx)
+{
+	struct group_ctx	*gc;
+	struct client_ctx	*cc;
+
+	if (idx < 0 || idx >= Conf.ngroups)
+		return;
+
+	TAILQ_FOREACH(gc, &sc->groupq, entry) {
+		if (gc->num == idx) {
+			TAILQ_FOREACH(cc, &gc->clientq, group_entry)
+				client_close(cc);
+		}
+	}
+}
+
+void
 group_cycle(struct screen_ctx *sc, int flags)
 {
 	struct group_ctx	*newgc, *oldgc, *showgroup = NULL;
