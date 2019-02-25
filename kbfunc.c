@@ -23,6 +23,7 @@
 
 #include <sys/types.h>
 #include "queue.h"
+#include <sys/stat.h>
 
 #include <dirent.h>
 #include <err.h>
@@ -326,9 +327,9 @@ kbfunc_client_snap(void *ctx, struct cargs *cargs)
 }
 
 void
-kbfunc_client_delete(void *ctx, struct cargs *cargs)
+kbfunc_client_close(void *ctx, struct cargs *cargs)
 {
-	client_send_delete(ctx);
+	client_close(ctx);
 }
 
 void
@@ -440,6 +441,12 @@ void
 kbfunc_group_only(void *ctx, struct cargs *cargs)
 {
 	group_only(ctx, cargs->flag);
+}
+
+void
+kbfunc_group_close(void *ctx, struct cargs *cargs)
+{
+	group_close(ctx, cargs->flag);
 }
 
 void
