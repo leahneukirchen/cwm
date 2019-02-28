@@ -128,7 +128,7 @@ client_init(Window win, struct screen_ctx *sc, int active)
 	if (client_get_wm_state(cc) == IconicState)
 		client_hide(cc);
 	else
-		client_unhide(cc);
+		client_show(cc);
 
 	if (mapped) {
 		if (cc->gc) {
@@ -527,25 +527,16 @@ client_hide(struct client_ctx *cc)
 {
 	XUnmapWindow(X_Dpy, cc->win);
 
-	if (cc->flags & CLIENT_ACTIVE)
+	if (cc->flags & CLIENT_ACTIVE) {
+		cc->flags &= ~CLIENT_ACTIVE;
 		xu_ewmh_net_active_window(cc->sc, None);
-
-	cc->flags &= ~CLIENT_ACTIVE;
+	}
 	cc->flags |= CLIENT_HIDDEN;
 	client_set_wm_state(cc, IconicState);
 }
 
 void
 client_show(struct client_ctx *cc)
-{
-	if (cc->flags & CLIENT_HIDDEN)
-		client_unhide(cc);
-	else
-		client_raise(cc);
-}
-
-void
-client_unhide(struct client_ctx *cc)
 {
 	XMapRaised(X_Dpy, cc->win);
 

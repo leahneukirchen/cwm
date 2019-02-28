@@ -67,7 +67,8 @@ group_hide(struct group_ctx *gc)
 	screen_updatestackingorder(gc->sc);
 
 	TAILQ_FOREACH(cc, &gc->clientq, group_entry) {
-		if (!(cc->flags & CLIENT_STICKY))
+		if (!(cc->flags & CLIENT_STICKY) &&
+		    !(cc->flags & CLIENT_HIDDEN))
 			client_hide(cc);
 	}
 }
@@ -78,8 +79,9 @@ group_show(struct group_ctx *gc)
 	struct client_ctx	*cc;
 
 	TAILQ_FOREACH(cc, &gc->clientq, group_entry) {
-		if (!(cc->flags & CLIENT_STICKY))
-			client_unhide(cc);
+		if (!(cc->flags & CLIENT_STICKY) &&
+		     (cc->flags & CLIENT_HIDDEN))
+			client_show(cc);
 	}
 
 	group_restack(gc);

@@ -435,7 +435,6 @@ void			 client_toggle_skip_taskbar(struct client_ctx *);
 void			 client_toggle_sticky(struct client_ctx *);
 void			 client_toggle_vmaximize(struct client_ctx *);
 void			 client_transient(struct client_ctx *);
-void			 client_unhide(struct client_ctx *);
 void			 client_urgency(struct client_ctx *);
 void 			 client_vtile(struct client_ctx *);
 void			 client_wm_hints(struct client_ctx *);
