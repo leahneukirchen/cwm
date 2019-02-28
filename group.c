@@ -160,15 +160,14 @@ group_movetogroup(struct client_ctx *cc, int idx)
 		return;
 
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
-		if (gc->num == idx)
-			break;
+		if (gc->num == idx) {
+			if (cc->gc == gc)
+				return;
+			if (gc->num != 0 && group_holds_only_hidden(gc))
+				client_hide(cc);
+			group_assign(gc, cc);
+		}
 	}
-
-	if (cc->gc == gc)
-		return;
-	if (gc->num != 0 && group_holds_only_hidden(gc))
-		client_hide(cc);
-	group_assign(gc, cc);
 }
 
 void
@@ -221,17 +220,16 @@ group_hidetoggle(struct screen_ctx *sc, int idx)
 		return;
 
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
-		if (gc->num == idx)
-			break;
-	}
-
-	if (group_holds_only_hidden(gc))
-		group_show(gc);
-	else {
-		group_hide(gc);
-		/* make clients stick to empty group */
-		if (TAILQ_EMPTY(&gc->clientq))
-			group_setactive(gc);
+		if (gc->num == idx) {
+			if (group_holds_only_hidden(gc))
+				group_show(gc);
+			else {
+				group_hide(gc);
+				/* make clients stick to empty group */
+				if (TAILQ_EMPTY(&gc->clientq))
+					group_setactive(gc);
+			}
+		}
 	}
 }
 
