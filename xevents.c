@@ -408,7 +408,9 @@ xev_handle_clientmessage(XEvent *ee)
 			if (e->data.l[0] == (unsigned long)-1)
 				group_movetogroup(cc, 0);
 			else
-				group_movetogroup(cc, e->data.l[0]);
+				if (e->data.l[0] >= 0 &&
+				    e->data.l[0] < Conf.ngroups)
+					group_movetogroup(cc, e->data.l[0]);
 		}
 	} else if (e->message_type == ewmh[_NET_WM_STATE]) {
 		if ((cc = client_find(e->window)) != NULL) {
@@ -417,7 +419,9 @@ xev_handle_clientmessage(XEvent *ee)
 		}
 	} else if (e->message_type == ewmh[_NET_CURRENT_DESKTOP]) {
 		if ((sc = screen_find(e->window)) != NULL) {
-			group_only(sc, e->data.l[0]);
+			if (e->data.l[0] >= 0 &&
+			    e->data.l[0] < Conf.ngroups)
+				group_only(sc, e->data.l[0]);
 		}
 	}
 }

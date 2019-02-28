@@ -156,9 +156,6 @@ group_movetogroup(struct client_ctx *cc, int idx)
 	struct screen_ctx	*sc = cc->sc;
 	struct group_ctx	*gc;
 
-	if (idx < 0 || idx >= Conf.ngroups)
-		return;
-
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
 		if (gc->num == idx) {
 			if (cc->gc == gc)
@@ -216,9 +213,6 @@ group_hidetoggle(struct screen_ctx *sc, int idx)
 {
 	struct group_ctx	*gc;
 
-	if (idx < 0 || idx >= Conf.ngroups)
-		return;
-
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
 		if (gc->num == idx) {
 			if (group_holds_only_hidden(gc))
@@ -238,9 +232,6 @@ group_only(struct screen_ctx *sc, int idx)
 {
 	struct group_ctx	*gc;
 
-	if (idx < 0 || idx >= Conf.ngroups)
-		return;
-
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
 		if (gc->num == idx)
 			group_show(gc);
@@ -254,9 +245,6 @@ group_close(struct screen_ctx *sc, int idx)
 {
 	struct group_ctx	*gc;
 	struct client_ctx	*cc;
-
-	if (idx < 0 || idx >= Conf.ngroups)
-		return;
 
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
 		if (gc->num == idx) {
