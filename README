@@ -13,8 +13,8 @@ OpenBSD, FreeBSD, NetBSD, OS X 10.9 and Linux.
 This version actively tracks changes in the OpenBSD CVS repository.
 Releases are roughly coordinated.
 
-The revision controlled version is at https://github.com/chneukirchen/cwm
-Releases can be found at http://chneukirchen.org/releases
+The revision controlled version is at https://github.com/leahneukirchen/cwm
+Releases can be found at http://leahneukirchen.org/releases
 
 You are welcome to join the IRC channel ##cwm on Freenode to talk about cwm.
 
