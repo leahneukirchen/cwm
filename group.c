@@ -37,11 +37,6 @@ static struct group_ctx	*group_prev(struct group_ctx *);
 static void		 group_restack(struct group_ctx *);
 static void		 group_setactive(struct group_ctx *);
 
-const char *num_to_name[] = {
-	"nogroup", "one", "two", "three", "four", "five", "six",
-	"seven", "eight", "nine"
-};
-
 void
 group_assign(struct group_ctx *gc, struct client_ctx *cc)
 {
@@ -124,13 +119,13 @@ group_restack(struct group_ctx *gc)
 }
 
 void
-group_init(struct screen_ctx *sc, int num)
+group_init(struct screen_ctx *sc, int num, const char *name)
 {
 	struct group_ctx	*gc;
 
 	gc = xmalloc(sizeof(*gc));
 	gc->sc = sc;
-	gc->name = xstrdup(num_to_name[num]);
+	gc->name = xstrdup(name);
 	gc->num = num;
 	TAILQ_INIT(&gc->clientq);
 

@@ -447,7 +447,7 @@ void			 group_hide(struct group_ctx *);
 void			 group_hidetoggle(struct screen_ctx *, int);
 int			 group_holds_only_hidden(struct group_ctx *);
 int			 group_holds_only_sticky(struct group_ctx *);
-void			 group_init(struct screen_ctx *, int);
+void			 group_init(struct screen_ctx *, int, const char *);
 void			 group_movetogroup(struct client_ctx *, int);
 void			 group_only(struct screen_ctx *, int);
 void			 group_close(struct screen_ctx *, int);
@@ -555,6 +555,7 @@ void			 conf_grab_mouse(Window);
 void			 conf_init(struct conf *);
 void			 conf_ignore(struct conf *, const char *);
 void			 conf_screen(struct screen_ctx *);
+void			 conf_group(struct screen_ctx *);
 
 void			 xev_process(void);
 

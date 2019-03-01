@@ -40,7 +40,6 @@ screen_init(int which)
 	Window			*wins, w0, w1, active = None;
 	XSetWindowAttributes	 rootattr;
 	unsigned int		 nwins, w;
-	int			 i;
 
 	sc = xmalloc(sizeof(*sc));
 
@@ -61,9 +60,7 @@ screen_init(int which)
 	xu_ewmh_net_supported_wm_check(sc);
 
 	screen_update_geometry(sc);
-
-	for (i = 0; i < Conf.ngroups; i++)
-		group_init(sc, i);
+	conf_group(sc);
 
 	xu_ewmh_net_desktop_names(sc);
 	xu_ewmh_net_wm_desktop_viewport(sc);
