@@ -501,16 +501,6 @@ conf_screen(struct screen_ctx *sc)
 		}
 	}
 
-	sc->menu.win = XCreateSimpleWindow(X_Dpy, sc->rootwin, 0, 0, 1, 1,
-	    Conf.bwidth,
-	    sc->xftcolor[CWM_COLOR_MENU_FG].pixel,
-	    sc->xftcolor[CWM_COLOR_MENU_BG].pixel);
-
-	sc->menu.xftdraw = XftDrawCreate(X_Dpy, sc->menu.win,
-	    sc->visual, sc->colormap);
-	if (sc->menu.xftdraw == NULL)
-		errx(1, "%s: XftDrawCreate", __func__);
-
 	conf_grab_kbd(sc->rootwin);
 }
 

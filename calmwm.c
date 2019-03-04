@@ -165,8 +165,6 @@ x_teardown(void)
 			    DefaultColormap(X_Dpy, sc->which),
 			    &sc->xftcolor[i]);
 		XftFontClose(X_Dpy, sc->xftfont);
-		XftDrawDestroy(sc->menu.xftdraw);
-		XDestroyWindow(X_Dpy, sc->menu.win);
 		XUngrabKey(X_Dpy, AnyKey, AnyModifier, sc->rootwin);
 	}
 	XUngrabPointer(X_Dpy, CurrentTime);

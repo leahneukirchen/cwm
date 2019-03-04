@@ -24,6 +24,7 @@
 #include <err.h>
 #include <errno.h>
 #include <limits.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -249,4 +250,48 @@ screen_assert_clients_within(struct screen_ctx *sc)
 			client_move(cc);
 		}
 	}
+}
+
+void
+screen_prop_win_create(struct screen_ctx *sc, Window win)
+{
+	sc->prop.win = XCreateSimpleWindow(X_Dpy, win, 0, 0, 1, 1, 0,
+	    sc->xftcolor[CWM_COLOR_MENU_BG].pixel,
+	    sc->xftcolor[CWM_COLOR_MENU_BG].pixel);
+	sc->prop.xftdraw = XftDrawCreate(X_Dpy, sc->prop.win,
+	    sc->visual, sc->colormap);
+
+	XMapWindow(X_Dpy, sc->prop.win);
+}
+
+void
+screen_prop_win_destroy(struct screen_ctx *sc)
+{
+	XftDrawDestroy(sc->prop.xftdraw);
+	XDestroyWindow(X_Dpy, sc->prop.win);
+}
+
+void
+screen_prop_win_draw(struct screen_ctx *sc, const char *fmt, ...)
+{
+	va_list			 ap;
+	int			 i;
+	char			*text;
+	XGlyphInfo		 extents;
+
+	va_start(ap, fmt);
+	i = vasprintf(&text, fmt, ap);
+	va_end(ap);
+	if (i < 0 || text == NULL)
+		err(1, "vasprintf");
+
+	XftTextExtentsUtf8(X_Dpy, sc->xftfont, (const FcChar8*)text,
+	    strlen(text), &extents);
+	XResizeWindow(X_Dpy, sc->prop.win, extents.xOff, sc->xftfont->height);
+	XClearWindow(X_Dpy, sc->prop.win);
+	XftDrawStringUtf8(sc->prop.xftdraw, &sc->xftcolor[CWM_COLOR_MENU_FONT],
+	    sc->xftfont, 0, sc->xftfont->ascent + 1,
+	    (const FcChar8*)text, strlen(text));
+
+	free(text);
 }

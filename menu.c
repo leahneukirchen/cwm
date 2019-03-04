@@ -37,6 +37,10 @@
 #define PROMPT_SCHAR	"\xc2\xbb"
 #define PROMPT_ECHAR	"\xc2\xab"
 
+#define MENUMASK 	(MOUSEMASK | ButtonMotionMask | KeyPressMask | \
+			 ExposureMask)
+#define MENUGRABMASK	(MOUSEMASK | ButtonMotionMask | StructureNotifyMask)
+
 enum ctltype {
 	CTL_NONE = -1,
 	CTL_ERASEONE = 0, CTL_WIPE, CTL_UP, CTL_DOWN, CTL_RETURN,
@@ -45,6 +49,9 @@ enum ctltype {
 
 struct menu_ctx {
 	struct screen_ctx	*sc;
+	Window			 win;
+	XftDraw			*xftdraw;
+	struct geom		 geom;
 	char			 searchstr[MENU_MAXENTRY + 1];
 	char			 dispstr[MENU_MAXENTRY*2 + 1];
 	char			 promptstr[MENU_MAXENTRY + 1];
@@ -55,7 +62,6 @@ struct menu_ctx {
 	int			 entry;
 	int			 num;
 	int 			 flags;
-	struct geom		 geom;
 	void (*match)(struct menu_q *, struct menu_q *, char *);
 	void (*print)(struct menu *, int);
 };
@@ -108,27 +114,34 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, const char *prompt,
 	else
 		mc.searchstr[0] = '\0';
 
-	XSelectInput(X_Dpy, sc->menu.win, MENUMASK);
-	XMapRaised(X_Dpy, sc->menu.win);
+	mc.win = XCreateSimpleWindow(X_Dpy, sc->rootwin, 0, 0, 1, 1,
+	    Conf.bwidth,
+	    sc->xftcolor[CWM_COLOR_MENU_FG].pixel,
+	    sc->xftcolor[CWM_COLOR_MENU_BG].pixel);
+	mc.xftdraw = XftDrawCreate(X_Dpy, mc.win,
+	    sc->visual, sc->colormap);
 
-	if (XGrabPointer(X_Dpy, sc->menu.win, False, MENUGRABMASK,
+	XSelectInput(X_Dpy, mc.win, MENUMASK);
+	XMapRaised(X_Dpy, mc.win);
+
+	if (XGrabPointer(X_Dpy, mc.win, False, MENUGRABMASK,
 	    GrabModeAsync, GrabModeAsync, None, Conf.cursor[CF_QUESTION],
 	    CurrentTime) != GrabSuccess) {
-		XUnmapWindow(X_Dpy, sc->menu.win);
-		return(NULL);
+		XftDrawDestroy(mc.xftdraw);
+		XDestroyWindow(X_Dpy, mc.win);
 	}
 
 	XGetInputFocus(X_Dpy, &focuswin, &focusrevert);
-	XSetInputFocus(X_Dpy, sc->menu.win, RevertToPointerRoot, CurrentTime);
+	XSetInputFocus(X_Dpy, mc.win, RevertToPointerRoot, CurrentTime);
 
 	/* make sure keybindings don't remove keys from the menu stream */
-	XGrabKeyboard(X_Dpy, sc->menu.win, True,
+	XGrabKeyboard(X_Dpy, mc.win, True,
 	    GrabModeAsync, GrabModeAsync, CurrentTime);
 
 	for (;;) {
 		mc.changed = 0;
 
-		XWindowEvent(X_Dpy, sc->menu.win, MENUMASK, &e);
+		XWindowEvent(X_Dpy, mc.win, MENUMASK, &e);
 
 		switch (e.type) {
 		case KeyPress:
@@ -159,16 +172,16 @@ out:
 		mi = NULL;
 	}
 
-	XSelectInput(X_Dpy, sc->menu.win, NoEventMask);
+	XftDrawDestroy(mc.xftdraw);
+	XDestroyWindow(X_Dpy, mc.win);
+
 	XSetInputFocus(X_Dpy, focuswin, focusrevert, CurrentTime);
 	/* restore if user didn't move */
 	xu_ptr_getpos(sc->rootwin, &xcur, &ycur);
 	if (xcur == mc.geom.x && ycur == mc.geom.y)
 		xu_ptr_setpos(sc->rootwin, xsave, ysave);
-	XUngrabPointer(X_Dpy, CurrentTime);
 
-	XMoveResizeWindow(X_Dpy, sc->menu.win, 0, 0, 1, 1);
-	XUnmapWindow(X_Dpy, sc->menu.win);
+	XUngrabPointer(X_Dpy, CurrentTime);
 	XUngrabKeyboard(X_Dpy, CurrentTime);
 
 	return(mi);
@@ -378,12 +391,12 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 	if (mc->geom.x != xsave || mc->geom.y != ysave)
 		xu_ptr_setpos(sc->rootwin, mc->geom.x, mc->geom.y);
 
-	XClearWindow(X_Dpy, sc->menu.win);
-	XMoveResizeWindow(X_Dpy, sc->menu.win, mc->geom.x, mc->geom.y,
+	XClearWindow(X_Dpy, mc->win);
+	XMoveResizeWindow(X_Dpy, mc->win, mc->geom.x, mc->geom.y,
 	    mc->geom.w, mc->geom.h);
 
 	n = 1;
-	XftDrawStringUtf8(sc->menu.xftdraw,
+	XftDrawStringUtf8(mc->xftdraw,
 	    &sc->xftcolor[CWM_COLOR_MENU_FONT], sc->xftfont,
 	    0, sc->xftfont->ascent,
 	    (const FcChar8*)mc->dispstr, strlen(mc->dispstr));
@@ -395,7 +408,7 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 		if (mc->geom.y + y > area.h)
 			break;
 
-		XftDrawStringUtf8(sc->menu.xftdraw,
+		XftDrawStringUtf8(mc->xftdraw,
 		    &sc->xftcolor[CWM_COLOR_MENU_FONT], sc->xftfont,
 		    0, y,
 		    (const FcChar8*)mi->print, strlen(mi->print));
@@ -420,11 +433,11 @@ menu_draw_entry(struct menu_ctx *mc, struct menu_q *resultq,
 		return;
 
 	color = (active) ? CWM_COLOR_MENU_FG : CWM_COLOR_MENU_BG;
-	XftDrawRect(sc->menu.xftdraw, &sc->xftcolor[color], 0,
+	XftDrawRect(mc->xftdraw, &sc->xftcolor[color], 0,
 	    (sc->xftfont->height + 1) * entry, mc->geom.w,
 	    (sc->xftfont->height + 1) + sc->xftfont->descent);
 	color = (active) ? CWM_COLOR_MENU_FONT_SEL : CWM_COLOR_MENU_FONT;
-	XftDrawStringUtf8(sc->menu.xftdraw,
+	XftDrawStringUtf8(mc->xftdraw,
 	    &sc->xftcolor[color], sc->xftfont,
 	    0, (sc->xftfont->height + 1) * entry + sc->xftfont->ascent + 1,
 	    (const FcChar8*)mi->print, strlen(mi->print));
@@ -603,35 +616,4 @@ menuq_clear(struct menu_q *mq)
 		TAILQ_REMOVE(mq, mi, entry);
 		free(mi);
 	}
-}
-
-void
-menu_windraw(struct screen_ctx *sc, Window win, const char *fmt, ...)
-{
-	va_list			 ap;
-	int			 i;
-	char			*text;
-	XGlyphInfo		 extents;
-
-	va_start(ap, fmt);
-	i = vasprintf(&text, fmt, ap);
-	va_end(ap);
-
-	if (i < 0 || text == NULL)
-		err(1, "vasprintf");
-
-	XftTextExtentsUtf8(X_Dpy, sc->xftfont, (const FcChar8*)text,
-	    strlen(text), &extents);
-
-	XReparentWindow(X_Dpy, sc->menu.win, win, 0, 0);
-	XMoveResizeWindow(X_Dpy, sc->menu.win, 0, 0,
-	    extents.xOff, sc->xftfont->height);
-	XMapWindow(X_Dpy, sc->menu.win);
-	XClearWindow(X_Dpy, sc->menu.win);
-
-	XftDrawStringUtf8(sc->menu.xftdraw, &sc->xftcolor[CWM_COLOR_MENU_FONT],
-	    sc->xftfont, 0, sc->xftfont->ascent + 1,
-	    (const FcChar8*)text, strlen(text));
-
-	free(text);
 }
