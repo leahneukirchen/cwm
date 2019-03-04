@@ -493,11 +493,8 @@ conf_screen(struct screen_ctx *sc)
 				warnx("XftColorAllocValue: %s", Conf.color[i]);
 			break;
 		}
-		if (XftColorAllocName(X_Dpy, sc->visual, sc->colormap,
-		    Conf.color[i], &xc)) {
-			sc->xftcolor[i] = xc;
-			XftColorFree(X_Dpy, sc->visual, sc->colormap, &xc);
-		} else {
+		if (!XftColorAllocName(X_Dpy, sc->visual, sc->colormap,
+		    Conf.color[i], &sc->xftcolor[i])) {
 			warnx("XftColorAllocName: %s", Conf.color[i]);
 			XftColorAllocName(X_Dpy, sc->visual, sc->colormap,
 			    color_binds[i], &sc->xftcolor[i]);
