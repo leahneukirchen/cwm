@@ -63,8 +63,7 @@ screen_init(int which)
 	screen_update_geometry(sc);
 
 	xu_ewmh_net_desktop_names(sc);
-	xu_ewmh_net_wm_desktop_viewport(sc);
-	xu_ewmh_net_wm_number_of_desktops(sc);
+	xu_ewmh_net_number_of_desktops(sc);
 	xu_ewmh_net_showing_desktop(sc);
 	xu_ewmh_net_virtual_roots(sc);
 	active = xu_ewmh_get_net_active_window(sc);
@@ -214,6 +213,7 @@ screen_update_geometry(struct screen_ctx *sc)
 	}
 
 	xu_ewmh_net_desktop_geometry(sc);
+	xu_ewmh_net_desktop_viewport(sc);
 	xu_ewmh_net_workarea(sc);
 }
 
