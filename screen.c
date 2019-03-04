@@ -59,8 +59,8 @@ screen_init(int which)
 	xu_ewmh_net_supported(sc);
 	xu_ewmh_net_supported_wm_check(sc);
 
-	screen_update_geometry(sc);
 	conf_group(sc);
+	screen_update_geometry(sc);
 
 	xu_ewmh_net_desktop_names(sc);
 	xu_ewmh_net_wm_desktop_viewport(sc);
