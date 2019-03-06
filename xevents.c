@@ -206,13 +206,9 @@ xev_handle_propertynotify(XEvent *ee)
 			/* do nothing */
 			break;
 		}
-	} else {
-		TAILQ_FOREACH(sc, &Screenq, entry) {
-			if (sc->rootwin == e->window) {
-				if (e->atom == ewmh[_NET_DESKTOP_NAMES])
-					xu_ewmh_net_desktop_names(sc);
-			}
-		}
+	} else if ((sc = screen_find(e->window)) != NULL) {
+		if (e->atom == ewmh[_NET_DESKTOP_NAMES]) 
+			xu_ewmh_net_desktop_names(sc);
 	}
 }
 
