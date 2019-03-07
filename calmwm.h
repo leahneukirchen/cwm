@@ -121,7 +121,6 @@ TAILQ_HEAD(ignore_q, winname);
 
 struct client_ctx {
 	TAILQ_ENTRY(client_ctx)	 entry;
-	TAILQ_ENTRY(client_ctx)	 group_entry;
 	struct screen_ctx	*sc;
 	struct group_ctx	*gc;
 	Window			 win;
@@ -187,7 +186,6 @@ struct group_ctx {
 	struct screen_ctx	*sc;
 	char			*name;
 	int			 num;
-	struct client_q		 clientq;
 };
 TAILQ_HEAD(group_q, group_ctx);
 

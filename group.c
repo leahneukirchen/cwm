@@ -40,16 +40,10 @@ static void		 group_setactive(struct group_ctx *);
 void
 group_assign(struct group_ctx *gc, struct client_ctx *cc)
 {
-	if (cc->gc != NULL)
-		TAILQ_REMOVE(&cc->gc->clientq, cc, group_entry);
-
 	if ((gc != NULL) && (gc->num == 0))
 		gc = NULL;
 
 	cc->gc = gc;
-
-	if (cc->gc != NULL)
-		TAILQ_INSERT_TAIL(&gc->clientq, cc, group_entry);
 
 	xu_ewmh_net_wm_desktop(cc);
 }
@@ -57,11 +51,14 @@ group_assign(struct group_ctx *gc, struct client_ctx *cc)
 void
 group_hide(struct group_ctx *gc)
 {
+	struct screen_ctx	*sc = gc->sc;
 	struct client_ctx	*cc;
 
 	screen_updatestackingorder(gc->sc);
 
-	TAILQ_FOREACH(cc, &gc->clientq, group_entry) {
+	TAILQ_FOREACH(cc, &sc->clientq, entry) {
+		if (cc->gc != gc)
+			continue;
 		if (!(cc->flags & CLIENT_STICKY) &&
 		    !(cc->flags & CLIENT_HIDDEN))
 			client_hide(cc);
@@ -71,9 +68,12 @@ group_hide(struct group_ctx *gc)
 void
 group_show(struct group_ctx *gc)
 {
+	struct screen_ctx	*sc = gc->sc;
 	struct client_ctx	*cc;
 
-	TAILQ_FOREACH(cc, &gc->clientq, group_entry) {
+	TAILQ_FOREACH(cc, &sc->clientq, entry) {
+		if (cc->gc != gc)
+			continue;
 		if (!(cc->flags & CLIENT_STICKY) &&
 		     (cc->flags & CLIENT_HIDDEN))
 			client_show(cc);
@@ -86,19 +86,24 @@ group_show(struct group_ctx *gc)
 static void
 group_restack(struct group_ctx *gc)
 {
+	struct screen_ctx	*sc = gc->sc;
 	struct client_ctx	*cc;
 	Window			*winlist;
 	int			 i, lastempty = -1;
 	int			 nwins = 0, highstack = 0;
 
-	TAILQ_FOREACH(cc, &gc->clientq, group_entry) {
+	TAILQ_FOREACH(cc, &sc->clientq, entry) {
+		if (cc->gc != gc)
+			continue;
 		if (cc->stackingorder > highstack)
 			highstack = cc->stackingorder;
 	}
 	winlist = xreallocarray(NULL, (highstack + 1), sizeof(*winlist));
 
 	/* Invert the stacking order for XRestackWindows(). */
-	TAILQ_FOREACH(cc, &gc->clientq, group_entry) {
+	TAILQ_FOREACH(cc, &sc->clientq, entry) {
+		if (cc->gc != gc)
+			continue;
 		winlist[highstack - cc->stackingorder] = cc->win;
 		nwins++;
 	}
@@ -127,7 +132,6 @@ group_init(struct screen_ctx *sc, int num, const char *name)
 	gc->sc = sc;
 	gc->name = xstrdup(name);
 	gc->num = num;
-	TAILQ_INIT(&gc->clientq);
 
 	TAILQ_INSERT_TAIL(&sc->groupq, gc, entry);
 
@@ -182,9 +186,12 @@ group_toggle_membership(struct client_ctx *cc)
 int
 group_holds_only_sticky(struct group_ctx *gc)
 {
+	struct screen_ctx	*sc = gc->sc;
 	struct client_ctx	*cc;
 
-	TAILQ_FOREACH(cc, &gc->clientq, group_entry) {
+	TAILQ_FOREACH(cc, &sc->clientq, entry) {
+		if (cc->gc != gc)
+			continue;
 		if (!(cc->flags & CLIENT_STICKY))
 			return(0);
 	}
@@ -194,9 +201,12 @@ group_holds_only_sticky(struct group_ctx *gc)
 int
 group_holds_only_hidden(struct group_ctx *gc)
 {
+	struct screen_ctx	*sc = gc->sc;
 	struct client_ctx	*cc;
 
-	TAILQ_FOREACH(cc, &gc->clientq, group_entry) {
+	TAILQ_FOREACH(cc, &sc->clientq, entry) {
+		if (cc->gc != gc)
+			continue;
 		if (!(cc->flags & (CLIENT_HIDDEN | CLIENT_STICKY)))
 			return(0);
 	}
@@ -225,12 +235,8 @@ group_toggle(struct screen_ctx *sc, int idx)
 		if (gc->num == idx) {
 			if (group_holds_only_hidden(gc))
 				group_show(gc);
-			else {
+			else
 				group_hide(gc);
-				/* make clients stick to empty group */
-				if (TAILQ_EMPTY(&gc->clientq))
-					group_setactive(gc);
-			}
 		}
 	}
 }
@@ -257,8 +263,11 @@ group_close(struct screen_ctx *sc, int idx)
 
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
 		if (gc->num == idx) {
-			TAILQ_FOREACH(cc, &gc->clientq, group_entry)
+			TAILQ_FOREACH(cc, &sc->clientq, entry) {
+				if (cc->gc != gc)
+					continue;
 				client_close(cc);
+			}
 		}
 	}
 }
