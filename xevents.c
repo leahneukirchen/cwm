@@ -79,7 +79,7 @@ xev_handle_maprequest(XEvent *ee)
 
 	LOG_DEBUG3("window: 0x%lx", e->window);
 
-	if ((old_cc = client_current()) != NULL)
+	if ((old_cc = client_current(NULL)) != NULL)
 		client_ptrsave(old_cc);
 
 	if ((cc = client_find(e->window)) == NULL)
@@ -249,7 +249,7 @@ xev_handle_buttonpress(XEvent *ee)
 	switch (mb->context) {
 	case CWM_CONTEXT_CC:
 		if (((cc = client_find(e->window)) == NULL) &&
-		    (cc = client_current()) == NULL)
+		    (cc = client_current(NULL)) == NULL)
 			return;
 		(*mb->callback)(cc, mb->cargs);
 		break;
@@ -318,7 +318,7 @@ xev_handle_keypress(XEvent *ee)
 	switch (kb->context) {
 	case CWM_CONTEXT_CC:
 		if (((cc = client_find(e->window)) == NULL) &&
-		    (cc = client_current()) == NULL)
+		    (cc = client_current(NULL)) == NULL)
 			return;
 		(*kb->callback)(cc, kb->cargs);
 		break;
@@ -353,7 +353,7 @@ xev_handle_keyrelease(XEvent *ee)
 	keysym = XkbKeycodeToKeysym(X_Dpy, e->keycode, 0, 0);
 	for (i = 0; i < nitems(modkeys); i++) {
 		if (keysym == modkeys[i]) {
-			if ((cc = client_current()) != NULL) {
+			if ((cc = client_current(NULL)) != NULL) {
 				if (sc->cycling) {
 					sc->cycling = 0;
 					client_mtf(cc);
@@ -389,7 +389,7 @@ xev_handle_clientmessage(XEvent *ee)
 		}
 	} else if (e->message_type == ewmh[_NET_ACTIVE_WINDOW]) {
 		if ((cc = client_find(e->window)) != NULL) {
-			if ((old_cc = client_current()) != NULL)
+			if ((old_cc = client_current(NULL)) != NULL)
 				client_ptrsave(old_cc);
 			client_show(cc);
 			client_ptrwarp(cc);

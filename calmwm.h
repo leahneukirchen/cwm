@@ -394,7 +394,7 @@ __dead void		 usage(void);
 
 void			 client_applysizehints(struct client_ctx *);
 void			 client_config(struct client_ctx *);
-struct client_ctx	*client_current(void);
+struct client_ctx	*client_current(struct screen_ctx *);
 void			 client_cycle(struct screen_ctx *, int);
 void			 client_remove(struct client_ctx *);
 void			 client_draw_border(struct client_ctx *);

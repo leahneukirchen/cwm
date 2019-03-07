@@ -470,7 +470,7 @@ kbfunc_menu_client(void *ctx, struct cargs *cargs)
 	if (cargs->xev == CWM_XEV_BTN)
 		mflags |= CWM_MENU_LIST;
 
-	old_cc = client_current();
+	old_cc = client_current(sc);
 
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(cc, &sc->clientq, entry) {

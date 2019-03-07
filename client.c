@@ -218,7 +218,7 @@ client_setactive(struct client_ctx *cc)
 	if (cc->flags & CLIENT_WM_TAKE_FOCUS)
 		client_msg(cc, cwmh[WM_TAKE_FOCUS], Last_Event_Time);
 
-	if ((oldcc = client_current()) != NULL) {
+	if ((oldcc = client_current(sc)) != NULL) {
 		oldcc->flags &= ~CLIENT_ACTIVE;
 		client_draw_border(oldcc);
 	}
@@ -235,15 +235,22 @@ client_setactive(struct client_ctx *cc)
 }
 
 struct client_ctx *
-client_current(void)
+client_current(struct screen_ctx *sc)
 {
-	struct screen_ctx	*sc;
+	struct screen_ctx	*_sc;
 	struct client_ctx	*cc;
 
-	TAILQ_FOREACH(sc, &Screenq, entry) {
+	if (sc) {
 		TAILQ_FOREACH(cc, &sc->clientq, entry) {
 			if (cc->flags & CLIENT_ACTIVE)
 				return(cc);
+		}
+	} else {
+		TAILQ_FOREACH(_sc, &Screenq, entry) {
+			TAILQ_FOREACH(cc, &_sc->clientq, entry) {
+				if (cc->flags & CLIENT_ACTIVE)
+					return(cc);
+			}
 		}
 	}
 	return(NULL);
@@ -679,7 +686,7 @@ client_cycle(struct screen_ctx *sc, int flags)
 		return;
 
 	prevcc = TAILQ_FIRST(&sc->clientq);
-	oldcc = client_current();
+	oldcc = client_current(sc);
 	if (oldcc == NULL)
 		oldcc = (flags & CWM_CYCLE_REVERSE) ?
 		    TAILQ_LAST(&sc->clientq, client_q) :
