@@ -78,7 +78,6 @@ group_show(struct group_ctx *gc)
 		     (cc->flags & CLIENT_HIDDEN))
 			client_show(cc);
 	}
-
 	group_restack(gc);
 	group_setactive(gc);
 }
@@ -132,7 +131,6 @@ group_init(struct screen_ctx *sc, int num, const char *name)
 	gc->sc = sc;
 	gc->name = xstrdup(name);
 	gc->num = num;
-
 	TAILQ_INSERT_TAIL(&sc->groupq, gc, entry);
 
 	if (num == 1)
@@ -172,14 +170,13 @@ group_toggle_membership(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	struct group_ctx	*gc = sc->group_active;
 
-	if (gc == cc->gc) {
+	if (cc->gc == gc) {
 		group_assign(NULL, cc);
 		cc->flags |= CLIENT_UNGROUP;
 	} else {
 		group_assign(gc, cc);
 		cc->flags |= CLIENT_GROUP;
 	}
-
 	client_draw_border(cc);
 }
 
@@ -292,7 +289,6 @@ group_cycle(struct screen_ctx *sc, int flags)
 		else if (!group_holds_only_hidden(newgc))
 			group_hide(newgc);
 	}
-
 	if (showgroup == NULL)
 		return;
 
