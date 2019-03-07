@@ -428,15 +428,21 @@ kbfunc_client_movetogroup(void *ctx, struct cargs *cargs)
 }
 
 void
-kbfunc_group_toggle(void *ctx, struct cargs *cargs)
-{
-	group_hidetoggle(ctx, cargs->flag);
-}
-
-void
 kbfunc_group_only(void *ctx, struct cargs *cargs)
 {
 	group_only(ctx, cargs->flag);
+}
+
+void
+kbfunc_group_toggle(void *ctx, struct cargs *cargs)
+{
+	group_toggle(ctx, cargs->flag);
+}
+
+void
+kbfunc_group_toggle_all(void *ctx, struct cargs *cargs)
+{
+	group_toggle_all(ctx);
 }
 
 void
@@ -449,12 +455,6 @@ void
 kbfunc_group_cycle(void *ctx, struct cargs *cargs)
 {
 	group_cycle(ctx, cargs->flag);
-}
-
-void
-kbfunc_group_alltoggle(void *ctx, struct cargs *cargs)
-{
-	group_alltoggle(ctx);
 }
 
 void
