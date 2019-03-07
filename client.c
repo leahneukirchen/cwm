@@ -960,12 +960,11 @@ void
 client_htile(struct client_ctx *cc)
 {
 	struct client_ctx	*ci;
-	struct group_ctx 	*gc = cc->gc;
 	struct screen_ctx 	*sc = cc->sc;
 	struct geom 		 area;
 	int 			 i, n, mh, x, w, h;
 
-	if (!gc)
+	if (!cc->gc)
 		return;
 	i = n = 0;
 
@@ -1032,12 +1031,11 @@ void
 client_vtile(struct client_ctx *cc)
 {
 	struct client_ctx	*ci;
-	struct group_ctx 	*gc = cc->gc;
 	struct screen_ctx 	*sc = cc->sc;
 	struct geom 		 area;
 	int 			 i, n, mw, y, w, h;
 
-	if (!gc)
+	if (!cc->gc)
 		return;
 	i = n = 0;
 
