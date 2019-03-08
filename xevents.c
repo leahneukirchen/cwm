@@ -237,28 +237,26 @@ xev_handle_buttonpress(XEvent *ee)
 	LOG_DEBUG3("root: 0x%lx window: 0x%lx subwindow: 0x%lx",
 	    e->root, e->window, e->subwindow);
 
+	if ((sc = screen_find(e->root)) == NULL)
+		return;
+
 	e->state &= ~IGNOREMODMASK;
 
 	TAILQ_FOREACH(mb, &Conf.mousebindq, entry) {
 		if (e->button == mb->press.button && e->state == mb->modmask)
 			break;
 	}
-
 	if (mb == NULL)
 		return;
 	mb->cargs->xev = CWM_XEV_BTN;
 	switch (mb->context) {
 	case CWM_CONTEXT_CC:
 		if (((cc = client_find(e->window)) == NULL) &&
-		    ((cc = client_current(NULL)) == NULL))
+		    ((cc = client_current(sc)) == NULL))
 			return;
 		(*mb->callback)(cc, mb->cargs);
 		break;
 	case CWM_CONTEXT_SC:
-		if (e->window != e->root)
-			return;
-		if ((sc = screen_find(e->window)) == NULL)
-			return;
 		(*mb->callback)(sc, mb->cargs);
 		break;
 	case CWM_CONTEXT_NONE:
