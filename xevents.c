@@ -249,7 +249,7 @@ xev_handle_buttonpress(XEvent *ee)
 	switch (mb->context) {
 	case CWM_CONTEXT_CC:
 		if (((cc = client_find(e->window)) == NULL) &&
-		    (cc = client_current(NULL)) == NULL)
+		    ((cc = client_current(NULL)) == NULL))
 			return;
 		(*mb->callback)(cc, mb->cargs);
 		break;
@@ -318,7 +318,7 @@ xev_handle_keypress(XEvent *ee)
 	switch (kb->context) {
 	case CWM_CONTEXT_CC:
 		if (((cc = client_find(e->window)) == NULL) &&
-		    (cc = client_current(NULL)) == NULL)
+		    ((cc = client_current(NULL)) == NULL))
 			return;
 		(*kb->callback)(cc, kb->cargs);
 		break;
@@ -479,9 +479,9 @@ xev_process(void)
 
 	while (XPending(X_Dpy)) {
 		XNextEvent(X_Dpy, &e);
-		if (e.type - Conf.xrandr_event_base == RRScreenChangeNotify)
+		if ((e.type - Conf.xrandr_event_base) == RRScreenChangeNotify)
 			xev_handle_randr(&e);
-		else if (e.type < LASTEvent && xev_handlers[e.type] != NULL)
+		else if ((e.type < LASTEvent) && (xev_handlers[e.type] != NULL))
 			(*xev_handlers[e.type])(&e);
 	}
 }
