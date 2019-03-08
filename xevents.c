@@ -234,7 +234,8 @@ xev_handle_buttonpress(XEvent *ee)
 	struct screen_ctx	*sc;
 	struct bind_ctx		*mb;
 
-	LOG_DEBUG3("window: 0x%lx", e->window);
+	LOG_DEBUG3("root: 0x%lx window: 0x%lx subwindow: 0x%lx",
+	    e->root, e->window, e->subwindow);
 
 	e->state &= ~IGNOREMODMASK;
 
@@ -272,7 +273,8 @@ xev_handle_buttonrelease(XEvent *ee)
 	XButtonEvent		*e = &ee->xbutton;
 	struct client_ctx	*cc;
 
-	LOG_DEBUG3("window: 0x%lx", ee->xbutton.window);
+	LOG_DEBUG3("root: 0x%lx window: 0x%lx subwindow: 0x%lx",
+	    e->root, e->window, e->subwindow);
 
 	if ((cc = client_find(e->window)) != NULL) {
 		if (cc->flags & (CLIENT_ACTIVE | CLIENT_HIGHLIGHT)) {
@@ -292,7 +294,7 @@ xev_handle_keypress(XEvent *ee)
 	KeySym			 keysym, skeysym;
 	unsigned int		 modshift;
 
-	LOG_DEBUG3("root: 0x%lx window: 0x%lx subwindow: 0x%lx ",
+	LOG_DEBUG3("root: 0x%lx window: 0x%lx subwindow: 0x%lx",
 	    e->root, e->window, e->subwindow);
 
 	if ((sc = screen_find(e->root)) == NULL)
@@ -346,7 +348,8 @@ xev_handle_keyrelease(XEvent *ee)
 	KeySym			 keysym;
 	unsigned int		 i;
 
-	LOG_DEBUG3("window: 0x%lx", e->window);
+	LOG_DEBUG3("root: 0x%lx window: 0x%lx subwindow: 0x%lx",
+	    e->root, e->window, e->subwindow);
 
 	if ((sc = screen_find(e->root)) == NULL)
 		return;
