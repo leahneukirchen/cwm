@@ -103,7 +103,7 @@ screen_find(Window win)
 		if (sc->rootwin == win)
 			return(sc);
 	}
-	warnx("%s: failure win 0x%lu\n", __func__, win);
+	warnx("%s: failure win 0x%lx", __func__, win);
 	return(NULL);
 }
 
