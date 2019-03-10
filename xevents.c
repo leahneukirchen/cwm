@@ -75,11 +75,15 @@ static void
 xev_handle_maprequest(XEvent *ee)
 {
 	XMapRequestEvent	*e = &ee->xmaprequest;
-	struct client_ctx	*cc = NULL, *old_cc;
+	struct screen_ctx	*sc;
+	struct client_ctx	*cc, *old_cc;
 
-	LOG_DEBUG3("window: 0x%lx", e->window);
+	LOG_DEBUG3("parent: 0x%lx window: 0x%lx", e->parent, e->window);
 
-	if ((old_cc = client_current(NULL)) != NULL)
+	if ((sc = screen_find(e->parent)) == NULL)
+		return;
+
+	if ((old_cc = client_current(sc)) != NULL)
 		client_ptrsave(old_cc);
 
 	if ((cc = client_find(e->window)) == NULL)
@@ -355,7 +359,7 @@ xev_handle_keyrelease(XEvent *ee)
 	keysym = XkbKeycodeToKeysym(X_Dpy, e->keycode, 0, 0);
 	for (i = 0; i < nitems(modkeys); i++) {
 		if (keysym == modkeys[i]) {
-			if ((cc = client_current(NULL)) != NULL) {
+			if ((cc = client_current(sc)) != NULL) {
 				if (sc->cycling) {
 					sc->cycling = 0;
 					client_mtf(cc);
