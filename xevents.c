@@ -431,20 +431,17 @@ xev_handle_clientmessage(XEvent *ee)
 static void
 xev_handle_randr(XEvent *ee)
 {
-	XRRScreenChangeNotifyEvent	*rev = (XRRScreenChangeNotifyEvent *)ee;
+	XRRScreenChangeNotifyEvent	*e = (XRRScreenChangeNotifyEvent *)ee;
 	struct screen_ctx		*sc;
-	int				 i;
 
-	LOG_DEBUG3("new size: %d/%d", rev->width, rev->height);
+	LOG_DEBUG3("size: %d/%d", e->width, e->height);
 
-	i = XRRRootToScreen(X_Dpy, rev->root);
-	TAILQ_FOREACH(sc, &Screenq, entry) {
-		if (sc->which == i) {
-			XRRUpdateConfiguration(ee);
-			screen_update_geometry(sc);
-			screen_assert_clients_within(sc);
-		}
-	}
+	if ((sc = screen_find(e->root)) == NULL)
+		return;
+
+	XRRUpdateConfiguration(ee);
+	screen_update_geometry(sc);
+	screen_assert_clients_within(sc);
 }
 
 /*
