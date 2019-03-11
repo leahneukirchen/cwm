@@ -210,9 +210,11 @@ xev_handle_propertynotify(XEvent *ee)
 			/* do nothing */
 			break;
 		}
-	} else if ((sc = screen_find(e->window)) != NULL) {
-		if (e->atom == ewmh[_NET_DESKTOP_NAMES]) 
-			xu_ewmh_net_desktop_names(sc);
+	} else {
+		if (e->atom == ewmh[_NET_DESKTOP_NAMES])  {
+			if ((sc = screen_find(e->window)) != NULL)
+				xu_ewmh_net_desktop_names(sc);
+		}
 	}
 }
 
