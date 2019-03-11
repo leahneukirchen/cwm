@@ -55,7 +55,7 @@ main(int argc, char **argv)
 {
 	char		*display_name = NULL;
 	char		*fallback;
-	int		 ch, xfd;
+	int		 ch, xfd, nflag = 0;
 	struct pollfd	 pfd[1];
 
 	if (!setlocale(LC_CTYPE, "") || !XSupportsLocale())
@@ -66,7 +66,7 @@ main(int argc, char **argv)
 
 	fallback = u_argv(argv);
 	Conf.wm_argv = u_argv(argv);
-	while ((ch = getopt(argc, argv, "c:d:v")) != -1) {
+	while ((ch = getopt(argc, argv, "c:d:nv")) != -1) {
 		switch (ch) {
 		case 'c':
 			free(Conf.conf_file);
@@ -74,6 +74,9 @@ main(int argc, char **argv)
 			break;
 		case 'd':
 			display_name = optarg;
+			break;
+		case 'n':
+			nflag = 1;
 			break;
 		case 'v':
 			Conf.debug++;
@@ -90,8 +93,13 @@ main(int argc, char **argv)
 	if (signal(SIGHUP, sighdlr) == SIG_ERR)
 		err(1, "signal");
 
-	if (parse_config(Conf.conf_file, &Conf) == -1)
+	if (parse_config(Conf.conf_file, &Conf) == -1) {
 		warnx("error parsing config file");
+		if (nflag)
+			return 1;
+	}
+	if (nflag)
+		return 0;
 
 	xfd = x_init(display_name);
 	cwm_status = CWM_RUNNING;
@@ -159,8 +167,6 @@ x_teardown(void)
 			    DefaultColormap(X_Dpy, sc->which),
 			    &sc->xftcolor[i]);
 		XftFontClose(X_Dpy, sc->xftfont);
-		XftDrawDestroy(sc->menu.xftdraw);
-		XDestroyWindow(X_Dpy, sc->menu.win);
 		XUngrabKey(X_Dpy, AnyKey, AnyModifier, sc->rootwin);
 	}
 	XUngrabPointer(X_Dpy, CurrentTime);
@@ -221,7 +227,7 @@ usage(void)
 {
 	extern char	*__progname;
 
-	(void)fprintf(stderr, "usage: %s [-v] [-c file] [-d display]\n",
+	(void)fprintf(stderr, "usage: %s [-nv] [-c file] [-d display]\n",
 	    __progname);
 	exit(1);
 }

@@ -169,8 +169,8 @@ kbfunc_client_move_mb(void *ctx, struct cargs *cargs)
 	    CurrentTime) != GrabSuccess)
 		return;
 
-	menu_windraw(sc, cc->win, "%4d, %-4d", cc->geom.x, cc->geom.y);
-
+	screen_prop_win_create(sc, cc->win);
+	screen_prop_win_draw(sc, "%+5d%+5d", cc->geom.x, cc->geom.y);
 	while (move) {
 		XMaskEvent(X_Dpy, MOUSEMASK, &ev);
 		switch (ev.type) {
@@ -193,8 +193,8 @@ kbfunc_client_move_mb(void *ctx, struct cargs *cargs)
 			    cc->geom.y + cc->geom.h + (cc->bwidth * 2),
 			    area.y, area.y + area.h, sc->snapdist);
 			client_move(cc);
-			menu_windraw(sc, cc->win,
-			    "%4d, %-4d", cc->geom.x, cc->geom.y);
+			screen_prop_win_draw(sc,
+			    "%+5d%+5d", cc->geom.x, cc->geom.y);
 			break;
 		case ButtonRelease:
 			move = 0;
@@ -203,8 +203,7 @@ kbfunc_client_move_mb(void *ctx, struct cargs *cargs)
 	}
 	if (ltime)
 		client_move(cc);
-	XUnmapWindow(X_Dpy, sc->menu.win);
-	XReparentWindow(X_Dpy, sc->menu.win, sc->rootwin, 0, 0);
+	screen_prop_win_destroy(sc);
 	XUngrabPointer(X_Dpy, CurrentTime);
 }
 
@@ -258,7 +257,8 @@ kbfunc_client_resize_mb(void *ctx, struct cargs *cargs)
 	    CurrentTime) != GrabSuccess)
 		return;
 
-	menu_windraw(sc, cc->win, "%4d x %-4d", cc->dim.w, cc->dim.h);
+	screen_prop_win_create(sc, cc->win);
+	screen_prop_win_draw(sc, "%4d x %-4d", cc->dim.w, cc->dim.h);
 	while (resize) {
 		XMaskEvent(X_Dpy, MOUSEMASK, &ev);
 		switch (ev.type) {
@@ -272,7 +272,7 @@ kbfunc_client_resize_mb(void *ctx, struct cargs *cargs)
 			cc->geom.h = ev.xmotion.y;
 			client_applysizehints(cc);
 			client_resize(cc, 1);
-			menu_windraw(sc, cc->win,
+			screen_prop_win_draw(sc,
 			    "%4d x %-4d", cc->dim.w, cc->dim.h);
 			break;
 		case ButtonRelease:
@@ -282,8 +282,7 @@ kbfunc_client_resize_mb(void *ctx, struct cargs *cargs)
 	}
 	if (ltime)
 		client_resize(cc, 1);
-	XUnmapWindow(X_Dpy, sc->menu.win);
-	XReparentWindow(X_Dpy, sc->menu.win, sc->rootwin, 0, 0);
+	screen_prop_win_destroy(sc);
 	XUngrabPointer(X_Dpy, CurrentTime);
 
 	/* Make sure the pointer stays within the window. */
@@ -432,15 +431,21 @@ kbfunc_client_movetogroup(void *ctx, struct cargs *cargs)
 }
 
 void
-kbfunc_group_toggle(void *ctx, struct cargs *cargs)
-{
-	group_hidetoggle(ctx, cargs->flag);
-}
-
-void
 kbfunc_group_only(void *ctx, struct cargs *cargs)
 {
 	group_only(ctx, cargs->flag);
+}
+
+void
+kbfunc_group_toggle(void *ctx, struct cargs *cargs)
+{
+	group_toggle(ctx, cargs->flag);
+}
+
+void
+kbfunc_group_toggle_all(void *ctx, struct cargs *cargs)
+{
+	group_toggle_all(ctx);
 }
 
 void
@@ -456,12 +461,6 @@ kbfunc_group_cycle(void *ctx, struct cargs *cargs)
 }
 
 void
-kbfunc_group_alltoggle(void *ctx, struct cargs *cargs)
-{
-	group_alltoggle(ctx);
-}
-
-void
 kbfunc_menu_client(void *ctx, struct cargs *cargs)
 {
 	struct screen_ctx	*sc = ctx;
@@ -474,7 +473,7 @@ kbfunc_menu_client(void *ctx, struct cargs *cargs)
 	if (cargs->xev == CWM_XEV_BTN)
 		mflags |= CWM_MENU_LIST;
 
-	old_cc = client_current();
+	old_cc = client_current(sc);
 
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(cc, &sc->clientq, entry) {

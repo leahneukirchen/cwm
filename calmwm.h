@@ -68,9 +68,6 @@ size_t strlcpy(char *, const char *, size_t);
 
 #define BUTTONMASK	(ButtonPressMask | ButtonReleaseMask)
 #define MOUSEMASK	(BUTTONMASK | PointerMotionMask)
-#define MENUMASK 	(MOUSEMASK | ButtonMotionMask | KeyPressMask | \
-			 ExposureMask)
-#define MENUGRABMASK	(MOUSEMASK | ButtonMotionMask | StructureNotifyMask)
 #define IGNOREMODMASK	(LockMask | Mod2Mask | 0x2000)
 
 /* direction/amount */
@@ -145,7 +142,6 @@ TAILQ_HEAD(ignore_q, winname);
 
 struct client_ctx {
 	TAILQ_ENTRY(client_ctx)	 entry;
-	TAILQ_ENTRY(client_ctx)	 group_entry;
 	struct screen_ctx	*sc;
 	struct group_ctx	*gc;
 	Window			 win;
@@ -211,7 +207,6 @@ struct group_ctx {
 	struct screen_ctx	*sc;
 	char			*name;
 	int			 num;
-	struct client_q		 clientq;
 };
 TAILQ_HEAD(group_q, group_ctx);
 
@@ -250,7 +245,7 @@ struct screen_ctx {
 	struct {
 		Window		 win;
 		XftDraw		*xftdraw;
-	} menu;
+	} prop;
 	XftColor		 xftcolor[CWM_COLOR_NITEMS];
 	XftFont			*xftfont;
 };
@@ -420,7 +415,7 @@ void			 usage(void);
 
 void			 client_applysizehints(struct client_ctx *);
 void			 client_config(struct client_ctx *);
-struct client_ctx	*client_current(void);
+struct client_ctx	*client_current(struct screen_ctx *);
 void			 client_cycle(struct screen_ctx *, int);
 void			 client_remove(struct client_ctx *);
 void			 client_draw_border(struct client_ctx *);
@@ -456,25 +451,24 @@ void			 client_toggle_skip_taskbar(struct client_ctx *);
 void			 client_toggle_sticky(struct client_ctx *);
 void			 client_toggle_vmaximize(struct client_ctx *);
 void			 client_transient(struct client_ctx *);
-void			 client_unhide(struct client_ctx *);
 void			 client_urgency(struct client_ctx *);
 void 			 client_vtile(struct client_ctx *);
 void			 client_wm_hints(struct client_ctx *);
 
-void			 group_alltoggle(struct screen_ctx *);
 void			 group_assign(struct group_ctx *, struct client_ctx *);
 int			 group_autogroup(struct client_ctx *);
 void			 group_cycle(struct screen_ctx *, int);
 void			 group_hide(struct group_ctx *);
-void			 group_hidetoggle(struct screen_ctx *, int);
 int			 group_holds_only_hidden(struct group_ctx *);
 int			 group_holds_only_sticky(struct group_ctx *);
-void			 group_init(struct screen_ctx *, int);
+void			 group_init(struct screen_ctx *, int, const char *);
 void			 group_movetogroup(struct client_ctx *, int);
 void			 group_only(struct screen_ctx *, int);
 void			 group_close(struct screen_ctx *, int);
 int			 group_restore(struct client_ctx *);
 void			 group_show(struct group_ctx *);
+void			 group_toggle(struct screen_ctx *, int);
+void			 group_toggle_all(struct screen_ctx *);
 void			 group_toggle_membership(struct client_ctx *);
 void			 group_update_names(struct screen_ctx *);
 
@@ -506,6 +500,12 @@ void			 screen_init(int);
 void			 screen_update_geometry(struct screen_ctx *);
 void			 screen_updatestackingorder(struct screen_ctx *);
 void			 screen_assert_clients_within(struct screen_ctx *);
+void			 screen_prop_win_create(struct screen_ctx *, Window);
+void			 screen_prop_win_destroy(struct screen_ctx *);
+void			 screen_prop_win_draw(struct screen_ctx *,
+			     const char *, ...)
+			    __attribute__((__format__ (printf, 2, 3)))
+			    __attribute__((__nonnull__ (2)));
 
 void			 kbfunc_cwm_status(void *, struct cargs *);
 void			 kbfunc_ptrmove(void *, struct cargs *);
@@ -532,7 +532,7 @@ void			 kbfunc_group_toggle(void *, struct cargs *);
 void			 kbfunc_group_only(void *, struct cargs *);
 void			 kbfunc_group_close(void *, struct cargs *);
 void			 kbfunc_group_cycle(void *, struct cargs *);
-void			 kbfunc_group_alltoggle(void *, struct cargs *);
+void			 kbfunc_group_toggle_all(void *, struct cargs *);
 void			 kbfunc_menu_client(void *, struct cargs *);
 void			 kbfunc_menu_cmd(void *, struct cargs *);
 void			 kbfunc_menu_group(void *, struct cargs *);
@@ -544,10 +544,6 @@ void			 kbfunc_exec_cmd(void *, struct cargs *);
 void			 kbfunc_exec_lock(void *, struct cargs *);
 void			 kbfunc_exec_term(void *, struct cargs *);
 
-void			 menu_windraw(struct screen_ctx *, Window,
-			     const char *, ...)
-			    __attribute__((__format__ (printf, 3, 4)))
-			    __attribute__((__nonnull__ (3)));
 struct menu  		*menu_filter(struct screen_ctx *, struct menu_q *,
 			     const char *, const char *, int,
 			     void (*)(struct menu_q *, struct menu_q *, char *),
@@ -577,6 +573,7 @@ void			 conf_grab_mouse(Window);
 void			 conf_init(struct conf *);
 void			 conf_ignore(struct conf *, const char *);
 void			 conf_screen(struct screen_ctx *);
+void			 conf_group(struct screen_ctx *);
 
 void			 xev_process(void);
 
@@ -589,13 +586,13 @@ void 			 xu_xorcolor(XftColor, XftColor, XftColor *);
 void			 xu_ewmh_net_supported(struct screen_ctx *);
 void			 xu_ewmh_net_supported_wm_check(struct screen_ctx *);
 void			 xu_ewmh_net_desktop_geometry(struct screen_ctx *);
+void			 xu_ewmh_net_desktop_viewport(struct screen_ctx *);
 void			 xu_ewmh_net_workarea(struct screen_ctx *);
 void			 xu_ewmh_net_client_list(struct screen_ctx *);
 void			 xu_ewmh_net_client_list_stacking(struct screen_ctx *);
 void			 xu_ewmh_net_active_window(struct screen_ctx *, Window);
 Window			 xu_ewmh_get_net_active_window(struct screen_ctx *);
-void			 xu_ewmh_net_wm_desktop_viewport(struct screen_ctx *);
-void			 xu_ewmh_net_wm_number_of_desktops(struct screen_ctx *);
+void			 xu_ewmh_net_number_of_desktops(struct screen_ctx *);
 void			 xu_ewmh_net_showing_desktop(struct screen_ctx *);
 void			 xu_ewmh_net_virtual_roots(struct screen_ctx *);
 void			 xu_ewmh_net_current_desktop(struct screen_ctx *);

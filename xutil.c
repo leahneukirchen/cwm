@@ -129,6 +129,16 @@ xu_ewmh_net_desktop_geometry(struct screen_ctx *sc)
 }
 
 void
+xu_ewmh_net_desktop_viewport(struct screen_ctx *sc)
+{
+	long	 viewports[2] = {0, 0};
+
+	/* We don't support large desktops, so this is (0, 0). */
+	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_DESKTOP_VIEWPORT],
+	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)viewports, 2);
+}
+
+void
 xu_ewmh_net_workarea(struct screen_ctx *sc)
 {
 	unsigned long	*workarea;
@@ -212,17 +222,7 @@ xu_ewmh_get_net_active_window(struct screen_ctx *sc)
 }
 
 void
-xu_ewmh_net_wm_desktop_viewport(struct screen_ctx *sc)
-{
-	long	 viewports[2] = {0, 0};
-
-	/* We don't support large desktops, so this is (0, 0). */
-	XChangeProperty(X_Dpy, sc->rootwin, ewmh[_NET_DESKTOP_VIEWPORT],
-	    XA_CARDINAL, 32, PropModeReplace, (unsigned char *)viewports, 2);
-}
-
-void
-xu_ewmh_net_wm_number_of_desktops(struct screen_ctx *sc)
+xu_ewmh_net_number_of_desktops(struct screen_ctx *sc)
 {
 	long	 ndesks = Conf.ngroups;
 
