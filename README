@@ -1,5 +1,5 @@
 This is a port of OpenBSD's excellent cwm[0] to Linux and other
-Unices.
+Unices. 
 
     cwm is a window manager for X11 which contains many features that
     concentrate on the efficiency and transparency of window
