@@ -207,7 +207,8 @@ xev_handle_propertynotify(XEvent *ee)
 				group_movetogroup(cc, cc->gc->num);
 			break;
 		default:
-			/* do nothing */
+			if (e->atom == ewmh[_NET_WM_NAME])
+				client_setname(cc);
 			break;
 		}
 	} else {
