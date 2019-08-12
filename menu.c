@@ -129,6 +129,7 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, const char *prompt,
 	    CurrentTime) != GrabSuccess) {
 		XftDrawDestroy(mc.xftdraw);
 		XDestroyWindow(X_Dpy, mc.win);
+		return(NULL);
 	}
 
 	XGetInputFocus(X_Dpy, &focuswin, &focusrevert);
