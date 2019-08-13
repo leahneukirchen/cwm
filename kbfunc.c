@@ -142,6 +142,7 @@ kbfunc_client_move_kb(void *ctx, struct cargs *cargs)
 
 	client_move(cc);
 	client_ptr_inbound(cc, 1);
+	XSync(X_Dpy, True);
 }
 
 static void
@@ -230,6 +231,7 @@ kbfunc_client_resize_kb(void *ctx, struct cargs *cargs)
 
 	client_resize(cc, 1);
 	client_ptr_inbound(cc, 1);
+	XSync(X_Dpy, True);
 }
 
 static void
