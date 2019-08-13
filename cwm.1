@@ -219,6 +219,11 @@ Window is currently focused.
 .It &
 Window is hidden.
 .El
+.Sh APPLICATIONS
+.Nm
+manages a list of applications defined with the
+.Cm command
+configuration option.
 .Sh GROUPS
 .Nm
 has the ability to group windows together, and use the groups to
@@ -242,8 +247,7 @@ Selecting an item will warp to that window, unhiding it if necessary.
 Show list of currently defined groups.
 Selecting an item will hide/unhide that group.
 .It Ic M3
-Show list of applications as defined in
-.Pa ~/.cwmrc .
+Show list of applications as defined in the configuration file.
 Selecting an item will spawn that application.
 .El
 .Sh ENVIRONMENT
