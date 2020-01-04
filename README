@@ -1,5 +1,4 @@
-This is a port of OpenBSD's excellent cwm[0] to Linux and other
-Unices.
+This is a port of OpenBSD's excellent cwm[0] to Linux and other Unices.
 
     cwm is a window manager for X11 which contains many features that
     concentrate on the efficiency and transparency of window
@@ -114,6 +113,14 @@ Changes made between OpenBSD 6.2 and 6.3
 * Add support for re-exec'ing with SIGHUP.
 
 2018-05-14: Fifth public release 6.3 of portable cwm.
+
+2020-01-04: Sixth public release 6.6 of portable cwm.
+
+Changes made between OpenBSD 6.4 and 6.5
+* Added a configtest flag (-n) to cwm(1).
+* Introduced 'group-close-[n]' action to cwm(1) to close all windows
+  within a specified group.
+
 
 --Leah Neukirchen <leah@vuxu.org>
 
