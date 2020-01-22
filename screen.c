@@ -275,15 +275,12 @@ void
 screen_prop_win_draw(struct screen_ctx *sc, const char *fmt, ...)
 {
 	va_list			 ap;
-	int			 i;
 	char			*text;
 	XGlyphInfo		 extents;
 
 	va_start(ap, fmt);
-	i = vasprintf(&text, fmt, ap);
+	xvasprintf(&text, fmt, ap);
 	va_end(ap);
-	if (i < 0 || text == NULL)
-		err(1, "vasprintf");
 
 	XftTextExtentsUtf8(X_Dpy, sc->xftfont, (const FcChar8*)text,
 	    strlen(text), &extents);
