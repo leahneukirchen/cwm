@@ -69,7 +69,7 @@ void		(*xev_handlers[LASTEvent])(XEvent *) = {
 };
 
 static KeySym modkeys[] = { XK_Alt_L, XK_Alt_R, XK_Super_L, XK_Super_R,
-			    XK_Control_L, XK_Control_R };
+			    XK_Control_L, XK_Control_R, XK_ISO_Level3_Shift };
 
 static void
 xev_handle_maprequest(XEvent *ee)

@@ -197,10 +197,11 @@ static const struct {
 	const char	ch;
 	int		mask;
 } bind_mods[] = {
+	{ 'S',	ShiftMask },
 	{ 'C',	ControlMask },
 	{ 'M',	Mod1Mask },
 	{ '4',	Mod4Mask },
-	{ 'S',	ShiftMask },
+	{ '5',	Mod5Mask },
 };
 static const struct {
 	const char	*key;

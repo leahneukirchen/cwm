@@ -91,11 +91,20 @@ xasprintf(char **ret, const char *fmt, ...)
 	int	 i;
 
 	va_start(ap, fmt);
-	i = vasprintf(ret, fmt, ap);
+	i = xvasprintf(ret, fmt, ap);
 	va_end(ap);
 
-	if (i < 0 || *ret == NULL)
-		err(1, "asprintf");
+	return(i);
+}
+
+int
+xvasprintf(char **ret, const char *fmt, va_list ap)
+{
+	int	 i;
+
+	i = vasprintf(ret, fmt, ap);
+	if (i == -1)
+		err(1, "vasprintf");
 
 	return(i);
 }

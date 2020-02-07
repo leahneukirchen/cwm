@@ -325,6 +325,7 @@ kbfunc_client_snap(void *ctx, struct cargs *cargs)
 		}
 	}
 	client_move(cc);
+	client_ptr_inbound(cc, 1);
 }
 
 void

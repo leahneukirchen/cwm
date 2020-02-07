@@ -971,10 +971,7 @@ client_htile(struct client_ctx *cc)
 	struct geom 		 area;
 	int 			 i, n, mh, x, w, h;
 
-	if (!cc->gc)
-		return;
 	i = n = 0;
-
 	area = screen_area(sc,
 	    cc->geom.x + cc->geom.w / 2,
 	    cc->geom.y + cc->geom.h / 2, CWM_GAP);
@@ -1042,10 +1039,7 @@ client_vtile(struct client_ctx *cc)
 	struct geom 		 area;
 	int 			 i, n, mw, y, w, h;
 
-	if (!cc->gc)
-		return;
 	i = n = 0;
-
 	area = screen_area(sc,
 	    cc->geom.x + cc->geom.w / 2,
 	    cc->geom.y + cc->geom.h / 2, CWM_GAP);
