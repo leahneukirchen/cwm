@@ -44,6 +44,7 @@ struct screen_q		 Screenq = TAILQ_HEAD_INITIALIZER(Screenq);
 struct conf		 Conf;
 volatile sig_atomic_t	 cwm_status;
 
+__dead void	usage(void);
 static void	sighdlr(int);
 static int	x_errorhandler(Display *, XErrorEvent *);
 static int	x_init(const char *);
@@ -124,7 +125,7 @@ main(int argc, char **argv)
 		u_exec(fallback);
 	}
 
-	return(0);
+	return 0;
 }
 
 static int
@@ -142,7 +143,7 @@ x_init(const char *dpyname)
 
 	Conf.xrandr = XRRQueryExtension(X_Dpy, &Conf.xrandr_event_base, &i);
 
-	conf_atoms();
+	xu_atom_init();
 	conf_cursor(&Conf);
 
 	for (i = 0; i < ScreenCount(X_Dpy); i++)
@@ -180,7 +181,7 @@ static int
 x_wmerrorhandler(Display *dpy, XErrorEvent *e)
 {
 	errx(1, "root window unavailable - perhaps another wm is running?");
-	return(0);
+	return 0;
 }
 
 static int
@@ -196,7 +197,7 @@ x_errorhandler(Display *dpy, XErrorEvent *e)
 
 	warnx("%s(0x%x): %s", req, (unsigned int)e->resourceid, msg);
 #endif
-	return(0);
+	return 0;
 }
 
 static void

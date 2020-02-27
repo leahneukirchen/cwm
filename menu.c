@@ -94,7 +94,7 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, const char *prompt,
 
 	TAILQ_INIT(&resultq);
 
-	xu_ptr_getpos(sc->rootwin, &xsave, &ysave);
+	xu_ptr_get(sc->rootwin, &xsave, &ysave);
 
 	(void)memset(&mc, 0, sizeof(mc));
 	mc.sc = sc;
@@ -129,7 +129,7 @@ menu_filter(struct screen_ctx *sc, struct menu_q *menuq, const char *prompt,
 	    CurrentTime) != GrabSuccess) {
 		XftDrawDestroy(mc.xftdraw);
 		XDestroyWindow(X_Dpy, mc.win);
-		return(NULL);
+		return NULL;
 	}
 
 	XGetInputFocus(X_Dpy, &focuswin, &focusrevert);
@@ -178,14 +178,14 @@ out:
 
 	XSetInputFocus(X_Dpy, focuswin, focusrevert, CurrentTime);
 	/* restore if user didn't move */
-	xu_ptr_getpos(sc->rootwin, &xcur, &ycur);
+	xu_ptr_get(sc->rootwin, &xcur, &ycur);
 	if (xcur == mc.geom.x && ycur == mc.geom.y)
-		xu_ptr_setpos(sc->rootwin, xsave, ysave);
+		xu_ptr_set(sc->rootwin, xsave, ysave);
 
 	XUngrabPointer(X_Dpy, CurrentTime);
 	XUngrabKeyboard(X_Dpy, CurrentTime);
 
-	return(mi);
+	return mi;
 }
 
 static struct menu *
@@ -213,7 +213,7 @@ menu_complete_path(struct menu_ctx *mc)
 	
 	menuq_clear(&menuq);
 
-	return(mr);
+	return mr;
 }
 
 static struct menu *
@@ -228,7 +228,7 @@ menu_handle_key(XEvent *e, struct menu_ctx *mc, struct menu_q *menuq,
 	wchar_t 	 wc;
 
 	if (menu_keycode(&e->xkey, &ctl, chr) < 0)
-		return(NULL);
+		return NULL;
 
 	switch (ctl) {
 	case CTL_ERASEONE:
@@ -269,7 +269,7 @@ menu_handle_key(XEvent *e, struct menu_ctx *mc, struct menu_q *menuq,
 			mi->dummy = 1;
 		}
 		mi->abort = 0;
-		return(mi);
+		return mi;
 	case CTL_WIPE:
 		mc->searchstr[0] = '\0';
 		mc->changed = 1;
@@ -284,7 +284,7 @@ menu_handle_key(XEvent *e, struct menu_ctx *mc, struct menu_q *menuq,
 			if ((mc->flags & CWM_MENU_FILE) &&
 			    (strncmp(mc->searchstr, mi->text,
 					strlen(mi->text))) == 0)
-				return(menu_complete_path(mc));
+				return menu_complete_path(mc);
 
 			/*
 			 * Put common prefix of the results into searchstr
@@ -309,7 +309,7 @@ menu_handle_key(XEvent *e, struct menu_ctx *mc, struct menu_q *menuq,
 		mi->text[0] = '\0';
 		mi->dummy = 1;
 		mi->abort = 1;
-		return(mi);
+		return mi;
 	default:
 		break;
 	}
@@ -327,7 +327,7 @@ menu_handle_key(XEvent *e, struct menu_ctx *mc, struct menu_q *menuq,
 		mc->listing = 0;
 	}
 
-	return(NULL);
+	return NULL;
 }
 
 static void
@@ -368,7 +368,7 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 		mc->num++;
 	}
 
-	area = screen_area(sc, mc->geom.x, mc->geom.y, CWM_GAP);
+	area = screen_area(sc, mc->geom.x, mc->geom.y, 1);
 	area.w += area.x - Conf.bwidth * 2;
 	area.h += area.y - Conf.bwidth * 2;
 
@@ -390,7 +390,7 @@ menu_draw(struct menu_ctx *mc, struct menu_q *menuq, struct menu_q *resultq)
 	}
 
 	if (mc->geom.x != xsave || mc->geom.y != ysave)
-		xu_ptr_setpos(sc->rootwin, mc->geom.x, mc->geom.y);
+		xu_ptr_set(sc->rootwin, mc->geom.x, mc->geom.y);
 
 	XClearWindow(X_Dpy, mc->win);
 	XMoveResizeWindow(X_Dpy, mc->win, mc->geom.x, mc->geom.y,
@@ -478,7 +478,7 @@ menu_handle_release(struct menu_ctx *mc, struct menu_q *resultq, int x, int y)
 		mi->text[0] = '\0';
 		mi->dummy = 1;
 	}
-	return(mi);
+	return mi;
 }
 
 static int
@@ -498,7 +498,7 @@ menu_calc_entry(struct menu_ctx *mc, int x, int y)
 	if (entry == 0)
 		entry = -1;
 
-	return(entry);
+	return entry;
 }
 
 static int
@@ -581,12 +581,12 @@ menu_keycode(XKeyEvent *ev, enum ctltype *ctl, char *chr)
 	}
 
 	if (*ctl != CTL_NONE)
-		return(0);
+		return 0;
 
 	if (XLookupString(ev, chr, 32, &ks, NULL) < 0)
-		return(-1);
+		return -1;
 
-	return(0);
+	return 0;
 }
 
 void

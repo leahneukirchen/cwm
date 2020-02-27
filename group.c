@@ -35,7 +35,7 @@
 static struct group_ctx	*group_next(struct group_ctx *);
 static struct group_ctx	*group_prev(struct group_ctx *);
 static void		 group_restack(struct group_ctx *);
-static void		 group_setactive(struct group_ctx *);
+static void		 group_set_active(struct group_ctx *);
 
 void
 group_assign(struct group_ctx *gc, struct client_ctx *cc)
@@ -45,7 +45,7 @@ group_assign(struct group_ctx *gc, struct client_ctx *cc)
 
 	cc->gc = gc;
 
-	xu_ewmh_net_wm_desktop(cc);
+	xu_ewmh_set_net_wm_desktop(cc);
 }
 
 void
@@ -79,7 +79,7 @@ group_show(struct group_ctx *gc)
 			client_show(cc);
 	}
 	group_restack(gc);
-	group_setactive(gc);
+	group_set_active(gc);
 }
 
 static void
@@ -134,11 +134,11 @@ group_init(struct screen_ctx *sc, int num, const char *name)
 	TAILQ_INSERT_TAIL(&sc->groupq, gc, entry);
 
 	if (num == 1)
-		group_setactive(gc);
+		group_set_active(gc);
 }
 
 void
-group_setactive(struct group_ctx *gc)
+group_set_active(struct group_ctx *gc)
 {
 	struct screen_ctx	*sc = gc->sc;
 
@@ -190,9 +190,9 @@ group_holds_only_sticky(struct group_ctx *gc)
 		if (cc->gc != gc)
 			continue;
 		if (!(cc->flags & CLIENT_STICKY))
-			return(0);
+			return 0;
 	}
-	return(1);
+	return 1;
 }
 
 int
@@ -205,9 +205,9 @@ group_holds_only_hidden(struct group_ctx *gc)
 		if (cc->gc != gc)
 			continue;
 		if (!(cc->flags & (CLIENT_HIDDEN | CLIENT_STICKY)))
-			return(0);
+			return 0;
 	}
-	return(1);
+	return 1;
 }
 
 void
@@ -297,7 +297,7 @@ group_cycle(struct screen_ctx *sc, int flags)
 	if (group_holds_only_hidden(showgroup))
 		group_show(showgroup);
 	else
-		group_setactive(showgroup);
+		group_set_active(showgroup);
 }
 
 static struct group_ctx *
@@ -326,23 +326,21 @@ group_restore(struct client_ctx *cc)
 	struct screen_ctx	*sc = cc->sc;
 	struct group_ctx	*gc;
 	int			 num;
-	long			*grpnum;
+	long			 grpnum;
 
-	if (xu_getprop(cc->win, ewmh[_NET_WM_DESKTOP], XA_CARDINAL, 1L,
-	    (unsigned char **)&grpnum) <= 0)
-		return(0);
+	if (!xu_ewmh_get_net_wm_desktop(cc, &grpnum))
+		return 0;
 
-	num = (*grpnum == -1) ? 0 : *grpnum;
+	num = (grpnum == -1) ? 0 : grpnum;
 	num = MIN(num, (Conf.ngroups - 1));
-	XFree(grpnum);
 
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
 		if (gc->num == num) {
 			group_assign(gc, cc);
-			return(1);
+			return 1;
 		}
 	}
-	return(0);
+	return 0;
 }
 
 int
@@ -353,13 +351,13 @@ group_autogroup(struct client_ctx *cc)
 	struct group_ctx	*gc;
 	int			 num = -1, both_match = 0;
 
-	if (cc->ch.res_class == NULL || cc->ch.res_name == NULL)
-		return(0);
+	if (cc->res_class == NULL || cc->res_name == NULL)
+		return 0;
 
 	TAILQ_FOREACH(ag, &Conf.autogroupq, entry) {
-		if (strcmp(ag->class, cc->ch.res_class) == 0) {
+		if (strcmp(ag->class, cc->res_class) == 0) {
 			if ((ag->name != NULL) &&
-			    (strcmp(ag->name, cc->ch.res_name) == 0)) {
+			    (strcmp(ag->name, cc->res_name) == 0)) {
 				num = ag->num;
 				both_match = 1;
 			} else if (ag->name == NULL && !both_match)
@@ -370,8 +368,8 @@ group_autogroup(struct client_ctx *cc)
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
 		if (gc->num == num) {
 			group_assign(gc, cc);
-			return(1);
+			return 1;
 		}
 	}
-	return(0);
+	return 0;
 }

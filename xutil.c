@@ -32,7 +32,7 @@
 #include "calmwm.h"
 
 void
-xu_ptr_getpos(Window win, int *x, int *y)
+xu_ptr_get(Window win, int *x, int *y)
 {
 	Window		 w0, w1;
 	int		 tmp0, tmp1;
@@ -42,13 +42,13 @@ xu_ptr_getpos(Window win, int *x, int *y)
 }
 
 void
-xu_ptr_setpos(Window win, int x, int y)
+xu_ptr_set(Window win, int x, int y)
 {
 	XWarpPointer(X_Dpy, None, win, 0, 0, 0, 0, x, y);
 }
 
 int
-xu_getprop(Window win, Atom atm, Atom type, long len, unsigned char **p)
+xu_get_prop(Window win, Atom atm, Atom type, long len, unsigned char **p)
 {
 	Atom		 realtype;
 	unsigned long	 n, extra;
@@ -56,16 +56,16 @@ xu_getprop(Window win, Atom atm, Atom type, long len, unsigned char **p)
 
 	if (XGetWindowProperty(X_Dpy, win, atm, 0L, len, False, type,
 	    &realtype, &format, &n, &extra, p) != Success || *p == NULL)
-		return(-1);
+		return -1;
 
 	if (n == 0)
 		XFree(*p);
 
-	return(n);
+	return n;
 }
 
 int
-xu_getstrprop(Window win, Atom atm, char **text) {
+xu_get_strprop(Window win, Atom atm, char **text) {
 	XTextProperty	 prop;
 	char		**list;
 	int		 nitems = 0;
@@ -74,7 +74,7 @@ xu_getstrprop(Window win, Atom atm, char **text) {
 
 	XGetTextProperty(X_Dpy, win, &prop, atm);
 	if (!prop.nitems)
-		return(0);
+		return 0;
 
 	if (Xutf8TextPropertyToTextList(X_Dpy, &prop, &list,
 	    &nitems) == Success && nitems > 0 && *list) {
@@ -90,10 +90,101 @@ xu_getstrprop(Window win, Atom atm, char **text) {
 		}
 		XFreeStringList(list);
 	}
-
 	XFree(prop.value);
 
-	return(nitems);
+	return nitems;
+}
+
+void
+xu_send_clientmsg(Window win, Atom proto, Time ts)
+{
+	XClientMessageEvent	 cm;
+
+	(void)memset(&cm, 0, sizeof(cm));
+	cm.type = ClientMessage;
+	cm.window = win;
+	cm.message_type = cwmh[WM_PROTOCOLS];
+	cm.format = 32;
+	cm.data.l[0] = proto;
+	cm.data.l[1] = ts;
+
+	XSendEvent(X_Dpy, win, False, NoEventMask, (XEvent *)&cm);
+}
+
+void
+xu_get_wm_state(Window win, long *state)
+{
+	long	*p;
+
+	*state = -1;
+	if (xu_get_prop(win, cwmh[WM_STATE], cwmh[WM_STATE], 2L,
+	    (unsigned char **)&p) > 0) {
+		*state = *p;
+		XFree(p);
+	}
+}
+
+void
+xu_set_wm_state(Window win, long state)
+{
+	long	 data[] = { state, None };
+
+	XChangeProperty(X_Dpy, win, cwmh[WM_STATE], cwmh[WM_STATE], 32,
+	    PropModeReplace, (unsigned char *)data, 2);
+}
+void
+xu_xorcolor(XftColor a, XftColor b, XftColor *r)
+{
+	r->pixel = a.pixel ^ b.pixel;
+	r->color.red = a.color.red ^ b.color.red;
+	r->color.green = a.color.green ^ b.color.green;
+	r->color.blue = a.color.blue ^ b.color.blue;
+	r->color.alpha = 0xffff;
+}
+
+void
+xu_atom_init(void)
+{
+	char *cwmhints[] = {
+		"WM_STATE",
+		"WM_DELETE_WINDOW",
+		"WM_TAKE_FOCUS",
+		"WM_PROTOCOLS",
+		"_MOTIF_WM_HINTS",
+		"UTF8_STRING",
+		"WM_CHANGE_STATE",
+	};
+	char *ewmhints[] = {
+		"_NET_SUPPORTED",
+		"_NET_SUPPORTING_WM_CHECK",
+		"_NET_ACTIVE_WINDOW",
+		"_NET_CLIENT_LIST",
+		"_NET_CLIENT_LIST_STACKING",
+		"_NET_NUMBER_OF_DESKTOPS",
+		"_NET_CURRENT_DESKTOP",
+		"_NET_DESKTOP_VIEWPORT",
+		"_NET_DESKTOP_GEOMETRY",
+		"_NET_VIRTUAL_ROOTS",
+		"_NET_SHOWING_DESKTOP",
+		"_NET_DESKTOP_NAMES",
+		"_NET_WORKAREA",
+		"_NET_WM_NAME",
+		"_NET_WM_DESKTOP",
+		"_NET_CLOSE_WINDOW",
+		"_NET_WM_STATE",
+		"_NET_WM_STATE_STICKY",
+		"_NET_WM_STATE_MAXIMIZED_VERT",
+		"_NET_WM_STATE_MAXIMIZED_HORZ",
+		"_NET_WM_STATE_HIDDEN",
+		"_NET_WM_STATE_FULLSCREEN",
+		"_NET_WM_STATE_DEMANDS_ATTENTION",
+		"_NET_WM_STATE_SKIP_PAGER",
+		"_NET_WM_STATE_SKIP_TASKBAR",
+		"_CWM_WM_STATE_FREEZE",
+	};
+
+	XInternAtoms(X_Dpy, cwmhints, nitems(cwmhints), False, cwmh);
+	XInternAtoms(X_Dpy, ewmhints, nitems(ewmhints), False, ewmh);
 }
 
 /* Root Window Properties */
@@ -211,14 +302,14 @@ xu_ewmh_get_net_active_window(struct screen_ctx *sc)
 	long		*p;
 	Window		 win;
 
-	if ((xu_getprop(sc->rootwin, ewmh[_NET_ACTIVE_WINDOW],
+	if ((xu_get_prop(sc->rootwin, ewmh[_NET_ACTIVE_WINDOW],
 	    XA_WINDOW, 32, (unsigned char **)&p)) <= 0)
-		return(None);
+		return None;
 
 	win = (Window)*p;
 	XFree(p);
 
-	return(win);
+	return win;
 }
 
 void
@@ -270,7 +361,7 @@ xu_ewmh_net_desktop_names(struct screen_ctx *sc)
 
 	/* Let group names be overwritten if _NET_DESKTOP_NAMES is set. */
 
-	if ((j = xu_getprop(sc->rootwin, ewmh[_NET_DESKTOP_NAMES],
+	if ((j = xu_get_prop(sc->rootwin, ewmh[_NET_DESKTOP_NAMES],
 	    cwmh[UTF8_STRING], 0xffffff, (unsigned char **)&prop_ret)) > 0) {
 		prop_ret[j - 1] = '\0'; /* paranoia */
 		while (i < j) {
@@ -312,8 +403,21 @@ xu_ewmh_net_desktop_names(struct screen_ctx *sc)
 }
 
 /* Application Window Properties */
+int
+xu_ewmh_get_net_wm_desktop(struct client_ctx *cc, long *n)
+{
+	long		*p;
+
+	if (xu_get_prop(cc->win, ewmh[_NET_WM_DESKTOP], XA_CARDINAL, 1L,
+	    (unsigned char **)&p) <= 0)
+		return 0;
+	*n = *p;
+	XFree(p);
+	return 1;
+}
+
 void
-xu_ewmh_net_wm_desktop(struct client_ctx *cc)
+xu_ewmh_set_net_wm_desktop(struct client_ctx *cc)
 {
 	long	 num = 0xffffffff;
 
@@ -329,15 +433,15 @@ xu_ewmh_get_net_wm_state(struct client_ctx *cc, int *n)
 {
 	Atom	*state, *p = NULL;
 
-	if ((*n = xu_getprop(cc->win, ewmh[_NET_WM_STATE], XA_ATOM, 64L,
+	if ((*n = xu_get_prop(cc->win, ewmh[_NET_WM_STATE], XA_ATOM, 64L,
 	    (unsigned char **)&p)) <= 0)
-		return(NULL);
+		return NULL;
 
 	state = xreallocarray(NULL, *n, sizeof(Atom));
 	(void)memcpy(state, p, *n * sizeof(Atom));
 	XFree((char *)p);
 
-	return(state);
+	return state;
 }
 
 void
@@ -345,9 +449,9 @@ xu_ewmh_handle_net_wm_state_msg(struct client_ctx *cc, int action,
     Atom first, Atom second)
 {
 	unsigned int i;
-	static struct handlers {
-		int atom;
-		int property;
+	struct handlers {
+		Atom atom;
+		int flag;
 		void (*toggle)(struct client_ctx *);
 	} handlers[] = {
 		{ _NET_WM_STATE_STICKY,
@@ -385,11 +489,11 @@ xu_ewmh_handle_net_wm_state_msg(struct client_ctx *cc, int action,
 			continue;
 		switch (action) {
 		case _NET_WM_STATE_ADD:
-			if (!(cc->flags & handlers[i].property))
+			if (!(cc->flags & handlers[i].flag))
 				handlers[i].toggle(cc);
 			break;
 		case _NET_WM_STATE_REMOVE:
-			if (cc->flags & handlers[i].property)
+			if (cc->flags & handlers[i].flag)
 				handlers[i].toggle(cc);
 			break;
 		case _NET_WM_STATE_TOGGLE:
@@ -475,14 +579,4 @@ xu_ewmh_set_net_wm_state(struct client_ctx *cc)
 	else
 		XDeleteProperty(X_Dpy, cc->win, ewmh[_NET_WM_STATE]);
 	free(atoms);
-}
-
-void
-xu_xorcolor(XftColor a, XftColor b, XftColor *r)
-{
-	r->pixel = a.pixel ^ b.pixel;
-	r->color.red = a.color.red ^ b.color.red;
-	r->color.green = a.color.green ^ b.color.green;
-	r->color.blue = a.color.blue ^ b.color.blue;
-	r->color.alpha = 0xffff;
 }

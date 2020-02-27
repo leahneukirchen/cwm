@@ -92,12 +92,12 @@ u_argv(char * const *argv)
 	char	*p;
 
 	if (argv == 0)
-		return(NULL);
+		return NULL;
 
 	for (i = 0; argv[i]; i++)
 		siz += strlen(argv[i]) + 1;
 	if (siz == 0)
-		return(NULL);
+		return NULL;
 
 	p = xmalloc(siz);
 	strlcpy(p, argv[0], siz);
@@ -105,7 +105,7 @@ u_argv(char * const *argv)
 		strlcat(p, " ", siz);
 		strlcat(p, argv[i], siz);
 	}
-	return(p);
+	return p;
 }
 
 static void
