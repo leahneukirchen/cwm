@@ -114,8 +114,8 @@ client_init(Window win, struct screen_ctx *sc, int active)
 			active = 1;
 	}
 
-	XSelectInput(X_Dpy, cc->win, ColormapChangeMask | EnterWindowMask |
-	    PropertyChangeMask | KeyReleaseMask);
+	XSelectInput(X_Dpy, cc->win,
+	    EnterWindowMask | PropertyChangeMask | KeyReleaseMask);
 
 	XAddToSaveSet(X_Dpy, cc->win);
 
