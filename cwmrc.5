@@ -37,10 +37,8 @@ Arguments containing whitespace should be surrounded by double quotes
 .Pq \&" .
 .Pp
 The following options are accepted:
-.Pp
-.Bl -tag -width Ds -compact
-.It Ic autogroup Ar group windowclass
-.It Ic autogroup Ar group windowname,windowclass
+.Bl -tag -width Ds
+.It Ic autogroup Ar group Oo Ar windowname , Oc Ns Ar windowclass
 Automatically add new windows to
 .Ar group
 if their class property matches
@@ -62,7 +60,6 @@ used to override
 The name and class values, respectively, for existing windows
 are both set in the WM_CLASS property and may be obtained using
 .Xr xprop 1 .
-.Pp
 .It Ic bind-key Ar key function
 Bind or rebind key
 .Ar key
@@ -93,7 +90,6 @@ The
 may either be one from the
 .Sx BIND FUNCTION LIST
 (see below) or the command line that is to be executed.
-.Pp
 .It Ic bind-mouse Ar button function
 Bind or rebind button
 .Ar button
@@ -128,38 +124,27 @@ The
 may be taken from the
 .Sx BIND FUNCTION LIST
 (see below) or the command line that is to be executed.
-.Pp
 .It Ic borderwidth Ar pixels
 Set the window border width to
 .Ar pixels .
-.Pp
 .It Ic color activeborder Ar color
 Set the color of the active border.
-.Pp
 .It Ic color font Ar color
 Set menu font color.
-.Pp
 .It Ic color selfont Ar color
 Set font color for selected menu item.
-.Pp
 .It Ic color groupborder Ar color
 Set the color of the border while grouping a window.
-.Pp
 .It Ic color inactiveborder Ar color
 Set the color of the inactive border.
-.Pp
 .It Ic color menubg Ar color
 Set menu background color.
-.Pp
 .It Ic color menufg Ar color
 Set menu foreground color.
-.Pp
 .It Ic color urgencyborder Ar color
 Set the color of the border of a window indicating urgency.
-.Pp
 .It Ic color ungroupborder Ar color
 Set the color of the border while ungrouping a window.
-.Pp
 .It Ic command Ar name path
 Every
 .Ar name
@@ -183,13 +168,11 @@ The defaults are
 and
 .Xr xlock 1 ,
 respectively.
-.Pp
 .It Ic fontname Ar font
 Change the default
 .Ar font
 for
 .Xr Xft 3 .
-.Pp
 .It Ic gap Ar top bottom left right
 Define a
 .Dq gap
@@ -200,28 +183,23 @@ This
 can be used for applications such as
 .Xr xclock 1 ,
 where the user may wish to remain visible.
-.Pp
 .It Ic ignore Ar windowname
 Ignore, and do not warp to, windows with the name
 .Ar windowname
 when drawing borders and cycling through windows.
-.Pp
 .It Ic moveamount Ar pixels
 Set a default size for the keyboard movement bindings,
 in pixels.
 The default is 1.
-.Pp
 .It Ic snapdist Ar pixels
 Minimum distance to snap-to adjacent edge, in pixels.
 The default is 0.
-.Pp
 .It Ic sticky Ic yes Ns \&| Ns Ic no
 Toggle sticky group mode.
 The default behavior for new windows is to not assign any group.
 By enabling sticky group mode,
 .Xr cwm 1
 will assign new windows to the currently selected group.
-.Pp
 .It Ic unbind-key Ar key
 Unbind function bound to
 .Ar key .
@@ -230,7 +208,6 @@ A special
 keyword
 .Dq all
 can be used to unbind all keys.
-.Pp
 .It Ic unbind-mouse Ar button
 Unbind function bound to
 .Ar button .
