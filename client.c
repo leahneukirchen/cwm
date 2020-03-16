@@ -667,22 +667,24 @@ client_close(struct client_ctx *cc)
 void
 client_set_name(struct client_ctx *cc)
 {
-	struct winname	*wn;
-	char		*newname;
+	struct winname	*wn, *wnnxt;
 	int		 i = 0;
 
-	if (!xu_get_strprop(cc->win, ewmh[_NET_WM_NAME], &newname))
-		if (!xu_get_strprop(cc->win, XA_WM_NAME, &newname))
-			newname = xstrdup("");
+	free(cc->name);
+	if (!xu_get_strprop(cc->win, ewmh[_NET_WM_NAME], &cc->name))
+		if (!xu_get_strprop(cc->win, XA_WM_NAME, &cc->name))
+			cc->name = xstrdup("");
 
-	TAILQ_FOREACH(wn, &cc->nameq, entry) {
-		if (strcmp(wn->name, newname) == 0)
+	TAILQ_FOREACH_SAFE(wn, &cc->nameq, entry, wnnxt) {
+		if (strcmp(wn->name, cc->name) == 0) {
 			TAILQ_REMOVE(&cc->nameq, wn, entry);
+			free(wn->name);
+			free(wn);
+		}
 		i++;
 	}
-	cc->name = newname;
 	wn = xmalloc(sizeof(*wn));
-	wn->name = xstrdup(newname);
+	wn->name = xstrdup(cc->name);
 	TAILQ_INSERT_TAIL(&cc->nameq, wn, entry);
 
 	/* Garbage collection. */
