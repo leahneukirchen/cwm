@@ -509,7 +509,6 @@ kbfunc_menu_client(void *ctx, struct cargs *cargs)
 	struct client_ctx	*cc, *old_cc;
 	struct menu		*mi;
 	struct menu_q		 menuq;
-	int			 all = (cargs->flag & CWM_MENU_WINDOW_ALL);
 	int			 mflags = 0;
 
 	if (cargs->xev == CWM_XEV_BTN)
@@ -517,10 +516,8 @@ kbfunc_menu_client(void *ctx, struct cargs *cargs)
 
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(cc, &sc->clientq, entry) {
-		if (!all) {
-			if (cc->flags & CLIENT_HIDDEN)
-				menuq_add(&menuq, cc, NULL);
-		} else
+		if ((cargs->flag & CWM_MENU_WINDOW_ALL) ||
+		    (cc->flags & CLIENT_HIDDEN))
 			menuq_add(&menuq, cc, NULL);
 	}
 
