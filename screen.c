@@ -40,7 +40,7 @@ screen_init(int which)
 {
 	struct screen_ctx	*sc;
 	Window			active = None;
-	XSetWindowAttributes	 rootattr;
+	XSetWindowAttributes	 attr;
 
 	sc = xmalloc(sizeof(*sc));
 
@@ -69,19 +69,16 @@ screen_init(int which)
 	xu_ewmh_net_virtual_roots(sc);
 	active = xu_ewmh_get_net_active_window(sc);
 
-	rootattr.cursor = Conf.cursor[CF_NORMAL];
-	rootattr.event_mask = SubstructureRedirectMask |
-	    SubstructureNotifyMask | PropertyChangeMask | EnterWindowMask |
-	    LeaveWindowMask | ColormapChangeMask | BUTTONMASK;
-
-	XChangeWindowAttributes(X_Dpy, sc->rootwin,
-	    (CWEventMask | CWCursor), &rootattr);
-
-	screen_scan(sc, active);
-	screen_updatestackingorder(sc);
+	attr.cursor = Conf.cursor[CF_NORMAL];
+	attr.event_mask = SubstructureRedirectMask | SubstructureNotifyMask |
+	    EnterWindowMask | PropertyChangeMask | ButtonPressMask;
+	XChangeWindowAttributes(X_Dpy, sc->rootwin, (CWEventMask | CWCursor), &attr);
 
 	if (Conf.xrandr)
 		XRRSelectInput(X_Dpy, sc->rootwin, RRScreenChangeNotifyMask);
+
+	screen_scan(sc, active);
+	screen_updatestackingorder(sc);
 
 	TAILQ_INSERT_TAIL(&Screenq, sc, entry);
 
