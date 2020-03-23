@@ -89,11 +89,12 @@ main(int argc, char **argv)
 	argc -= optind;
 	argv += optind;
 
-	if (signal(SIGCHLD, sighdlr) == SIG_ERR)
+	if (signal(SIGCHLD, sighdlr) == SIG_ERR ||
+	    signal(SIGHUP, sighdlr) == SIG_ERR ||
+	    signal(SIGINT, sighdlr) == SIG_ERR ||
+	    signal(SIGTERM, sighdlr) == SIG_ERR)
 		err(1, "signal");
-	if (signal(SIGHUP, sighdlr) == SIG_ERR)
-		err(1, "signal");
-
+		 
 	if (parse_config(Conf.conf_file, &Conf) == -1) {
 		warnx("error parsing config file");
 		if (nflag)
@@ -215,6 +216,10 @@ sighdlr(int sig)
 		break;
 	case SIGHUP:
 		cwm_status = CWM_EXEC_WM;
+		break;
+	case SIGINT:
+	case SIGTERM:
+		cwm_status = CWM_QUIT;
 		break;
 	}
 
