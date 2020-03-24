@@ -37,14 +37,11 @@ static void			 client_mwm_hints(struct client_ctx *);
 static void			 client_wm_protocols(struct client_ctx *);
 
 struct client_ctx *
-client_init(Window win, struct screen_ctx *sc, int active)
+client_init(Window win, struct screen_ctx *sc)
 {
 	struct client_ctx	*cc;
 	XWindowAttributes	 wattr;
 	int			 mapped;
-	Window			 rwin, cwin;
-	int			 x, y, wx, wy;
-	unsigned int		 mask;
 	long			 state;
 
 	if (win == None)
@@ -108,10 +105,6 @@ client_init(Window win, struct screen_ctx *sc, int active)
 		client_resize(cc, 0);
 		if (cc->initial_state)
 			xu_set_wm_state(cc->win, cc->initial_state);
-	} else {
-		if ((active == 0) && (XQueryPointer(X_Dpy, cc->win, &rwin,
-		    &cwin, &x, &y, &wx, &wy, &mask)) && (cwin != None))
-			active = 1;
 	}
 
 	XSelectInput(X_Dpy, cc->win,
@@ -151,9 +144,6 @@ client_init(Window win, struct screen_ctx *sc, int active)
 out:
 	XSync(X_Dpy, False);
 	XUngrabServer(X_Dpy);
-
-	if (active)
-		client_set_active(cc);
 
 	return cc;
 }

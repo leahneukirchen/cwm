@@ -296,22 +296,6 @@ xu_ewmh_net_active_window(struct screen_ctx *sc, Window w)
 	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)&w, 1);
 }
 
-Window
-xu_ewmh_get_net_active_window(struct screen_ctx *sc)
-{
-	long		*p;
-	Window		 win;
-
-	if ((xu_get_prop(sc->rootwin, ewmh[_NET_ACTIVE_WINDOW],
-	    XA_WINDOW, 32, (unsigned char **)&p)) <= 0)
-		return None;
-
-	win = (Window)*p;
-	XFree(p);
-
-	return win;
-}
-
 void
 xu_ewmh_net_number_of_desktops(struct screen_ctx *sc)
 {

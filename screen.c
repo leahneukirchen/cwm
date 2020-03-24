@@ -33,13 +33,12 @@
 #include "calmwm.h"
 
 static struct geom screen_apply_gap(struct screen_ctx *, struct geom);
-static void screen_scan(struct screen_ctx *, Window);
+static void screen_scan(struct screen_ctx *);
 
 void
 screen_init(int which)
 {
 	struct screen_ctx	*sc;
-	Window			active = None;
 	XSetWindowAttributes	 attr;
 
 	sc = xmalloc(sizeof(*sc));
@@ -67,7 +66,6 @@ screen_init(int which)
 	xu_ewmh_net_number_of_desktops(sc);
 	xu_ewmh_net_showing_desktop(sc);
 	xu_ewmh_net_virtual_roots(sc);
-	active = xu_ewmh_get_net_active_window(sc);
 
 	attr.cursor = Conf.cursor[CF_NORMAL];
 	attr.event_mask = SubstructureRedirectMask | SubstructureNotifyMask |
@@ -77,7 +75,7 @@ screen_init(int which)
 	if (Conf.xrandr)
 		XRRSelectInput(X_Dpy, sc->rootwin, RRScreenChangeNotifyMask);
 
-	screen_scan(sc, active);
+	screen_scan(sc);
 	screen_updatestackingorder(sc);
 
 	TAILQ_INSERT_TAIL(&Screenq, sc, entry);
@@ -86,17 +84,26 @@ screen_init(int which)
 }
 
 static void
-screen_scan(struct screen_ctx *sc, Window active)
+screen_scan(struct screen_ctx *sc)
 {
-	Window			*wins, w0, w1;
-	unsigned int		 nwins, i;
+	struct client_ctx	 *cc, *active = NULL;
+	Window			*wins, w0, w1, rwin, cwin;
+	unsigned int		 nwins, i, mask;
+	int			 rx, ry, wx, wy;
+
+	XQueryPointer(X_Dpy, sc->rootwin, &rwin, &cwin,
+	    &rx, &ry, &wx, &wy, &mask);
 
 	if (XQueryTree(X_Dpy, sc->rootwin, &w0, &w1, &wins, &nwins)) {
-		for (i = 0; i < nwins; i++)
-			(void)client_init(wins[i], sc, (active == wins[i]));
-
+		for (i = 0; i < nwins; i++) {
+			if ((cc = client_init(wins[i], sc)) != NULL)
+				if (cc->win == cwin)
+					active = cc;
+		}
 		XFree(wins);
 	}
+	if (active)
+		client_set_active(active);
 }
 
 struct screen_ctx *
