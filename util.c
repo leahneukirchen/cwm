@@ -53,7 +53,7 @@ u_exec(char *argstr)
 {
 #define MAXARGLEN 20
 	char	*args[MAXARGLEN], **ap = args;
-	char	**end = &args[MAXARGLEN - 1], *tmp;
+	char	**end = &args[MAXARGLEN - 2], *tmp;
 	char	*s = argstr;
 
 	while (ap < end && (*ap = strsep(&argstr, " \t")) != NULL) {
