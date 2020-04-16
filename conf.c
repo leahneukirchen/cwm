@@ -281,6 +281,8 @@ conf_init(struct conf *c)
 	c->stickygroups = 0;
 	c->bwidth = 1;
 	c->mamount = 1;
+	c->htile = 50;
+	c->vtile = 50;
 	c->snapdist = 0;
 	c->ngroups = 0;
 	c->nameqlen = 5;

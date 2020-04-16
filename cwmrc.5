@@ -183,6 +183,13 @@ This
 can be used for applications such as
 .Xr xclock 1 ,
 where the user may wish to remain visible.
+.It Ic htile Ar percent
+Set the percentage of screen the master window should occupy
+after calling
+.Ic window-htile .
+If set to 0, the horizontal size of the master window will
+remain unchanged.
+The default is 50.
 .It Ic ignore Ar windowname
 Ignore, and do not warp to, windows with the name
 .Ar windowname
@@ -216,6 +223,13 @@ A special
 keyword
 .Dq all
 can be used to unbind all buttons.
+.It Ic vtile Ar percent
+Set the percentage of screen the master window should occupy
+after calling
+.Ic window-vtile .
+If set to 0, the vertical size of the master window will
+remain unchanged.
+The default is 50.
 .It Ic wm Ar name path
 Every
 .Ar name
@@ -303,11 +317,15 @@ Vertically maximize current window (gap + border honored).
 Horizontally maximize current window (gap + border honored).
 .It window-htile
 Current window is placed at the top of the screen, maximized
-horizontally and resized to half of the vertical screen space.
+horizontally and resized to
+.Ar htile
+(default half) of the vertical screen space.
 Other windows in its group share remaining screen space.
 .It window-vtile
 Current window is placed on the left of the screen, maximized vertically
-and resized to half of the horizontal screen space.
+and resized to
+.Ar vtile
+(default half) of the horizontal screen space.
 Other windows in its group share remaining screen space.
 .It window-move
 Move current window.

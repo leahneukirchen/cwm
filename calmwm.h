@@ -291,6 +291,8 @@ struct conf {
 	int			 bwidth;
 	int			 mamount;
 	int			 snapdist;
+	int			 htile;
+	int			 vtile;
 	struct gap		 gap;
 	char			*color[CWM_COLOR_NITEMS];
 	char			*font;

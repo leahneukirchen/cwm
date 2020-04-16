@@ -940,7 +940,8 @@ client_htile(struct client_ctx *cc)
 	cc->geom.x = area.x;
 	cc->geom.y = area.y;
 	cc->geom.w = area.w - (cc->bwidth * 2);
-	cc->geom.h = (area.h - (cc->bwidth * 2)) / 2;
+	if (Conf.htile > 0)
+		cc->geom.h = ((area.h - (cc->bwidth * 2)) * Conf.htile) / 100;
 	client_resize(cc, 1);
 	client_ptr_warp(cc);
 
@@ -1007,7 +1008,8 @@ client_vtile(struct client_ctx *cc)
 	cc->flags &= ~CLIENT_VMAXIMIZED;
 	cc->geom.x = area.x;
 	cc->geom.y = area.y;
-	cc->geom.w = (area.w - (cc->bwidth * 2)) / 2;
+	if (Conf.vtile > 0)
+		cc->geom.w = ((area.w - (cc->bwidth * 2)) * Conf.vtile) / 100;
 	cc->geom.h = area.h - (cc->bwidth * 2);
 	client_resize(cc, 1);
 	client_ptr_warp(cc);

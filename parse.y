@@ -71,7 +71,7 @@ typedef struct {
 %token	BINDKEY UNBINDKEY BINDMOUSE UNBINDMOUSE
 %token	FONTNAME STICKY GAP
 %token	AUTOGROUP COMMAND IGNORE WM
-%token	YES NO BORDERWIDTH MOVEAMOUNT
+%token	YES NO BORDERWIDTH MOVEAMOUNT HTILE VTILE
 %token	COLOR SNAPDIST
 %token	ACTIVEBORDER INACTIVEBORDER URGENCYBORDER
 %token	GROUPBORDER UNGROUPBORDER
@@ -121,6 +121,20 @@ main		: FONTNAME STRING		{
 				YYERROR;
 			}
 			conf->bwidth = $2;
+		}
+		| HTILE NUMBER {
+			if ($2 < 0 || $2 > 99) {
+				yyerror("invalid htile percent");
+				YYERROR;
+			}
+			conf->htile = $2;
+		}
+		| VTILE NUMBER {
+			if ($2 < 0 || $2 > 99) {
+				yyerror("invalid vtile percent");
+				YYERROR;
+			}
+			conf->vtile = $2;
 		}
 		| MOVEAMOUNT NUMBER {
 			if ($2 < 0 || $2 > INT_MAX) {
@@ -316,6 +330,7 @@ lookup(char *s)
 		{ "fontname",		FONTNAME},
 		{ "gap",		GAP},
 		{ "groupborder",	GROUPBORDER},
+		{ "htile",		HTILE},
 		{ "ignore",		IGNORE},
 		{ "inactiveborder",	INACTIVEBORDER},
 		{ "menubg",		MENUBG},
@@ -329,6 +344,7 @@ lookup(char *s)
 		{ "unbind-mouse",	UNBINDMOUSE},
 		{ "ungroupborder",	UNGROUPBORDER},
 		{ "urgencyborder",	URGENCYBORDER},
+		{ "vtile",		VTILE},
 		{ "wm",			WM},
 		{ "yes",		YES}
 	};
