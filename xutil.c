@@ -73,8 +73,10 @@ xu_get_strprop(Window win, Atom atm, char **text) {
 	*text = NULL;
 
 	XGetTextProperty(X_Dpy, win, &prop, atm);
-	if (!prop.nitems)
+	if (!prop.nitems) {
+		XFree(prop.value);
 		return 0;
+	}
 
 	if (Xutf8TextPropertyToTextList(X_Dpy, &prop, &list,
 	    &nitems) == Success && nitems > 0 && *list) {
