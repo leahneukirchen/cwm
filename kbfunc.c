@@ -62,7 +62,7 @@ kbfunc_amount(int flags, int amt, int *mx, int *my)
 	if (flags & CWM_BIGAMOUNT)
 		amt *= CWM_FACTOR;
 
-	switch (flags & DIRECTIONMASK) {
+	switch (flags & (CWM_UP | CWM_DOWN | CWM_LEFT | CWM_RIGHT)) {
 	case CWM_UP:
 		*my -= amt;
 		break;
@@ -87,8 +87,8 @@ kbfunc_ptrmove(void *ctx, struct cargs *cargs)
 
 	kbfunc_amount(cargs->flag, Conf.mamount, &mx, &my);
 
-	xu_ptr_getpos(sc->rootwin, &x, &y);
-	xu_ptr_setpos(sc->rootwin, x + mx, y + my);
+	xu_ptr_get(sc->rootwin, &x, &y);
+	xu_ptr_set(sc->rootwin, x + mx, y + my);
 }
 
 void
@@ -135,7 +135,7 @@ kbfunc_client_move_kb(void *ctx, struct cargs *cargs)
 
 	area = screen_area(sc,
 	    cc->geom.x + cc->geom.w / 2,
-	    cc->geom.y + cc->geom.h / 2, CWM_GAP);
+	    cc->geom.y + cc->geom.h / 2, 1);
 	cc->geom.x += client_snapcalc(cc->geom.x,
 	    cc->geom.x + cc->geom.w + (cc->bwidth * 2),
 	    area.x, area.x + area.w, sc->snapdist);
@@ -186,7 +186,7 @@ kbfunc_client_move_mb(void *ctx, struct cargs *cargs)
 
 			area = screen_area(sc,
 			    cc->geom.x + cc->geom.w / 2,
-			    cc->geom.y + cc->geom.h / 2, CWM_GAP);
+			    cc->geom.y + cc->geom.h / 2, 1);
 			cc->geom.x += client_snapcalc(cc->geom.x,
 			    cc->geom.x + cc->geom.w + (cc->bwidth * 2),
 			    area.x, area.x + area.w, sc->snapdist);
@@ -250,9 +250,9 @@ kbfunc_client_resize_mb(void *ctx, struct cargs *cargs)
 		return;
 
 	client_raise(cc);
-	client_ptrsave(cc);
+	client_ptr_save(cc);
 
-	xu_ptr_setpos(cc->win, cc->geom.w, cc->geom.h);
+	xu_ptr_set(cc->win, cc->geom.w, cc->geom.h);
 
 	if (XGrabPointer(X_Dpy, cc->win, False, MOUSEMASK,
 	    GrabModeAsync, GrabModeAsync, None, Conf.cursor[CF_RESIZE],
@@ -272,7 +272,7 @@ kbfunc_client_resize_mb(void *ctx, struct cargs *cargs)
 
 			cc->geom.w = ev.xmotion.x;
 			cc->geom.h = ev.xmotion.y;
-			client_applysizehints(cc);
+			client_apply_sizehints(cc);
 			client_resize(cc, 1);
 			screen_prop_win_draw(sc,
 			    "%4d x %-4d", cc->dim.w, cc->dim.h);
@@ -301,7 +301,7 @@ kbfunc_client_snap(void *ctx, struct cargs *cargs)
 
 	area = screen_area(sc,
 	    cc->geom.x + cc->geom.w / 2,
-	    cc->geom.y + cc->geom.h / 2, CWM_GAP);
+	    cc->geom.y + cc->geom.h / 2, 1);
 
 	flags = cargs->flag;
 	while (flags) {
@@ -337,7 +337,7 @@ kbfunc_client_close(void *ctx, struct cargs *cargs)
 void
 kbfunc_client_lower(void *ctx, struct cargs *cargs)
 {
-	client_ptrsave(ctx);
+	client_ptr_save(ctx);
 	client_lower(ctx);
 }
 
@@ -405,13 +405,55 @@ void
 kbfunc_client_cycle(void *ctx, struct cargs *cargs)
 {
 	struct screen_ctx	*sc = ctx;
+	struct client_ctx	*newcc, *oldcc, *prevcc;
+	int			 again = 1, flags = cargs->flag;
 
 	/* For X apps that ignore/steal events. */
 	if (cargs->xev == CWM_XEV_KEY)
 		XGrabKeyboard(X_Dpy, sc->rootwin, True,
 		    GrabModeAsync, GrabModeAsync, CurrentTime);
 
-	client_cycle(sc, cargs->flag);
+	if (TAILQ_EMPTY(&sc->clientq))
+		return;
+
+	prevcc = TAILQ_FIRST(&sc->clientq);
+	oldcc = client_current(sc);
+	if (oldcc == NULL)
+		oldcc = (flags & CWM_CYCLE_REVERSE) ?
+		    TAILQ_LAST(&sc->clientq, client_q) :
+		    TAILQ_FIRST(&sc->clientq);
+
+	newcc = oldcc;
+	while (again) {
+		again = 0;
+
+		newcc = (flags & CWM_CYCLE_REVERSE) ? client_prev(newcc) :
+		    client_next(newcc);
+
+		/* Only cycle visible and non-ignored windows. */
+		if ((newcc->flags & (CLIENT_SKIP_CYCLE)) ||
+		    ((flags & CWM_CYCLE_INGROUP) &&
+		    (newcc->gc != oldcc->gc)))
+			again = 1;
+
+		/* Is oldcc the only non-hidden window? */
+		if (newcc == oldcc) {
+			if (again)
+				return;	/* No windows visible. */
+			break;
+		}
+	}
+
+	/* Reset when cycling mod is released. XXX I hate this hack */
+	sc->cycling = 1;
+	client_ptr_save(oldcc);
+	client_raise(prevcc);
+	client_raise(newcc);
+	if (!client_inbound(newcc, newcc->ptr.x, newcc->ptr.y)) {
+		newcc->ptr.x = newcc->geom.w / 2;
+		newcc->ptr.y = newcc->geom.h / 2;
+	}
+	client_ptr_warp(newcc);
 }
 
 void
@@ -470,20 +512,15 @@ kbfunc_menu_client(void *ctx, struct cargs *cargs)
 	struct client_ctx	*cc, *old_cc;
 	struct menu		*mi;
 	struct menu_q		 menuq;
-	int			 all = (cargs->flag & CWM_MENU_WINDOW_ALL);
 	int			 mflags = 0;
 
 	if (cargs->xev == CWM_XEV_BTN)
 		mflags |= CWM_MENU_LIST;
 
-	old_cc = client_current(sc);
-
 	TAILQ_INIT(&menuq);
 	TAILQ_FOREACH(cc, &sc->clientq, entry) {
-		if (!all) {
-			if (cc->flags & CLIENT_HIDDEN)
-				menuq_add(&menuq, cc, NULL);
-		} else
+		if ((cargs->flag & CWM_MENU_WINDOW_ALL) ||
+		    (cc->flags & CLIENT_HIDDEN))
 			menuq_add(&menuq, cc, NULL);
 	}
 
@@ -491,9 +528,9 @@ kbfunc_menu_client(void *ctx, struct cargs *cargs)
 	    search_match_client, search_print_client)) != NULL) {
 		cc = (struct client_ctx *)mi->ctx;
 		client_show(cc);
-		if (old_cc)
-			client_ptrsave(old_cc);
-		client_ptrwarp(cc);
+		if ((old_cc = client_current(sc)) != NULL)
+			client_ptr_save(old_cc);
+		client_ptr_warp(cc);
 	}
 
 	menuq_clear(&menuq);

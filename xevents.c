@@ -84,13 +84,13 @@ xev_handle_maprequest(XEvent *ee)
 		return;
 
 	if ((old_cc = client_current(sc)) != NULL)
-		client_ptrsave(old_cc);
+		client_ptr_save(old_cc);
 
 	if ((cc = client_find(e->window)) == NULL)
-		cc = client_init(e->window, NULL, 0);
+		cc = client_init(e->window, NULL);
 
 	if ((cc != NULL) && (!(cc->flags & CLIENT_IGNORE)))
-		client_ptrwarp(cc);
+		client_ptr_warp(cc);
 }
 
 static void
@@ -103,7 +103,7 @@ xev_handle_unmapnotify(XEvent *ee)
 
 	if ((cc = client_find(e->window)) != NULL) {
 		if (e->send_event) {
-			client_set_wm_state(cc, WithdrawnState);
+			xu_set_wm_state(cc->win, WithdrawnState);
 		} else {
 			if (!(cc->flags & CLIENT_HIDDEN))
 				client_remove(cc);
@@ -191,10 +191,10 @@ xev_handle_propertynotify(XEvent *ee)
 	if ((cc = client_find(e->window)) != NULL) {
 		switch (e->atom) {
 		case XA_WM_NORMAL_HINTS:
-			client_getsizehints(cc);
+			client_get_sizehints(cc);
 			break;
 		case XA_WM_NAME:
-			client_setname(cc);
+			client_set_name(cc);
 			break;
 		case XA_WM_HINTS:
 			client_wm_hints(cc);
@@ -208,7 +208,7 @@ xev_handle_propertynotify(XEvent *ee)
 			break;
 		default:
 			if (e->atom == ewmh[_NET_WM_NAME])
-				client_setname(cc);
+				client_set_name(cc);
 			break;
 		}
 	} else {
@@ -230,7 +230,7 @@ xev_handle_enternotify(XEvent *ee)
 	Last_Event_Time = e->time;
 
 	if ((cc = client_find(e->window)) != NULL)
-		client_setactive(cc);
+		client_set_active(cc);
 }
 
 static void
@@ -399,9 +399,9 @@ xev_handle_clientmessage(XEvent *ee)
 	} else if (e->message_type == ewmh[_NET_ACTIVE_WINDOW]) {
 		if ((cc = client_find(e->window)) != NULL) {
 			if ((old_cc = client_current(NULL)) != NULL)
-				client_ptrsave(old_cc);
+				client_ptr_save(old_cc);
 			client_show(cc);
-			client_ptrwarp(cc);
+			client_ptr_warp(cc);
 		}
 	} else if (e->message_type == ewmh[_NET_WM_DESKTOP]) {
 		if ((cc = client_find(e->window)) != NULL) {

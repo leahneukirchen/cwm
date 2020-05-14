@@ -46,13 +46,13 @@ match_substr(char *sub, char *str, int zeroidx)
 	unsigned int	 n, flen;
 
 	if (sub == NULL || str == NULL)
-		return(0);
+		return 0;
 
 	len = strlen(str);
 	sublen = strlen(sub);
 
 	if (sublen > len)
-		return(0);
+		return 0;
 
 	if (zeroidx)
 		flen = 0;
@@ -61,9 +61,9 @@ match_substr(char *sub, char *str, int zeroidx)
 
 	for (n = 0; n <= flen; n++)
 		if (strncasecmp(sub, str + n, sublen) == 0)
-			return(1);
+			return 1;
 
-	return(0);
+	return 0;
 }
 
 void
@@ -94,7 +94,7 @@ search_match_client(struct menu_q *menuq, struct menu_q *resultq, char *search)
 		}
 
 		/* Match on window resource class. */
-		if ((tier < 0) && match_substr(search, cc->ch.res_class, 0))
+		if ((tier < 0) && match_substr(search, cc->res_class, 0))
 			tier = 2;
 
 		if (tier < 0)
