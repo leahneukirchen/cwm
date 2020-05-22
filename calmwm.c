@@ -44,7 +44,7 @@ struct screen_q		 Screenq = TAILQ_HEAD_INITIALIZER(Screenq);
 struct conf		 Conf;
 volatile sig_atomic_t	 cwm_status;
 
-__dead void	usage(void);
+void	usage(void);
 static void	sighdlr(int);
 static int	x_errorhandler(Display *, XErrorEvent *);
 static int	x_init(const char *);

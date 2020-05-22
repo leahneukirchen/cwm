@@ -121,6 +121,14 @@ Changes made between OpenBSD 6.4 and 6.5
 * Introduced 'group-close-[n]' action to cwm(1) to close all windows
   within a specified group.
 
+2020-05-22: Seventh public release 6.7 of portable cwm.
+
+Changes made between OpenBSD 6.6 and 6.7
+* Allowed cwm(1) configuration of window size based on percentage of
+  the master window during horizontal and vertical tiling actions.
+* Allowed use of window-htile and window-vtile with the "empty" group
+  clients in cwm(1).
+
 
 --Leah Neukirchen <leah@vuxu.org>
 
