@@ -336,6 +336,7 @@ client_toggle_fullscreen(struct client_ctx *cc)
 resize:
 	client_resize(cc, 0);
 	xu_ewmh_set_net_wm_state(cc);
+	client_ptr_inbound(cc, 1);
 }
 
 void
@@ -376,6 +377,7 @@ client_toggle_maximize(struct client_ctx *cc)
 resize:
 	client_resize(cc, 0);
 	xu_ewmh_set_net_wm_state(cc);
+	client_ptr_inbound(cc, 1);
 }
 
 void
@@ -408,6 +410,7 @@ client_toggle_vmaximize(struct client_ctx *cc)
 resize:
 	client_resize(cc, 0);
 	xu_ewmh_set_net_wm_state(cc);
+	client_ptr_inbound(cc, 1);
 }
 
 void
@@ -440,6 +443,7 @@ client_toggle_hmaximize(struct client_ctx *cc)
 resize:
 	client_resize(cc, 0);
 	xu_ewmh_set_net_wm_state(cc);
+	client_ptr_inbound(cc, 1);
 }
 
 void
