@@ -669,6 +669,8 @@ conf_grab_kbd(Window win)
 
 	TAILQ_FOREACH(kb, &Conf.keybindq, entry) {
 		kc = XKeysymToKeycode(X_Dpy, kb->press.keysym);
+		if (kc == 0)
+			continue;
 		if ((XkbKeycodeToKeysym(X_Dpy, kc, 0, 0) != kb->press.keysym) &&
 		    (XkbKeycodeToKeysym(X_Dpy, kc, 0, 1) == kb->press.keysym))
 			kb->modmask |= ShiftMask;
