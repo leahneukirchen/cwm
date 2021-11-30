@@ -11,7 +11,7 @@ SRCS=		calmwm.c screen.c xmalloc.c client.c menu.c \
 
 OBJS=		calmwm.o screen.o xmalloc.o client.o menu.o \
 		search.o util.o xutil.o conf.o xevents.o group.o \
-		kbfunc.o strlcpy.o strlcat.o y.tab.o \
+		kbfunc.o strlcpy.o strlcat.o parse.o \
 		strtonum.o reallocarray.o
 		
 PKG_CONFIG?=	pkg-config
@@ -27,12 +27,9 @@ MANPREFIX?=	${PREFIX}/share/man
 all: ${PROG}
 
 clean:
-	rm -f ${OBJS} ${PROG} y.tab.c
+	rm -f ${OBJS} ${PROG} parse.c
 
-y.tab.c: parse.y
-	yacc parse.y
-
-${PROG}: ${OBJS} y.tab.o
+${PROG}: ${OBJS}
 	${CC} ${OBJS} ${LDFLAGS} -o ${PROG}
 
 .c.o:
@@ -53,3 +50,5 @@ sign:
 	gpg2 --armor --detach-sign cwm-$$VERSION.tar.gz && \
 	signify -S -s ~/.signify/cwm.sec -m cwm-$$VERSION.tar.gz && \
 	sed -i '1cuntrusted comment: verify with cwm.pub' cwm-$$VERSION.tar.gz.sig
+
+.PRECIOUS: parse.c
