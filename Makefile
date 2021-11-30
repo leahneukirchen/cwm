@@ -24,13 +24,15 @@ LDFLAGS+=	`${PKG_CONFIG} --libs x11 xft xrandr`
 
 MANPREFIX?=	${PREFIX}/share/man
 
+YACC=           $(if $(shell command -v yacc >/dev/null),yacc,bison --yacc)
+
 all: ${PROG}
 
 clean:
 	rm -f ${OBJS} ${PROG} y.tab.c
 
 y.tab.c: parse.y
-	yacc parse.y
+	$(YACC) parse.y
 
 ${PROG}: ${OBJS} y.tab.o
 	${CC} ${OBJS} ${LDFLAGS} -o ${PROG}
