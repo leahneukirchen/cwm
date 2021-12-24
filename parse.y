@@ -81,7 +81,7 @@ typedef struct {
 %token	<v.string>		STRING
 %token	<v.number>		NUMBER
 %type	<v.number>		yesno
-%type	<v.string>		string
+%type	<v.string>		string numberstring
 %%
 
 grammar		: /* empty */
@@ -100,6 +100,17 @@ string		: string STRING			{
 			}
 			free($1);
 			free($2);
+		}
+		| STRING
+		;
+
+numberstring	: NUMBER				{
+			char	*s;
+			if (asprintf(&s, "%lld", $1) == -1) {
+				yyerror("string: asprintf");
+				YYERROR;
+			}
+			$$ = s;
 		}
 		| STRING
 		;
@@ -209,7 +220,7 @@ main		: FONTNAME STRING		{
 			conf->gap.left = $4;
 			conf->gap.right = $5;
 		}
-		| BINDKEY STRING string {
+		| BINDKEY numberstring string {
 			if (!conf_bind_key(conf, $2, $3)) {
 				yyerror("invalid bind-key: %s %s", $2, $3);
 				free($2);
@@ -219,7 +230,7 @@ main		: FONTNAME STRING		{
 			free($2);
 			free($3);
 		}
-		| UNBINDKEY STRING {
+		| UNBINDKEY numberstring {
 			if (!conf_bind_key(conf, $2, NULL)) {
 				yyerror("invalid unbind-key: %s", $2);
 				free($2);
@@ -227,7 +238,7 @@ main		: FONTNAME STRING		{
 			}
 			free($2);
 		}
-		| BINDMOUSE STRING string {
+		| BINDMOUSE numberstring string {
 			if (!conf_bind_mouse(conf, $2, $3)) {
 				yyerror("invalid bind-mouse: %s %s", $2, $3);
 				free($2);
@@ -237,7 +248,7 @@ main		: FONTNAME STRING		{
 			free($2);
 			free($3);
 		}
-		| UNBINDMOUSE STRING {
+		| UNBINDMOUSE numberstring {
 			if (!conf_bind_mouse(conf, $2, NULL)) {
 				yyerror("invalid unbind-mouse: %s", $2);
 				free($2);
