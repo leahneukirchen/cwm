@@ -479,6 +479,14 @@ kbfunc_group_only(void *ctx, struct cargs *cargs)
 }
 
 void
+kbfunc_group_last(void *ctx, struct cargs *cargs)
+{
+	struct screen_ctx	*sc = ctx;
+
+	group_only(ctx, sc->group_last->num);
+}
+
+void
 kbfunc_group_toggle(void *ctx, struct cargs *cargs)
 {
 	group_toggle(ctx, cargs->flag);

@@ -60,6 +60,7 @@ screen_init(int which)
 	xu_ewmh_net_supported_wm_check(sc);
 
 	conf_group(sc);
+	sc->group_last = sc->group_active;
 	screen_update_geometry(sc);
 
 	xu_ewmh_net_desktop_names(sc);

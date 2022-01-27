@@ -139,6 +139,7 @@ static const struct {
 
 	{ FUNC_SC(group-cycle, group_cycle, (CWM_CYCLE_FORWARD)) },
 	{ FUNC_SC(group-rcycle, group_cycle, (CWM_CYCLE_REVERSE)) },
+	{ FUNC_SC(group-last, group_last, 0) },
 	{ FUNC_SC(group-toggle-all, group_toggle_all, 0) },
 	{ FUNC_SC(group-toggle-1, group_toggle, 1) },
 	{ FUNC_SC(group-toggle-2, group_toggle, 2) },
