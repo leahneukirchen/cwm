@@ -849,13 +849,15 @@ client_mwm_hints(struct client_ctx *cc)
 
 	if (xu_get_prop(cc->win, cwmh[_MOTIF_WM_HINTS],
 	    cwmh[_MOTIF_WM_HINTS], MWM_HINTS_ELEMENTS,
-	    (unsigned char **)&mwmh) == MWM_HINTS_ELEMENTS) {
-		if (mwmh->flags & MWM_FLAGS_DECORATIONS &&
-		    !(mwmh->decorations & MWM_DECOR_ALL) &&
-		    !(mwmh->decorations & MWM_DECOR_BORDER))
+	    (unsigned char **)&mwmh) <= 0)
+		return;
+
+	if ((mwmh->flags & MWM_HINTS_DECORATIONS) &&
+	    !(mwmh->decorations & MWM_DECOR_ALL)) {
+		if (!(mwmh->decorations & MWM_DECOR_BORDER))
 			cc->bwidth = 0;
-		XFree(mwmh);
 	}
+	XFree(mwmh);
 }
 
 void
