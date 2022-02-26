@@ -668,7 +668,7 @@ kbfunc_menu_exec(void *ctx, struct cargs *cargs)
 				/* lstat(2) in case d_type isn't supported. */
 				if (lstat(tpath, &sb) == -1)
 					continue;
-				if (!S_ISREG(sb.st_mode) && 
+				if (!S_ISREG(sb.st_mode) &&
 				    !S_ISLNK(sb.st_mode))
 					continue;
 			}

@@ -637,7 +637,7 @@ void
 client_wm_hints(struct client_ctx *cc)
 {
 	XWMHints	*wmh;
- 
+
 	if ((wmh = XGetWMHints(X_Dpy, cc->win)) != NULL) {
 		if ((wmh->flags & InputHint) && (wmh->input))
 			cc->flags |= CLIENT_INPUT;
