@@ -94,7 +94,7 @@ main(int argc, char **argv)
 	    signal(SIGINT, sighdlr) == SIG_ERR ||
 	    signal(SIGTERM, sighdlr) == SIG_ERR)
 		err(1, "signal");
- 
+
 	if (parse_config(Conf.conf_file, &Conf) == -1) {
 		warnx("error parsing config file");
 		if (nflag)

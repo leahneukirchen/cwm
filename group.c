@@ -215,6 +215,9 @@ group_only(struct screen_ctx *sc, int idx)
 {
 	struct group_ctx	*gc;
 
+	if (sc->group_last != sc->group_active)
+		sc->group_last = sc->group_active;
+
 	TAILQ_FOREACH(gc, &sc->groupq, entry) {
 		if (gc->num == idx)
 			group_show(gc);

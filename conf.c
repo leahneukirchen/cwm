@@ -139,6 +139,7 @@ static const struct {
 
 	{ FUNC_SC(group-cycle, group_cycle, (CWM_CYCLE_FORWARD)) },
 	{ FUNC_SC(group-rcycle, group_cycle, (CWM_CYCLE_REVERSE)) },
+	{ FUNC_SC(group-last, group_last, 0) },
 	{ FUNC_SC(group-toggle-all, group_toggle_all, 0) },
 	{ FUNC_SC(group-toggle-1, group_toggle, 1) },
 	{ FUNC_SC(group-toggle-2, group_toggle, 2) },
@@ -647,7 +648,7 @@ conf_unbind_mouse(struct conf *c, struct bind_ctx *unbind)
 	struct bind_ctx		*mb = NULL, *mbnxt;
 
 	TAILQ_FOREACH_SAFE(mb, &c->mousebindq, entry, mbnxt) {
-		if ((unbind == NULL) || 
+		if ((unbind == NULL) ||
 		    ((mb->modmask == unbind->modmask) &&
 		     (mb->press.button == unbind->press.button))) {
 			TAILQ_REMOVE(&c->mousebindq, mb, entry);
@@ -669,6 +670,8 @@ conf_grab_kbd(Window win)
 
 	TAILQ_FOREACH(kb, &Conf.keybindq, entry) {
 		kc = XKeysymToKeycode(X_Dpy, kb->press.keysym);
+		if (kc == 0)
+			continue;
 		if ((XkbKeycodeToKeysym(X_Dpy, kc, 0, 0) != kb->press.keysym) &&
 		    (XkbKeycodeToKeysym(X_Dpy, kc, 0, 1) == kb->press.keysym))
 			kb->modmask |= ShiftMask;

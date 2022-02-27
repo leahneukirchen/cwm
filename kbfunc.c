@@ -453,7 +453,16 @@ kbfunc_client_cycle(void *ctx, struct cargs *cargs)
 		newcc->ptr.x = newcc->geom.w / 2;
 		newcc->ptr.y = newcc->geom.h / 2;
 	}
-	client_ptr_warp(newcc);
+
+	/* When no client is active, warp pointer to last active. */
+	if (oldcc->flags & (CLIENT_ACTIVE))
+		client_ptr_warp(newcc);
+	else if (oldcc->flags & (CLIENT_SKIP_CYCLE))
+		client_ptr_warp(newcc);
+	else {
+		client_raise(oldcc);
+		client_ptr_warp(oldcc);
+	}
 }
 
 void
@@ -479,6 +488,14 @@ void
 kbfunc_group_only(void *ctx, struct cargs *cargs)
 {
 	group_only(ctx, cargs->flag);
+}
+
+void
+kbfunc_group_last(void *ctx, struct cargs *cargs)
+{
+	struct screen_ctx	*sc = ctx;
+
+	group_only(ctx, sc->group_last->num);
 }
 
 void
@@ -663,7 +680,7 @@ kbfunc_menu_exec(void *ctx, struct cargs *cargs)
 				/* lstat(2) in case d_type isn't supported. */
 				if (lstat(tpath, &sb) == -1)
 					continue;
-				if (!S_ISREG(sb.st_mode) && 
+				if (!S_ISREG(sb.st_mode) &&
 				    !S_ISLNK(sb.st_mode))
 					continue;
 			}
