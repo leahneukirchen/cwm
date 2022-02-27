@@ -450,7 +450,16 @@ kbfunc_client_cycle(void *ctx, struct cargs *cargs)
 		newcc->ptr.x = newcc->geom.w / 2;
 		newcc->ptr.y = newcc->geom.h / 2;
 	}
-	client_ptr_warp(newcc);
+
+	/* When no client is active, warp pointer to last active. */
+	if (oldcc->flags & (CLIENT_ACTIVE))
+		client_ptr_warp(newcc);
+	else if (oldcc->flags & (CLIENT_SKIP_CYCLE))
+		client_ptr_warp(newcc);
+	else {
+		client_raise(oldcc);
+		client_ptr_warp(oldcc);
+	}
 }
 
 void
