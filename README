@@ -130,6 +130,17 @@ Changes made between OpenBSD 6.6 and 6.7
 * Allowed use of window-htile and window-vtile with the "empty" group
   clients in cwm(1).
 
+2022-04-30: Eighth public release 7.1 of portable cwm.
+
+Changes made between OpenBSD 6.9 and 7.0
+* Changed cwm(1) maximization and full-screen mode toggling to keep
+  the cursor within the window, preventing focus loss.
+
+Changes made between OpenBSD 7.0 and 7.1
+* Added a cwm(1) "group-last" command that shows only the previously
+  active group.
+* Allowed bare numbers for key and mouse bindings in cwm(1).
+
 
 --Leah Neukirchen <leah@vuxu.org>
 
