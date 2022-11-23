@@ -22,6 +22,7 @@
 %{
 
 #include <sys/types.h>
+#include <inttypes.h>
 #include "queue.h"
 
 #include <ctype.h>
@@ -108,7 +109,7 @@ string		: string STRING			{
 
 numberstring	: NUMBER				{
 			char	*s;
-			if (asprintf(&s, "%lld", $1) == -1) {
+			if (asprintf(&s, "%" PRId64, $1) == -1) {
 				yyerror("string: asprintf");
 				YYERROR;
 			}
