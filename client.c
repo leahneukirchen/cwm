@@ -596,7 +596,7 @@ client_draw_border(struct client_ctx *cc)
 		pixel = sc->xftcolor[CWM_COLOR_BORDER_URGENCY].pixel;
 
 	XSetWindowBorderWidth(X_Dpy, cc->win, (unsigned int)cc->bwidth);
-	XSetWindowBorder(X_Dpy, cc->win, pixel);
+	XSetWindowBorder(X_Dpy, cc->win, pixel | (0xffu << 24));
 }
 
 static void
