@@ -67,6 +67,7 @@
 #define CWM_CYCLE_FORWARD	0x0001
 #define CWM_CYCLE_REVERSE	0x0002
 #define CWM_CYCLE_INGROUP	0x0004
+#define CWM_CYCLE_INCLASS	0x0008
 
 enum cwm_status {
 	CWM_QUIT,

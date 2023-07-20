@@ -430,7 +430,9 @@ kbfunc_client_cycle(void *ctx, struct cargs *cargs)
 		/* Only cycle visible and non-ignored windows. */
 		if ((newcc->flags & (CLIENT_SKIP_CYCLE)) ||
 		    ((flags & CWM_CYCLE_INGROUP) &&
-		    (newcc->gc != oldcc->gc)))
+		    (newcc->gc != oldcc->gc)) ||
+		    ((flags & CWM_CYCLE_INCLASS) &&
+		    strcmp(newcc->res_class, oldcc->res_class) != 0))
 			again = 1;
 
 		/* Is oldcc the only non-hidden window? */
