@@ -141,6 +141,12 @@ Changes made between OpenBSD 7.0 and 7.1
   active group.
 * Allowed bare numbers for key and mouse bindings in cwm(1).
 
+2023-10-20: Ninth public release 7.4 of portable cwm.
+
+Changes made between OpenBSD 7.3 and 7.4:
+* Allow cwm(1) to cycle through windows of the same window class as
+  the active window, default key binding to M-grave, respectively
+  Alt-Tilde, like with other window managers.
 
 --Leah Neukirchen <leah@vuxu.org>
 
