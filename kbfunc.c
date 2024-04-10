@@ -165,7 +165,7 @@ kbfunc_client_move_mb(void *ctx, struct cargs *cargs)
 
 	client_ptr_inbound(cc, 1);
 
-	if (XGrabPointer(X_Dpy, cc->win, False, MOUSEMASK,
+	if (XGrabPointer(X_Dpy, sc->rootwin, False, MOUSEMASK,
 	    GrabModeAsync, GrabModeAsync, None, Conf.cursor[CF_MOVE],
 	    CurrentTime) != GrabSuccess)
 		return;
@@ -254,7 +254,7 @@ kbfunc_client_resize_mb(void *ctx, struct cargs *cargs)
 
 	xu_ptr_set(cc->win, cc->geom.w, cc->geom.h);
 
-	if (XGrabPointer(X_Dpy, cc->win, False, MOUSEMASK,
+	if (XGrabPointer(X_Dpy, sc->rootwin, False, MOUSEMASK,
 	    GrabModeAsync, GrabModeAsync, None, Conf.cursor[CF_RESIZE],
 	    CurrentTime) != GrabSuccess)
 		return;
@@ -270,8 +270,8 @@ kbfunc_client_resize_mb(void *ctx, struct cargs *cargs)
 				continue;
 			ltime = ev.xmotion.time;
 
-			cc->geom.w = ev.xmotion.x;
-			cc->geom.h = ev.xmotion.y;
+			cc->geom.w = ev.xmotion.x - cc->geom.x - cc->bwidth;
+			cc->geom.h = ev.xmotion.y - cc->geom.y - cc->bwidth;
 			client_apply_sizehints(cc);
 			client_resize(cc, 1);
 			screen_prop_win_draw(sc,
