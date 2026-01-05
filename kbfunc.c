@@ -323,6 +323,13 @@ kbfunc_client_snap(void *ctx, struct cargs *cargs)
 			    (cc->bwidth * 2);
 			flags &= ~CWM_DOWN;
 		}
+		if (flags & CWM_CENTER) {
+			cc->geom.x = area.x +
+			    (area.w - cc->geom.w - cc->bwidth) / 2;
+			cc->geom.y = area.y +
+			    (area.h - cc->geom.h - cc->bwidth) / 2;
+			flags &= ~CWM_CENTER;
+		}
 	}
 	client_move(cc);
 	client_ptr_inbound(cc, 1);

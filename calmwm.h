@@ -76,6 +76,7 @@ size_t strlcpy(char *, const char *, size_t);
 #define CWM_LEFT		0x0004
 #define CWM_RIGHT		0x0008
 #define CWM_BIGAMOUNT		0x0010
+#define CWM_CENTER		0x0020
 #define CWM_UP_BIG		(CWM_UP | CWM_BIGAMOUNT)
 #define CWM_DOWN_BIG		(CWM_DOWN | CWM_BIGAMOUNT)
 #define CWM_LEFT_BIG		(CWM_LEFT | CWM_BIGAMOUNT)

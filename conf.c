@@ -102,6 +102,7 @@ static const struct {
 	{ FUNC_CC(window-movetogroup-7, client_movetogroup, 7) },
 	{ FUNC_CC(window-movetogroup-8, client_movetogroup, 8) },
 	{ FUNC_CC(window-movetogroup-9, client_movetogroup, 9) },
+	{ FUNC_CC(window-snap-center, client_snap, (CWM_CENTER)) },
 	{ FUNC_CC(window-snap-up, client_snap, (CWM_UP)) },
 	{ FUNC_CC(window-snap-down, client_snap, (CWM_DOWN)) },
 	{ FUNC_CC(window-snap-right, client_snap, (CWM_RIGHT)) },
