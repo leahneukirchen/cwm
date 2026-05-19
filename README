@@ -148,6 +148,20 @@ Changes made between OpenBSD 7.3 and 7.4:
   the active window, default key binding to M-grave, respectively
   Alt-Tilde, like with other window managers.
 
+2026-05-19: Tenth public release 7.9 of portable cwm.
+
+Changes made between OpenBSD 7.6 and 7.7:
+* Grab the pointer against the root window instead of the client we're
+  attempting to move and/or resize; prevents XNextEvent() from
+  blocking on a client that might have been moved to a Withdrawn
+  state.
+
+Changes made between OpenBSD 7.7 and 7.8:
+* Add cwmrc(5) window-snap-center function.
+
+Changes made between OpenBSD 7.8 and 7.9:
+* Have cwm(1) handle Meta release as a separate mod key.
+
 --Leah Neukirchen <leah@vuxu.org>
 
 [0]: http://cvsweb.openbsd.org/cgi-bin/cvsweb/xenocara/app/cwm/
